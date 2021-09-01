@@ -4,7 +4,7 @@ const serverless = require("serverless-http");
 
 const app = express();
 
-const USERS_TABLE = process.env.USERS_TABLE;
+const USER_INFO_TABLE = process.env.USER_INFO_TABLE;
 const dynamoDbClient = new AWS.DynamoDB.DocumentClient();
 const cognitoIdentity = new AWS.CognitoIdentity
 
@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.get("/users/:userId", async function (req, res) {
   const params = {
-    TableName: USERS_TABLE,
+    TableName: USER_INFO_TABLE,
     Key: {
       userId: req.params.userId,
     },
@@ -43,7 +43,7 @@ app.post("/users", async function (req, res) {
   }
 
   const params = {
-    TableName: USERS_TABLE,
+    TableName: USER_INFO_TABLE,
     Item: {
       userId: userId,
       name: name,

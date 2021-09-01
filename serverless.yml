@@ -5,13 +5,15 @@ service: blckbook-backend
 frameworkVersion: '2'
 
 custom:
-  tableName: 'users-table-${self:provider.stage}'
+  user_info_table_name: 'user-info-${self:provider.stage}'
+  uploaded_artworks_table_name: 'uploaded-artworks-${self:provider.stage}'
+  uploaded_artworks_admin_view_table_name: 'uploaded-artworks-Amdin-View-${self:provider.stage}'
 
 provider:
   name: aws
   runtime: nodejs14.x
   lambdaHashingVersion: '20201221'
-  stage: dev
+  region: 'eu-west-1'
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -22,17 +24,20 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - Fn::GetAtt: [ UsersTable, Arn ]
+        - Fn::GetAtt: [ BlckBookUsers, Arn ]
   environment:
-    USERS_TABLE: ${self:custom.tableName}
+    USER_INFO_TABLE: ${self:custom.user_info_table_name}
+    UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
+    UPLOADED_ARTWORKS_ADMIN_VIEW_TABLE: ${self:custom.uploaded_artworks_admin_view_table_name}
 
 functions:
   initializeUser:
-    handler: lambdas/postConfirmation.handler
+    handler: lambdas/createNewUserObject.handler
     events:
       - cognitoUserPool:
-          pool: BlckBookUsers
+          pool: ${self:provider.stage}-blckbook-users
           trigger: PostConfirmation
+          existing: true
   api:
     handler: lambdas/user.handler
     events:
@@ -45,7 +50,7 @@ resources:
     BlckBookUsers:
       Type: AWS::Cognito::UserPool
       Properties:
-        UserPoolName: ${self:provider.stage}-user-pool
+        UserPoolName: ${self:provider.stage}-blckbook-users
         UsernameAttributes:
           - email
         AutoVerifiedAttributes:
@@ -53,24 +58,50 @@ resources:
     BlckBookUsersClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
-        ClientName: ${self:provider.stage}-user-pool-client
+        ClientName: ${self:provider.stage}-blckbook-users-client
         UserPoolId: 
           Ref: BlckBookUsers
         ExplicitAuthFlows:
           - ALLOW_USER_PASSWORD_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
         GenerateSecret: false
-
-    UsersTable:
+    
+    userInfoTable:
       Type: AWS::DynamoDB::Table
       Properties:
+        BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-        TableName: ${self:custom.tableName}
+        TableName: ${self:custom.user_info_table_name}
+
+    uploadedArtworkTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: artworkId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: artworkId
+            KeyType: HASH
+        TableName: ${self:custom.uploaded_artworks_table_name}
+    
+    uploadedArtworkAdminViewTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: periodId
+            AttributeType: S
+          - AttributeName: uploadDate
+            AttributeType: S
+        KeySchema:
+          - AttributeName: periodId
+            KeyType: HASH
+          - AttributeName: uploadDate
+            KeyType: RANGE
+        TableName: ${self:custom.uploaded_artworks_admin_view_table_name}
