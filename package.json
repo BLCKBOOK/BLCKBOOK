@@ -1,0 +1,10 @@
+{
+  "name": "aws-node-express-dynamodb-api",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "express": "^4.17.1",
+    "serverless-http": "^2.7.0"
+  }
+}
