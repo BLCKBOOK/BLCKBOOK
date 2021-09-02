@@ -14,6 +14,24 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.username = 'Slashermcgurk';
+    if (navigator && navigator.geolocation) {
+      console.log('location');
+      navigator.geolocation.getCurrentPosition(this.successCallback, this.errorCallback);
+    } else {
+      window.alert('no location');
+      console.log('no location');
+    }
+  }
+
+  private successCallback: PositionCallback = position => {
+    console.log(position.coords.latitude);
+    console.log(position.coords.longitude);
+    console.log(position.coords.accuracy);
+    window.alert(position.coords.accuracy);
+  }
+
+  private errorCallback: PositionErrorCallback = positionError => {
+    window.alert(positionError.message);
   }
 
 }
