@@ -21,13 +21,12 @@ import { GalleryComponent } from './components/gallery/gallery.component';
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   return new TranslateHttpLoader(http, 'assets/translations.', '.json');
 }
-
 //AWS Amplify configuration
-//import {AmplifyUIAngularModule} from "@aws-amplify/ui-angular";
-//import Amplify from "aws-amplify";
-//import awsconfig from "../aws-exports";
+import {AmplifyUIAngularModule} from "@aws-amplify/ui-angular";
+import Amplify from "aws-amplify";
+import awsconfig from "../aws-exports";
 //
-//Amplify.configure(awsconfig);
+Amplify.configure(awsconfig);
 
 @NgModule({
   declarations: [
@@ -43,7 +42,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
     AppRoutingModule,
     MatButtonModule,
     MatToolbarModule,
-    //AmplifyUIAngularModule,
+    AmplifyUIAngularModule,
     MatIconModule,
     HttpClientModule,
     TranslateModule.forRoot({
