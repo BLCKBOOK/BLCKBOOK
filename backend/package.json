@@ -6,5 +6,9 @@
     "@types/aws-sdk": "^2.7.0",
     "express": "^4.17.1",
     "serverless-http": "^2.7.0"
+  },
+  "devDependencies": {
+    "aws-amplify-serverless-plugin": "^1.4.1",
+    "serverless": "^2.57.0"
   }
 }

@@ -1,13 +1,19 @@
 org: simonschiebler
-app: blckbook-backend
-service: blckbook-backend
+app: blckbook
+service: backend
 
-frameworkVersion: '2'
+plugins:
+  - aws-amplify-serverless-plugin
 
 custom:
   user_info_table_name: 'user-info-${self:provider.stage}'
   uploaded_artworks_table_name: 'uploaded-artworks-${self:provider.stage}'
   uploaded_artworks_admin_view_table_name: 'uploaded-artworks-Amdin-View-${self:provider.stage}'
+  amplify:
+    - filename: ../frontend/src/aws-exports.ts
+      type: typescript
+      appClient: BlckBookUsersClient
+      s3bucket: disabled
 
 provider:
   name: aws
