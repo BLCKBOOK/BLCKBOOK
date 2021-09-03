@@ -25,6 +25,8 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
 import {AmplifyUIAngularModule} from "@aws-amplify/ui-angular";
 import Amplify from "aws-amplify";
 import awsconfig from "../aws-exports";
+import { LogInComponent } from './components/log-in/log-in.component';
+import {MatDialogModule} from "@angular/material/dialog";
 //
 Amplify.configure(awsconfig);
 
@@ -35,9 +37,11 @@ Amplify.configure(awsconfig);
     BobTextComponent,
     HomeComponent,
     AuctionComponent,
-    GalleryComponent
+    GalleryComponent,
+    LogInComponent,
   ],
   imports: [
+    MatDialogModule,
     BrowserModule,
     AppRoutingModule,
     MatButtonModule,

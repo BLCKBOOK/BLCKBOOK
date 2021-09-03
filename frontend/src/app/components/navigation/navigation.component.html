@@ -11,12 +11,13 @@
       {{"navbar.gallery" | translate}}
     </button>
     <span class="example-spacer"></span>
-    <button mat-button>
+    <button mat-button  *ngIf="(authState$ | async) !== 'signedin'" routerLink="/login">
       {{"navbar.sign-in" | translate}}
     </button>
-    <button mat-button>
+    <button mat-button *ngIf="(authState$ | async) !== 'signedin'" routerLink="/login">
       {{"navbar.sign-up" | translate}}
     </button>
+    <amplify-sign-out *ngIf="(authState$ | async) === 'signedin'"></amplify-sign-out>
   </mat-toolbar>
 </nav>
 <!-- The routed views render in the <router-outlet>-->
