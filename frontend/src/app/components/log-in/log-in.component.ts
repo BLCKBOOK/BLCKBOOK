@@ -2,6 +2,7 @@ import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {AuthState, FormFieldTypes, onAuthUIStateChange} from '@aws-amplify/ui-components';
 import {Observable} from 'rxjs';
 import {UserService} from '../../services/user.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-log-in',
@@ -13,19 +14,19 @@ export class LogInComponent implements OnInit {
   formFields: FormFieldTypes;
   public authState$: Observable<AuthState>;
 
-  constructor(private userService: UserService, private ref: ChangeDetectorRef) {
+  constructor(private userService: UserService, private ref: ChangeDetectorRef, private translateService: TranslateService) {
     this.authState$ = this.userService.getAuthState();
     this.formFields = [
       {
+        type: 'username',
+        required: true,
+      },
+      {
         type: 'email',
-        label: 'Custom Email Label',
-        placeholder: 'Custom email placeholder',
-        inputProps: {required: true, autocomplete: 'username'},
+        inputProps: {required: true, autocomplete: 'email'},
       },
       {
         type: 'password',
-        label: 'Custom Password Label',
-        placeholder: 'Custom password placeholder',
         inputProps: {required: true, autocomplete: 'new-password'},
       },
     ];
