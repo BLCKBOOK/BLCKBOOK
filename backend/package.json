@@ -3,12 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
+    "@marcosantonocito/middy-cognito-permission": "^1.0.1",
+    "@middy/core": "^2.5.1",
+    "@middy/http-error-handler": "^2.5.1",
+    "@middy/http-json-body-parser": "^2.5.1",
+    "@middy/validator": "^2.5.1",
     "@types/aws-sdk": "^2.7.0",
-    "express": "^4.17.1",
-    "serverless-http": "^2.7.0"
+    "aws-sdk": "^2.982.0",
+    "mime-types": "^2.1.32"
   },
   "devDependencies": {
+    "@types/mime-types": "^2.1.1",
     "aws-amplify-serverless-plugin": "^1.4.1",
-    "serverless": "^2.57.0"
+    "serverless": "^2.57.0",
+    "serverless-iam-roles-per-function": "^3.2.0-e97ab49",
+    "serverless-plugin-typescript": "^1.1.7",
+    "typescript": "^4.4.2"
   }
 }
