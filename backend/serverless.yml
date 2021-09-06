@@ -4,11 +4,16 @@ service: backend
 
 plugins:
   - aws-amplify-serverless-plugin
+  - serverless-plugin-typescript
+  - serverless-iam-roles-per-function
 
 custom:
   user_info_table_name: 'user-info-${self:provider.stage}'
   uploaded_artworks_table_name: 'uploaded-artworks-${self:provider.stage}'
   uploaded_artworks_admin_view_table_name: 'uploaded-artworks-Amdin-View-${self:provider.stage}'
+  artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks' 
+  blckbook_user_pool: ${self:provider.stage}-blckbook-users
+  period_table_name: period-table
   amplify:
     - filename: ../frontend/src/aws-exports.ts
       type: typescript
@@ -20,47 +25,98 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: '20201221'
   region: 'eu-west-1'
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        - Fn::GetAtt: [ BlckBookUsers, Arn ]
-  environment:
-    USER_INFO_TABLE: ${self:custom.user_info_table_name}
-    UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
-    UPLOADED_ARTWORKS_ADMIN_VIEW_TABLE: ${self:custom.uploaded_artworks_admin_view_table_name}
+  # iamRoleStatements:
+  # environment:
+    # IMAGE_UPLOAD_S3_BUCKET_NAME: ${self:custom.artwork_upload_s3_bucket_name}
+    # USER_INFO_TABLE: ${self:custom.user_info_table_name}
+    # UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
+    # UPLOADED_ARTWORKS_ADMIN_VIEW_TABLE: ${self:custom.uploaded_artworks_admin_view_table_name}
+    # USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+    # PERIOD_TABLE_NAME: ${self:custom.period_table_name}
 
 functions:
   initializeUser:
-    handler: lambdas/createNewUserObject.handler
+    handler: lambdas/createNewUserInfoObject.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - Fn::GetAtt: [ userInfoTable, Arn ]
     events:
       - cognitoUserPool:
           pool: ${self:provider.stage}-blckbook-users
           trigger: PostConfirmation
           existing: true
-  api:
-    handler: lambdas/user.handler
+    environment:
+      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+  
+  initImageUpload:
+    handler: lambdas/artwork/initImageUpload.handler
+    #iamRoleStatements:
+      #- Effect: Allow
+      #  Action:
+      #    - s3:GetObject
+      #    - s3:PutObject
+      #  Resource:
+      #    - Fn::GetAtt: [ UploadedArtworksBucket, Arn ]
+      #- Effect: Allow
+      #  Action:
+      #    - dynamodb:GetItem
+      #    - dynamodb:PutItem
+      #    - dynamodb:DeleteItem
+      #  Resource:
+      #    - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+      #- Effect: Allow
+      #  Action:
+      #    - dynamodb:GetItem
+      #    - dynamodb:UpdateItem
+      #  Resource:
+      #    - Fn::GetAtt: [ userInfoTable, Arn ]
+      #- Effect: Allow
+      #  Action:
+      #    - dynamodb:GetItem
+      #  Resource:
+      #    - Fn::GetAtt: [ periodTable, Arn ]
+    environment:
+      IMAGE_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
+      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
+      PERIOD_TABLE_NAME: ${self:custom.period_table_name}
     events:
       - http:
-          path: /users
-          method: ANY
+          path: initImageUpload
+          #authorizer: 
+          #  name: BlckBookUsersAuthorizer
+          #  type: COGNITO_USER_POOLS
+          #  arn:
+          #    Fn::GetAtt:
+          #      - CognitoUserPool
+          #      - Arn
+          method: POST
+          cors: true
 
 resources:
   Resources:
     BlckBookUsers:
       Type: AWS::Cognito::UserPool
       Properties:
-        UserPoolName: ${self:provider.stage}-blckbook-users
-        UsernameAttributes:
-          - email
+        UserPoolName: ${self:custom.blckbook_user_pool}
         AutoVerifiedAttributes:
           - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: "verified_email"
+              Priority: 1
+        Schema:
+          - AttributeDataType: "String"
+            Name: "email"
+            Required: true
+            Mutable: false
+
     BlckBookUsersClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
@@ -68,9 +124,37 @@ resources:
         UserPoolId: 
           Ref: BlckBookUsers
         ExplicitAuthFlows:
-          - ALLOW_USER_PASSWORD_AUTH
-          - ALLOW_REFRESH_TOKEN_AUTH
+          - ADMIN_NO_SRP_AUTH
         GenerateSecret: false
+    
+    BlckBookUserPoolGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        UserPoolId: 
+          Ref: BlckBookUsers
+        GroupName: 'User'
+        Description: 'Base role for verified users on BLCKBOOK'
+        Precedence: 1
+    
+    BlckBookAdminPoolGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        UserPoolId: 
+          Ref: BlckBookUsers
+        GroupName: 'Admin'
+        Description: 'Base role for admins on BLCKBOOK'
+        Precedence: 0
+          
+    UploadedArtworksBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.artwork_upload_s3_bucket_name}public-read
+        AccessControl: Private
+        CorsConfiguration:
+            CorsRules:
+            -   AllowedHeaders: ["*"]
+                AllowedMethods: ["PUT"]
+                AllowedOrigins: ["*"]
     
     userInfoTable:
       Type: AWS::DynamoDB::Table
@@ -89,12 +173,28 @@ resources:
       Properties:
         BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions:
-          - AttributeName: artworkId
-            AttributeType: S
+          - AttributeName: uploader
+            AttributeType: "S"
+          - AttributeName: uploadTimestamp
+            AttributeType: "S"
         KeySchema:
-          - AttributeName: artworkId
+          - AttributeName: uploader
             KeyType: HASH
+          - AttributeName: uploadTimestamp
+            KeyType: "RANGE"
         TableName: ${self:custom.uploaded_artworks_table_name}
+    
+    periodTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: periodId
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: periodId
+            KeyType: HASH
+        TableName: ${self:custom.period_table_name}
     
     uploadedArtworkAdminViewTable:
       Type: AWS::DynamoDB::Table

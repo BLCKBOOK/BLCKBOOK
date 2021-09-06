@@ -7,12 +7,12 @@ export interface uploadedartwork {
   PeriodId:number
   artworkId: string //PK 
   imageUrl: string
-  uploader: string 
+  uploader: string
   uploadTimestamp: Date
   geohash: string
   longitude: string
   latitude: string
-  approvedForVoting: true // TODO: https://trello.com/c/x6E66C1h/15-should-the-approved-state-of-artworks-default-to-true
+  approvalState: true // TODO: https://trello.com/c/x6E66C1h/15-should-the-approved-state-of-artworks-default-to-true
   title?: string
   artist?: string
 }
