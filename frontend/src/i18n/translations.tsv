@@ -5,3 +5,7 @@ navbar.gallery	GALLERY
 navbar.sign-in	SIGN IN
 navbar.sign-up	SIGN UP
 home.welcome	WELCOME,
+upload.header	SUBMIT YOUR TAG
+upload.longitude	LONGITUDE
+upload.latitude	LATITUDE
+upload.name	PROPOSED NAME (OPTIONAL)

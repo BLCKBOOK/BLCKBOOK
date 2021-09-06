@@ -23,6 +23,13 @@ import awsconfig from '../aws-exports';
 import {LogInComponent} from './components/log-in/log-in.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {AuthInterceptor} from './services/AuthInterceptor';
+import {WelcomeComponent} from './components/welcome/welcome.component';
+import {AuthGuardService} from './services/auth-guard.service';
+import {ImageUploadComponent} from './components/image-upload/image-upload.component';
+import {VotingComponent} from './components/voting/voting.component';
+import {MatCardModule} from '@angular/material/card';
+import {MatInputModule} from '@angular/material/input';
+import {FlexLayoutModule} from '@angular/flex-layout';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -41,6 +48,9 @@ Amplify.configure(awsconfig);
     AuctionComponent,
     GalleryComponent,
     LogInComponent,
+    WelcomeComponent,
+    ImageUploadComponent,
+    VotingComponent,
   ],
   imports: [
     MatDialogModule,
@@ -51,6 +61,7 @@ Amplify.configure(awsconfig);
     AmplifyUIAngularModule,
     MatIconModule,
     HttpClientModule,
+    FlexLayoutModule,
     TranslateModule.forRoot({
       defaultLanguage: 'en',
       loader: {
@@ -60,9 +71,14 @@ Amplify.configure(awsconfig);
       }
     }),
     BrowserAnimationsModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    MatCardModule,
+    MatInputModule
   ],
-  providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},],
+  providers: [
+    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
+    AuthGuardService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

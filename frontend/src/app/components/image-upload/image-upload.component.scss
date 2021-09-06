@@ -1,0 +1,28 @@
+@import '../../../styles.scss';
+
+.welcome-line {
+  padding-left: 2em;
+  padding-top: 2em;
+}
+
+.upload-button {
+  padding: 2em;
+  width: 100%;
+  height: 15em;
+}
+
+#fileInput {
+  visibility: hidden;
+}
+
+.meta-data-display {
+  color: $light-primary-text;
+}
+
+.meta-input {
+  width: 100%;
+}
+
+.container {
+  margin: 2em;
+}

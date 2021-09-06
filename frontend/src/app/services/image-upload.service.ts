@@ -1,22 +1,27 @@
 import { Injectable } from '@angular/core';
-import {environment} from "../../environments/environment";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient} from '@angular/common/http';
 import {Observable} from "rxjs";
+import awsconfig from '../../aws-exports';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ImageUploadService {
 
-  private readonly imageUploadURL;  // URL to web api
+  private readonly imageUploadURL = awsconfig.aws_appsync_graphqlEndpoint;  // ToDo: fix this!
 
   constructor(private httpClient: HttpClient) {
-    this.imageUploadURL = environment.apiURL + '/personal/users';
   }
 
-  uploadImage(userId: String, image: File): Observable<any> {
+  uploadImage(userId: string, image: File): Observable<any> { // how to authenticate?
     const formData = new FormData();
     formData.append('image', image);
     return this.httpClient.post(this.imageUploadURL + '/picture', formData);
+  }
+
+  isImageUploadValid(userId: string): Observable<boolean> { // how to authenticate?
+    const formData = new FormData();
+    formData.append('userId', userId);
+    return this.httpClient.get<boolean>(this.imageUploadURL + '/allowed', {responseType: 'json'});
   }
 }

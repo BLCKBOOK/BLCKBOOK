@@ -1,3 +1,19 @@
+@import '../../../styles.scss';
+
 .welcome-line {
-  padding: 2em;
+  padding-left: 2em;
+  padding-top: 2em;
+}
+
+.navigate-button {
+  height: 15em;
+  min-height: 220px;
+}
+
+.my-fa-stack {
+  font-size: 5em;
+}
+
+.button-container {
+  margin: 2em;
 }

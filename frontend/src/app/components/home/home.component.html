@@ -1,4 +1,24 @@
 <div class="welcome-line">
   <app-bob-text [text]="('home.welcome' | translate) + ' ' + username"></app-bob-text>
 </div>
-<div></div>
+<div class="button-container" fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em">
+  <button routerLink="/upload" class="navigate-button" mat-raised-button fxFlex="1 1 33%">
+    <p>
+      <span>Some Image Upload Text</span>
+    </p>
+    <fa-stack class="my-fa-stack">
+      <fa-icon [icon]="faImage" stackItemSize="2x"></fa-icon>
+     <!-- <fa-icon [icon]="faUpload" stackItemSize="1x" [inverse]="true"></fa-icon>-->
+    </fa-stack>
+  </button>
+  <button routerLink="/voting" class="navigate-button" mat-raised-button fxFlex="1 1 33%">
+    <p>
+      <span>Some Voting text</span>
+    </p>
+  </button>
+  <button mat-raised-button class="navigate-button" fxFlex="1 1 33%">
+    <p>
+      <span>Some Territory Text (not available)</span>
+    </p>
+  </button>
+</div>

@@ -1,8 +1,8 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, NgZone, OnInit} from '@angular/core';
 import {AuthState, FormFieldTypes, onAuthUIStateChange} from '@aws-amplify/ui-components';
 import {Observable} from 'rxjs';
 import {UserService} from '../../services/user.service';
-import {TranslateService} from '@ngx-translate/core';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-log-in',
@@ -14,7 +14,7 @@ export class LogInComponent implements OnInit {
   formFields: FormFieldTypes;
   public authState$: Observable<AuthState>;
 
-  constructor(private userService: UserService, private ref: ChangeDetectorRef, private translateService: TranslateService) {
+  constructor(private userService: UserService, private ref: ChangeDetectorRef, public router: Router, private ngZone: NgZone) {
     this.authState$ = this.userService.getAuthState();
     this.formFields = [
       {
@@ -33,11 +33,15 @@ export class LogInComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    onAuthUIStateChange((authState, authData) => {
-      this.ref.detectChanges();
-      if (authState === AuthState.SignedIn) {
-        // ToDo: navigate back to home here
-      }
+    this.ngZone.run(() => {
+      onAuthUIStateChange((authState, authData) => {
+        this.ref.detectChanges();
+        if (authState === AuthState.SignedIn) {
+          this.ngZone.run(() => {
+            this.router.navigate(['home']);
+          });
+        }
+      });
     });
   }
 }
