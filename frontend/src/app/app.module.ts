@@ -18,7 +18,7 @@ import {AuctionComponent} from './components/auction/auction.component';
 import {GalleryComponent} from './components/gallery/gallery.component';
 //AWS Amplify configuration
 import {AmplifyUIAngularModule} from '@aws-amplify/ui-angular';
-import Amplify from 'aws-amplify';
+import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
 import {LogInComponent} from './components/log-in/log-in.component';
 import {MatDialogModule} from '@angular/material/dialog';
@@ -45,7 +45,7 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
 }
 
 //
-Amplify.configure(awsconfig);
+Auth.configure(awsconfig);
 
 @NgModule({
   declarations: [
