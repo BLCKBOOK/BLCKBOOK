@@ -19,7 +19,8 @@
     "build:server:prod": "webpack --config webpack.server.config.js --progress --colors",
     "build:server:serverless": "webpack --config webpack.server.config.js --progress --colors",
     "lint": "ng lint",
-    "analyze": "webpack-bundle-analyzer dist/blckbook-ui/stats.json"
+    "analyze": "webpack-bundle-analyzer dist/blckbook-ui/stats.json",
+    "explore": "ng build --prod --source-map && source-map-explorer dist/**/*.js"
   },
   "private": true,
   "dependencies": {
@@ -79,6 +80,7 @@
     "opencollective": "^1.0.3",
     "serverless": "^1.60.0",
     "serverless-apigw-binary": "^0.4.4",
+    "source-map-explorer": "^2.5.2",
     "ts-loader": "^6.2.1",
     "typescript": "~4.3.5",
     "webpack-bundle-analyzer": "^4.4.2",
