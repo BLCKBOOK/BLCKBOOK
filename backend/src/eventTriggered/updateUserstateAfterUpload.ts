@@ -2,7 +2,7 @@ import { DynamoDBClient,GetItemCommand,GetItemCommandOutput } from "@aws-sdk/cli
 
 const client = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
-module.exports.handler = async (event, context) => {
+export const handler =  async (event, context) => {
   console.log("event");
   console.log(JSON.stringify(event));
   console.log("process.env")

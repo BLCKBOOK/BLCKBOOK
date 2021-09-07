@@ -3,16 +3,11 @@ app: blckbook
 service: backend
 
 plugins:
+  #- serverless-plugin-include-dependencies
+  #- serverless-plugin-common-excludes
   - aws-amplify-serverless-plugin
   - serverless-plugin-typescript
   - serverless-iam-roles-per-function
-
-package:
-  individually: true
-  excludeDevDependencies: true
-  patterns:
-    - '!./**'
-
 
 custom:
   user_info_table_name: 'user-info-${self:provider.stage}'
@@ -35,7 +30,7 @@ provider:
 
 functions:
   updateUserstateAfterUpload:
-    handler: src/eventTriggered/updateUserstateAfterUpload.handler
+    handler: "src/eventTriggered/updateUserstateAfterUpload.hanlder"
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -54,7 +49,7 @@ functions:
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
 
   initializeUser:
-    handler: src/eventTriggered/createNewUserInfoObject.handler
+    handler: "src/eventTriggered/createNewUserInfoObject.hanlder"
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -73,11 +68,9 @@ functions:
         Fn::GetAtt:
           - BlckBookUsers
           - Arn
-      
-
-  
+        
   initArtworkUpload:
-    handler: src/rest/artwork/initArtworkUpload.handler
+    handler: "src/rest/artwork/initAtrworkUpload.hanlder"
     iamRoleStatements:
       - Effect: Allow
         Action:

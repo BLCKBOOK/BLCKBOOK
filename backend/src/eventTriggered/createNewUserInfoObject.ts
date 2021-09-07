@@ -3,7 +3,7 @@ import { DynamoDB } from "@aws-sdk/client-dynamodb";
 //var cognitoidentityserviceprovider = new CognitoIdentityServiceProvider({apiVersion: '2016-04-18'});
 const dynamoDB = new DynamoDB({});
 
-module.exports.handler = (event, context) => {
+export default (event, context) => {
   console.log("event");
   console.log(JSON.stringify(event));
   console.log("process.env")
