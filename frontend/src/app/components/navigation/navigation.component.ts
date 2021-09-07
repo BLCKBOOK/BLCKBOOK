@@ -2,7 +2,7 @@ import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {UserService} from '../../services/user.service';
 import {Observable} from 'rxjs';
 import {AuthState} from '@aws-amplify/ui-components';
-import {ActivatedRoute, Router} from '@angular/router';
+import {findIconDefinition, library} from '@fortawesome/fontawesome-svg-core';
 
 @Component({
   selector: 'app-navigation',
@@ -11,6 +11,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 })
 export class NavigationComponent implements OnInit {
 
+  faBars = findIconDefinition({ prefix: 'fas', iconName: 'bars' })
+  faBell = findIconDefinition({ prefix: 'fas', iconName: 'bell' })
   public authState$: Observable<AuthState>;
 
   constructor(private userService: UserService, private ref: ChangeDetectorRef) {

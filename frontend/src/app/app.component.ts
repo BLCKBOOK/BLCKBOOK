@@ -12,8 +12,4 @@ export class AppComponent {
   constructor(translateService: TranslateService) {
     translateService.setDefaultLang('en');
   }
-
-
-  ngOnInit() {
-  }
 }

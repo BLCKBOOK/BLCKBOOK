@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {LoggerService} from '../../services/logger.service';
-import {faImage, faUpload} from '@fortawesome/free-solid-svg-icons';
 import {UserService} from '../../services/user.service';
+import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 
 @Component({
   selector: 'app-home',
@@ -10,8 +10,8 @@ import {UserService} from '../../services/user.service';
 })
 export class HomeComponent implements OnInit {
   username: string;
-  faImage = faImage;
-  faUpload = faUpload;
+  faImage = findIconDefinition({ prefix: 'fas', iconName: 'image' })
+  faUpload = findIconDefinition({ prefix: 'fas', iconName: 'upload' })
 
   constructor(private logger: LoggerService, private userService: UserService) {
     this.username = '';

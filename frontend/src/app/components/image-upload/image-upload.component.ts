@@ -1,8 +1,8 @@
 import {Component} from '@angular/core';
-import {faCamera} from '@fortawesome/free-solid-svg-icons';
 import * as exifr from 'exifr';
 import {ImageUploadService} from '../../services/image-upload.service';
 import {AcceptedMimeTypes, ImageUpload, ImageUploadData} from '../../types/image.type';
+import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -14,9 +14,6 @@ interface HTMLInputEvent extends Event {
   styleUrls: ['./image-upload.component.scss']
 })
 export class ImageUploadComponent {
-
-  faCamera = faCamera;
-
   latitude: number | undefined = undefined;
   longitude: number | undefined = undefined;
 
@@ -24,6 +21,8 @@ export class ImageUploadComponent {
   name = '';
   url: string | ArrayBuffer | null | undefined = '';
   contentType: string | undefined = undefined;
+
+  faCamera = findIconDefinition({ prefix: 'fas', iconName: 'camera' })
 
   constructor(private imageUploadService: ImageUploadService) {
   }

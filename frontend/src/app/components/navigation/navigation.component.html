@@ -1,24 +1,47 @@
 <nav>
   <mat-toolbar>
+    <div fxShow="true" fxHide.gt-xs="true">
+      <button mat-icon-button (click)="sidenav.toggle()">
+        <fa-icon [icon]="faBars"></fa-icon>
+      </button>
+    </div>
     <button mat-button class="nav-item" routerLink="/home">
       <app-bob-text [text]="'navbar.blckbook' | translate">
       </app-bob-text>
     </button>
-    <button mat-button class="nav-item" routerLink="/auction" class="nav-item">
-      {{"navbar.auction" | translate}}
-    </button>
-    <button mat-button class="nav-item" routerLink="/gallery" class="nav-item">
-      {{"navbar.gallery" | translate}}
-    </button>
+    <div fxShow="true" fxHide.lt-sm="true">
+      <button mat-button class="nav-item" routerLink="/auction">
+        {{"navbar.auction" | translate}}
+      </button>
+      <button mat-button class="nav-item" routerLink="/gallery">
+        {{"navbar.gallery" | translate}}
+      </button>
+    </div>
     <span class="example-spacer"></span>
-    <button mat-button  *ngIf="(authState$ | async) !== 'signedin'" routerLink="/login">
+    <button mat-button *ngIf="(authState$ | async) !== 'signedin'; else: profile" routerLink="/login">
       {{"navbar.sign-in" | translate}}
     </button>
-    <button mat-button *ngIf="(authState$ | async) !== 'signedin'" routerLink="/login">
-      {{"navbar.sign-up" | translate}}
-    </button>
-    <amplify-sign-out *ngIf="(authState$ | async) === 'signedin'"></amplify-sign-out>
+    <ng-template #profile>
+      <button mat-icon-button matBadge="1" matBadgeColor="warn" matBadgePosition="after">
+        <fa-icon [icon]="faBell"></fa-icon>
+      </button>
+      <amplify-sign-out></amplify-sign-out>
+    </ng-template>
   </mat-toolbar>
+  <mat-sidenav-container fxFlexFill>
+    <mat-sidenav #sidenav fxLayout="column" [mode]="'push'">
+      <div fxLayout="column">
+        <button mat-button class="nav-item" routerLink="/auction">
+          {{"navbar.auction" | translate}}
+        </button>
+        <button mat-button class="nav-item" routerLink="/gallery">
+          {{"navbar.gallery" | translate}}
+        </button>
+      </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </nav>
-<!-- The routed views render in the <router-outlet>-->
-<router-outlet></router-outlet>
+
