@@ -1,10 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {combineLatest, Observable, throwError, of} from 'rxjs';
-import awsconfig from '../../aws-exports';
+import {Observable, throwError, of, forkJoin} from 'rxjs';
 import {ImageUpload, ImageUploadData, UploadedArtwork} from '../types/image.type';
-import {catchError, map} from 'rxjs/operators';
-import awsmobile from '../../aws-exports';
+import {catchError, mergeMap, switchMap} from 'rxjs/operators';
 import {Router} from '@angular/router';
 
 @Injectable({
@@ -20,48 +18,38 @@ export class ImageUploadService {
   }
 
   uploadImage(imageUpload: ImageUpload): Observable<boolean> {
-    this.uploadImageData(imageUpload.data).subscribe((test) => {
-      console.log(test);
-
-      const imageIndex = test.imageUrl.indexOf('/image');
-      const url = test.imageUrl.slice(imageIndex);
-      console.log(url);
-      const headers = new HttpHeaders().set('Content-Type', test.contentType);
-      headers.delete('Content-Length');
-      console.log(imageUpload.image);
-      //this.httpClient.put(url, imageUpload.image, {headers: headers}).subscribe(value => console.log(value));
-      let blobData = new Blob([imageUpload.image], {type: test.contentType})
-      fetch(url,{method:'PUT',body:blobData})
-    });
-    return of(true);
-/*    return combineLatest([this.uploadActualImage(imageUpload.image), this.uploadImageData(imageUpload.data)])
-      .pipe(map(([actualUpload, imageData]) => {
-        console.log('this is the imageData url: ' + imageData.imageUrl);
-        return true;
-      }), catchError((err, caught) => {
-        return of(false);
-      }));*/
+    return this.uploadImageData(imageUpload.data).pipe(mergeMap(uploadedArtwork => {
+      return forkJoin([of(uploadedArtwork), this.uploadActualImage(imageUpload.image, uploadedArtwork)])
+    }),
+    switchMap(([uploadedArtwork, actualUpload]) => {
+      console.log(uploadedArtwork);
+      return of(false);
+    }));
   }
 
-  isImageUploadValid(userId: string): Observable<boolean> { // how to authenticate?
-    const formData = new FormData();
-    formData.append('userId', userId);
-    return this.httpClient.get<boolean>(this.imageUploadURL + '/allowed', {responseType: 'json'})
-      .pipe(catchError(this.handleError));
-  }
-
-  private uploadActualImage(image: File): Observable<any> {
-    const formData = new FormData();
-    formData.append('image', image);
-    return this.httpClient.post(this.imageUploadURL + '/picture', formData);
+  private uploadActualImage(image: File, upload: UploadedArtwork): Observable<any> {
+    console.log('image upload started');
+    const imageIndex = upload.imageUrl.indexOf('/image');
+    const url = upload.imageUrl.slice(imageIndex);
+    const headers = new HttpHeaders().set('Content-Type', upload.contentType);
+    return this.httpClient.put(url, image, {headers: headers})
+      .pipe(catchError(this.handleUploadActualImageError.bind(this)));
   }
 
   private uploadImageData(data: ImageUploadData): Observable<UploadedArtwork> {
     return this.httpClient.post<UploadedArtwork>(this.imageUploadURL + '/initImageUpload', data)
-      .pipe(catchError(this.handleError));
+      .pipe(catchError(this.handleUploadImageDataError.bind(this)));
   }
 
-  private handleError(error: HttpErrorResponse): Observable<never> {
+  private handleUploadImageDataError(error: HttpErrorResponse): Observable<never> {
+    return this.handleError(error, 'Error during uploadImageData');
+  }
+
+  private handleUploadActualImageError(error: HttpErrorResponse): Observable<never> {
+    return this.handleError(error, 'Error during uploadActualImage');
+  }
+
+  private handleError(error: HttpErrorResponse, errorMessage: string): Observable<never> {
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
       console.error('An error occurred:', error.error);
@@ -73,6 +61,6 @@ export class ImageUploadService {
     }
     // Return an observable with a user-facing error message.
     return throwError(
-      'Something bad happened; please try again later.');
+      errorMessage);
   }
 }
