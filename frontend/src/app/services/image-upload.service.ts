@@ -29,7 +29,9 @@ export class ImageUploadService {
       const headers = new HttpHeaders().set('Content-Type', test.contentType);
       headers.delete('Content-Length');
       console.log(imageUpload.image);
-      this.httpClient.put(url, imageUpload.image, {headers: headers}).subscribe(value => console.log(value));
+      //this.httpClient.put(url, imageUpload.image, {headers: headers}).subscribe(value => console.log(value));
+      let blobData = new Blob([imageUpload.image], {type: test.contentType})
+      fetch(url,{method:'PUT',body:blobData})
     });
     return of(true);
 /*    return combineLatest([this.uploadActualImage(imageUpload.image), this.uploadImageData(imageUpload.data)])
