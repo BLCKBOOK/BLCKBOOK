@@ -7,6 +7,13 @@ plugins:
   - serverless-plugin-typescript
   - serverless-iam-roles-per-function
 
+package:
+  individually: true
+  excludeDevDependencies: true
+  patterns:
+    - '!./**'
+
+
 custom:
   user_info_table_name: 'user-info-${self:provider.stage}'
   uploaded_artworks_table_name: 'uploaded-artworks-${self:provider.stage}'
@@ -25,22 +32,34 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: '20201221'
   region: 'eu-west-1'
-  # iamRoleStatements:
-  # environment:
-    # IMAGE_UPLOAD_S3_BUCKET_NAME: ${self:custom.artwork_upload_s3_bucket_name}
-    # USER_INFO_TABLE: ${self:custom.user_info_table_name}
-    # UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
-    # UPLOADED_ARTWORKS_ADMIN_VIEW_TABLE: ${self:custom.uploaded_artworks_admin_view_table_name}
-    # USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
-    # PERIOD_TABLE_NAME: ${self:custom.period_table_name}
 
 functions:
+  updateUserstateAfterUpload:
+    handler: src/eventTriggered/updateUserstateAfterUpload.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - Fn::GetAtt: [ userInfoTable, Arn ]
+    events:
+      - s3:
+          bucket: ${self:custom.artwork_upload_s3_bucket_name}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: artwork/
+          existing: true
+    environment:
+      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+
   initializeUser:
-    handler: lambdas/createNewUserInfoObject.handler
+    handler: src/eventTriggered/createNewUserInfoObject.handler
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
+          - dynamodb:GetItem
         Resource:
           - Fn::GetAtt: [ userInfoTable, Arn ]
     events:
@@ -50,50 +69,57 @@ functions:
           existing: true
     environment:
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+      USER_POOL_ARN:
+        Fn::GetAtt:
+          - BlckBookUsers
+          - Arn
+      
+
   
-  initImageUpload:
-    handler: lambdas/artwork/initImageUpload.handler
-    #iamRoleStatements:
-      #- Effect: Allow
-      #  Action:
-      #    - s3:GetObject
-      #    - s3:PutObject
-      #  Resource:
-      #    - Fn::GetAtt: [ UploadedArtworksBucket, Arn ]
-      #- Effect: Allow
-      #  Action:
-      #    - dynamodb:GetItem
-      #    - dynamodb:PutItem
-      #    - dynamodb:DeleteItem
-      #  Resource:
-      #    - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-      #- Effect: Allow
-      #  Action:
-      #    - dynamodb:GetItem
-      #    - dynamodb:UpdateItem
-      #  Resource:
-      #    - Fn::GetAtt: [ userInfoTable, Arn ]
-      #- Effect: Allow
-      #  Action:
-      #    - dynamodb:GetItem
-      #  Resource:
-      #    - Fn::GetAtt: [ periodTable, Arn ]
+  initArtworkUpload:
+    handler: src/rest/artwork/initArtworkUpload.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+          - s3:PutObject
+          - s3:PutObjectAcl
+        Resource:
+          - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource:
+          - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - Fn::GetAtt: [ periodTable, Arn ]
     environment:
-      IMAGE_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
+      ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
       UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
       PERIOD_TABLE_NAME: ${self:custom.period_table_name}
     events:
       - http:
-          path: initImageUpload
-          #authorizer: 
-          #  name: BlckBookUsersAuthorizer
-          #  type: COGNITO_USER_POOLS
-          #  arn:
-          #    Fn::GetAtt:
-          #      - CognitoUserPool
-          #      - Arn
-          method: POST
+          path: artwork/initArtworkUpload
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: post
           cors: true
 
 resources:
@@ -125,6 +151,8 @@ resources:
           Ref: BlckBookUsers
         ExplicitAuthFlows:
           - ADMIN_NO_SRP_AUTH
+        SupportedIdentityProviders:
+          - COGNITO
         GenerateSecret: false
     
     BlckBookUserPoolGroup:
@@ -144,16 +172,21 @@ resources:
         GroupName: 'Admin'
         Description: 'Base role for admins on BLCKBOOK'
         Precedence: 0
-          
+
+    BlckBookIdentityPool:
+      Type: AWS::Cognito::IdentityPool
+      Properties:
+        AllowUnauthenticatedIdentities: true
+         
     UploadedArtworksBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:custom.artwork_upload_s3_bucket_name}public-read
+        BucketName: ${self:custom.artwork_upload_s3_bucket_name}
         AccessControl: Private
         CorsConfiguration:
             CorsRules:
             -   AllowedHeaders: ["*"]
-                AllowedMethods: ["PUT"]
+                AllowedMethods: ["GET","PUT"]
                 AllowedOrigins: ["*"]
     
     userInfoTable:
@@ -161,10 +194,10 @@ resources:
       Properties:
         BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: username
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: username
             KeyType: HASH
         TableName: ${self:custom.user_info_table_name}
 
@@ -176,7 +209,7 @@ resources:
           - AttributeName: uploader
             AttributeType: "S"
           - AttributeName: uploadTimestamp
-            AttributeType: "S"
+            AttributeType: "N"
         KeySchema:
           - AttributeName: uploader
             KeyType: HASH

@@ -4,7 +4,7 @@ interface sale{
 }
 
 export interface uploadedartwork {
-  PeriodId:number
+  periodId:number
   artworkId: string //PK 
   imageUrl: string
   uploader: string

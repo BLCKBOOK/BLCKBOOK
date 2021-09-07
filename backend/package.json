@@ -1,15 +1,11 @@
 {
-  "name": "aws-node-express-dynamodb-api",
+  "name": "dynamodb-backend",
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "@marcosantonocito/middy-cognito-permission": "^1.0.1",
-    "@middy/core": "^2.5.1",
-    "@middy/http-error-handler": "^2.5.1",
-    "@middy/http-json-body-parser": "^2.5.1",
-    "@middy/validator": "^2.5.1",
-    "@types/aws-sdk": "^2.7.0",
-    "aws-sdk": "^2.982.0",
+    "@aws-sdk/client-dynamodb": "^3.29.0",
+    "@aws-sdk/client-s3": "^3.29.0",
+    "@aws-sdk/s3-request-presigner": "^3.29.0",
     "mime-types": "^2.1.32"
   },
   "devDependencies": {
