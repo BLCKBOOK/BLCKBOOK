@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {AuthState, CognitoUserInterface, onAuthUIStateChange} from '@aws-amplify/ui-components';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {Auth} from 'aws-amplify';
-import { JwtHelperService } from "@auth0/angular-jwt";
+import Auth from '@aws-amplify/auth';
+import {JwtHelperService} from "@auth0/angular-jwt";
 import {LoggerService} from './logger.service';
 
 @Injectable({

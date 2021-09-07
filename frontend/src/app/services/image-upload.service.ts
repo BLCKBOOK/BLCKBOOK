@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {Observable, throwError, of, forkJoin} from 'rxjs';
-import {ImageUpload, ImageUploadData, UploadedArtwork} from '../types/image.type';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
+import {Observable, of, throwError} from 'rxjs';
+import {ImageUpload, ImageUploadData} from '../types/image.type';
 import {catchError, mergeMap, switchMap} from 'rxjs/operators';
 import {Router} from '@angular/router';
 
@@ -18,26 +18,27 @@ export class ImageUploadService {
   }
 
   uploadImage(imageUpload: ImageUpload): Observable<boolean> {
-    return this.uploadImageData(imageUpload.data).pipe(mergeMap(uploadedArtwork => {
-      return forkJoin([of(uploadedArtwork), this.uploadActualImage(imageUpload.image, uploadedArtwork)])
-    }),
-    switchMap(([uploadedArtwork, actualUpload]) => {
-      console.log(uploadedArtwork);
-      return of(false);
-    }));
+    return this.uploadImageData(imageUpload.data)
+      .pipe(mergeMap(uploadURL => {
+          return this.uploadActualImage(imageUpload.image, uploadURL, imageUpload.data.contentType);
+        }),
+        switchMap(([uploadedArtwork]) => {
+          console.log(uploadedArtwork);
+          return of(false);
+        }));
   }
 
-  private uploadActualImage(image: File, upload: UploadedArtwork): Observable<any> {
+  private uploadActualImage(image: File, uploadURL: string, contentType: string): Observable<any> {
     console.log('image upload started');
-    const imageIndex = upload.imageUrl.indexOf('/image');
-    const url = upload.imageUrl.slice(imageIndex);
-    const headers = new HttpHeaders().set('Content-Type', upload.contentType);
+    const imageIndex = uploadURL.indexOf('/image');
+    const url = uploadURL.slice(imageIndex);
+    const headers = new HttpHeaders().set('Content-Type', contentType);
     return this.httpClient.put(url, image, {headers: headers})
       .pipe(catchError(this.handleUploadActualImageError.bind(this)));
   }
 
-  private uploadImageData(data: ImageUploadData): Observable<UploadedArtwork> {
-    return this.httpClient.post<UploadedArtwork>(this.imageUploadURL + '/initImageUpload', data)
+  private uploadImageData(data: ImageUploadData): Observable<string> {
+    return this.httpClient.post<string>(this.imageUploadURL + '/initImageUpload', data)
       .pipe(catchError(this.handleUploadImageDataError.bind(this)));
   }
 

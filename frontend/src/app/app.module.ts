@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
-
+import { library } from '@fortawesome/fontawesome-svg-core';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
@@ -31,6 +31,13 @@ import {MatCardModule} from '@angular/material/card';
 import {MatInputModule} from '@angular/material/input';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {FormsModule} from '@angular/forms';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatBadgeModule} from '@angular/material/badge';
+import {faUpload} from '@fortawesome/free-solid-svg-icons/faUpload';
+import {faCamera} from '@fortawesome/free-solid-svg-icons/faCamera';
+import {faImage} from '@fortawesome/free-solid-svg-icons/faImage';
+import {faBell} from '@fortawesome/free-solid-svg-icons/faBell';
+import {faBars} from '@fortawesome/free-solid-svg-icons/faBars';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -53,30 +60,32 @@ Amplify.configure(awsconfig);
     ImageUploadComponent,
     VotingComponent,
   ],
-    imports: [
-        MatDialogModule,
-        BrowserModule,
-        AppRoutingModule,
-        MatButtonModule,
-        MatToolbarModule,
-        AmplifyUIAngularModule,
-        MatIconModule,
-        HttpClientModule,
-        FlexLayoutModule,
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient]
-            }
-        }),
-        BrowserAnimationsModule,
-        FontAwesomeModule,
-        MatCardModule,
-        MatInputModule,
-        FormsModule
-    ],
+  imports: [
+    MatDialogModule,
+    BrowserModule,
+    AppRoutingModule,
+    MatButtonModule,
+    MatToolbarModule,
+    AmplifyUIAngularModule,
+    MatIconModule,
+    HttpClientModule,
+    FlexLayoutModule,
+    TranslateModule.forRoot({
+      defaultLanguage: 'en',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    }),
+    BrowserAnimationsModule,
+    FontAwesomeModule,
+    MatCardModule,
+    MatInputModule,
+    FormsModule,
+    MatSidenavModule,
+    MatBadgeModule,
+  ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
     AuthGuardService
@@ -84,4 +93,13 @@ Amplify.configure(awsconfig);
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  constructor() {
+    library.add(
+      faImage,
+      faBars,
+      faBell,
+      faUpload,
+      faCamera,
+    );
+  }
 }
