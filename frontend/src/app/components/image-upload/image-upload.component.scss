@@ -9,6 +9,7 @@
   padding: 2em;
   width: 100%;
   height: 15em;
+  min-height: 220px;
 }
 
 #fileInput {
@@ -25,4 +26,8 @@
 
 .container {
   margin: 2em;
+}
+
+.my-fa-stack {
+  font-size: 5em;
 }

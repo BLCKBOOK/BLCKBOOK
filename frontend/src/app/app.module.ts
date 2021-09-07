@@ -30,6 +30,7 @@ import {VotingComponent} from './components/voting/voting.component';
 import {MatCardModule} from '@angular/material/card';
 import {MatInputModule} from '@angular/material/input';
 import {FlexLayoutModule} from '@angular/flex-layout';
+import {FormsModule} from '@angular/forms';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -52,29 +53,30 @@ Amplify.configure(awsconfig);
     ImageUploadComponent,
     VotingComponent,
   ],
-  imports: [
-    MatDialogModule,
-    BrowserModule,
-    AppRoutingModule,
-    MatButtonModule,
-    MatToolbarModule,
-    AmplifyUIAngularModule,
-    MatIconModule,
-    HttpClientModule,
-    FlexLayoutModule,
-    TranslateModule.forRoot({
-      defaultLanguage: 'en',
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient]
-      }
-    }),
-    BrowserAnimationsModule,
-    FontAwesomeModule,
-    MatCardModule,
-    MatInputModule
-  ],
+    imports: [
+        MatDialogModule,
+        BrowserModule,
+        AppRoutingModule,
+        MatButtonModule,
+        MatToolbarModule,
+        AmplifyUIAngularModule,
+        MatIconModule,
+        HttpClientModule,
+        FlexLayoutModule,
+        TranslateModule.forRoot({
+            defaultLanguage: 'en',
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            }
+        }),
+        BrowserAnimationsModule,
+        FontAwesomeModule,
+        MatCardModule,
+        MatInputModule,
+        FormsModule
+    ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
     AuthGuardService

@@ -3,12 +3,19 @@
 </div>
 <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container">
   <div fxFlex="1 1 50%">
-    <button mat-raised-button class="upload-button" (click)="file.click()">
-      <span> some date info</span>
-      <fa-icon [icon]="faCamera" class="big-icon"></fa-icon>
+    <button *ngIf="!this.image; else noImage" mat-raised-button class="upload-button" (click)="file.click()">
+      <p>
+        <span> some date info</span>
+      </p>
+      <fa-stack class="my-fa-stack">
+        <fa-icon [icon]="faCamera" stackItemSize="2x"></fa-icon>
+      </fa-stack>
     </button>
+    <ng-template #noImage>
+      <img [src]="url" height="200">
+    </ng-template>
     <input
-      type="file" id="fileInput" name="fileInput" accept="image/*" capture="camera" #file
+      type="file" id="fileInput" name="fileInput" accept="image/gif, image/jpeg, image/png" capture="camera" #file
       (change)="imageChanged($event)">
   </div>
   <div class="meta-data-display" fxFlex="1 1 50%">
@@ -27,33 +34,11 @@
     <div>
       <mat-form-field appearance="fill" class="meta-input">
         <mat-label>{{'upload.name' | translate}}</mat-label>
-        <input matInput placeholder="">
+        <input matInput placeholder="" [(ngModel)]="name">
       </mat-form-field>
     </div>
   </div>
 </div>
-
-<div class="container">
-
-  <h2>Normal</h2>
-  <div class="flex-container" fxLayout="row">
-    <div class="child-1">1. One</div>
-    <div class="child-2">2. Two</div>
-    <div class="child-3">3. Three</div>
-  </div>
-
-  <h2>Default</h2>
-  <div class="flex-container" fxLayout="row">
-    <div class="child-1" fxFlex>1. One</div>
-    <div class="child-2" fxFlex>2. Two</div>
-    <div class="child-3" fxFlex>3. Three</div>
-  </div>
-
-  <h2>fxFlex with grow shrink values</h2>
-  <div class="flex-container" fxLayout="row">
-    <div class="child-1" fxFlex="2 1 0">1. One</div>
-    <div class="child-2" fxFlex>2. Two</div>
-    <div class="child-3" fxFlex>3. Three</div>
-  </div>
-
+<div>
+  <button mat-raised-button (click)="submitImage()">Submit</button>
 </div>

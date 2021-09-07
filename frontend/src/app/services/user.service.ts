@@ -39,8 +39,8 @@ export class UserService {
 
   public writeUserTokenToLocalStorage(): void {
     Auth.currentSession().then(res => {
-      const accessToken = res.getAccessToken();
-      localStorage.setItem('token', accessToken.getJwtToken());
+      const idToken = res.getIdToken();
+      localStorage.setItem('token', idToken.getJwtToken());
       this.logger.log('wrote token to localStorage');
     }).catch(() => {
         if (localStorage.getItem('token')) {
