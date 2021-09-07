@@ -3,11 +3,14 @@ app: blckbook
 service: backend
 
 plugins:
-  #- serverless-plugin-include-dependencies
-  #- serverless-plugin-common-excludes
+  - serverless-plugin-common-excludes
   - aws-amplify-serverless-plugin
   - serverless-plugin-typescript
   - serverless-iam-roles-per-function
+  - serverless-plugin-include-dependencies
+
+package:
+  individually: true
 
 custom:
   user_info_table_name: 'user-info-${self:provider.stage}'
@@ -21,6 +24,8 @@ custom:
       type: typescript
       appClient: BlckBookUsersClient
       s3bucket: disabled
+  includeDependencies:
+    enableCaching: true
 
 provider:
   name: aws
@@ -70,7 +75,7 @@ functions:
           - Arn
         
   initArtworkUpload:
-    handler: "src/rest/artwork/initAtrworkUpload.hanlder"
+    handler: "src/rest/artwork/initAtrworkUpload/post.hanlder"
     iamRoleStatements:
       - Effect: Allow
         Action:
