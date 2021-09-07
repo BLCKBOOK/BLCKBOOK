@@ -17,7 +17,8 @@
     "deploy": "serverless deploy",
     "build:server:prod": "webpack --config webpack.server.config.js --progress --colors",
     "build:server:serverless": "webpack --config webpack.server.config.js --progress --colors",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "explore": "ng build --prod --source-map && source-map-explorer dist/**/*.js"
   },
   "private": true,
   "dependencies": {
