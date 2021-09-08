@@ -27,7 +27,6 @@ import {WelcomeComponent} from './components/welcome/welcome.component';
 import {AuthGuardService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
 import {VotingComponent} from './components/voting/voting.component';
-import {MatCardModule} from '@angular/material/card';
 import {MatInputModule} from '@angular/material/input';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {FormsModule} from '@angular/forms';
@@ -38,6 +37,9 @@ import {faCamera} from '@fortawesome/free-solid-svg-icons/faCamera';
 import {faImage} from '@fortawesome/free-solid-svg-icons/faImage';
 import {faBell} from '@fortawesome/free-solid-svg-icons/faBell';
 import {faBars} from '@fortawesome/free-solid-svg-icons/faBars';
+import {faUserCircle} from '@fortawesome/free-solid-svg-icons/faUserCircle';
+import {MatMenuModule} from '@angular/material/menu';
+import { WalletComponent } from './components/wallet/wallet.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -59,6 +61,7 @@ Auth.configure(awsconfig);
     WelcomeComponent,
     ImageUploadComponent,
     VotingComponent,
+    WalletComponent,
   ],
   imports: [
     MatDialogModule,
@@ -80,11 +83,11 @@ Auth.configure(awsconfig);
     }),
     BrowserAnimationsModule,
     FontAwesomeModule,
-    MatCardModule,
     MatInputModule,
     FormsModule,
     MatSidenavModule,
     MatBadgeModule,
+    MatMenuModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
@@ -100,6 +103,7 @@ export class AppModule {
       faBell,
       faUpload,
       faCamera,
+      faUserCircle,
     );
   }
 }

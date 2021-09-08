@@ -11,8 +11,9 @@ import {findIconDefinition, library} from '@fortawesome/fontawesome-svg-core';
 })
 export class NavigationComponent implements OnInit {
 
-  faBars = findIconDefinition({ prefix: 'fas', iconName: 'bars' })
-  faBell = findIconDefinition({ prefix: 'fas', iconName: 'bell' })
+  faBars = findIconDefinition({ prefix: 'fas', iconName: 'bars' });
+  faBell = findIconDefinition({ prefix: 'fas', iconName: 'bell' });
+  faUserCircle = findIconDefinition({prefix: 'fas', iconName: 'user-circle'});
   public authState$: Observable<AuthState>;
 
   constructor(private userService: UserService, private ref: ChangeDetectorRef) {

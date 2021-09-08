@@ -1,6 +1,6 @@
 {
   "/dev": {
-    "target": "https://1uzshlce79.execute-api.eu-west-1.amazonaws.com",
+    "target": "https://i3qzfa5vh2.execute-api.eu-west-1.amazonaws.com",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"

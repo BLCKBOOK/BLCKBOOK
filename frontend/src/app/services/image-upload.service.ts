@@ -12,7 +12,7 @@ export class ImageUploadService {
 
   private readonly url = 'api/';
   // @ts-ignore
-  private readonly imageUploadURL = '/dev';  // ToDo: fix this!
+  private readonly imageUploadURL = '/dev/artwork';  // ToDo: fix this!
 
   constructor(private httpClient: HttpClient, private router: Router) {
   }
@@ -38,7 +38,7 @@ export class ImageUploadService {
   }
 
   private uploadImageData(data: ImageUploadData): Observable<string> {
-    return this.httpClient.post<string>(this.imageUploadURL + '/initImageUpload', data)
+    return this.httpClient.post<string>(this.imageUploadURL + '/initArtworkUpload', data)
       .pipe(catchError(this.handleUploadImageDataError.bind(this)));
   }
 
