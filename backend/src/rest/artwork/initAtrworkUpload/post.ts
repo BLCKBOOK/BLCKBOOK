@@ -2,8 +2,11 @@ import { v4 as uuid } from "uuid";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
 import { extension } from "mime-types";
+import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { userInfo } from "../../../artwork.interface"
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] });
+const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
 var supportedMimeTypes = {
   'image/gif': true,
@@ -11,16 +14,42 @@ var supportedMimeTypes = {
   'image/png': true,
 };
 
-export const handler =  async (event, context) => {
-  if (!supportedMimeTypes[event.body.contentType])
+module.exports.handler =  async (event, context) => {
+  console.log("event");
+  console.log(JSON.stringify(event));
+  console.log("process.env")
+  console.log(process.env)
+  console.log("context")
+  console.log(context)
+
+  const body = JSON.parse(event.body)
+
+  if (!supportedMimeTypes[body.contentType])
     throw new Error("Content Type not supported. Only JPG, PNG and GIF are supported");
   if (!process.env["ARTWORK_UPLOAD_S3_BUCKET_NAME"])
     throw new Error("Bucket was not specified in the environment Variables");
-
+    
   const artworkId = uuid();
   const userInfo = event.requestContext.authorizer.claims;
-  const contentType = event.body.contentType
-  Object.assign(event.body, {
+  const contentType = body.contentType
+  
+  const getItemCommand = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { username: { S: userInfo['cognito:username'] } } ,ConsistentRead:true});
+  
+  // check if user is eligible
+  let user:userInfo
+  const item = await (await DDBclient.send(getItemCommand)).Item;
+  user = {
+    email: item.email.S,
+    username: item.username.S,
+    userId: item.userId.S,
+    uploadsDuringThisPeriod: Number(item.uploadsDuringThisPeriod.N)
+  }
+  console.log(user);
+  if(user.uploadsDuringThisPeriod >= Number(process.env['MAX_UPLOADS_PER_PERIOD']))
+    return {statusCode:503, body:"Upload not allowed. Max uploads reached"};
+  
+  // generate signed upload url
+  Object.assign(body, {
     periodId: "current",
     artworkId: artworkId,
     uploader: userInfo['cognito:username'],
@@ -29,14 +58,19 @@ export const handler =  async (event, context) => {
     approvalState: 'unchecked'
   });
 
-  const getObjectParams: PutObjectCommandInput = {
+  const putObjectParams: PutObjectCommandInput = {
     Key: `artwork/${userInfo['cognito:username']}/artworkId.${extension(contentType)}`,
     Bucket: process.env["ARTWORK_UPLOAD_S3_BUCKET_NAME"],
     ACL: 'public-read',
     //@ts-ignore next line
-    Metadata: event.body
+    Metadata: body
   };
 
-  const command = new PutObjectCommand(getObjectParams);
-  const url = await getSignedUrl(s3Client, command, { expiresIn: 300 });
+  console.log(putObjectParams)
+
+  const command = new PutObjectCommand(putObjectParams);
+  let url =  (await getSignedUrl(s3Client, command, { expiresIn: 300 }));
+  console.log(url)
+
+  return {statusCode:200, body:url};
 }

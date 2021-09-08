@@ -19,6 +19,7 @@ custom:
   artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks' 
   blckbook_user_pool: ${self:provider.stage}-blckbook-users
   period_table_name: period-table
+  max_uploads_per_period: 1
   amplify:
     - filename: ../frontend/src/aws-exports.ts
       type: typescript
@@ -35,12 +36,12 @@ provider:
 
 functions:
   updateUserstateAfterUpload:
-    handler: "src/eventTriggered/updateUserstateAfterUpload.hanlder"
+    handler: "src/eventTriggered/updateUserstateAfterUpload.handler"
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-          - dynamodb:UpdateItem
+          - dynamodb:PutItem
         Resource:
           - Fn::GetAtt: [ userInfoTable, Arn ]
     events:
@@ -52,9 +53,10 @@ functions:
           existing: true
     environment:
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+      MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
 
   initializeUser:
-    handler: "src/eventTriggered/createNewUserInfoObject.hanlder"
+    handler: "src/eventTriggered/createNewUserInfoObject.handler"
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -75,7 +77,7 @@ functions:
           - Arn
         
   initArtworkUpload:
-    handler: "src/rest/artwork/initAtrworkUpload/post.hanlder"
+    handler: "src/rest/artwork/initAtrworkUpload/post.handler"
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -107,6 +109,7 @@ functions:
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
       UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
       PERIOD_TABLE_NAME: ${self:custom.period_table_name}
+      MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
     events:
       - http:
           path: artwork/initArtworkUpload

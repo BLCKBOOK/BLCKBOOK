@@ -1,4 +1,11 @@
-interface sale{
+export interface userInfo {
+  uploadsDuringThisPeriod: number,
+  username: string,
+  email: string,
+  userId: string
+}
+
+export interface sale{
   buyer: String //  either walletid or blckbook username
   seller: string // either walletid or blckbook username
 }

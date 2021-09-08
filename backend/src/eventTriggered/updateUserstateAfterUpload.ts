@@ -1,8 +1,9 @@
-import { DynamoDBClient,GetItemCommand,GetItemCommandOutput } from "@aws-sdk/client-dynamodb";
+import { DynamoDB,GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { userInfo } from "../artwork.interface";
 
-const client = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const client = new DynamoDB({ region: process.env['AWS_REGION'] });
 
-export const handler =  async (event, context) => {
+module.exports.handler =  async (event, context) => {
   console.log("event");
   console.log(JSON.stringify(event));
   console.log("process.env")
@@ -12,36 +13,23 @@ export const handler =  async (event, context) => {
 
   for (let index = 0; index < event.Records.length; index++) {
     const record = event.Records[index];
-    const username = record.s3.object.key.slice('/')[1]
+    const username = record.s3.object.key.split('/')[1]
 
-    const command = new GetItemCommand({ TableName: '', Key: { username: { S: username } } });
+    const getItemCommand = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { username: { S: username } }, ConsistentRead:true});
+    const Item = await (await client.send(getItemCommand)).Item;
+    console.log(Item);
+    Item.uploadsDuringThisPeriod.N = String(Number(Item.uploadsDuringThisPeriod.N)+1)
+    console.log(Item);
     
-    let results:GetItemCommandOutput
-    try {
-      results = await client.send(command);
-      console.log(results);
-    } catch (err) {
-      console.error(err);
-    }
+    const updateItemCommand = new PutItemCommand({ 
+      TableName: process.env['USER_INFO_TABLE_NAME'], 
+      Item: Item
+    });
+
+    console.log(updateItemCommand)
+    console.log(await client.send(updateItemCommand))
     
+    // const imageUrl= `https://${record.s3.bucket.name}.s3.${record.awsRegion}.amazonaws.com/${record.s3.object.key}`
+    // TODO update image data in dynamoDb
   }
-  //TODO file verification (maybe) ??
-
-
-  // const s3: {
-  //   "s3SchemaVersion": "1.0",
-  //   "configurationId": "backend-dev-updateUserstateAfterUpload-dc411397dd264316d2cf401e26dfdba4",
-  //   "bucket": {
-  //       "name": "blckbook-uploaded-artworks",
-  //       "ownerIdentity": {
-  //           "principalId": "A1PVYRCK2BM0NO"
-  //       },
-  //       "arn": "arn:aws:s3:::blckbook-uploaded-artworks"
-  //   },
-  //   "object": {
-  //       "key": "artwork/simon/140bfe24-0f72-4d94-b2b7-09b1aad31e14.png",
-  //       "size": 4155786,
-  //       "eTag": "52ebde5526da149adb3e8378386d5dae",
-  //       "sequencer": "0061379C50140D9BE6"
-  //   }
 }
