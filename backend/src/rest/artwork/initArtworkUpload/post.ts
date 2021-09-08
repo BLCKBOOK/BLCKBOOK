@@ -3,7 +3,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
 import { extension } from "mime-types";
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { userInfo } from "../../../artwork.interface"
+import { userInfo } from "../../../common/tableDefinitions"
 import { validate } from "jsonschema";
 import { initArtworkUploadSchema } from "./apiSchema";
 
