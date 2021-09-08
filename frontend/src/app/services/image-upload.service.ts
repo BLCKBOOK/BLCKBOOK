@@ -1,29 +1,28 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import {Observable, of, throwError} from 'rxjs';
+import {forkJoin, Observable, of, throwError} from 'rxjs';
 import {ImageUpload, ImageUploadData} from '../types/image.type';
-import {catchError, mergeMap, switchMap} from 'rxjs/operators';
-import {Router} from '@angular/router';
+import {catchError, map, mergeMap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ImageUploadService {
 
-  private readonly url = 'api/';
   private readonly imageUploadURL = '/dev/artwork';
 
-  constructor(private httpClient: HttpClient, private router: Router) {
+  constructor(private httpClient: HttpClient) {
   }
 
-  uploadImage(imageUpload: ImageUpload): Observable<boolean> {
+  uploadImage(imageUpload: ImageUpload): Observable<string> {
     return this.uploadImageData(imageUpload.data)
       .pipe(mergeMap(uploadURL => {
-          return this.uploadActualImage(imageUpload.image, uploadURL, imageUpload.data.contentType);
+          return forkJoin([of (uploadURL), this.uploadActualImage(imageUpload.image, uploadURL, imageUpload.data.contentType)]);
         }),
-        switchMap(() => {
-          return of(true);
-        }));
+        map(([url]) => {
+          return url;
+        })
+    );
   }
 
   private uploadActualImage(image: File, uploadURL: string, contentType: string): Observable<Object> {

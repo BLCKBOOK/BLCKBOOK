@@ -71,9 +71,10 @@ export class ImageUploadComponent {
           contentType: this.contentType,
         } as ImageUploadData
       } as ImageUpload;
-      this.imageUploadService.uploadImage(image).subscribe((result) => {
-        if (result) {
-          console.log('upload succeeded!');
+      this.imageUploadService.uploadImage(image).subscribe((requestURL) => {
+        if (requestURL) {
+          const imageIndex = requestURL.indexOf('?');
+          this.url = requestURL.slice(0, imageIndex);
         } else {
           window.alert('upload failed for some reason');
         }
