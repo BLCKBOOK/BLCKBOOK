@@ -5,27 +5,28 @@ export interface userInfo {
   userId: string
 }
 
-export interface sale{
+interface sale{
   buyer: String //  either walletid or blckbook username
   seller: string // either walletid or blckbook username
 }
 
 export interface uploadedartwork {
-  periodId:number
-  artworkId: string //PK 
+  periodId:string
+  artworkId: string
   imageUrl: string
   uploader: string
   uploadTimestamp: Date
-  geohash: string
+  // geohash: string
   longitude: string
   latitude: string
-  approvalState: true // TODO: https://trello.com/c/x6E66C1h/15-should-the-approved-state-of-artworks-default-to-true
+  approvalState: 'unchecked'|'approved'|'rejected',
   title?: string
   artist?: string
+  contentType: string
 }
 
 // Global index of uploadedartwork
-export interface uploadedArtworkAdminView {
+interface uploadedArtworkAdminView {
   PeriodId:number //pk
   artworkId: string 
   imageUrl: string
@@ -39,7 +40,7 @@ export interface uploadedArtworkAdminView {
   artist?: string
 }
 
-export interface votableArtworks {
+interface votableArtworks {
   artworkId: string // PK
   imageUrl: string
   uploader: string
@@ -55,7 +56,7 @@ export interface votableArtworks {
 }
 
 
-export interface usersSrtworkView {
+interface usersSrtworkView {
   artworkId: string
   imageUrl: string
   uploader: string // PK
@@ -68,7 +69,7 @@ export interface usersSrtworkView {
   artist?: string
 }
 
-export interface stagedForMinting {
+interface stagedForMinting {
   artworkId: string
   imageUrl: string
   uploader: string
@@ -89,7 +90,7 @@ export interface stagedForMinting {
   }
 }
 
-export interface stagedForMinting {
+interface stagedForMinting {
   artworkId: string
   imageUrl: string
   uploader: string
@@ -110,7 +111,7 @@ export interface stagedForMinting {
   }
 }
 
-export interface mintedArtworks {
+interface mintedArtworks {
   artworkId: string
   imageUrl: string
   uploader: string

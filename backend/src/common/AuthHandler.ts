@@ -9,8 +9,6 @@ export class AuthHandler {
       throw new Error("allowedGropus have to be an array of allowed strings");
     if (!options.allowedGropus[0])
       throw new Error("allowedGropus must contain at least one group");
-    if (!options.allowedGropus.reduce((acc: any, curr: any) => acc && ((typeof curr) === 'string')))
-      throw new Error("groups in allowedGropus must all be of type String");
     this.options = options;
   }
 

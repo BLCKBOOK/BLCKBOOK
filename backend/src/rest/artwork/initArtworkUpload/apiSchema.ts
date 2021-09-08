@@ -21,9 +21,12 @@ export const initArtworkUploadSchema = {
       "latitude"
     ]
   }
-  export interface initArtworkUpload {
+  
+  export interface initArtworkUploadRequest {
     title?: string,
     contentType: string,
     longitude: string,
     latitude: string
   }
+
+  export type initArtworkUploadResponse = String
