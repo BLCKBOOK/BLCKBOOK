@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {BeaconService} from '../../services/beacon.service';
+import {BeaconService} from '../services/beacon.service';
 
 @Component({
   selector: 'app-wallet',
@@ -7,7 +7,6 @@ import {BeaconService} from '../../services/beacon.service';
   styleUrls: ['./wallet.component.scss']
 })
 export class WalletComponent {
-
 
   constructor(private beaconService: BeaconService) { }
 

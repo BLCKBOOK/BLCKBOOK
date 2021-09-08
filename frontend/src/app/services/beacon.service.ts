@@ -16,6 +16,7 @@ export class BeaconService {
     let myAddress: string | undefined;
     // Check if we are connected. If not, do a permission request first.
     const activeAccount = await this.dAppClient.getActiveAccount();
+    console.log(this.dAppClient.connectionStatus);
     if (!activeAccount) {
       const permissions = await this.dAppClient.requestPermissions();
       console.log('New connection:', permissions.address);
