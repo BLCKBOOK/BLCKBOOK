@@ -4,6 +4,8 @@ import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/clie
 import { extension } from "mime-types";
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { userInfo } from "../../../artwork.interface"
+import { validate } from "jsonschema";
+import { initArtworkUploadSchema } from "./apiSchema";
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] });
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
@@ -21,14 +23,16 @@ module.exports.handler =  async (event, context) => {
   console.log(process.env)
   console.log("context")
   console.log(context)
-
+  
   const body = JSON.parse(event.body)
 
   if (!supportedMimeTypes[body.contentType])
     throw new Error("Content Type not supported. Only JPG, PNG and GIF are supported");
   if (!process.env["ARTWORK_UPLOAD_S3_BUCKET_NAME"])
     throw new Error("Bucket was not specified in the environment Variables");
-    
+  
+  validate(event.body,initArtworkUploadSchema);
+  
   const artworkId = uuid();
   const userInfo = event.requestContext.authorizer.claims;
   const contentType = body.contentType
@@ -38,6 +42,9 @@ module.exports.handler =  async (event, context) => {
   // check if user is eligible
   let user:userInfo
   const item = await (await DDBclient.send(getItemCommand)).Item;
+  if (item.username.S === undefined)
+    return {} //TODO return error 
+    
   user = {
     email: item.email.S,
     username: item.username.S,
@@ -59,7 +66,7 @@ module.exports.handler =  async (event, context) => {
   });
 
   const putObjectParams: PutObjectCommandInput = {
-    Key: `artwork/${userInfo['cognito:username']}/artworkId.${extension(contentType)}`,
+    Key: `artwork/${userInfo['cognito:username']}/${artworkId}.${extension(contentType)}`,
     Bucket: process.env["ARTWORK_UPLOAD_S3_BUCKET_NAME"],
     ACL: 'public-read',
     //@ts-ignore next line
@@ -72,5 +79,5 @@ module.exports.handler =  async (event, context) => {
   let url =  (await getSignedUrl(s3Client, command, { expiresIn: 300 }));
   console.log(url)
 
-  return {statusCode:200, body:url};
+  return {statusCode:200,headers: {"content-type": "text/plain"}, body:url};
 }
