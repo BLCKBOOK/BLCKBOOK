@@ -30,7 +30,7 @@
       </button>
       <mat-menu #profileMenu="matMenu">
         <button mat-menu-item routerLink="/wallet">{{'navbar.wallet' | translate}}</button >
-        <amplify-sign-out></amplify-sign-out>
+        <button mat-menu-item (click)="logOut()">{{'navbar.logout' | translate}}</button >
       </mat-menu>
 
     </ng-template>

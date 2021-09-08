@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {AuthState, CognitoUserInterface, onAuthUIStateChange} from '@aws-amplify/ui-components';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, from, Observable} from 'rxjs';
 import Auth from '@aws-amplify/auth';
-import {JwtHelperService} from "@auth0/angular-jwt";
+import {JwtHelperService} from '@auth0/angular-jwt';
 import {LoggerService} from './logger.service';
 
 @Injectable({
@@ -61,5 +61,9 @@ export class UserService {
 
   public getUserName(): string | undefined {
     return this.user.getValue()?.username;
+  }
+
+  public logOut(): Observable<any> {
+    return from(Auth.signOut({global: true}));
   }
 }
