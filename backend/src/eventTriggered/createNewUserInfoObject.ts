@@ -2,6 +2,7 @@ import { DynamoDB } from "@aws-sdk/client-dynamodb";
 
 //var cognitoidentityserviceprovider = new CognitoIdentityServiceProvider({apiVersion: '2016-04-18'});
 const dynamoDB = new DynamoDB({});
+import { userCreated } from "../common/responses";
 
 module.exports.handler = async (event, context) => {
   console.log("event");
@@ -44,7 +45,7 @@ module.exports.handler = async (event, context) => {
   };
 
   // create user info entry in Dynamodb
-  dynamoDB.putItem(item, function (err, data) {
+  const newItem = await dynamoDB.putItem(item, function (err, data) {
     if (err) {
       console.log("Error", err);
       context.done(null, event);
@@ -53,6 +54,7 @@ module.exports.handler = async (event, context) => {
       context.done(null, event);
     }
   })
+  console.log(newItem)
 
   // add user to 'users Group'
   //TODO implement this
@@ -70,5 +72,6 @@ module.exports.handler = async (event, context) => {
   //  else     console.log("Success");
   //});
 
+  return userCreated(username)
 
 }
