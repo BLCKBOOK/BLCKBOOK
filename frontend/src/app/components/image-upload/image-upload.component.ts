@@ -73,6 +73,7 @@ export class ImageUploadComponent {
       } as ImageUpload;
       this.imageUploadService.uploadImage(image).subscribe((result) => {
         if (result) {
+          console.log('upload succeeded!');
         } else {
           window.alert('upload failed for some reason');
         }

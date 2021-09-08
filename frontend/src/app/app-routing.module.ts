@@ -7,6 +7,7 @@ import {LogInComponent} from './components/log-in/log-in.component';
 import {AuthGuardService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
 import {VotingComponent} from './components/voting/voting.component';
+import {WalletComponent} from './components/wallet/wallet.component';
 
 const routes: Routes = [
   {path: 'home', component: HomeComponent, canActivate: [AuthGuardService]},
@@ -14,7 +15,8 @@ const routes: Routes = [
   {path: 'gallery', component: GalleryComponent},
   {path: 'login', component: LogInComponent},
   {path: 'upload', component: ImageUploadComponent, canActivate: [AuthGuardService]},
-  {path: 'voting', component: VotingComponent, canActivate: [AuthGuardService]}
+  {path: 'voting', component: VotingComponent, canActivate: [AuthGuardService]},
+  {path: 'wallet', component: WalletComponent, canActivate: [AuthGuardService]}
 ];
 
 @NgModule({

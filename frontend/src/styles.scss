@@ -1,29 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 
-/*$blckbook-navbar: #121212;
-$blckbook-background: #000000;
-$blckbook-content: #212121;
-$blckbook-raised: #303030;
-$blckbook-raised-higher: #424242;
-$blckbook-primary-text: rgba(255, 255, 255, 1);
-$blckbook-secondary-text: rgba(255, 255, 255, .7);
-$blckbook-disabled-text: rgba(255, 255, 255, .5);
-$blckbook-dividers: rgba(255, 255, 255, .12);
-$blckbook-accent-text: #000000;
-$blckbook-error: #CF6679;
-$blckbook-accent: #10F3F1;
-$blckbook-accent-dark: #00c0be;
-$blckbook-accent-light: #71FFFF;
-*/
-
 @use '~@angular/material' as mat;
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
-
-// Fonts
-@import 'https://fonts.googleapis.com/css?family=Material+Icons';
-/*@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');*/
 
 @font-face {
   font-family: "GT Walsheim";
@@ -119,21 +99,17 @@ $mat-dark-theme-background: (
 // Compute font config
 @include mat.core($fontConfig);
 
-// Theme Config
+$primary-color: #10f3f1;
+$primary-lighter-color: #b7fbfb;
+$primary-darker-color: #09edeb;
 
-body {
-  --primary-color: #10f3f1;
-  --primary-lighter-color: #b7fbfb;
-  --primary-darker-color: #09edeb;
-  --text-primary-color: #{$light-primary-text};
-  --text-primary-lighter-color: #{$light-primary-text};
-  --text-primary-darker-color: #{$light-primary-text};
-}
+
+// Theme Config
 $mat-primary: (
-  main: #10f3f1,
-  lighter: #b7fbfb,
-  darker: #09edeb,
-  200: #10f3f1, // For slide toggle,
+  main: $primary-color,
+  lighter: $primary-lighter-color,
+  darker: $primary-darker-color,
+  200: $primary-color, // For slide toggle,
   contrast : (
     main: $light-primary-text,
     lighter: $light-primary-text,
@@ -142,14 +118,6 @@ $mat-primary: (
 );
 $theme-primary: mat.define-palette($mat-primary, main, lighter, darker);
 
-body {
-  --accent-color: #797979;
-  --accent-lighter-color: #d7d7d7;
-  --accent-darker-color: #5c5c5c;
-  --text-accent-color: #{$light-primary-text};
-  --text-accent-lighter-color: #{$light-primary-text};
-  --text-accent-darker-color: #{$light-primary-text};
-}
 $mat-accent: (
   main: #797979,
   lighter: #d7d7d7,
@@ -163,14 +131,6 @@ $mat-accent: (
 );
 $theme-accent: mat.define-palette($mat-accent, main, lighter, darker);
 
-body {
-  --warn-color: #ff0000;
-  --warn-lighter-color: #ffb3b3;
-  --warn-darker-color: #ff0000;
-  --text-warn-color: #{$light-primary-text};
-  --text-warn-lighter-color: #{$dark-primary-text};
-  --text-warn-darker-color: #{$light-primary-text};
-}
 $mat-warn: (
   main: #ff0000,
   lighter: #ffb3b3,
@@ -219,6 +179,49 @@ $theme: (
   }
 }
 
+body {
+  --accent-color: #797979;
+  --accent-lighter-color: #d7d7d7;
+  --accent-darker-color: #5c5c5c;
+  --text-accent-color: #{$light-primary-text};
+  --text-accent-lighter-color: #{$light-primary-text};
+  --text-accent-darker-color: #{$light-primary-text};
+
+  --primary-color: #{$primary-color};
+  --primary-lighter-color: #{$primary-lighter-color};
+  --primary-darker-color: #{$primary-darker-color};
+  --text-primary-color: #{$light-primary-text};
+  --text-primary-lighter-color: #{$light-primary-text};
+  --text-primary-darker-color: #{$light-primary-text};
+
+  --warn-color: #ff0000;
+  --warn-lighter-color: #ffb3b3;
+  --warn-darker-color: #ff0000;
+  --text-warn-color: #{$light-primary-text};
+  --text-warn-lighter-color: #{$dark-primary-text};
+  --text-warn-darker-color: #{$light-primary-text};
+}
+
+:root {
+  --amplify-primary-color: #{$dark-text};
+  --amplify-primary-tint: #{$dark-text};
+  --amplify-primary-shade: #{$dark-text};
+  --amplify-primary-contrast: #{$light-primary-text};
+  --amplify-secondary-color: #{$primary-color};
+  --amplify-secondary-contrast: #{$dark-bg-lighter-20};
+  --amplify-secondary-tint: #{$primary-color};
+  --amplify-secondary-shade: #{$primary-color};
+  --amplify-tertiary-color: #{$dark-bg-lighter-20};
+  --amplify-tertiary-contrast: #{$light-primary-text};
+  --amplify-tertiary-tint: #{$dark-bg-lighter-20};
+  --amplify-tertiary-shade: #{$dark-bg-lighter-20};
+  --amplify-grey: #{$light-disabled-text};
+  --amplify-light-grey: #{$dark-bg-lighter-10};
+  --amplify-white: #{$light-primary-text};
+  --amplify-red: #{$dark-text};
+  --amplify-background-color: #{$dark-bg-lighter-20};
+  --amplify-font-family: "GT Walsheim";
+}
 
 html, body {
   margin: 0;
@@ -227,4 +230,16 @@ html, body {
 
 .big-icon {
   font-size: 5em;
+}
+
+amplify-input {
+  --color: #{$dark-text};
+}
+
+input:-webkit-autofill {
+  background-color: #212121 !important;
+}
+
+::ng-deep .mat-simple-snackbar-action {
+  color: #{$primary-color};
 }

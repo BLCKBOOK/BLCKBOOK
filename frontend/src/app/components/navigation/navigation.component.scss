@@ -1,5 +1,5 @@
 .nav-item {
-  padding-right: 1em;
+  margin-right: 1em;
   align-self: center;
 }
 
@@ -7,10 +7,25 @@
   flex: 1 1 auto;
 }
 
- mat-toolbar {
-   position: sticky;
-   position: -webkit-sticky; /* For macOS/iOS Safari */
-   top: 0;
-   z-index: 1000; /* Ensure that your app's content doesn't overlap the toolbar */
- }
+mat-toolbar {
+  position: sticky;
+  position: -webkit-sticky; /* For macOS/iOS Safari */
+  top: 0;
+  z-index: 1000; /* Ensure that your app's content doesn't overlap the toolbar */
+  height: 56px;
+}
 
+mat-sidenav {
+  position: fixed;
+  top: 56px;
+  z-index: 900; /* Ensure that your app's content doesn't overlap the toolbar */
+}
+
+::ng-deep .mat-badge-content {
+  right: -2px !important;
+  top: -2px !important;
+}
+
+amplify-button > .button {
+  text-align: end !important;
+}
