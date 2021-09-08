@@ -83,7 +83,7 @@ functions:
           - Arn
         
   initArtworkUpload:
-    handler: "src/rest/artwork/postInitArtworkUpload.handler"
+    handler: "src/rest/artwork/InitArtworkUpload/post.handler"
     iamRoleStatements:
       - Effect: Allow
         Action:
