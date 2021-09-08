@@ -1,8 +1,8 @@
 import {ChangeDetectorRef, Component, NgZone, OnInit} from '@angular/core';
 import {AuthState, FormFieldTypes, onAuthUIStateChange} from '@aws-amplify/ui-components';
 import {Observable} from 'rxjs';
-import {UserService} from '../../services/user.service';
 import {Router} from '@angular/router';
+import {UserService} from '../services/user.service';
 
 @Component({
   selector: 'app-log-in',
@@ -34,7 +34,7 @@ export class LogInComponent implements OnInit {
 
   ngOnInit(): void {
     this.ngZone.run(() => {
-      onAuthUIStateChange((authState, authData) => {
+      onAuthUIStateChange((authState) => {
         this.ref.detectChanges();
         if (authState === AuthState.SignedIn) {
           this.ngZone.run(() => {

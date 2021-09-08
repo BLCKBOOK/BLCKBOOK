@@ -17,10 +17,8 @@ import {HomeComponent} from './components/home/home.component';
 import {AuctionComponent} from './components/auction/auction.component';
 import {GalleryComponent} from './components/gallery/gallery.component';
 //AWS Amplify configuration
-import {AmplifyUIAngularModule} from '@aws-amplify/ui-angular';
 import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
-import {LogInComponent} from './components/log-in/log-in.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {AuthInterceptor} from './services/AuthInterceptor';
 import {WelcomeComponent} from './components/welcome/welcome.component';
@@ -39,7 +37,6 @@ import {faBell} from '@fortawesome/free-solid-svg-icons/faBell';
 import {faBars} from '@fortawesome/free-solid-svg-icons/faBars';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons/faUserCircle';
 import {MatMenuModule} from '@angular/material/menu';
-import { WalletComponent } from './components/wallet/wallet.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -57,11 +54,9 @@ Auth.configure(awsconfig);
     HomeComponent,
     AuctionComponent,
     GalleryComponent,
-    LogInComponent,
     WelcomeComponent,
     ImageUploadComponent,
     VotingComponent,
-    WalletComponent,
   ],
   imports: [
     MatDialogModule,
@@ -69,7 +64,6 @@ Auth.configure(awsconfig);
     AppRoutingModule,
     MatButtonModule,
     MatToolbarModule,
-    AmplifyUIAngularModule,
     MatIconModule,
     HttpClientModule,
     FlexLayoutModule,
