@@ -11,8 +11,7 @@ import {Router} from '@angular/router';
 export class ImageUploadService {
 
   private readonly url = 'api/';
-  // @ts-ignore
-  private readonly imageUploadURL = '/dev/artwork';  // ToDo: fix this!
+  private readonly imageUploadURL = '/dev/artwork';
 
   constructor(private httpClient: HttpClient, private router: Router) {
   }
@@ -22,23 +21,23 @@ export class ImageUploadService {
       .pipe(mergeMap(uploadURL => {
           return this.uploadActualImage(imageUpload.image, uploadURL, imageUpload.data.contentType);
         }),
-        switchMap(([uploadedArtwork]) => {
-          console.log(uploadedArtwork);
-          return of(false);
+        switchMap(() => {
+          return of(true);
         }));
   }
 
-  private uploadActualImage(image: File, uploadURL: string, contentType: string): Observable<any> {
+  private uploadActualImage(image: File, uploadURL: string, contentType: string): Observable<Object> {
     console.log('image upload started');
-    const imageIndex = uploadURL.indexOf('/image');
+    const imageIndex = uploadURL.indexOf('/artwork');
     const url = uploadURL.slice(imageIndex);
     const headers = new HttpHeaders().set('Content-Type', contentType);
+    headers.set('ResponseContentType', 'undefined');
     return this.httpClient.put(url, image, {headers: headers})
       .pipe(catchError(this.handleUploadActualImageError.bind(this)));
   }
 
   private uploadImageData(data: ImageUploadData): Observable<string> {
-    return this.httpClient.post<string>(this.imageUploadURL + '/initArtworkUpload', data)
+    return this.httpClient.post(this.imageUploadURL + '/initArtworkUpload', data, {responseType: 'text'})
       .pipe(catchError(this.handleUploadImageDataError.bind(this)));
   }
 

@@ -5,7 +5,7 @@
     "changeOrigin": true,
     "logLevel": "debug"
   },
-  "/image": {
+  "/artwork": {
     "target": "https://blckbook-uploaded-artworks.s3.eu-west-1.amazonaws.com",
     "secure": true,
     "changeOrigin": true,

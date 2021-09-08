@@ -7,7 +7,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = localStorage.getItem('token');
-    if (!token || req.url.startsWith('/image')) {
+    if (!token || req.url.startsWith('/artwork')) {
       return next.handle(req);
     }
 
