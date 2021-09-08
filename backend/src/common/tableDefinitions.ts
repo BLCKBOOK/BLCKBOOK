@@ -5,13 +5,13 @@ export interface userInfo {
   userId: string
 }
 
-interface sale{
+interface sale {
   buyer: String //  either walletid or blckbook username
   seller: string // either walletid or blckbook username
 }
 
 export interface uploadedartwork {
-  periodId:string
+  periodId: string
   artworkId: string
   imageUrl: string
   uploader: string
@@ -19,16 +19,31 @@ export interface uploadedartwork {
   // geohash: string
   longitude: string
   latitude: string
-  approvalState: 'unchecked'|'approved'|'rejected',
+  approvalState: 'unchecked' | 'approved' | 'rejected',
   title?: string
   artist?: string
   contentType: string
 }
 
+export interface uploadedartworkSchema {
+  periodId: { S: string }
+  artworkId: { S: string }
+  imageUrl: { S: string }
+  uploader: { S: string }
+  uploadTimestamp: { N: string }
+  longitude: { S: string }
+  latitude: { S: string }
+  approvalState: { S: string },
+  title?: { S: string }
+  artist?: { S: string }
+  contentType: { S: string }
+}
+
+
 // Global index of uploadedartwork
 interface uploadedArtworkAdminView {
-  PeriodId:number //pk
-  artworkId: string 
+  PeriodId: number //pk
+  artworkId: string
   imageUrl: string
   uploader: string
   uploadTimestamp: Date // SK
