@@ -2,13 +2,13 @@ import { DynamoDBClient as DynamoDB, PutItemCommand, PutItemCommandInput } from 
 import AWS from 'aws-sdk';
 
 if (!process.env["AWS_REGION"])
-    throw new Error(`region not set in env vars`)
-  if (!process.env["USER_INFO_TABLE_NAME"])
-    throw new Error(`USER_INFO_TABLE_NAME not set in env vars`)
-  if (!process.env["USER_POOL_ARN"])
-    throw new Error(`USER_POOL_ARN not set in env vars`)
+  throw new Error(`region not set in env vars`)
+if (!process.env["USER_INFO_TABLE_NAME"])
+  throw new Error(`USER_INFO_TABLE_NAME not set in env vars`)
+if (!process.env["USER_POOL_ARN"])
+  throw new Error(`USER_POOL_ARN not set in env vars`)
 
-const DDBClient = new DynamoDB({region: process.env['AWS_REGION']});
+const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
 var cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider()
 
 module.exports.handler = async (event, context) => {
@@ -24,7 +24,7 @@ module.exports.handler = async (event, context) => {
     throw new Error(`User ${event.request.userAttributes.sub} is not confirmed`)
   if (event.request.userAttributes['email_verified'] !== 'true')
     throw new Error(`Email ${event.request.userAttributes.email} is not verified`)
-  
+
 
   const userAttributes = event.request.userAttributes
   const username = event.userName
@@ -50,7 +50,7 @@ module.exports.handler = async (event, context) => {
   const newItem = await DDBClient.send(createNewUserObjectCommand)
 
   console.log(newItem)
-  
+
   // add user to 'users Group'
   //TODO implement this
   var params = {
@@ -58,15 +58,15 @@ module.exports.handler = async (event, context) => {
     GroupName: 'User',
     UserPoolId: process.env['USER_POOL_ARN']
   }
-  
-  const newUserItem = await new Promise((resolve,reject) => {
-    cognitoidentityserviceprovider.adminAddUserToGroup(params, function(err, data) {
+
+  const newUserItem = await new Promise((resolve, reject) => {
+    cognitoidentityserviceprovider.adminAddUserToGroup(params, function (err, data) {
       console.log(params)
       if (err) reject(err);
-      else  resolve(data);
+      else resolve(data);
     });
   })
-  
+
   console.log(newUserItem)
   return event
 }

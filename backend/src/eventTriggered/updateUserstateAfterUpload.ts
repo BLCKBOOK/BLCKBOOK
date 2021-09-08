@@ -1,11 +1,11 @@
-import { DynamoDB,GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
-import { S3Client,HeadBucketCommand,HeadObjectCommand } from "@aws-sdk/client-s3";
+import { DynamoDB, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { S3Client, HeadBucketCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { userInfo } from "../common/tableDefinitions";
 
 const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
-const s3Client = new S3Client({region: process.env['AWS_REGION']})
+const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 
-module.exports.handler =  async (event, context) => {
+module.exports.handler = async (event, context) => {
   console.log("event");
   console.log(JSON.stringify(event));
   console.log("process.env")
@@ -18,26 +18,26 @@ module.exports.handler =  async (event, context) => {
     const newImage = record.s3.object
     const username = newImage.key.split('/')[1]
 
-    const getItemCommand = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { username: { S: username } }, ConsistentRead:true});
+    const getItemCommand = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { username: { S: username } }, ConsistentRead: true });
     const Item = await (await DDBClient.send(getItemCommand)).Item;
     console.log(Item);
-    Item.uploadsDuringThisPeriod.N = String(Number(Item.uploadsDuringThisPeriod.N)+1)
+    Item.uploadsDuringThisPeriod.N = String(Number(Item.uploadsDuringThisPeriod.N) + 1)
     console.log(Item);
-    
-    const updateItemCommand = new PutItemCommand({ 
-      TableName: process.env['USER_INFO_TABLE_NAME'], 
+
+    const updateItemCommand = new PutItemCommand({
+      TableName: process.env['USER_INFO_TABLE_NAME'],
       Item: Item
     });
 
     console.log(updateItemCommand)
     console.log(await DDBClient.send(updateItemCommand))
-    
-    
-    
+
+
+
     // get image metadata from s3
     const getImageMetadata = new HeadObjectCommand({
-      Bucket:record.s3.bucket.name,
-      Key:newImage.key,
+      Bucket: record.s3.bucket.name,
+      Key: newImage.key,
     })
     const metadata = await (await s3Client.send(getImageMetadata)).Metadata
     console.log(metadata)
@@ -53,31 +53,31 @@ module.exports.handler =  async (event, context) => {
         latitude: {
           N: metadata.latitude
         },
-        periodId:{
+        periodId: {
           S: metadata.periodid
         },
-        artworkId:{
+        artworkId: {
           S: metadata.artworkid
         },
-        contentType:{
+        contentType: {
           S: metadata.contenttype
         },
-        uploadTimestamp :{
+        uploadTimestamp: {
           N: metadata.uploadtimestamp
         },
-        approvalState:{
+        approvalState: {
           S: metadata.approvalstate
         },
-        title:{
+        title: {
           S: metadata.title
         },
-        uploader:{
+        uploader: {
           S: metadata.uploader
         },
-        imageUrl:{
+        imageUrl: {
           S: imageUrl
         },
-        artist:{
+        artist: {
           S: 'Unknown Artist'
         }
       }

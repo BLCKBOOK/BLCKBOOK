@@ -12,7 +12,7 @@ export class AuthHandler {
     this.options = options;
   }
 
-  Autenticate(event){
+  Autenticate(event) {
     const groupString: string | undefined = event.requestContext.authorizer.claims['cognito:groups']
     if (groupString === undefined)
       throw new Error("not authorized")
