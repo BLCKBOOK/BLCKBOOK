@@ -82,6 +82,29 @@ functions:
           - BlckBookUsers
           - Arn
         
+  getCurrentUpload:
+    handler: "src/rest/artwork/getCurrentUpload/get.handler"
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    environment:
+      UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
+    events:
+      - http:
+          path: artwork/getCurrentUploads
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: get
+          cors: true
+    
   initArtworkUpload:
     handler: "src/rest/artwork/initArtworkUpload/post.handler"
     iamRoleStatements:
@@ -113,7 +136,6 @@ functions:
     environment:
       ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
-      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
       PERIOD_TABLE_NAME: ${self:custom.period_table_name}
       MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
     events:
