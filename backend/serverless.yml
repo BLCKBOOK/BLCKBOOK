@@ -44,6 +44,11 @@ functions:
           - dynamodb:PutItem
         Resource:
           - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
     events:
       - s3:
           bucket: ${self:custom.artwork_upload_s3_bucket_name}
@@ -54,6 +59,7 @@ functions:
     environment:
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
       MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
+      UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
 
   initializeUser:
     handler: "src/eventTriggered/createNewUserInfoObject.handler"
@@ -77,7 +83,7 @@ functions:
           - Arn
         
   initArtworkUpload:
-    handler: "src/rest/artwork/initAtrworkUpload/post.handler"
+    handler: "src/rest/artwork/postInitArtworkUpload.handler"
     iamRoleStatements:
       - Effect: Allow
         Action:
