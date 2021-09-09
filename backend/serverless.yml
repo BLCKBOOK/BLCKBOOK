@@ -94,7 +94,7 @@ functions:
       UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
     events:
       - http:
-          path: artwork/getCurrentUploads
+          path: artwork/getCurrentUpload
           authorizer: 
             name: BlckBookUsersAuthorizer
             type: COGNITO_USER_POOLS
