@@ -25,6 +25,11 @@ export class ImageUploadComponent {
   faCamera = findIconDefinition({ prefix: 'fas', iconName: 'camera' })
 
   constructor(private imageUploadService: ImageUploadService) {
+    this.imageUploadService.getUploadedArtwork().subscribe(upload => {
+      if (upload) {
+        console.log(upload);
+      }
+    });
   }
 
   imageChanged($event: Event) {

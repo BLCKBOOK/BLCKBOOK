@@ -3,18 +3,22 @@ import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {forkJoin, Observable, of, throwError} from 'rxjs';
 import {ImageUpload, ImageUploadData} from '../types/image.type';
 import {catchError, map, mergeMap} from 'rxjs/operators';
+import {UploadedArtwork} from '../../../../backend/src/common/tableDefinitions'
+import {environment} from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ImageUploadService {
 
-  private readonly imageUploadURL = '/dev/artwork';
+  private readonly imageUploadURL = environment.urlString + '/artwork';
+  private readonly initUploadURL = '/initArtworkUpload';
+  private readonly currentUploadURL = '/getCurrentUpload';
 
   constructor(private httpClient: HttpClient) {
   }
 
-  uploadImage(imageUpload: ImageUpload): Observable<string> {
+  public uploadImage(imageUpload: ImageUpload): Observable<string> {
     return this.uploadImageData(imageUpload.data)
       .pipe(mergeMap(uploadURL => {
           return forkJoin([of (uploadURL), this.uploadActualImage(imageUpload.image, uploadURL, imageUpload.data.contentType)]);
@@ -25,6 +29,9 @@ export class ImageUploadService {
     );
   }
 
+  public getUploadedArtwork(): Observable<UploadedArtwork> {
+    return this.httpClient.get<UploadedArtwork>(this.imageUploadURL + this.currentUploadURL);
+  }
   private uploadActualImage(image: File, uploadURL: string, contentType: string): Observable<Object> {
     console.log('image upload started');
     const imageIndex = uploadURL.indexOf('/artwork');
@@ -36,7 +43,7 @@ export class ImageUploadService {
   }
 
   private uploadImageData(data: ImageUploadData): Observable<string> {
-    return this.httpClient.post(this.imageUploadURL + '/initArtworkUpload', data, {responseType: 'text'})
+    return this.httpClient.post(this.imageUploadURL + this.initUploadURL, data, {responseType: 'text'})
       .pipe(catchError(this.handleUploadImageDataError.bind(this)));
   }
 
