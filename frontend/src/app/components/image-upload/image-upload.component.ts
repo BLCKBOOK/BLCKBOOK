@@ -1,8 +1,9 @@
 import {Component} from '@angular/core';
 import * as exifr from 'exifr';
 import {ImageUploadService} from '../../services/image-upload.service';
-import {AcceptedMimeTypes, ImageUpload, ImageUploadData} from '../../types/image.type';
+import {AcceptedMimeTypes, ImageUpload} from '../../types/image.type';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
+import {InitArtworkUploadRequest} from '../../../../../backend/src/rest/artwork/initArtworkUpload/apiSchema';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -18,7 +19,7 @@ export class ImageUploadComponent {
   longitude: number | undefined = undefined;
 
   image: File | undefined = undefined;
-  name = '';
+  title = '';
   url: string | ArrayBuffer | null | undefined = '';
   contentType: string | undefined = undefined;
 
@@ -72,9 +73,9 @@ export class ImageUploadComponent {
         data: {
           longitude: this.longitude.toString(),
           latitude: this.latitude.toString(),
-          name: 'testName',
+          title: this.title,
           contentType: this.contentType,
-        } as ImageUploadData
+        } as InitArtworkUploadRequest
       } as ImageUpload;
       this.imageUploadService.uploadImage(image).subscribe((requestURL) => {
         if (requestURL) {

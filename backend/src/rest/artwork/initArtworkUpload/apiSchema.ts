@@ -22,7 +22,7 @@ export const initArtworkUploadSchema = {
   ]
 }
 
-export interface initArtworkUploadRequest {
+export interface InitArtworkUploadRequest {
   title?: string,
   contentType: string,
   longitude: string,

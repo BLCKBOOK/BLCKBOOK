@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {forkJoin, Observable, of, throwError} from 'rxjs';
-import {ImageUpload, ImageUploadData} from '../types/image.type';
+import {InitArtworkUploadRequest} from '../../../../backend/src/rest/artwork/initArtworkUpload/apiSchema';
 import {catchError, map, mergeMap} from 'rxjs/operators';
 import {UploadedArtwork} from '../../../../backend/src/common/tableDefinitions'
 import {environment} from '../../environments/environment';
+import {ImageUpload} from '../types/image.type';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +43,7 @@ export class ImageUploadService {
       .pipe(catchError(this.handleUploadActualImageError.bind(this)));
   }
 
-  private uploadImageData(data: ImageUploadData): Observable<string> {
+  private uploadImageData(data: InitArtworkUploadRequest): Observable<string> {
     return this.httpClient.post(this.imageUploadURL + this.initUploadURL, data, {responseType: 'text'})
       .pipe(catchError(this.handleUploadImageDataError.bind(this)));
   }
