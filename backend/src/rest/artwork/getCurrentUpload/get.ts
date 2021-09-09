@@ -1,5 +1,5 @@
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { uploadedartwork } from "../../../common/tableDefinitions"
+import { uploadedartwork, uploadedartworkSchema } from "../../../common/tableDefinitions"
 import { getCurrentImageResponse } from "./apiSchema";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
@@ -25,7 +25,7 @@ module.exports.handler = async (event, context) => {
   console.log(getLatestUploadCommand)
 
   let user: uploadedartwork
-  const item = ((await (await DDBclient.send(getLatestUploadCommand)))).Items[0]
+  const item = (((await (await DDBclient.send(getLatestUploadCommand)))).Items[0] as unknown) as uploadedartworkSchema
   console.log("item")
   console.log(item)
 
@@ -34,16 +34,19 @@ module.exports.handler = async (event, context) => {
       statusCode: 204, headers: { "content-type": "text/plain" }, body: "You don't have any uploads yet."
     };
 
+  const uploadTimestamp = new Date(0)
+  uploadTimestamp.setUTCSeconds(Number(item.uploadTimestamp.N))
 
   const currentImageResponse: getCurrentImageResponse = {
     approvalState: item.approvalState.S as "unchecked" | "approved" | "rejected",
     artworkId: item.artworkId.S,
     contentType: item.contentType.S,
     imageUrl: item.imageUrl.S,
-    latitude: item.latitude.S,
-    longitude: item.longitude.S,
+    latitude: item.latitude.N,
+    longitude: item.longitude.N,
+    geoHash: item.geoHash.S,
     periodId: item.periodId.S,
-    uploadTimestamp: new Date(item.uploadTimestamp.N),
+    uploadTimestamp,
     uploader: item.uploader.S,
     artist: item.artist.S,
     title: item.title.S,
