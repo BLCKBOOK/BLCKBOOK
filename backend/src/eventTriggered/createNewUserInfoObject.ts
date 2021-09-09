@@ -1,5 +1,5 @@
 import { DynamoDBClient as DynamoDB, PutItemCommand, PutItemCommandInput } from "@aws-sdk/client-dynamodb";
-import AWS from 'aws-sdk';
+
 
 if (!process.env["AWS_REGION"])
   throw new Error(`region not set in env vars`)
@@ -9,7 +9,6 @@ if (!process.env["USER_POOL_ARN"])
   throw new Error(`USER_POOL_ARN not set in env vars`)
 
 const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
-var cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider()
 
 module.exports.handler = async (event, context) => {
   console.log("event");
@@ -50,23 +49,5 @@ module.exports.handler = async (event, context) => {
   const newItem = await DDBClient.send(createNewUserObjectCommand)
 
   console.log(newItem)
-
-  // add user to 'users Group'
-  //TODO implement this
-  var params = {
-    Username: username,
-    GroupName: 'User',
-    UserPoolId: process.env['USER_POOL_ARN']
-  }
-
-  const newUserItem = await new Promise((resolve, reject) => {
-    cognitoidentityserviceprovider.adminAddUserToGroup(params, function (err, data) {
-      console.log(params)
-      if (err) reject(err);
-      else resolve(data);
-    });
-  })
-
-  console.log(newUserItem)
   return event
 }

@@ -2,7 +2,8 @@ export interface UserInfo {
   uploadsDuringThisPeriod: number,
   username: string,
   email: string,
-  userId: string
+  userId: string,
+  currentUpload?: { signedUploadUrl: string, expiryDate: string }
 }
 
 export interface Sale {

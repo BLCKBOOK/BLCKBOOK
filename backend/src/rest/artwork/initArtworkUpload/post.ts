@@ -1,85 +1,100 @@
-import { v4 as uuid } from "uuid";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
+import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+
+import { v4 as uuid } from "uuid";
 import { extension } from "mime-types";
-import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { UserInfo } from "../../../common/tableDefinitions"
 import { validate } from "jsonschema";
-import { initArtworkUploadSchema } from "./apiSchema";
 import { encode } from "ngeohash";
+
+import { initArtworkUploadSchema } from "./apiSchema";
+import { maxUploadCountReached, wrongRequestBodyFormat, wrongContentType } from "../../../common/responses";
+import { UserInfo } from "../../../common/tableDefinitions"
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] });
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
-var supportedMimeTypes = {
+const supportedMimeTypes = {
   'image/gif': true,
   'image/jpeg': true,
   'image/png': true,
 };
 
 module.exports.handler = async (event, context) => {
-  console.log("event");
-  console.log(JSON.stringify(event));
-  console.log("process.env")
-  console.log(process.env)
-  console.log("context")
-  console.log(context)
+  console.debug("event");
+  console.debug(JSON.stringify(event));
+  console.debug("process.env")
+  console.debug(process.env)
+  console.debug("context")
+  console.debug(context)
 
   const body = JSON.parse(event.body)
+  const now = new Date()
 
+  // validateRequest
   if (!supportedMimeTypes[body.contentType])
-    throw new Error("Content Type not supported. Only JPG, PNG and GIF are supported");
-  if (!process.env["ARTWORK_UPLOAD_S3_BUCKET_NAME"])
-    throw new Error("Bucket was not specified in the environment Variables");
+    return wrongContentType
+  if (!validate(event.body, initArtworkUploadSchema))
+    return wrongRequestBodyFormat
 
-  validate(event.body, initArtworkUploadSchema);
-
-  const artworkId = uuid();
+  // get userInfo
   const userInfo = event.requestContext.authorizer.claims;
   const contentType = body.contentType
-
-  const getItemCommand = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { username: { S: userInfo['cognito:username'] } }, ConsistentRead: true });
+  const getUserInfoCommand = new GetItemCommand({
+    TableName: process.env['USER_INFO_TABLE_NAME'],
+    Key: { username: { S: userInfo['cognito:username'] } },
+    ConsistentRead: true
+  });
+  let user = unmarshall(await (await DDBclient.send(getUserInfoCommand)).Item) as UserInfo;
 
   // check if user is eligible
-  let user: UserInfo
-  const item = await (await DDBclient.send(getItemCommand)).Item;
-  if (item.username.S === undefined)
-    return {} //TODO return error 
+  console.debug(user);
+  if (!user.username)
+    throw Error(`A user who is not in the ${process.env['USER_INFO_TABLE_NAME']} table has tried to perform a initImageUpload request.`)
 
-  user = {
-    email: item.email.S,
-    username: item.username.S,
-    userId: item.userId.S,
-    uploadsDuringThisPeriod: Number(item.uploadsDuringThisPeriod.N)
-  }
-  console.log(user);
   if (user.uploadsDuringThisPeriod >= Number(process.env['MAX_UPLOADS_PER_PERIOD']))
-    return { statusCode: 503, body: "Upload not allowed. Max uploads reached" };
+    return maxUploadCountReached;
 
-  // generate signed upload url
+  if (user.currentUpload && new Date(user.currentUpload.expiryDate) >= now) {
+    return { statusCode: 200, headers: { "content-type": "text/plain" }, body: user.currentUpload.signedUploadUrl };
+  }
+
+  const artworkId = uuid()
+  // create metadata object
   Object.assign(body, {
     periodId: "current",
-    artworkId: artworkId,
+    artworkId,
     uploader: userInfo['cognito:username'],
     uploadTimestamp: Math.round(Date.now() / 1000).toString(),
-    // geohash: string TODO add geohash
     geoHash: encode(body.longitude, body.latitude),
-    approvalState: 'unchecked'
+    approvalState: 'unchecked',
+    artist: 'Unknown Artist'
   });
 
-  const putObjectParams: PutObjectCommandInput = {
+  // create signed upload url
+  const command = new PutObjectCommand({
     Key: `artwork/${userInfo['cognito:username']}/${artworkId}.${extension(contentType)}`,
     Bucket: process.env["ARTWORK_UPLOAD_S3_BUCKET_NAME"],
     ACL: 'public-read',
     //@ts-ignore next line
     Metadata: body
-  };
+  });
+  const secUntilExpiry = 60;
+  let expiryDate = new Date(now)
+  expiryDate.setSeconds(expiryDate.getSeconds() + secUntilExpiry)
+  let signedUploadUrl = (await getSignedUrl(s3Client, command, { expiresIn: 60 }));
+  console.debug(signedUploadUrl)
 
-  console.log(putObjectParams)
+  user = ((await DDBclient.send(new UpdateItemCommand({
+    TableName: process.env['USER_INFO_TABLE_NAME'],
+    Key: marshall({ username: user.username }),
+    UpdateExpression: "set currentUpload = :newCurrentUpload",
+    ConditionExpression: "attribute_not_exists(currentUpload.expiryDate) OR currentUpload.expiryDate < :now",
+    ExpressionAttributeValues: marshall({ ":now": now.toJSON(), ":newCurrentUpload": { expiryDate: expiryDate.toJSON(), signedUploadUrl } }),
+    ReturnValues: "UPDATED_NEW",
+  }))) as unknown) as UserInfo
+  console.debug(user);
 
-  const command = new PutObjectCommand(putObjectParams);
-  let url = (await getSignedUrl(s3Client, command, { expiresIn: 300 }));
-  console.log(url)
-
-  return { statusCode: 200, headers: { "content-type": "text/plain" }, body: url };
+  return { statusCode: 200, headers: { "content-type": "text/plain" }, body: signedUploadUrl };
 }
