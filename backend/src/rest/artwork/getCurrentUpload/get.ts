@@ -1,5 +1,5 @@
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { uploadedartwork, uploadedartworkSchema } from "../../../common/tableDefinitions"
+import { UploadedArtwork, UploadedArtworkSchema } from "../../../common/tableDefinitions"
 import { getCurrentImageResponse } from "./apiSchema";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
@@ -24,8 +24,8 @@ module.exports.handler = async (event, context) => {
   });
   console.log(getLatestUploadCommand)
 
-  let user: uploadedartwork
-  const item = (((await (await DDBclient.send(getLatestUploadCommand)))).Items[0] as unknown) as uploadedartworkSchema
+  let user: UploadedArtwork
+  const item = (((await (await DDBclient.send(getLatestUploadCommand)))).Items[0] as unknown) as UploadedArtworkSchema
   console.log("item")
   console.log(item)
 

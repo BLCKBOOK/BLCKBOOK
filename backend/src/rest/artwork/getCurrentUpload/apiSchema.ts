@@ -1,3 +1,3 @@
-import { uploadedartwork } from "../../../common/tableDefinitions";
+import { UploadedArtwork } from "../../../common/tableDefinitions";
 
-export type getCurrentImageResponse = uploadedartwork 
+export type getCurrentImageResponse = UploadedArtwork

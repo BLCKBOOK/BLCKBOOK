@@ -3,7 +3,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
 import { extension } from "mime-types";
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { userInfo } from "../../../common/tableDefinitions"
+import { UserInfo } from "../../../common/tableDefinitions"
 import { validate } from "jsonschema";
 import { initArtworkUploadSchema } from "./apiSchema";
 import { encode } from "ngeohash";
@@ -41,7 +41,7 @@ module.exports.handler = async (event, context) => {
   const getItemCommand = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { username: { S: userInfo['cognito:username'] } }, ConsistentRead: true });
 
   // check if user is eligible
-  let user: userInfo
+  let user: UserInfo
   const item = await (await DDBclient.send(getItemCommand)).Item;
   if (item.username.S === undefined)
     return {} //TODO return error 

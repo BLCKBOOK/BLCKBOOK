@@ -1,16 +1,16 @@
-export interface userInfo {
+export interface UserInfo {
   uploadsDuringThisPeriod: number,
   username: string,
   email: string,
   userId: string
 }
 
-interface sale {
+export interface Sale {
   buyer: String //  either walletid or blckbook username
   seller: string // either walletid or blckbook username
 }
 
-export interface uploadedartwork {
+export interface UploadedArtwork {
   periodId: string
   artworkId: string
   imageUrl: string
@@ -25,7 +25,7 @@ export interface uploadedartwork {
   contentType: string
 }
 
-export interface uploadedartworkSchema {
+export interface UploadedArtworkSchema {
   periodId: { S: string }
   artworkId: { S: string }
   imageUrl: { S: string }
@@ -42,7 +42,7 @@ export interface uploadedartworkSchema {
 
 
 // Global index of uploadedartwork
-interface uploadedArtworkAdminView {
+interface UploadedArtworkAdminView {
   PeriodId: number //pk
   artworkId: string
   imageUrl: string
@@ -56,7 +56,7 @@ interface uploadedArtworkAdminView {
   artist?: string
 }
 
-interface votableArtworks {
+interface VotableArtworks {
   artworkId: string // PK
   imageUrl: string
   uploader: string
@@ -72,7 +72,7 @@ interface votableArtworks {
 }
 
 
-interface usersSrtworkView {
+interface UsersArtworkView {
   artworkId: string
   imageUrl: string
   uploader: string // PK
@@ -85,7 +85,7 @@ interface usersSrtworkView {
   artist?: string
 }
 
-interface stagedForMinting {
+interface StagedForMinting {
   artworkId: string
   imageUrl: string
   uploader: string
@@ -102,11 +102,11 @@ interface stagedForMinting {
     initialPrice: string,
     IPFSLink: string,
     currentOwner: String, // wallet address or blckbook username?
-    saleshistory?: [sale]
+    saleshistory?: [Sale]
   }
 }
 
-interface stagedForMinting {
+interface StagedForMinting {
   artworkId: string
   imageUrl: string
   uploader: string
@@ -123,11 +123,11 @@ interface stagedForMinting {
     initialPrice: string,
     IPFSLink: string,
     currentOwner: String, // wallet address or blckbook username?
-    saleshistory?: [sale]
+    saleshistory?: [Sale]
   }
 }
 
-interface mintedArtworks {
+interface MintedArtworks {
   artworkId: string
   imageUrl: string
   uploader: string
@@ -144,7 +144,7 @@ interface mintedArtworks {
     initialPrice: string,
     IPFSLink: string,
     currentOwner: String, // wallet address or blckbook username?
-    saleshistory?: [sale]
+    saleshistory?: [Sale]
   }
 }
 
