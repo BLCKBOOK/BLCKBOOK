@@ -2,6 +2,7 @@
   "name": "blckbook-ui",
   "version": "0.0.0",
   "scripts": {
+    "postinstall": "node scripts/write_proxy_settings.js",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
