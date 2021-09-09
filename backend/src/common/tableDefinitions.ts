@@ -16,7 +16,7 @@ export interface uploadedartwork {
   imageUrl: string
   uploader: string
   uploadTimestamp: Date
-  // geohash: string
+  geoHash: string
   longitude: string
   latitude: string
   approvalState: 'unchecked' | 'approved' | 'rejected',
@@ -31,12 +31,13 @@ export interface uploadedartworkSchema {
   imageUrl: { S: string }
   uploader: { S: string }
   uploadTimestamp: { N: string }
-  longitude: { S: string }
-  latitude: { S: string }
+  longitude: { N: string }
+  latitude: { N: string }
   approvalState: { S: string },
   title?: { S: string }
   artist?: { S: string }
   contentType: { S: string }
+  geoHash: { S: string }
 }
 
 

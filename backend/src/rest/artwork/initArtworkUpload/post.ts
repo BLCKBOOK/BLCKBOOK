@@ -6,6 +6,7 @@ import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { userInfo } from "../../../common/tableDefinitions"
 import { validate } from "jsonschema";
 import { initArtworkUploadSchema } from "./apiSchema";
+import { encode } from "ngeohash";
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] });
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
@@ -62,6 +63,7 @@ module.exports.handler = async (event, context) => {
     uploader: userInfo['cognito:username'],
     uploadTimestamp: Math.round(Date.now() / 1000).toString(),
     // geohash: string TODO add geohash
+    geoHash: encode(body.longitude, body.latitude),
     approvalState: 'unchecked'
   });
 
