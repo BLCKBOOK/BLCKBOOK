@@ -1,6 +1,5 @@
 import { DynamoDB, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { S3Client, HeadBucketCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
-import { userInfo } from "../common/tableDefinitions";
 
 const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
@@ -79,9 +78,13 @@ module.exports.handler = async (event, context) => {
         },
         artist: {
           S: 'Unknown Artist'
+        },
+        geoHash: {
+          S: metadata.geohash
         }
       }
     })
+
     console.log(createNewUserObjectCommand)
     const newItem = await DDBClient.send(createNewUserObjectCommand)
     console.log(newItem)

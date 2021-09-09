@@ -9,12 +9,14 @@
     "aws-sdk": "^2.984.0",
     "jsonschema": "^1.4.0",
     "mime-types": "^2.1.32",
+    "ngeohash": "^0.6.3",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/jsonschema": "^1.1.1",
     "@types/mime-types": "^2.1.1",
+    "@types/ngeohash": "^0.6.4",
     "aws-amplify-serverless-plugin": "^1.4.1",
     "serverless-iam-roles-per-function": "^3.2.0-e97ab49",
     "serverless-plugin-common-excludes": "^4.0.0",
