@@ -16,7 +16,6 @@ import {BobTextComponent} from './components/bob-text/bob-text.component';
 import {HomeComponent} from './components/home/home.component';
 import {AuctionComponent} from './components/auction/auction.component';
 import {GalleryComponent} from './components/gallery/gallery.component';
-//AWS Amplify configuration
 import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
 import {MatDialogModule} from '@angular/material/dialog';
@@ -43,7 +42,6 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   return new TranslateHttpLoader(http, 'assets/translations.', '.json');
 }
 
-//
 Auth.configure(awsconfig);
 
 @NgModule({
@@ -85,7 +83,7 @@ Auth.configure(awsconfig);
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
-    AuthGuardService
+    [AuthGuardService]
   ],
   bootstrap: [AppComponent]
 })

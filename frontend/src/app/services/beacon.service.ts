@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {DAppClient} from '@airgap/beacon-sdk';
+import {DAppClient, TezosOperationType} from '@airgap/beacon-sdk';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +28,7 @@ export class BeaconService {
     console.log(activeAccount?.accountIdentifier);
     console.log(activeAccount);
 
-    /*    // At this point we are connected to an account.
+        // At this point we are connected to an account.
         // Let's send a simple transaction to the wallet that sends 1 mutez to ourselves.
         const response = await this.dAppClient.requestOperation({
           operationDetails: [
@@ -38,6 +38,6 @@ export class BeaconService {
               amount: '1', // Amount in mutez, the smallest unit in Tezos
             },
           ],
-        });*/
+        });
   }
 }
