@@ -275,4 +275,8 @@ resources:
         TableName: ${self:custom.uploaded_artworks_admin_view_table_name}
 
 outputs:
-  ApiId: { "Ref" : "ApiGatewayRestApi" }
+  ApiGWId: { "Ref" : "ApiGatewayRestApi" }
+  ApiGWRootResourceId:
+    Fn::GetAtt:
+    - ApiGatewayRestApi
+    - RootResourceId
