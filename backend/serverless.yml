@@ -94,7 +94,7 @@ functions:
       UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
     events:
       - http:
-          path: artwork/getCurrentUpload
+          path: api/artwork/getCurrentUpload
           authorizer: 
             name: BlckBookUsersAuthorizer
             type: COGNITO_USER_POOLS
@@ -140,7 +140,7 @@ functions:
       MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
     events:
       - http:
-          path: artwork/initArtworkUpload
+          path: api/artwork/initArtworkUpload
           authorizer: 
             name: BlckBookUsersAuthorizer
             type: COGNITO_USER_POOLS
@@ -273,3 +273,6 @@ resources:
           - AttributeName: uploadDate
             KeyType: RANGE
         TableName: ${self:custom.uploaded_artworks_admin_view_table_name}
+
+outputs:
+  ApiId: { "Ref" : "ApiGatewayRestApi" }
