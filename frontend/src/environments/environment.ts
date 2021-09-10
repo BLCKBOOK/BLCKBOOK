@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  urlString: '/dev'
+  urlString: '/dev/api'
 };
 
 /*
