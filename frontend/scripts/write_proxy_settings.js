@@ -22,7 +22,7 @@ fs.readFile(proxy_settings, 'utf8', function (err, data) {
   const json = JSON.parse(data);
 
   json['/dev'].target = endpoint;
-  json['/api'].target = endpoint;
+  json['/prod'].target = endpoint;
 
   const result = JSON.stringify(json, null, 2);
 
