@@ -1,4 +1,10 @@
-<mat-tab-group>
+<div class="floating-submit">
+  <button mat-button> SUBMIT</button>
+</div>
+<div class="floating-vote-tracker">
+  <span>{{$votesSpend | async}} / {{$totalVoteAmount | async}}</span>
+</div>
+<mat-tab-group mat-align-tabs="center">
   <mat-tab label="All">
     <app-scroll [scrollType]="'voting'">
     </app-scroll>
@@ -6,5 +12,4 @@
   <mat-tab label="Selected"></mat-tab>
   <mat-tab label="My Upload"></mat-tab>
 </mat-tab-group>
-
 

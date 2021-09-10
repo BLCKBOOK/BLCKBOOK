@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import {VotingService} from '../../services/voting.service';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-voting',
@@ -7,6 +9,13 @@ import { Component } from '@angular/core';
 })
 export class VotingComponent {
 
-  constructor() { }
+  $totalVoteAmount: Observable<number>;
+  $votesSpend: Observable<number>;
+
+  constructor(private votingService: VotingService) {
+    this.$totalVoteAmount = this.votingService.getMaxVoteAmount();
+    this.$votesSpend = this.votingService.getVotesSpent();
+  }
+
 
 }

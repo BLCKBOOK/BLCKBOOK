@@ -36,7 +36,7 @@ export class ScrollComponent {
 
 
   public addMoreItems() {
-    if (this.masonryItems.length < 200) {
+    if (this.masonryItems.length < 100) {
       this.masonryItems.push(...this.calculateExampleImages(20));
     }
     else {
@@ -49,7 +49,7 @@ export class ScrollComponent {
     const startUrl = '//via.placeholder.com/'
     for (let i = 0; i < amount; i++) {
       const width = this.randomIntFromInterval(400, 3000);
-      const height = this.randomIntFromInterval(width * .4, width * 1.2);
+      const height = this.randomIntFromInterval(width * .4, width * 1.6);
 
       const url = startUrl + width + 'x' + height;
       const item = {title: 'test', img: url, voted: false};

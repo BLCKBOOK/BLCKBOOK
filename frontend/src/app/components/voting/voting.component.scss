@@ -1,4 +1,6 @@
 ::ng-deep .mat-tab-group {
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 ::ng-deep .mat-tab-header {
@@ -8,11 +10,50 @@
   background-color: var(--dark-background);
 }
 
-::ng-deep .mat-tab-body-wrapper {
-  position: relative !important;
-  margin-top: 32px;
+.floating-submit {
+  z-index: 999;
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+  background-color: var(--primary-color);
 }
 
+.floating-vote-tracker {
+  z-index: 1000;
+  position: fixed;
+  right: 10px;
+}
+
+::ng-deep .mat-tab-body-wrapper {
+  position: relative !important;
+}
+
+$height-stuff: 48px;
+
 ::ng-deep .mat-tab-label {
-  height: 32px !important;
+  height: $height-stuff !important;
+}
+
+@media screen and (min-width: 600px) {
+  ::ng-deep .mat-tab-body-wrapper {
+    margin-top: $height-stuff;
+  }
+}
+
+@media screen and (max-width: 599px) {
+  ::ng-deep .mat-tab-body-wrapper {
+    margin-bottom: $height-stuff;
+  }
+
+  .floating-vote-tracker {
+    bottom: 0;
+  }
+
+  ::ng-deep .mat-tab-header {
+    bottom: 0;
+  }
+
+  ::ng-deep .mat-ink-bar {
+    bottom: 46px !important;
+  }
 }
