@@ -49,6 +49,11 @@ functions:
           - dynamodb:PutItem
         Resource:
           - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+      - Effect: Allow
+        Action:
+          - s3:DeleteObject
+        Resource:
+          - Fn::GetAtt: [ UploadedArtworksBucket, Arn ]
     events:
       - s3:
           bucket: ${self:custom.artwork_upload_s3_bucket_name}
@@ -150,6 +155,26 @@ functions:
                 - Arn
           method: post
           cors: true
+
+  getUploadedArtworks:
+    handler: src/rest/artwork/admin/getUploadedArtworks/get.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    events:
+      - http:
+          path: api/artwork/admin/getUploadedArtworks
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: get
 
 resources:
   Resources:
@@ -273,10 +298,3 @@ resources:
           - AttributeName: uploadDate
             KeyType: RANGE
         TableName: ${self:custom.uploaded_artworks_admin_view_table_name}
-
-outputs:
-  ApiGWId: { "Ref" : "ApiGatewayRestApi" }
-  ApiGWRootResourceId:
-    Fn::GetAtt:
-    - ApiGatewayRestApi
-    - RootResourceId

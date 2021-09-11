@@ -1,10 +1,16 @@
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { UploadedArtwork, UploadedArtworkSchema } from "../../../common/tableDefinitions"
 import { getCurrentImageResponse } from "./apiSchema";
+import { LambdaResponseToApiGw } from "../../../common/lambdaResponseToApiGw";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+
+import { UploadedArtwork, UploadedArtworkSchema } from "../../../common/tableDefinitions"
+import { noUploadsYet, unauthorized } from "../../../common/responses";
+
+let responseBody: getCurrentImageResponse;
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
-module.exports.handler = async (event, context) => {
+module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> => {
   console.log("event");
   console.log(JSON.stringify(event));
   console.log("process.env")
@@ -12,51 +18,46 @@ module.exports.handler = async (event, context) => {
   console.log("context")
   console.log(context)
 
+  if (!event.requestContext.authorizer.claims)
+    return unauthorized
+
   const username = event.requestContext.authorizer.claims['cognito:username'];
   console.log(username)
 
   const getLatestUploadCommand = new QueryCommand({
     TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
     KeyConditionExpression: "uploader = :username",
-    ExpressionAttributeValues: { ':username': { S: username } },
+    ExpressionAttributeValues: marshall({ ":username": username }),
     ScanIndexForward: false,
     Limit: 1,
   });
-  console.log(getLatestUploadCommand)
+  console.log(JSON.stringify(getLatestUploadCommand))
 
   let user: UploadedArtwork
-  const item = (((await (await DDBclient.send(getLatestUploadCommand)))).Items[0] as unknown) as UploadedArtworkSchema
-  console.log("item")
+  const item = ((await (await DDBclient.send(getLatestUploadCommand))))
+  console.log("YAY")
   console.log(item)
 
-  if (item.uploader === undefined)
-    return {
-      statusCode: 204, headers: { "content-type": "text/plain" }, body: "You don't have any uploads yet."
-    };
+  if (!item.Items || !item.Items[0])
+    return noUploadsYet
 
-  const uploadTimestamp = new Date(0)
-  uploadTimestamp.setUTCSeconds(Number(item.uploadTimestamp.N))
+  const latestUpload = unmarshall(item.Items[0]) as UploadedArtwork
+  console.log("latestUpload")
+  console.log(latestUpload)
 
-  const currentImageResponse: getCurrentImageResponse = {
-    approvalState: item.approvalState.S as "unchecked" | "approved" | "rejected",
-    artworkId: item.artworkId.S,
-    contentType: item.contentType.S,
-    imageUrl: item.imageUrl.S,
-    latitude: item.latitude.N,
-    longitude: item.longitude.N,
-    geoHash: item.geoHash.S,
-    periodId: item.periodId.S,
-    uploadTimestamp,
-    uploader: item.uploader.S,
-    artist: item.artist.S,
-    title: item.title.S,
+  responseBody = {
+    periodId: latestUpload.periodId,
+    artworkId: latestUpload.artworkId,
+    imageUrl: latestUpload.imageUrl,
+    uploader: latestUpload.uploader,
+    uploadTimestamp: latestUpload.uploadTimestamp,
+    geoHash: latestUpload.geoHash,
+    longitude: latestUpload.longitude,
+    latitude: latestUpload.latitude,
+    title: latestUpload.title,
+    artist: latestUpload.artist,
+    contentType: latestUpload.contentType
   }
-  console.log(currentImageResponse);
 
-  if (currentImageResponse.uploader === undefined || currentImageResponse.periodId !== 'current')
-    return { statusCode: 204, headers: { "content-type": "text/plain" }, body: "No current upload was found" };
-
-
-
-  return { statusCode: 200, headers: { "content-type": "text/plain" }, body: JSON.stringify(currentImageResponse) };
+  return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify(responseBody) };
 }

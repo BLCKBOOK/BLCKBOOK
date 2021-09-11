@@ -1,8 +1,13 @@
 import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
+
+import { GetUploadedArtworksResponseBody } from "./apiSchema";
+import { AuthHandler, AuthHanderOptions } from "../../../../common/AuthHandler";
+import { unauthorized } from "../../../../common/responses";
 import { UploadedArtwork, UploadedArtworkSchema } from "../../../../common/tableDefinitions"
-import { GetUploadedArtworks } from "./apiSchema";
+
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const authHandler = new AuthHandler({ allowedGropus: ['Admin'] })
 
 module.exports.handler = async (event, context) => {
   console.log("event");
@@ -12,16 +17,17 @@ module.exports.handler = async (event, context) => {
   console.log("context")
   console.log(context)
 
-  const username = event.requestContext.authorizer.claims['cognito:username'];
-  console.log(username)
+  try {
+    authHandler.autenticate(event);
+  } catch (error) {
+    return unauthorized
+  }
 
-  const getLatestUploadCommand = new ScanCommand({
-    TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
-    FilterExpression: "periodId = current",
-    ExpressionAttributeValues: { ':username': { S: username } },
-    Limit: 1,
-  });
-  console.log(getLatestUploadCommand)
+  const lastKey = event['queryStringParameters']['lastKey']
 
-  return { statusCode: 200, headers: { "content-type": "text/plain" }, body: JSON.stringify("WOHOO") };
+  let returnObject: GetUploadedArtworksResponseBody;
+
+
+
+  return { statusCode: 200, headers: { "content-type": "text/json" }, body: lastKey };
 }
