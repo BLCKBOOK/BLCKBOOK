@@ -36,6 +36,13 @@ import {faBell} from '@fortawesome/free-solid-svg-icons/faBell';
 import {faBars} from '@fortawesome/free-solid-svg-icons/faBars';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons/faUserCircle';
 import {MatMenuModule} from '@angular/material/menu';
+import { ScrollComponent } from './components/scroll/scroll.component';
+import {NgxMasonryModule} from 'ngx-masonry';
+import {ScrollingModule} from '@angular/cdk/scrolling';
+import {ScrollTrackerDirective} from './components/scroll/scroll-tracker.directive';
+import {faSprayCan} from '@fortawesome/free-solid-svg-icons/faSprayCan';
+import {faSlash} from '@fortawesome/free-solid-svg-icons/faSlash';
+import {MatTabsModule} from '@angular/material/tabs';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -55,6 +62,8 @@ Auth.configure(awsconfig);
     WelcomeComponent,
     ImageUploadComponent,
     VotingComponent,
+    ScrollComponent,
+    ScrollTrackerDirective
   ],
   imports: [
     MatDialogModule,
@@ -80,6 +89,9 @@ Auth.configure(awsconfig);
     MatSidenavModule,
     MatBadgeModule,
     MatMenuModule,
+    NgxMasonryModule,
+    ScrollingModule,
+    MatTabsModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
@@ -96,6 +108,8 @@ export class AppModule {
       faUpload,
       faCamera,
       faUserCircle,
+      faSprayCan,
+      faSlash
     );
   }
 }

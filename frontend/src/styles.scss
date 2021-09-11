@@ -200,6 +200,12 @@ body {
   --text-warn-color: #{$light-primary-text};
   --text-warn-lighter-color: #{$dark-primary-text};
   --text-warn-darker-color: #{$light-primary-text};
+
+  --dark-background: #{$dark-background};
+  --dark-background-lighter-5: #{$dark-bg-lighter-5};
+  --dark-background-lighter-10: #{$dark-bg-lighter-10};
+  --dark-background-lighter-20: #{$dark-bg-lighter-20};
+  --dark-background-lighter-30: #{$dark-bg-lighter-30};
 }
 
 :root {
