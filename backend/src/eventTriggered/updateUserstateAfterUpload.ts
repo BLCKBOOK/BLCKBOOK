@@ -1,5 +1,5 @@
 import { DynamoDB, GetItemCommand, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
-import { S3Client, HeadBucketCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, HeadBucketCommand, HeadObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { marshall } from "@aws-sdk/util-dynamodb";
 
 const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
@@ -13,6 +13,7 @@ module.exports.handler = async (event, context) => {
   console.debug("context")
   console.debug(context)
 
+  // not sure if it will ever be the case that there is more than one record.
   for (let index = 0; index < event.Records.length; index++) {
     const record = event.Records[index];
     const newImage = record.s3.object
@@ -28,14 +29,19 @@ module.exports.handler = async (event, context) => {
         TableName: process.env['USER_INFO_TABLE_NAME'],
         Key: marshall({ username }),
         UpdateExpression: "set uploadsDuringThisPeriod = :newUploadsDuringThisPeriod",
-        ConditionExpression: "uploadsDuringThisPeriod = :oldUploadsDuringThisPeriod",
-        ExpressionAttributeValues: marshall({ ":oldUploadsDuringThisPeriod": oldUploadCount, ":newUploadsDuringThisPeriod": oldUploadCount + 1 }),
+        ConditionExpression: ":oldUploadsDuringThisPeriod < :maxUploads AND uploadsDuringThisPeriod = :oldUploadsDuringThisPeriod",
+        ExpressionAttributeValues: marshall({ ":oldUploadsDuringThisPeriod": oldUploadCount, ":newUploadsDuringThisPeriod": oldUploadCount + 1, ":maxUploads": Number(process.env['MAX_UPLOADS_PER_PERIOD']) }),
         ReturnValues: "UPDATED_NEW",
 
       });
       console.debug(updateUserCommand.input)
       console.debug(await DDBClient.send(updateUserCommand))
     } catch (error) {
+      const deleteDuplicateCommand = new DeleteObjectCommand({
+        Bucket: record.s3.bucket.name,
+        Key: newImage.key,
+      })
+      s3Client.send(deleteDuplicateCommand);
       // TODO discuss if we should remove image from S3?
       throw error
     }
@@ -45,15 +51,37 @@ module.exports.handler = async (event, context) => {
       Bucket: record.s3.bucket.name,
       Key: newImage.key,
     })
-    const metadata = await (await s3Client.send(getImageMetadata)).Metadata
+    let metadata: { [key: string]: number | string } = await (await s3Client.send(getImageMetadata)).Metadata || {}
+    metadata.uploadTimestamp = new Date().getTime() / 1000;
     console.debug("metadata")
     console.debug(metadata)
 
-    // post image metadata with s3 url to dynamodb
     const imageUrl = `https://${record.s3.bucket.name}.s3.${record.awsRegion}.amazonaws.com/${record.s3.object.key}`
+
+    // S3 metadata is stored in lowercase.
+    // we need to restore our casing
+    metadata = {
+      uploader: metadata.uploader,
+      longitude: metadata.longitude,
+      latitude: metadata.latitude,
+      artist: metadata.artist,
+      periodId: metadata.periodid,
+      geoHash: metadata.geohash,
+      artworkId: metadata.artworkid,
+      contentType: metadata.contenttype,
+      approvalState: metadata.approvalstate,
+      uploadTimestamp: metadata.uploadTimestamp,
+      title: metadata.title,
+      imageUrl
+    }
+    console.debug(`This Item Will be Written to the dynamodb table: ${process.env['UPLOADED_ARTWORKS_TABLE_NAME']}`)
+    console.debug(JSON.stringify(metadata))
+
+    let marshalledMetadata = marshall(metadata, { removeUndefinedValues: true })
+    console.debug(JSON.stringify(marshalledMetadata))
     const createNewUploadObjectCommand = new PutItemCommand({
       TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
-      Item: marshall(metadata)
+      Item: marshalledMetadata
     })
     console.debug("createNewUserObjectCommand")
     console.debug(createNewUploadObjectCommand)
