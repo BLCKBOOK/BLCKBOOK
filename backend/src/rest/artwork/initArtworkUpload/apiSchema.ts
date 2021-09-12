@@ -1,24 +1,31 @@
 export const initArtworkUploadSchema = {
-  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "title": {
-      "type": "string"
+    body: {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string"
+        },
+        "longitude": {
+          "type": "string"
+        },
+        "latitude": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "contentType",
+        "longitude",
+        "latitude"
+      ]
     },
-    "contentType": {
-      "type": "string"
-    },
-    "longitude": {
-      "type": "string"
-    },
-    "latitude": {
-      "type": "string"
-    }
   },
   "required": [
-    "contentType",
-    "longitude",
-    "latitude"
+    "body",
   ]
 }
 
