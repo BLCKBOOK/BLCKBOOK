@@ -102,7 +102,7 @@ functions:
       UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
     events:
       - http:
-          path: api/artwork/getCurrentUpload
+          path: artwork/getCurrentUpload
           authorizer: 
             name: BlckBookUsersAuthorizer
             type: COGNITO_USER_POOLS
@@ -148,7 +148,7 @@ functions:
       MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
     events:
       - http:
-          path: api/artwork/initArtworkUpload
+          path: artwork/initArtworkUpload
           authorizer: 
             name: BlckBookUsersAuthorizer
             type: COGNITO_USER_POOLS
@@ -169,7 +169,7 @@ functions:
           - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
     events:
       - http:
-          path: api/artwork/admin/getUploadedArtworks
+          path: artwork/admin/getUploadedArtworks
           authorizer: 
             name: BlckBookUsersAuthorizer
             type: COGNITO_USER_POOLS
@@ -191,7 +191,7 @@ functions:
           - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
     events:
       - http:
-          path: api/artwork/admin/updateUploadedArtwork
+          path: artwork/admin/updateUploadedArtwork
           authorizer: 
             name: BlckBookUsersAuthorizer
             type: COGNITO_USER_POOLS
@@ -327,3 +327,13 @@ resources:
           - AttributeName: uploadDate
             KeyType: RANGE
         TableName: ${self:custom.uploaded_artworks_admin_view_table_name}
+
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi

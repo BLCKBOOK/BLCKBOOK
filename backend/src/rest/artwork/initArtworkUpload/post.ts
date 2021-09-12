@@ -3,13 +3,18 @@ import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/clie
 import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 
+import middy from "@middy/core";
+import validator from "@middy/validator";
+import cors from "@middy/http-cors";
+import httpErrorHandler from "@middy/http-error-handler";
+import httpJsonBodyParser from "@middy/http-json-body-parser";
+
 import { v4 as uuid } from "uuid";
 import { extension } from "mime-types";
-import { validate } from "jsonschema";
 import { encode } from "ngeohash";
 
 import { initArtworkUploadSchema } from "./apiSchema";
-import { maxUploadCountReached, wrongRequestBodyFormat, wrongContentType, unauthorized } from "../../../common/responses";
+import { maxUploadCountReached, wrongContentType, unauthorized } from "../../../common/responses";
 import { UserInfo } from "../../../common/tableDefinitions"
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] });
@@ -21,31 +26,22 @@ const supportedMimeTypes = {
   'image/png': true,
 };
 
-module.exports.handler = async (event, context) => {
-  console.debug("event");
-  console.debug(JSON.stringify(event));
-  console.debug("process.env")
-  console.debug(process.env)
-  console.debug("context")
-  console.debug(context)
+const baseHandler = async (event, context) => {
+  console.debug("event", JSON.stringify(event));
+  console.debug("process.env", process.env)
+  console.debug("context", context)
+  console.debug("body", JSON.stringify(event.body));
 
   // TODO use middy body parser
   if (!event.requestContext.authorizer.claims)
     return unauthorized
 
-  let body;
-  try {
-    body = JSON.parse(event.body)
-  } catch (error) {
-    body = JSON.parse(Buffer.from(event.body, "base64").toString());
-  }
+  let body = event.body;
   const now = new Date()
 
   // validateRequest
   if (!supportedMimeTypes[body.contentType])
     return wrongContentType
-  if (!validate(event.body, initArtworkUploadSchema).valid)
-    return wrongRequestBodyFormat
 
   // get userInfo
   const userInfo = event.requestContext.authorizer.claims;
@@ -58,7 +54,7 @@ module.exports.handler = async (event, context) => {
   let user = unmarshall(await (await DDBclient.send(getUserInfoCommand)).Item || {}) as UserInfo;
 
   // check if user is eligible
-  console.debug(user);
+  console.debug("user", user);
   if (!user.username)
     throw Error(`A user who is not in the ${process.env['USER_INFO_TABLE_NAME']} table has tried to perform a initImageUpload request.`)
 
@@ -90,21 +86,29 @@ module.exports.handler = async (event, context) => {
     //@ts-ignore next line
     Metadata: body
   });
-  const secUntilExpiry = 60;
-  let expiryDate = new Date(now)
-  expiryDate.setSeconds(expiryDate.getSeconds() + secUntilExpiry)
-  let signedUploadUrl = (await getSignedUrl(s3Client, command, { expiresIn: 60 }));
-  console.debug(signedUploadUrl)
 
-  user = ((await DDBclient.send(new UpdateItemCommand({
+  let expiryDate = new Date(now)
+  expiryDate.setSeconds(expiryDate.getSeconds() + 60)
+  let signedUploadUrl = (await getSignedUrl(s3Client, command, { expiresIn: 60 }));
+  console.debug("signedUrl", signedUploadUrl)
+
+  // save current upload in user entity in Dynamodb
+  await DDBclient.send(new UpdateItemCommand({
     TableName: process.env['USER_INFO_TABLE_NAME'],
     Key: marshall({ userId: user.userId }),
     UpdateExpression: "set currentUpload = :newCurrentUpload",
     ConditionExpression: "attribute_not_exists(currentUpload.expiryDate) OR currentUpload.expiryDate < :now",
     ExpressionAttributeValues: marshall({ ":now": now.toJSON(), ":newCurrentUpload": { expiryDate: expiryDate.toJSON(), signedUploadUrl } }),
     ReturnValues: "UPDATED_NEW",
-  }))) as unknown) as UserInfo
-  console.debug(user);
+  }))
 
-  return { statusCode: 200, headers: { "content-type": "text/plain" }, body: signedUploadUrl };
+  return { statusCode: 200, headers: { "content-type": "text/plain", }, body: signedUploadUrl };
 }
+
+const handler = middy(baseHandler)
+  .use(httpErrorHandler())
+  .use(httpJsonBodyParser())
+  .use(validator({ inputSchema: initArtworkUploadSchema }))
+  .use(cors({ origin: "*" }))
+
+module.exports = { handler }
