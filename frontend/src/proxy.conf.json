@@ -1,6 +1,6 @@
 {
   "/dev": {
-    "target": "https://2w1i5ubuz3.execute-api.eu-west-1.amazonaws.com",
+    "target": "https://dcp9b1hgg6.execute-api.eu-west-1.amazonaws.com",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
@@ -12,7 +12,7 @@
     "logLevel": "debug"
   },
   "/prod": {
-    "target": "https://2w1i5ubuz3.execute-api.eu-west-1.amazonaws.com",
+    "target": "https://dcp9b1hgg6.execute-api.eu-west-1.amazonaws.com",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
