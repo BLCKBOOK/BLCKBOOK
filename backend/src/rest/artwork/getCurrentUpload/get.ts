@@ -1,16 +1,20 @@
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { getCurrentImageResponse } from "./apiSchema";
-import { LambdaResponseToApiGw } from "../../../common/lambdaResponseToApiGw";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import middy from "@middy/core";
+import cors from "@middy/http-cors";
+import httpErrorHandler from "@middy/http-error-handler";
 
+import { getCurrentImageResponse } from "./apiSchema";
 import { UploadedArtwork, UploadedArtworkSchema } from "../../../common/tableDefinitions"
 import { noUploadsYet, unauthorized } from "../../../common/responses";
+import { LambdaResponseToApiGw } from "../../../common/lambdaResponseToApiGw";
+import AuthMiddleware from "../../../common/AuthMiddleware";
 
 let responseBody: getCurrentImageResponse;
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
-module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> => {
+const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   console.log("event");
   console.log(JSON.stringify(event));
   console.log("process.env")
@@ -61,3 +65,10 @@ module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> 
 
   return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify(responseBody) };
 }
+
+const handler = middy(baseHandler)
+  .use(httpErrorHandler())
+  .use(AuthMiddleware())
+  .use(cors({ origin: "*" }))
+
+module.exports = { handler }

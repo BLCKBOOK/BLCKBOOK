@@ -16,6 +16,7 @@ import { encode } from "ngeohash";
 import { initArtworkUploadSchema } from "./apiSchema";
 import { maxUploadCountReached, wrongContentType, unauthorized } from "../../../common/responses";
 import { UserInfo } from "../../../common/tableDefinitions"
+import AuthMiddleware from "../../../common/AuthMiddleware"
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] });
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
@@ -108,6 +109,7 @@ const baseHandler = async (event, context) => {
 const handler = middy(baseHandler)
   .use(httpErrorHandler())
   .use(httpJsonBodyParser())
+  .use(AuthMiddleware())
   .use(validator({ inputSchema: initArtworkUploadSchema }))
   .use(cors({ origin: "*" }))
 

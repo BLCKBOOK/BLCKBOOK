@@ -1,11 +1,15 @@
 import { DynamoDB, GetItemCommand, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { S3Client, HeadBucketCommand, HeadObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { marshall } from "@aws-sdk/util-dynamodb";
+import middy from "@middy/core";
+import cors from "@middy/http-cors";
+import httpErrorHandler from "@middy/http-error-handler";
+import httpJsonBodyParser from "@middy/http-json-body-parser";
 
 const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 
-module.exports.handler = async (event, context) => {
+const baseHandler = async (event, context) => {
   console.debug("event");
   console.debug(JSON.stringify(event));
   console.debug("process.env")
@@ -93,3 +97,10 @@ module.exports.handler = async (event, context) => {
     return event
   }
 }
+
+const handler = middy(baseHandler)
+  .use(httpErrorHandler())
+  .use(httpJsonBodyParser())
+  .use(cors({ origin: "*" }))
+
+module.exports = { handler }
