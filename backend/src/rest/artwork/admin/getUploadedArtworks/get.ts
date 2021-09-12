@@ -1,29 +1,24 @@
 import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
+import middy from "@middy/core";
+import cors from "@middy/http-cors";
+import httpErrorHandler from "@middy/http-error-handler";
 
 import { GetUploadedArtworksResponseBody } from "./apiSchema";
-import { AuthHandler, AuthHanderOptions } from "../../../../common/AuthHandler";
-import { unauthorized } from "../../../../common/responses";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { UploadedArtwork } from "../../../../common/tableDefinitions";
 import { LambdaResponseToApiGw } from "../../../../common/lambdaResponseToApiGw";
+import AuthMiddleware from "../../../../common/AuthMiddleware"
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
-const authHandler = new AuthHandler({ allowedGropus: ['Admin'] })
 let returnObject: GetUploadedArtworksResponseBody;
 
-module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> => {
+const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   console.log("event");
   console.log(JSON.stringify(event));
   console.log("process.env")
   console.log(process.env)
   console.log("context")
   console.log(context)
-
-  try {
-    authHandler.autenticate(event);
-  } catch (error) {
-    return unauthorized
-  }
 
   const lastKey = event['queryStringParameters'] ? event['queryStringParameters']['lastKey'] : undefined
 
@@ -55,3 +50,10 @@ module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> 
 
   return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify(returnObject) };
 }
+
+const handler = middy(baseHandler)
+  .use(httpErrorHandler())
+  .use(AuthMiddleware(['Admin']))
+  .use(cors({ origin: "*" }))
+
+module.exports = { handler }

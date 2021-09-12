@@ -1,6 +1,9 @@
 import { DynamoDBClient as DynamoDB, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { CognitoIdentityProvider } from "@aws-sdk/client-cognito-identity-provider";
-import { AdminAddUserToGroupRequest } from "aws-sdk/clients/cognitoidentityserviceprovider";
+import middy from "@middy/core";
+import cors from "@middy/http-cors";
+import httpErrorHandler from "@middy/http-error-handler";
+import httpJsonBodyParser from "@middy/http-json-body-parser";
 
 if (!process.env["AWS_REGION"])
   throw new Error(`region not set in env vars`)
@@ -12,7 +15,7 @@ if (!process.env["USER_POOL_ID"])
 const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
 const cognitoidentityserviceprovider = new CognitoIdentityProvider({});
 
-module.exports.handler = async (event, context) => {
+const baseHandler = async (event, context) => {
 
   console.log("event");
   console.log(JSON.stringify(event));
@@ -62,3 +65,10 @@ module.exports.handler = async (event, context) => {
   console.log(newItem)
   return event
 }
+
+const handler = middy(baseHandler)
+  .use(httpErrorHandler())
+  .use(httpJsonBodyParser())
+  .use(cors({ origin: "*" }))
+
+module.exports = { handler }

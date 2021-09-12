@@ -1,19 +1,22 @@
-import { DynamoDBClient, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
-import { validate } from "jsonschema";
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";;
+import middy from "@middy/core";
+import validator from "@middy/validator";
+import cors from "@middy/http-cors";
+import httpErrorHandler from "@middy/http-error-handler";
+import httpJsonBodyParser from "@middy/http-json-body-parser";
 
 import { UpdateUploadedArtworksResponseBody, RequestValidationSchema } from "./apiSchema";
-import { AuthHandler } from "../../../../common/AuthHandler";
-import { unauthorized, updateItemDoesntExist, wrongRequestBodyFormat } from "../../../../common/responses";
+import { updateItemDoesntExist } from "../../../../common/responses";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { UploadedArtwork } from "../../../../common/tableDefinitions";
 import { LambdaResponseToApiGw } from "../../../../common/lambdaResponseToApiGw";
+import AuthMiddleware from "../../../../common/AuthMiddleware";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
-const authHandler = new AuthHandler({ allowedGropus: ['Admin'] })
 
 let returnObject: UpdateUploadedArtworksResponseBody;
 
-module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> => {
+const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   console.log("event");
   console.log(JSON.stringify(event));
   console.log("process.env")
@@ -21,20 +24,7 @@ module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> 
   console.log("context")
   console.log(context)
 
-  try {
-    authHandler.autenticate(event);
-  } catch (error) {
-    return unauthorized
-  }
-
-  let body: UploadedArtwork;
-  try {
-    body = JSON.parse(Buffer.from(event.body, "base64").toString())
-  } catch (error) {
-    body = JSON.parse(event.body)
-  }
-  if (!validate(body, RequestValidationSchema).valid)
-    return wrongRequestBodyFormat
+  let body: UploadedArtwork = event.body;
 
   body.uploadTimestamp = (Number(body.uploadTimestamp) as unknown) as string
   console.debug(body)
@@ -55,3 +45,12 @@ module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> 
 
   return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify(body) };
 }
+
+const handler = middy(baseHandler)
+  .use(httpErrorHandler())
+  .use(httpJsonBodyParser())
+  .use(validator({ inputSchema: RequestValidationSchema }))
+  .use(AuthMiddleware(['Admin']))
+  .use(cors({ origin: "*" }))
+
+module.exports = { handler }

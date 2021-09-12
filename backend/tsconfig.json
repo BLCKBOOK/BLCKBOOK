@@ -10,7 +10,8 @@
         "outDir": ".build",
         "moduleResolution": "node",
         "lib": [
-            "ES2020"
+            "ES2020",
+            "dom"
         ],
         "rootDir": "./"
     }
