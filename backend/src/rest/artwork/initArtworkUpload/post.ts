@@ -33,10 +33,6 @@ const baseHandler = async (event, context) => {
   console.debug("context", context)
   console.debug("body", JSON.stringify(event.body));
 
-  // TODO use middy body parser
-  if (!event.requestContext.authorizer.claims)
-    return unauthorized
-
   let body = event.body;
   const now = new Date()
 

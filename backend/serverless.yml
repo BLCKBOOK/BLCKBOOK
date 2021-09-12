@@ -53,8 +53,8 @@ functions:
       - Effect: Allow
         Action:
           - s3:DeleteObject
-        Resource:
-          - Fn::GetAtt: [ UploadedArtworksBucket, Arn ]
+        Resource: 
+          - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
     events:
       - s3:
           bucket: ${self:custom.artwork_upload_s3_bucket_name}
@@ -205,9 +205,49 @@ functions:
                 - BlckBookUsers
                 - Arn
           method: post
+          cors: true
     environment:
       UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
       FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
+
+  adminDeleteUploadedArtwork:
+    handler: src/rest/artwork/admin/deleteUploadedArtwork/delete.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+        Resource:
+          - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+          - s3:DeleteObject
+        Resource:
+          - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+    events:
+      - http:
+          path: artwork/admin/deleteUploadedArtwork
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: delete
+          cors: true
+    environment:
+      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
+      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
+      ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
 
 resources:
   Resources:
