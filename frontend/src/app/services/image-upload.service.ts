@@ -35,11 +35,9 @@ export class ImageUploadService {
   }
   private uploadActualImage(image: File, uploadURL: string, contentType: string): Observable<Object> {
     console.log('image upload started');
-    const imageIndex = uploadURL.indexOf('/artwork');
-    const url = uploadURL.slice(imageIndex);
     const headers = new HttpHeaders().set('Content-Type', contentType);
     headers.set('ResponseContentType', 'undefined');
-    return this.httpClient.put(url, image, {headers: headers})
+    return this.httpClient.put(uploadURL, image, {headers: headers})
       .pipe(catchError(this.handleUploadActualImageError.bind(this)));
   }
 
