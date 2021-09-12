@@ -69,6 +69,5 @@ const baseHandler = async (event, context) => {
 const handler = middy(baseHandler)
   .use(httpErrorHandler())
   .use(httpJsonBodyParser())
-  .use(cors({ origin: "*" }))
 
 module.exports = { handler }

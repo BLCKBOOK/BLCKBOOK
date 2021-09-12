@@ -111,6 +111,6 @@ const handler = middy(baseHandler)
   .use(httpJsonBodyParser())
   .use(AuthMiddleware())
   .use(validator({ inputSchema: initArtworkUploadSchema }))
-  .use(cors({ origin: "*" }))
+  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
 
 module.exports = { handler }

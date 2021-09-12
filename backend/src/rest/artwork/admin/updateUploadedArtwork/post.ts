@@ -51,6 +51,6 @@ const handler = middy(baseHandler)
   .use(httpJsonBodyParser())
   .use(validator({ inputSchema: RequestValidationSchema }))
   .use(AuthMiddleware(['Admin']))
-  .use(cors({ origin: "*" }))
+  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
 
 module.exports = { handler }

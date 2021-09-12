@@ -19,6 +19,7 @@ custom:
   artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks' 
   blckbook_user_pool: ${self:provider.stage}-blckbook-users
   period_table_name: period-table
+  frontend_host_name: "*" # TODO change this to our domain as soon an we can move it 
   max_uploads_per_period: 1
   amplify:
     - filename: ../frontend/src/aws-exports.ts
@@ -100,6 +101,7 @@ functions:
           - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
     environment:
       UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
+      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
     events:
       - http:
           path: artwork/getCurrentUpload
@@ -146,6 +148,7 @@ functions:
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
       PERIOD_TABLE_NAME: ${self:custom.period_table_name}
       MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
+      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
     events:
       - http:
           path: artwork/initArtworkUpload
@@ -181,6 +184,7 @@ functions:
           cors: true
     environment:
       UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
+      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
   
   adminUpdateUploadedArtwork:
     handler: src/rest/artwork/admin/updateUploadedArtwork/post.handler
@@ -203,6 +207,7 @@ functions:
           method: post
     environment:
       UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
+      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
 
 resources:
   Resources:
