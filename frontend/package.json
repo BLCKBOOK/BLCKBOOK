@@ -10,18 +10,14 @@
     "test": "ng test",
     "build:stats": "ng build --stats-json",
     "build:browser:prod": "ng build --prod",
-    "build:browser:serverless": "ng build --prod --base-href /dev/",
-    "build:serverless": "npm run build:browser:serverless && npm run build:server:serverless",
     "build:prod": "npm run build:browser:prod && npm run build:server:prod",
     "server": "node local.js",
-    "build:prod:deploy": "npm run build:prod && npm run deploy",
-    "build:serverless:deploy": "npm run build:serverless && npm run deploy",
-    "deploy": "serverless deploy",
-    "build:server:prod": "webpack --config webpack.server.config.js --progress --colors",
-    "build:server:serverless": "webpack --config webpack.server.config.js --progress --colors",
     "lint": "ng lint",
     "analyze": "webpack-bundle-analyzer dist/blckbook-ui/stats.json",
-    "explore": "ng build --prod --source-map && source-map-explorer dist/**/*.js"
+    "explore": "ng build --prod --source-map && source-map-explorer dist/**/*.js",
+    "build:server:serverless": "webpack --config webpack.server.config.js --progress",
+    "deploy:prod": "ng build --configuration production --base-href /prod/ && npm run build:server:serverless && serverless deploy --stage prod",
+    "deploy:dev": "ng build --configuration devDeployment --base-href /dev/ && npm run build:server:serverless && serverless deploy --stage dev"
   },
   "private": true,
   "dependencies": {

@@ -6,19 +6,21 @@ import * as express from 'express';
 import * as cors from 'cors';
 import * as compression from 'compression';
 
-import {join} from 'path';
+import { join } from 'path';
 
 export const app = express.default();
 
-app.use(compression.default());
-app.use(cors.default());
+const router = express.Router();
+
+router.use(compression.default());
+router.use(cors.default());
 
 const DIST_FOLDER = join(process.cwd(), 'dist/blckbook-ui');
 
-app.get('*.*', express.static(join(DIST_FOLDER), {
-    maxAge: '1y'
-}));
+router.use(express.static(DIST_FOLDER))
 
-app.get('/*', (req:any, res:any) => {
+router.get("/*", function (req, res) {
     res.sendFile(join(DIST_FOLDER + '/index.html'));
 });
+
+app.use(router)
