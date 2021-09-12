@@ -17,9 +17,9 @@ module.exports.handler = async (event, context) => {
   for (let index = 0; index < event.Records.length; index++) {
     const record = event.Records[index];
     const newImage = record.s3.object
-    const username = newImage.key.split('/')[1]
+    const userId = newImage.key.split('/')[1]
 
-    const getUserInfo = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { username: { S: username } }, ConsistentRead: true });
+    const getUserInfo = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { userId: { S: userId } }, ConsistentRead: true });
     console.debug(getUserInfo.input)
     const oldUploadCount = Number((await DDBClient.send(getUserInfo)).Item.uploadsDuringThisPeriod.N);
 
@@ -27,7 +27,7 @@ module.exports.handler = async (event, context) => {
     try {
       const updateUserCommand = new UpdateItemCommand({
         TableName: process.env['USER_INFO_TABLE_NAME'],
-        Key: marshall({ username }),
+        Key: marshall({ userId: userId }),
         UpdateExpression: "set uploadsDuringThisPeriod = :newUploadsDuringThisPeriod",
         ConditionExpression: ":oldUploadsDuringThisPeriod < :maxUploads AND uploadsDuringThisPeriod = :oldUploadsDuringThisPeriod",
         ExpressionAttributeValues: marshall({ ":oldUploadsDuringThisPeriod": oldUploadCount, ":newUploadsDuringThisPeriod": oldUploadCount + 1, ":maxUploads": Number(process.env['MAX_UPLOADS_PER_PERIOD']) }),
@@ -52,7 +52,7 @@ module.exports.handler = async (event, context) => {
       Key: newImage.key,
     })
     let metadata: { [key: string]: number | string } = await (await s3Client.send(getImageMetadata)).Metadata || {}
-    metadata.uploadTimestamp = new Date().getTime() / 1000;
+    metadata.uploadTimestamp = new Date().getTime();
     console.debug("metadata")
     console.debug(metadata)
 
@@ -62,6 +62,7 @@ module.exports.handler = async (event, context) => {
     // we need to restore our casing
     metadata = {
       uploader: metadata.uploader,
+      uploaderId: metadata.uploaderid,
       longitude: metadata.longitude,
       latitude: metadata.latitude,
       artist: metadata.artist,

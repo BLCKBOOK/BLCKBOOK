@@ -75,6 +75,11 @@ functions:
           - dynamodb:GetItem
         Resource:
           - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminAddUserToGroup
+        Resource:
+          - Fn::GetAtt: [ BlckBookUsers, Arn ]
     events:
       - cognitoUserPool:
           pool: ${self:provider.stage}-blckbook-users
@@ -82,10 +87,8 @@ functions:
           existing: true
     environment:
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
-      USER_POOL_ARN:
-        Fn::GetAtt:
-          - BlckBookUsers
-          - Arn
+      USER_POOL_ID:
+        Ref: BlckBookUsers
         
   getCurrentUpload:
     handler: "src/rest/artwork/getCurrentUpload/get.handler"
@@ -156,7 +159,7 @@ functions:
           method: post
           cors: true
 
-  getUploadedArtworks:
+  adminGetUploadedArtworks:
     handler: src/rest/artwork/admin/getUploadedArtworks/get.handler
     iamRoleStatements:
       - Effect: Allow
@@ -175,6 +178,8 @@ functions:
                 - BlckBookUsers
                 - Arn
           method: get
+    environment:
+      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
 
 resources:
   Resources:
@@ -183,6 +188,8 @@ resources:
       Properties:
         UserPoolName: ${self:custom.blckbook_user_pool}
         AutoVerifiedAttributes:
+          - email
+        AliasAttributes:
           - email
         Policies:
           PasswordPolicy:
@@ -248,10 +255,10 @@ resources:
       Properties:
         BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions:
-          - AttributeName: username
+          - AttributeName: userId
             AttributeType: S
         KeySchema:
-          - AttributeName: username
+          - AttributeName: userId
             KeyType: HASH
         TableName: ${self:custom.user_info_table_name}
 
@@ -260,12 +267,12 @@ resources:
       Properties:
         BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions:
-          - AttributeName: uploader
+          - AttributeName: uploaderId
             AttributeType: "S"
           - AttributeName: uploadTimestamp
             AttributeType: "N"
         KeySchema:
-          - AttributeName: uploader
+          - AttributeName: uploaderId
             KeyType: HASH
           - AttributeName: uploadTimestamp
             KeyType: "RANGE"

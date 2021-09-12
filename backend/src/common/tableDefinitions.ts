@@ -1,3 +1,7 @@
+export interface UserInfoIndex {
+  userId: string,
+}
+
 export interface UserInfo {
   uploadsDuringThisPeriod: number,
   username: string,
@@ -6,17 +10,23 @@ export interface UserInfo {
   currentUpload?: { signedUploadUrl: string, expiryDate: string }
 }
 
-export interface Sale {
+interface Sale {
   buyer: String //  either walletid or blckbook username
   seller: string // either walletid or blckbook username
+}
+
+export interface UploadedArtworkIndex {
+  uploaderId: string,
+  uploadTimestamp: string
 }
 
 export interface UploadedArtwork {
   periodId: string
   artworkId: string
+  uploaderId: string,
   imageUrl: string
   uploader: string
-  uploadTimestamp: Date
+  uploadTimestamp: string
   geoHash: string
   longitude: string
   latitude: string

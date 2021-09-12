@@ -21,19 +21,18 @@ module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> 
   if (!event.requestContext.authorizer.claims)
     return unauthorized
 
-  const username = event.requestContext.authorizer.claims['cognito:username'];
-  console.log(username)
+  const uploaderId = event.requestContext.authorizer.claims['sub'];
+  console.log(uploaderId)
 
   const getLatestUploadCommand = new QueryCommand({
     TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
-    KeyConditionExpression: "uploader = :username",
-    ExpressionAttributeValues: marshall({ ":username": username }),
+    KeyConditionExpression: "uploaderId = :uploaderId",
+    ExpressionAttributeValues: marshall({ ":uploaderId": uploaderId }),
     ScanIndexForward: false,
     Limit: 1,
   });
   console.log(JSON.stringify(getLatestUploadCommand))
 
-  let user: UploadedArtwork
   const item = ((await (await DDBclient.send(getLatestUploadCommand))))
   console.log("YAY")
   console.log(item)
@@ -47,6 +46,7 @@ module.exports.handler = async (event, context): Promise<LambdaResponseToApiGw> 
 
   responseBody = {
     periodId: latestUpload.periodId,
+    uploaderId: latestUpload.uploaderId,
     artworkId: latestUpload.artworkId,
     imageUrl: latestUpload.imageUrl,
     uploader: latestUpload.uploader,

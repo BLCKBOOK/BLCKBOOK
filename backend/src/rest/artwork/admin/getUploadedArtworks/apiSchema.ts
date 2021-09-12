@@ -1,3 +1,4 @@
-import { UploadedArtwork } from "../../../../common/tableDefinitions";
+import { UploadedArtwork, UploadedArtworkIndex } from "../../../../common/tableDefinitions";
 
-export interface GetUploadedArtworksResponseBody { artworks: UploadedArtwork[] }
+
+export interface GetUploadedArtworksResponseBody { artworks: UploadedArtwork[], lastKey: UploadedArtworkIndex }

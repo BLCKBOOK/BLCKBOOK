@@ -9,7 +9,7 @@ import { validate } from "jsonschema";
 import { encode } from "ngeohash";
 
 import { initArtworkUploadSchema } from "./apiSchema";
-import { maxUploadCountReached, wrongRequestBodyFormat, wrongContentType } from "../../../common/responses";
+import { maxUploadCountReached, wrongRequestBodyFormat, wrongContentType, unauthorized } from "../../../common/responses";
 import { UserInfo } from "../../../common/tableDefinitions"
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] });
@@ -29,7 +29,16 @@ module.exports.handler = async (event, context) => {
   console.debug("context")
   console.debug(context)
 
-  const body = JSON.parse(event.body)
+  // TODO use middy body parser
+  if (!event.requestContext.authorizer.claims)
+    return unauthorized
+
+  let body;
+  try {
+    body = JSON.parse(event.body)
+  } catch (error) {
+    body = JSON.parse(Buffer.from(event.body, "base64").toString());
+  }
   const now = new Date()
 
   // validateRequest
@@ -43,10 +52,10 @@ module.exports.handler = async (event, context) => {
   const contentType = body.contentType
   const getUserInfoCommand = new GetItemCommand({
     TableName: process.env['USER_INFO_TABLE_NAME'],
-    Key: { username: { S: userInfo['cognito:username'] } },
+    Key: { userId: { S: userInfo['sub'] } },
     ConsistentRead: true
   });
-  let user = unmarshall(await (await DDBclient.send(getUserInfoCommand)).Item) as UserInfo;
+  let user = unmarshall(await (await DDBclient.send(getUserInfoCommand)).Item || {}) as UserInfo;
 
   // check if user is eligible
   console.debug(user);
@@ -65,6 +74,7 @@ module.exports.handler = async (event, context) => {
   Object.assign(body, {
     periodId: "current",
     artworkId,
+    uploaderId: userInfo['sub'],
     uploader: userInfo['cognito:username'],
     uploadTimestamp: Math.round(Date.now() / 1000).toString(),
     geoHash: encode(body.longitude, body.latitude),
@@ -74,7 +84,7 @@ module.exports.handler = async (event, context) => {
 
   // create signed upload url
   const command = new PutObjectCommand({
-    Key: `artwork/${userInfo['cognito:username']}/${artworkId}.${extension(contentType)}`,
+    Key: `artwork/${userInfo['sub']}/${artworkId}.${extension(contentType)}`,
     Bucket: process.env["ARTWORK_UPLOAD_S3_BUCKET_NAME"],
     ACL: 'public-read',
     //@ts-ignore next line
@@ -88,7 +98,7 @@ module.exports.handler = async (event, context) => {
 
   user = ((await DDBclient.send(new UpdateItemCommand({
     TableName: process.env['USER_INFO_TABLE_NAME'],
-    Key: marshall({ username: user.username }),
+    Key: marshall({ userId: user.userId }),
     UpdateExpression: "set currentUpload = :newCurrentUpload",
     ConditionExpression: "attribute_not_exists(currentUpload.expiryDate) OR currentUpload.expiryDate < :now",
     ExpressionAttributeValues: marshall({ ":now": now.toJSON(), ":newCurrentUpload": { expiryDate: expiryDate.toJSON(), signedUploadUrl } }),
