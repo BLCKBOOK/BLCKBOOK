@@ -15,7 +15,7 @@ export class AuthHandler {
   autenticate(event) {
     const groupString: string | undefined = event.requestContext.authorizer.claims['cognito:groups']
     if (groupString === undefined)
-      throw new Error("not authorized")
+      throw new Error("Unauthorized")
     const userGroups: string[] = groupString.split(',')
     let authorized = false;
     userGroups.forEach(userGroup => {
@@ -25,6 +25,6 @@ export class AuthHandler {
     });
 
     if (!authorized)
-      throw new Error("not authorized")
+      throw new Error("Unauthorized")
   }
 }
