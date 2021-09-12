@@ -44,7 +44,7 @@ module.exports.handler = async (event, context) => {
   // validateRequest
   if (!supportedMimeTypes[body.contentType])
     return wrongContentType
-  if (!validate(event.body, initArtworkUploadSchema))
+  if (!validate(event.body, initArtworkUploadSchema).valid)
     return wrongRequestBodyFormat
 
   // get userInfo

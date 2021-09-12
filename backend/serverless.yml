@@ -180,6 +180,28 @@ functions:
           method: get
     environment:
       UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
+  
+  adminUpdateUploadedArtwork:
+    handler: src/rest/artwork/admin/updateUploadedArtwork/post.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    events:
+      - http:
+          path: api/artwork/admin/updateUploadedArtwork
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: post
+    environment:
+      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
 
 resources:
   Resources:
