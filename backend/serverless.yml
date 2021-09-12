@@ -178,6 +178,7 @@ functions:
                 - BlckBookUsers
                 - Arn
           method: get
+          cors: true
     environment:
       UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
   
