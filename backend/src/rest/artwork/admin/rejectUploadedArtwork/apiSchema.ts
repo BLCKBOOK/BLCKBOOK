@@ -26,4 +26,4 @@ export const RequestValidationSchema = {
 
 export type UpdateUploadedArtworksRequestBody = UploadedArtworkIndex;
 
-export type UpdateUploadedArtworksResponseBody = boolean;
+export type UpdateUploadedArtworksResponseBody = string;
