@@ -69,6 +69,6 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 const handler = middy(baseHandler)
   .use(httpErrorHandler())
   .use(AuthMiddleware())
-  .use(cors({ origin: "*" }))
+  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
 
 module.exports = { handler }

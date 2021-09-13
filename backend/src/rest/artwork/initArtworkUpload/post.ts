@@ -33,10 +33,6 @@ const baseHandler = async (event, context) => {
   console.debug("context", context)
   console.debug("body", JSON.stringify(event.body));
 
-  // TODO use middy body parser
-  if (!event.requestContext.authorizer.claims)
-    return unauthorized
-
   let body = event.body;
   const now = new Date()
 
@@ -111,6 +107,6 @@ const handler = middy(baseHandler)
   .use(httpJsonBodyParser())
   .use(AuthMiddleware())
   .use(validator({ inputSchema: initArtworkUploadSchema }))
-  .use(cors({ origin: "*" }))
+  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
 
 module.exports = { handler }
