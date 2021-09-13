@@ -211,7 +211,7 @@ functions:
       FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
 
   adminDeleteUploadedArtwork:
-    handler: src/rest/artwork/admin/deleteUploadedArtwork/delete.handler
+    handler: src/rest/artwork/admin/rejectUploadedArtwork/post.handler
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -233,7 +233,7 @@ functions:
           - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
     events:
       - http:
-          path: artwork/admin/deleteUploadedArtwork
+          path: artwork/admin/rejectUploadedArtwork
           authorizer: 
             name: BlckBookUsersAuthorizer
             type: COGNITO_USER_POOLS
@@ -241,7 +241,7 @@ functions:
               Fn::GetAtt:
                 - BlckBookUsers
                 - Arn
-          method: delete
+          method: post
           cors: true
     environment:
       UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
