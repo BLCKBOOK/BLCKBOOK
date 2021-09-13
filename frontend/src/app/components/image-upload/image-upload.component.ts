@@ -1,9 +1,10 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import * as exifr from 'exifr';
 import {ImageUploadService} from '../../services/image-upload.service';
 import {AcceptedMimeTypes, ImageUpload} from '../../types/image.type';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {InitArtworkUploadRequest} from '../../../../../backend/src/rest/artwork/initArtworkUpload/apiSchema';
+import {ActivatedRoute} from '@angular/router';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -14,7 +15,7 @@ interface HTMLInputEvent extends Event {
   templateUrl: './image-upload.component.html',
   styleUrls: ['./image-upload.component.scss']
 })
-export class ImageUploadComponent {
+export class ImageUploadComponent implements OnInit {
   latitude: string | undefined = undefined;
   longitude: string | undefined = undefined;
 
@@ -23,20 +24,24 @@ export class ImageUploadComponent {
   url: string | ArrayBuffer | null | undefined = '';
   contentType: string | undefined = undefined;
 
-  faCamera = findIconDefinition({ prefix: 'fas', iconName: 'camera' });
+  faCamera = findIconDefinition({prefix: 'fas', iconName: 'camera'});
   alreadyUploaded = false;
 
-  constructor(private imageUploadService: ImageUploadService) {
-    this.imageUploadService.getUploadedArtwork().subscribe(upload => {
-      if (upload) {
-        this.alreadyUploaded = true;
-        this.longitude = upload.longitude;
-        this.latitude = upload.latitude;
-        this.title = upload.title;
-        this.url = upload.imageUrl;
-        console.log(upload);
-      }
-    });
+  constructor(private imageUploadService: ImageUploadService, private route: ActivatedRoute) {
+  }
+
+  ngOnInit(): void {
+    const upload = this.route.snapshot.data['uploadedImage'];
+    console.log(upload);
+    if (upload) {
+      this.alreadyUploaded = true;
+      this.longitude = upload.longitude;
+      this.latitude = upload.latitude;
+      this.title = upload.title;
+      this.url = upload.imageUrl;
+      console.log(upload);
+    }
+
   }
 
   imageChanged($event: Event) {
