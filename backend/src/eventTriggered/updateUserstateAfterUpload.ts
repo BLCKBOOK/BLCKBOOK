@@ -28,27 +28,19 @@ const baseHandler = async (event, context) => {
     const oldUploadCount = Number((await DDBClient.send(getUserInfo)).Item.uploadsDuringThisPeriod.N);
 
     // Increase uploadDuringThisPeriod Counter
-    try {
-      const updateUserCommand = new UpdateItemCommand({
-        TableName: process.env['USER_INFO_TABLE_NAME'],
-        Key: marshall({ userId: userId }),
-        UpdateExpression: "set uploadsDuringThisPeriod = :newUploadsDuringThisPeriod",
-        ConditionExpression: ":oldUploadsDuringThisPeriod < :maxUploads AND uploadsDuringThisPeriod = :oldUploadsDuringThisPeriod",
-        ExpressionAttributeValues: marshall({ ":oldUploadsDuringThisPeriod": oldUploadCount, ":newUploadsDuringThisPeriod": oldUploadCount + 1, ":maxUploads": Number(process.env['MAX_UPLOADS_PER_PERIOD']) }),
-        ReturnValues: "UPDATED_NEW",
 
-      });
-      console.debug(updateUserCommand.input)
-      console.debug(await DDBClient.send(updateUserCommand))
-    } catch (error) {
-      const deleteDuplicateCommand = new DeleteObjectCommand({
-        Bucket: record.s3.bucket.name,
-        Key: newImage.key,
-      })
-      s3Client.send(deleteDuplicateCommand);
-      // TODO discuss if we should remove image from S3?
-      throw error
-    }
+    const updateUserCommand = new UpdateItemCommand({
+      TableName: process.env['USER_INFO_TABLE_NAME'],
+      Key: marshall({ userId: userId }),
+      UpdateExpression: "set uploadsDuringThisPeriod = :newUploadsDuringThisPeriod",
+      ConditionExpression: ":oldUploadsDuringThisPeriod < :maxUploads AND uploadsDuringThisPeriod = :oldUploadsDuringThisPeriod",
+      ExpressionAttributeValues: marshall({ ":oldUploadsDuringThisPeriod": oldUploadCount, ":newUploadsDuringThisPeriod": oldUploadCount + 1, ":maxUploads": Number(process.env['MAX_UPLOADS_PER_PERIOD']) }),
+      ReturnValues: "UPDATED_NEW",
+
+    });
+    console.debug(updateUserCommand.input)
+    console.debug(await DDBClient.send(updateUserCommand))
+
 
     // get image metadata from s3
     const getImageMetadata = new HeadObjectCommand({
