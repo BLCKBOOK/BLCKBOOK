@@ -34,6 +34,9 @@ provider:
   runtime: nodejs14.x
   lambdaHashingVersion: '20201221'
   region: 'eu-west-1'
+  environment:
+    FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
+    STAGE:  ${self:provider.stage}
 
 functions:
   updateUserstateAfterUpload:
@@ -248,6 +251,37 @@ functions:
       USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
       FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
       ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
+
+  adminBanUser:
+    handler: src/rest/user/admin/banUser/post.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminDisableUser
+        Resource:
+          - Fn::GetAtt: [ BlckBookUsers, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource:
+          - Fn::GetAtt: [ userInfoTable, Arn ]
+    events:
+      - http:
+          path: user/admin/banUser
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: post
+          cors: true
+    environment:
+      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+      USER_POOL_ID:
+        Ref: BlckBookUsers
 
 resources:
   Resources:
