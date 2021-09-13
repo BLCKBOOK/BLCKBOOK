@@ -1,9 +1,10 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import * as exifr from 'exifr';
 import {ImageUploadService} from '../../services/image-upload.service';
 import {AcceptedMimeTypes, ImageUpload} from '../../types/image.type';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {InitArtworkUploadRequest} from '../../../../../backend/src/rest/artwork/initArtworkUpload/apiSchema';
+import {ActivatedRoute} from '@angular/router';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -14,23 +15,33 @@ interface HTMLInputEvent extends Event {
   templateUrl: './image-upload.component.html',
   styleUrls: ['./image-upload.component.scss']
 })
-export class ImageUploadComponent {
-  latitude: number | undefined = undefined;
-  longitude: number | undefined = undefined;
+export class ImageUploadComponent implements OnInit {
+  latitude: string | undefined = undefined;
+  longitude: string | undefined = undefined;
 
   image: File | undefined = undefined;
-  title = '';
+  title: string | undefined = '';
   url: string | ArrayBuffer | null | undefined = '';
   contentType: string | undefined = undefined;
 
-  faCamera = findIconDefinition({ prefix: 'fas', iconName: 'camera' })
+  faCamera = findIconDefinition({prefix: 'fas', iconName: 'camera'});
+  alreadyUploaded = false;
 
-  constructor(private imageUploadService: ImageUploadService) {
-    this.imageUploadService.getUploadedArtwork().subscribe(upload => {
-      if (upload) {
-        console.log(upload);
-      }
-    });
+  constructor(private imageUploadService: ImageUploadService, private route: ActivatedRoute) {
+  }
+
+  ngOnInit(): void {
+    const upload = this.route.snapshot.data['uploadedImage'];
+    console.log(upload);
+    if (upload) {
+      this.alreadyUploaded = true;
+      this.longitude = upload.longitude;
+      this.latitude = upload.latitude;
+      this.title = upload.title;
+      this.url = upload.imageUrl;
+      console.log(upload);
+    }
+
   }
 
   imageChanged($event: Event) {
@@ -49,8 +60,8 @@ export class ImageUploadComponent {
       // @ts-ignore
       exifr.gps(upload).then(gps => {
         if (gps) {
-          this.latitude = gps.latitude;
-          this.longitude = gps.longitude;
+          this.latitude = gps.latitude.toString();
+          this.longitude = gps.longitude.toString();
           this.image = upload;
           const reader = new FileReader();
           reader.readAsDataURL(upload); // read file as data url
@@ -66,7 +77,7 @@ export class ImageUploadComponent {
     }
   }
 
-  submitImage() {
+  submitImage(): void {
     if (this.image && this.longitude && this.latitude && this.contentType) {
       const image = {
         image: this.image,
@@ -90,5 +101,9 @@ export class ImageUploadComponent {
     } else {
       window.alert('clicked submit without image');
     }
+  }
+
+  deleteImage(): void {
+
   }
 }

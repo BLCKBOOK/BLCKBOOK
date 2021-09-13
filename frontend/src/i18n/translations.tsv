@@ -11,3 +11,5 @@ upload.header	SUBMIT YOUR TAG
 upload.longitude	LONGITUDE
 upload.latitude	LATITUDE
 upload.name	PROPOSED NAME (OPTIONAL)
+upload.submit	Submit
+upload.delete	Delete

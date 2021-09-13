@@ -12,7 +12,7 @@ import {ImageUpload} from '../types/image.type';
 })
 export class ImageUploadService {
 
-  private readonly imageUploadURL = environment.urlString + '/artwork';
+  private readonly imageAPIURL = environment.urlString + '/artwork';
   private readonly initUploadURL = '/initArtworkUpload';
   private readonly currentUploadURL = '/getCurrentUpload';
 
@@ -31,7 +31,7 @@ export class ImageUploadService {
   }
 
   public getUploadedArtwork(): Observable<UploadedArtwork> {
-    return this.httpClient.get<UploadedArtwork>(this.imageUploadURL + this.currentUploadURL);
+    return this.httpClient.get<UploadedArtwork>(this.imageAPIURL + this.currentUploadURL);
   }
   private uploadActualImage(image: File, uploadURL: string, contentType: string): Observable<Object> {
     console.log('image upload started');
@@ -42,7 +42,7 @@ export class ImageUploadService {
   }
 
   private uploadImageData(data: InitArtworkUploadRequest): Observable<string> {
-    return this.httpClient.post(this.imageUploadURL + this.initUploadURL, data, {responseType: 'text'})
+    return this.httpClient.post(this.imageAPIURL + this.initUploadURL, data, {responseType: 'text'})
       .pipe(catchError(this.handleUploadImageDataError.bind(this)));
   }
 

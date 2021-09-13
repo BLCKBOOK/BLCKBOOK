@@ -3,7 +3,7 @@
 </div>
 <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container">
   <div fxFlex="1 1 50%">
-    <button *ngIf="!this.image; else noImage" mat-raised-button class="upload-button" (click)="file.click()">
+    <button *ngIf="!this.image && !this.alreadyUploaded; else noImage" mat-raised-button class="upload-button" (click)="file.click()">
       <p>
         <span> some date info</span>
       </p>
@@ -34,11 +34,14 @@
     <div>
       <mat-form-field appearance="fill" class="meta-input">
         <mat-label>{{'upload.name' | translate}}</mat-label>
-        <input matInput placeholder="" [(ngModel)]="title">
+        <input matInput placeholder="" [(ngModel)]="title" [disabled]="alreadyUploaded">
       </mat-form-field>
     </div>
   </div>
 </div>
-<div>
-  <button mat-raised-button (click)="submitImage()">Submit</button>
+<div *ngIf="!alreadyUploaded; else: deleteUpload">
+  <button mat-raised-button (click)="submitImage()" [disabled]="!(image && latitude && longitude)">{{'upload.submit' | translate}}</button>
 </div>
+<ng-template #deleteUpload>
+  <button mat-raised-button (click)="deleteImage()">{{'upload.delete' | translate}}</button>
+</ng-template>

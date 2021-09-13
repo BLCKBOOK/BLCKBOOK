@@ -9,7 +9,7 @@ export class BeaconService {
   dAppClient: DAppClient;
 
   constructor() {
-    this.dAppClient = new DAppClient({name: 'Beacon Docs'});
+    this.dAppClient = new DAppClient({name: 'BLCKBOOK'});
   }
 
   async connect(): Promise<void> {
