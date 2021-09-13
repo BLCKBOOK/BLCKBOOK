@@ -21,7 +21,7 @@ import awsconfig from '../aws-exports';
 import {MatDialogModule} from '@angular/material/dialog';
 import {AuthInterceptor} from './services/AuthInterceptor';
 import {WelcomeComponent} from './components/welcome/welcome.component';
-import {AuthGuardService} from './services/auth-guard.service';
+import {AdminAuthGuardService, AuthGuardService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
 import {VotingComponent} from './components/voting/voting.component';
 import {MatInputModule} from '@angular/material/input';
@@ -95,7 +95,7 @@ Auth.configure(awsconfig);
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
-    [AuthGuardService]
+    [AuthGuardService, AdminAuthGuardService]
   ],
   bootstrap: [AppComponent]
 })

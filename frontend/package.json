@@ -32,7 +32,6 @@
     "@angular/platform-browser": "~12.2.0",
     "@angular/platform-browser-dynamic": "~12.2.0",
     "@angular/router": "~12.2.0",
-    "@auth0/angular-jwt": "^5.0.2",
     "@aws-amplify/auth": "^4.3.1",
     "@aws-amplify/interactions": "^4.0.14",
     "@aws-amplify/storage": "^4.3.9",

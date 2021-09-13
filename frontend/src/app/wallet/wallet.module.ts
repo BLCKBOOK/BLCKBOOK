@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { WalletRoutingModule } from './wallet-routing.module';
 import { WalletComponent } from './wallet.component';
-import {BeaconService} from '../services/beacon.service';
 import {MatButtonModule} from '@angular/material/button';
+import {BeaconService} from './beacon.service';
 
 
 @NgModule({

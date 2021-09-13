@@ -15,6 +15,8 @@
     "header": "SUBMIT YOUR TAG",
     "longitude": "LONGITUDE",
     "latitude": "LATITUDE",
-    "name": "PROPOSED NAME (OPTIONAL)"
+    "name": "PROPOSED NAME (OPTIONAL)",
+    "submit": "Submit",
+    "delete": "Delete"
   }
 }

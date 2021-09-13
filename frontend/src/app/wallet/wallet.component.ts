@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {BeaconService} from '../services/beacon.service';
+import {BeaconService} from './beacon.service';
 
 @Component({
   selector: 'app-wallet',
