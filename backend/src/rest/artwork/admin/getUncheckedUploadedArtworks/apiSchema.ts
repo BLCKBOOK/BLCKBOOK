@@ -16,4 +16,6 @@ export const queryParamSchema = {
     ]
 }
 
-export interface GetUploadedArtworksResponseBody { artworks: UploadedArtwork[], lastKey?: UploadedArtworkIndex }
+export type GetUploadedArtworksRequestParams = UploadedArtworkIndex;
+
+export interface GetUploadedArtworksResponseBody { artworks: UploadedArtwork[], lastKey?: UploadedArtworkIndex };

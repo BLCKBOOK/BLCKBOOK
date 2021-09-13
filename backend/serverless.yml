@@ -189,6 +189,30 @@ functions:
       UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
       FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
   
+  adminGetUncheckedUploadedArtworks:
+    handler: src/rest/artwork/admin/getUncheckedUploadedArtworks/get.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    events:
+      - http:
+          path: artwork/admin/getUncheckedUploadedArtworks
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: get
+          cors: true
+    environment:
+      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
+      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
+  
   adminUpdateUploadedArtwork:
     handler: src/rest/artwork/admin/updateUploadedArtwork/post.handler
     iamRoleStatements:

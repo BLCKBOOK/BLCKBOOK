@@ -26,20 +26,23 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     lastKey = decodedLastKey
   }
 
-
   let getAllUploadsScan: ScanCommand;
-  console.debug(lastKey)
+
   if (lastKey) {
     // TODO only get uploads older than 1 minute to make sure the signed upload url has expired
     getAllUploadsScan = new ScanCommand({
       TableName: process.env['UPLOADED_ARTWORKS_TABLE'],
+      FilterExpression: "approvalState = :unchecked",
+      ExpressionAttributeValues: marshall({ ":unchecked": "unchecked" }),
       ExclusiveStartKey: marshall(lastKey),
-      Limit: 50
+      Limit: 5
     })
   } else {
     getAllUploadsScan = new ScanCommand({
       TableName: process.env['UPLOADED_ARTWORKS_TABLE'],
-      Limit: 50
+      FilterExpression: "approvalState = :unchecked",
+      ExpressionAttributeValues: marshall({ ":unchecked": "unchecked" }),
+      Limit: 5
     })
   }
 
