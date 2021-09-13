@@ -3,7 +3,7 @@ const { createError } = require('@middy/util')
 
 const httpJsonBodyParserMiddleware = (allowedGropus: string[] = ['User', 'Admin']) => {
 
-  const httpJsonBodyParserMiddlewareBefore = async request => {
+  const checkAuth = async request => {
     console.log(request)
     console.log(JSON.stringify(request))
     const error = createError(401, 'Unauthorized')
@@ -25,7 +25,7 @@ const httpJsonBodyParserMiddleware = (allowedGropus: string[] = ['User', 'Admin'
   };
 
   return {
-    before: httpJsonBodyParserMiddlewareBefore
+    before: checkAuth
   };
 };
 
