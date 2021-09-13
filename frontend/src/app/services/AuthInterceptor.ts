@@ -17,13 +17,11 @@ export class AuthInterceptor implements HttpInterceptor {
         return next.handle(req);
       }
       const token = session.getIdToken().getJwtToken();
-      console.log(token);
 
       const authValue = 'Bearer ' + token;
       const req1 = req.clone({
         headers: req.headers.set('Authorization', authValue),
       });
-      console.log(req1);
       return next.handle(req1);
     }));
   }

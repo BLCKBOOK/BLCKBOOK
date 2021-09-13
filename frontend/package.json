@@ -58,6 +58,7 @@
     "serverless-api-compression": "^1.0.1",
     "tslib": "^2.3.0",
     "url-parse": "^1.5.3",
+    "urlencode": "^1.1.0",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
@@ -72,6 +73,7 @@
     "@fortawesome/fontawesome-free": "^5.15.4",
     "@types/jasmine": "~3.8.0",
     "@types/node": "^12.11.1",
+    "@types/urlencode": "^1.1.2",
     "@typescript-eslint/eslint-plugin": "4.28.2",
     "@typescript-eslint/parser": "4.28.2",
     "eslint": "^7.26.0",

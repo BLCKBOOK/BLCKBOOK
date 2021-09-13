@@ -1,31 +1,12 @@
+<div *ngIf="loading else loaded">
+  <mat-spinner></mat-spinner>
+</div>
+<ng-template #loaded>
+  <div *ngFor="let artwork of artworks">
+    <img src="{{artwork.imageUrl}}" height="400px">
+    <span> {{artwork.title}}</span>
+    <mat-checkbox [checked]="artwork.approvalState === 'approved'" (click)="checkArtwork(artwork)"></mat-checkbox>
+  </div>
+  <button mat-button (click)="getNextArtworks()">Get next</button>
 
-<p>admin works!</p>
-<p>admin works!</p><p>admin works!</p><p>admin works!</p><p>admin works!</p>
-
-
-
-<p>admin works!</p>
-<p>admin works!</p><p>admin works!</p><p>admin works!</p><p>admin works!</p>
-
-
-
-<p>admin works!</p>
-<p>admin works!</p><p>admin works!</p><p>admin works!</p><p>admin works!</p>
-
-
-
-<p>admin works!</p>
-<p>admin works!</p><p>admin works!</p><p>admin works!</p><p>admin works!</p>
-
-
-
-<p>admin works!</p>
-<p>admin works!</p><p>admin works!</p><p>admin works!</p><p>admin works!</p>
-
-
-
-<p>admin works!</p>
-<p>admin works!</p><p>admin works!</p><p>admin works!</p><p>admin works!</p>
-
-
-
+</ng-template>

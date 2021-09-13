@@ -95,7 +95,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "fronted:build",
+            "browserTarget": "fronted:build"
           },
           "configurations": {
             "production": {

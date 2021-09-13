@@ -16,6 +16,9 @@
       <button mat-button class="nav-item" routerLink="/gallery">
         {{"navbar.gallery" | translate}}
       </button>
+      <button *ngIf="isAdmin$ | async" mat-button class="nav-item" routerLink="/admin">
+        {{"navbar.admin" | translate}}
+      </button>
     </div>
     <span class="example-spacer"></span>
     <button mat-button *ngIf="(authState$ | async) !== 'signedin'; else: profile" routerLink="/login">
@@ -43,6 +46,9 @@
         </button>
         <button mat-button class="nav-item" routerLink="/gallery">
           {{"navbar.gallery" | translate}}
+        </button>
+        <button mat-button class="nav-item" *ngIf="isAdmin$ | async" routerLink="/admin">
+          {{"navbar.admin" | translate}}
         </button>
       </div>
     </mat-sidenav>

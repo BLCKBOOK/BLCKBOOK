@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdminComponent } from './admin.component';
 import {AdminService} from './admin.service';
+import {MatButtonModule} from '@angular/material/button';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 
 @NgModule({
@@ -12,7 +15,10 @@ import {AdminService} from './admin.service';
   ],
   imports: [
     CommonModule,
-    AdminRoutingModule
+    AdminRoutingModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatCheckboxModule
   ],
   providers: [AdminService],
 })

@@ -42,7 +42,6 @@ export class UserService {
       if (session.isValid()) {
         const decodedToken = session.getIdToken().decodePayload();
         const groups: string[] = decodedToken['cognito:groups'];
-        console.log(groups);
         if (groups.includes('Admin')) {
           return true;
         }
