@@ -1,3 +1,5 @@
+import { bool } from "aws-sdk/clients/signer";
+
 export interface UserInfoIndex {
   userId: string,
 }
@@ -7,6 +9,7 @@ export interface UserInfo {
   username: string,
   email: string,
   userId: string,
+  banned?: boolean,
   currentUpload?: { signedUploadUrl: string, expiryDate: string }
   walletId?: string
 }

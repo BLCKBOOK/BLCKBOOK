@@ -1,4 +1,4 @@
-import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { AdminDisableUserCommand, CognitoIdentityProviderClient } from "@aws-sdk/client-cognito-identity-provider";
 
 import middy from "@middy/core";
@@ -39,7 +39,13 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   })
   await cognitoClient.send(disableUserCommand)
 
-  // TODO set info about banned state in the User Info object
+  let updateUserCommand = new UpdateItemCommand({
+    TableName: process.env['USER_INFO_TABLE_NAME'],
+    Key: marshall({ userId: body.userId }),
+    UpdateExpression: "set banned = :true",
+    ExpressionAttributeValues: marshall({ ":true": true })
+  })
+  await DDBclient.send(updateUserCommand)
 
   console.debug("User was successfully banned")
   return { statusCode: 200, headers: { "content-type": "text/plain" }, body: "User was successfully banned" };
@@ -47,10 +53,10 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
 const handler = middy(baseHandler)
   .use(httpErrorHandler())
+  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
   .use(httpJsonBodyParser())
   .use(RequestLogger())
   .use(validator({ inputSchema: RequestValidationSchema }))
   .use(AuthMiddleware(['Admin']))
-  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
 
 module.exports = { handler }

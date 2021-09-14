@@ -14,7 +14,7 @@ import { extension } from "mime-types";
 import { encode } from "ngeohash";
 
 import { initArtworkUploadSchema } from "./apiSchema";
-import { maxUploadCountReached, wrongContentType, unauthorized } from "../../../common/responses";
+import { maxUploadCountReached, wrongContentType, youAreBanned } from "../../../common/responses";
 import { UserInfo } from "../../../common/tableDefinitions"
 import AuthMiddleware from "../../../common/AuthMiddleware"
 
@@ -57,7 +57,8 @@ const baseHandler = async (event, context) => {
 
   if (user.uploadsDuringThisPeriod >= Number(process.env['MAX_UPLOADS_PER_PERIOD']))
     return maxUploadCountReached;
-
+  if (user.banned)
+    return youAreBanned;
   if (user.currentUpload && new Date(user.currentUpload.expiryDate) >= now) {
     return { statusCode: 200, headers: { "content-type": "text/plain" }, body: user.currentUpload.signedUploadUrl };
   }
@@ -104,9 +105,9 @@ const baseHandler = async (event, context) => {
 
 const handler = middy(baseHandler)
   .use(httpErrorHandler())
+  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
   .use(httpJsonBodyParser())
   .use(AuthMiddleware())
   .use(validator({ inputSchema: initArtworkUploadSchema }))
-  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
 
 module.exports = { handler }
