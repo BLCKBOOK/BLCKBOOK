@@ -1,5 +1,3 @@
-import { UserInfoIndex } from "../../../../common/tableDefinitions";
-
 export const RequestValidationSchema = {
     "type": "object",
     "properties": {
