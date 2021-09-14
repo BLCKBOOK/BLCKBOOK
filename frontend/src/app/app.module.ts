@@ -43,6 +43,9 @@ import {ScrollTrackerDirective} from './components/scroll/scroll-tracker.directi
 import {faSprayCan} from '@fortawesome/free-solid-svg-icons/faSprayCan';
 import {faSlash} from '@fortawesome/free-solid-svg-icons/faSlash';
 import {MatTabsModule} from '@angular/material/tabs';
+import {faTrash} from '@fortawesome/free-solid-svg-icons/faTrash';
+import {faSkull} from '@fortawesome/free-solid-svg-icons/faSkull';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -63,7 +66,8 @@ Auth.configure(awsconfig);
     ImageUploadComponent,
     VotingComponent,
     ScrollComponent,
-    ScrollTrackerDirective
+    ScrollTrackerDirective,
+    ConfirmDialogComponent
   ],
   imports: [
     MatDialogModule,
@@ -109,7 +113,9 @@ export class AppModule {
       faCamera,
       faUserCircle,
       faSprayCan,
-      faSlash
+      faSlash,
+      faTrash,
+      faSkull
     );
   }
 }
