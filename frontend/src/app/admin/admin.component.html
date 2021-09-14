@@ -2,11 +2,64 @@
   <mat-spinner></mat-spinner>
 </div>
 <ng-template #loaded>
-  <div *ngFor="let artwork of artworks">
-    <img src="{{artwork.imageUrl}}" height="400px">
-    <span> {{artwork.title}}</span>
-    <mat-checkbox [checked]="artwork.approvalState === 'approved'" (click)="checkArtwork(artwork)"></mat-checkbox>
-  </div>
+  <mat-checkbox [(ngModel)]="onlyUnchecked">Only show unchecked</mat-checkbox>
+
+
+  <table mat-table [dataSource]="artworks" class="mat-elevation-z8" #table>
+
+    <!--- Note that these columns can be defined in any order.
+          The actual rendered columns are set as a property on the row definition" -->
+
+    <!-- Position Column -->
+    <ng-container matColumnDef="image">
+      <th mat-header-cell *matHeaderCellDef> Image</th>
+      <td mat-cell *matCellDef="let artwork">
+        <button (click)="inspectArtwork(artwork)">
+          <img src="{{artwork.imageUrl}}" height="200px">
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef> Title</th>
+      <td mat-cell *matCellDef="let artwork"> {{artwork.title}} </td>
+    </ng-container>
+
+    <!-- Weight Column -->
+    <ng-container matColumnDef="approved">
+      <th mat-header-cell *matHeaderCellDef> Approve</th>
+      <td mat-cell *matCellDef="let artwork">
+        <mat-checkbox [checked]="artwork.approvalState === 'approved'"
+                      (change)="checkArtwork(artwork, $event)"></mat-checkbox>
+      </td>
+    </ng-container>
+
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="delete">
+      <th mat-header-cell *matHeaderCellDef> Reject</th>
+      <td mat-cell *matCellDef="let artwork">
+        <button mat-icon-button (click)="rejectArtwork(artwork)">
+          <fa-icon [icon]="faTrash"></fa-icon>
+        </button>
+
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ban">
+      <th mat-header-cell *matHeaderCellDef> Ban</th>
+      <td mat-cell *matCellDef="let artwork">
+        <button mat-icon-button (click)="banUser(artwork)">
+          <fa-icon [icon]="faSkull"></fa-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+
   <button mat-button (click)="getNextArtworks()">Get next</button>
 
 </ng-template>

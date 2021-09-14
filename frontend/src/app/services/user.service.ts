@@ -25,8 +25,6 @@ export class UserService {
         this.authState.next(authState);
         this.user.next(authData as CognitoUserInterface);
       }
-      this.logger.log(authState);
-      this.logger.log(this.user.getValue());
     });
   }
 
