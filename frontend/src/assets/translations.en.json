@@ -1,1 +1,32 @@
-{"navbar":{"blckbook":"BLCKBOOK","auction":"AUCTION","gallery":"GALLERY","admin":"ADMIN","sign-in":"SIGN IN","sign-up":"SIGN UP","wallet":"WALLET","logout":"LOGOUT"},"home":{"welcome":"WELCOME,"},"upload":{"header":"SUBMIT YOUR TAG","longitude":"LONGITUDE","latitude":"LATITUDE","name":"PROPOSED NAME (OPTIONAL)","submit":"Submit","delete":"Delete"},"wallet":{"header":"Wallet Options","no-wallet":"You currently don't have a wallet connected\\n In order to upload images and vote you need to connect a wallet first.","current":"Your current wallet has the id:","manually":"Manually enter a wallet-id","reconnect":"Reconnect Wallet (Beacon)","use-manually":"Use entered id","connect":"Connect Wallet (Beacon)"}}
+{
+  "navbar": {
+    "blckbook": "BLCKBOOK",
+    "auction": "AUCTION",
+    "gallery": "GALLERY",
+    "admin": "ADMIN",
+    "sign-in": "SIGN IN",
+    "sign-up": "SIGN UP",
+    "wallet": "WALLET",
+    "logout": "LOGOUT"
+  },
+  "home": {
+    "welcome": "WELCOME,"
+  },
+  "upload": {
+    "header": "SUBMIT YOUR TAG",
+    "longitude": "LONGITUDE",
+    "latitude": "LATITUDE",
+    "name": "PROPOSED NAME (OPTIONAL)",
+    "submit": "Submit",
+    "delete": "Delete"
+  },
+  "wallet": {
+    "header": "Wallet Options",
+    "no-wallet": "You currently don't have a wallet connected\n In order to upload images and vote you need to connect a wallet first.",
+    "current": "Your current wallet has the id:",
+    "manually": "Manually enter a wallet-id",
+    "reconnect": "Reconnect Wallet (Beacon)",
+    "use-manually": "Use entered id",
+    "connect": "Connect Wallet (Beacon)"
+  }
+}
