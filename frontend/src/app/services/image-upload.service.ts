@@ -3,7 +3,8 @@ import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {forkJoin, Observable, of, throwError} from 'rxjs';
 import {InitArtworkUploadRequest} from '../../../../backend/src/rest/artwork/initArtworkUpload/apiSchema';
 import {catchError, map, mergeMap} from 'rxjs/operators';
-import {UploadedArtwork} from '../../../../backend/src/common/tableDefinitions'
+import {UploadedArtwork} from '../../../../backend/src/common/tableDefinitions';
+import {UpdateUploadedArtworksResponseBody} from '../../../../backend/src/rest/artwork/deleteMyCurrentUpload/apiSchema';
 import {environment} from '../../environments/environment';
 import {ImageUpload} from '../types/image.type';
 
@@ -15,6 +16,7 @@ export class ImageUploadService {
   private readonly imageAPIURL = environment.urlString + '/artwork';
   private readonly initUploadURL = '/initArtworkUpload';
   private readonly currentUploadURL = '/getCurrentUpload';
+  private readonly deleteCurrentUploadURL = '/deleteMyCurrentUpload';
 
   constructor(private httpClient: HttpClient) {
   }
@@ -22,17 +24,23 @@ export class ImageUploadService {
   public uploadImage(imageUpload: ImageUpload): Observable<string> {
     return this.uploadImageData(imageUpload.data)
       .pipe(mergeMap(uploadURL => {
-          return forkJoin([of (uploadURL), this.uploadActualImage(imageUpload.image, uploadURL, imageUpload.data.contentType)]);
+          return forkJoin([of(uploadURL), this.uploadActualImage(imageUpload.image, uploadURL, imageUpload.data.contentType)]);
         }),
         map(([url]) => {
           return url;
         })
-    );
+      );
   }
 
   public getUploadedArtwork(): Observable<UploadedArtwork> {
     return this.httpClient.get<UploadedArtwork>(this.imageAPIURL + this.currentUploadURL);
   }
+
+
+  public deleteCurrentlyUploadedImage(): Observable<UpdateUploadedArtworksResponseBody> {
+    return this.httpClient.delete<UpdateUploadedArtworksResponseBody>(this.imageAPIURL + this.deleteCurrentUploadURL);
+  }
+
   private uploadActualImage(image: File, uploadURL: string, contentType: string): Observable<Object> {
     console.log('image upload started');
     const headers = new HttpHeaders().set('Content-Type', contentType);
