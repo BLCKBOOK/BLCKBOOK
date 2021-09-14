@@ -1,5 +1,6 @@
 import { DeleteItemCommand, DynamoDBClient, GetItemCommand, QueryCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";;
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
@@ -10,7 +11,6 @@ import { UploadedArtwork, UserInfo } from "../../../common/tableDefinitions";
 import { LambdaResponseToApiGw } from "../../../common/lambdaResponseToApiGw";
 import AuthMiddleware from "../../../common/AuthMiddleware";
 import RequestLogger from "../../../common/RequestLogger";
-import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
@@ -43,23 +43,22 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     throw new Error("Sanity check failed: User with 0 uploads tried to perform a delete")
 
   if (foundItems && foundItems.length == 1) {
-    let allDeletes: Promise<any>[] = []
+    let allPromises: Promise<any>[] = []
 
     // delete image from S3
-    let s3Key = new URL(itemToDelete.imageUrl).pathname
-    console.debug(s3Key)
+    let s3Key = new URL(itemToDelete.imageUrl).pathname.substring(1)
     const deleteObjectCommand = new DeleteObjectCommand({
       Bucket: process.env['ARTWORK_UPLOAD_S3_BUCKET_NAME'],
-      Key: s3Key,
+      Key: s3Key
     })
-    allDeletes.push(s3Client.send(deleteObjectCommand))
+    allPromises.push(s3Client.send(deleteObjectCommand))
 
     // delete item from dynamodb
     const deleteItemCommand = new DeleteItemCommand({
       TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
       Key: marshall({ uploaderId: itemToDelete.uploaderId, uploadTimestamp: itemToDelete.uploadTimestamp })
     })
-    allDeletes.push(DDBclient.send(deleteItemCommand))
+    allPromises.push(DDBclient.send(deleteItemCommand))
 
     // decrease uploadsDuringThisPeriod counter
     const updateUserCommand = new UpdateItemCommand({
@@ -69,9 +68,9 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
       ConditionExpression: "uploadsDuringThisPeriod = :oldUploadsDuringThisPeriod",
       ExpressionAttributeValues: marshall({ ":oldUploadsDuringThisPeriod": oldUploadCount, ":newUploadsDuringThisPeriod": oldUploadCount - 1 })
     });
-    allDeletes.push(DDBclient.send(updateUserCommand))
+    allPromises.push(DDBclient.send(updateUserCommand))
 
-    await Promise.all(allDeletes)
+    await Promise.all(allPromises)
 
     returnObject = { uploadsDuringThisPeriod: oldUploadCount - 1 }
 
