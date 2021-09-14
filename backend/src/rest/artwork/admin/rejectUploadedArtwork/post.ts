@@ -71,7 +71,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
     // in case of error recreate old item
     const recreateOldItem = new PutItemCommand({
-      TableName: process.env['UPLOADED_ARTWORKS_TABLE'],
+      TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
       Item: marshall(oldArtwork),
     })
     console.debug("recreateOldItem", recreateOldItem)

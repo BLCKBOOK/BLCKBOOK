@@ -32,13 +32,13 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   if (lastKey) {
     // TODO only get uploads older than 1 minute to make sure the signed upload url has expired
     getAllUploadsScan = new ScanCommand({
-      TableName: process.env['UPLOADED_ARTWORKS_TABLE'],
+      TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
       ExclusiveStartKey: marshall(lastKey),
       Limit: 50
     })
   } else {
     getAllUploadsScan = new ScanCommand({
-      TableName: process.env['UPLOADED_ARTWORKS_TABLE'],
+      TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
       Limit: 50
     })
   }

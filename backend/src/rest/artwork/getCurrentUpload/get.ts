@@ -38,7 +38,6 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   console.log(JSON.stringify(getLatestUploadCommand))
 
   const item = ((await (await DDBclient.send(getLatestUploadCommand))))
-  console.log("YAY")
   console.log(item)
 
   if (!item.Items || !item.Items[0])

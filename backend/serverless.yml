@@ -35,7 +35,14 @@ provider:
   lambdaHashingVersion: '20201221'
   region: 'eu-west-1'
   environment:
+    USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+    UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
     FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
+    MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
+    ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
+    PERIOD_TABLE_NAME: ${self:custom.period_table_name}
+    USER_POOL_ID:
+      Ref: BlckBookUsers
     STAGE:  ${self:provider.stage}
 
 functions:
@@ -65,10 +72,6 @@ functions:
           rules:
             - prefix: artwork/
           existing: true
-    environment:
-      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
-      MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
-      UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
 
   initializeUser:
     handler: "src/eventTriggered/createNewUserInfoObject.handler"
@@ -89,11 +92,7 @@ functions:
           pool: ${self:provider.stage}-blckbook-users
           trigger: PostConfirmation
           existing: true
-    environment:
-      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
-      USER_POOL_ID:
-        Ref: BlckBookUsers
-        
+             
   getCurrentUpload:
     handler: "src/rest/artwork/getCurrentUpload/get.handler"
     iamRoleStatements:
@@ -102,9 +101,6 @@ functions:
           - dynamodb:Query
         Resource:
           - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-    environment:
-      UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
-      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
     events:
       - http:
           path: artwork/getCurrentUpload
@@ -146,12 +142,6 @@ functions:
           - dynamodb:GetItem
         Resource:
           - Fn::GetAtt: [ periodTable, Arn ]
-    environment:
-      ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
-      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
-      PERIOD_TABLE_NAME: ${self:custom.period_table_name}
-      MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
-      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
     events:
       - http:
           path: artwork/initArtworkUpload
@@ -185,9 +175,6 @@ functions:
                 - Arn
           method: get
           cors: true
-    environment:
-      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
-      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
   
   adminGetUncheckedUploadedArtworks:
     handler: src/rest/artwork/admin/getUncheckedUploadedArtworks/get.handler
@@ -209,9 +196,6 @@ functions:
                 - Arn
           method: get
           cors: true
-    environment:
-      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
-      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
   
   adminUpdateUploadedArtwork:
     handler: src/rest/artwork/admin/updateUploadedArtwork/post.handler
@@ -233,9 +217,6 @@ functions:
                 - Arn
           method: post
           cors: true
-    environment:
-      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
-      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
 
   adminDeleteUploadedArtwork:
     handler: src/rest/artwork/admin/rejectUploadedArtwork/post.handler
@@ -270,12 +251,7 @@ functions:
                 - Arn
           method: post
           cors: true
-    environment:
-      UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
-      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
-      FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
-      ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
-
+      
   adminBanUser:
     handler: src/rest/user/admin/banUser/post.handler
     iamRoleStatements:
@@ -302,10 +278,61 @@ functions:
                 - Arn
           method: post
           cors: true
-    environment:
-      USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
-      USER_POOL_ID:
-        Ref: BlckBookUsers
+
+  deleteMyCurrentUpload:
+    handler: src/rest/artwork/deleteMyCurrentUpload/delete.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource:
+          - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+          - s3:DeleteObject
+        Resource:
+          - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+    events:
+      - http:
+          path: artwork/deleteMyCurrentUpload
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: delete
+          cors: true
+
+  setMyWalletId:
+    handler: src/rest/user/setMyWalletId/post.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - Fn::GetAtt: [ userInfoTable, Arn ]
+    events:
+      - http:
+          path: user/setMyWalletId
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: post
+          cors: true
 
 resources:
   Resources:
