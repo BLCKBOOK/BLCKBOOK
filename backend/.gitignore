@@ -2,3 +2,4 @@
 .idea
 .serverless
 node_modules
+testData
