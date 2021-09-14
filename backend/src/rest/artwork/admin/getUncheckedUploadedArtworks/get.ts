@@ -35,14 +35,14 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
       FilterExpression: "approvalState = :unchecked",
       ExpressionAttributeValues: marshall({ ":unchecked": "unchecked" }),
       ExclusiveStartKey: marshall(lastKey),
-      Limit: 5
+      Limit: 50
     })
   } else {
     getAllUploadsScan = new ScanCommand({
       TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
       FilterExpression: "approvalState = :unchecked",
       ExpressionAttributeValues: marshall({ ":unchecked": "unchecked" }),
-      Limit: 5
+      Limit: 50
     })
   }
 
@@ -57,8 +57,8 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
 const handler = middy(baseHandler)
   .use(httpErrorHandler())
+  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
   .use(RequestLogger())
   .use(AuthMiddleware(['Admin']))
-  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
 
 module.exports = { handler }
