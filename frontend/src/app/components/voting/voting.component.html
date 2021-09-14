@@ -1,5 +1,5 @@
 <div class="floating-submit">
-  <button mat-button> SUBMIT</button>
+  <button mat-icon-button [disabled]="$submitDisabled | async"> SUBMIT</button>
 </div>
 <div class="floating-vote-tracker">
   <span>{{$votesSpend | async}} / {{$totalVoteAmount | async}}</span>

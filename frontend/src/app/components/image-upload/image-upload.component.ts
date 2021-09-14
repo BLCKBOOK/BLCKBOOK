@@ -20,7 +20,7 @@ export class ImageUploadComponent implements OnInit {
   longitude: string | undefined = undefined;
 
   image: File | undefined = undefined;
-  title: string | undefined = '';
+  title: string | undefined = ''; // ToDo: limit me!
   url: string | ArrayBuffer | null | undefined = '';
   contentType: string | undefined = undefined;
 

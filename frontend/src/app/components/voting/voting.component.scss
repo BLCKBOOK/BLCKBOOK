@@ -13,12 +13,30 @@
 .floating-submit {
   z-index: 999;
   position: fixed;
-  bottom: 50px;
-  right: 50px;
-  background-color: var(--primary-color);
+  bottom: 60px;
+  right: 30px;
+
+  color: var(--dark-background);
+  border-radius: 50%;
+  height: 6em;
+  width: 6em;
+
+  button {
+    color: var(--dark-primary-text);
+    background-color: var(--primary-color);
+    height: 6em;
+    width: 6em;
+  }
+
+  button.mat-button-disabled {
+    color: var(--dark-disabled-text);
+    background-color: var(--primary-darker-color);
+  }
 }
 
 .floating-vote-tracker {
+  height: 48px;
+  line-height: 48px;
   z-index: 1000;
   position: fixed;
   right: 10px;
