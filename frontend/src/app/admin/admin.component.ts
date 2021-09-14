@@ -27,6 +27,7 @@ export class AdminComponent implements OnInit {
 
   @ViewChild('table') table: MatTable<any>;
   onlyUnchecked = false;
+  imageHeight: number = 200;
 
   constructor(private adminService: AdminService, public dialog: MatDialog) {
   }
@@ -49,19 +50,25 @@ export class AdminComponent implements OnInit {
       if (artworks.lastKey) {
         this.uploadIndexes.push(artworks.lastKey);
       }
+      console.log(this.uploadIndexes);
     });
   }
 
   getPreviousArtworks() {
-    if (this.uploadIndexes.length > 1) {
-      this.getArtworks(this.uploadIndexes.pop()).subscribe(artworks => {
-        this.loading = false;
-        this.artworks = artworks.artworks;
-        if (artworks.lastKey) {
-          this.uploadIndexes.push(artworks.lastKey);
-        }
-      });
-    }
+    this.uploadIndexes.pop();
+    this.uploadIndexes.pop();
+    const currentIndex = this.uploadIndexes.pop();
+    console.log(currentIndex);
+    this.getArtworks(currentIndex).subscribe(artworks => {
+      if (currentIndex) {
+        this.uploadIndexes.push(currentIndex);
+      }
+      this.loading = false;
+      this.artworks = artworks.artworks;
+      if (artworks.lastKey) {
+        this.uploadIndexes.push(artworks.lastKey);
+      }
+    });
   }
 
   checkArtwork(artwork: UploadedArtwork, event: MatCheckboxChange) {

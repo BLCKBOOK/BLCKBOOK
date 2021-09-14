@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {LoggerService} from '../../services/logger.service';
 import {UserService} from '../../services/user.service';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
+import {SnackBarService} from '../../services/snack-bar.service';
+
 
 @Component({
   selector: 'app-home',
@@ -13,12 +15,18 @@ export class HomeComponent implements OnInit {
   faImage = findIconDefinition({ prefix: 'fas', iconName: 'image' })
   faUpload = findIconDefinition({ prefix: 'fas', iconName: 'upload' })
 
-  constructor(private logger: LoggerService, private userService: UserService) {
+  constructor(private logger: LoggerService, private userService: UserService, private snackBarService: SnackBarService) {
     this.username = '';
   }
 
   ngOnInit(): void {
     this.username = this.userService.getUserName() ?? 'unknown';
+    this.userService.requestUserInfo().subscribe(userInfo => {
+      if (!userInfo.walletId) {
+        this.snackBarService.openSnackBarWithNavigation('You don\'t have a wallet connected', 'Connect wallet', '/wallet');
+      }
+    });
+
 /*    if (navigator && navigator.geolocation) {
       this.logger.log('location');
       navigator.geolocation.getCurrentPosition(this.successCallback, this.errorCallback);
@@ -27,7 +35,7 @@ export class HomeComponent implements OnInit {
       this.logger.log('no location');
     }*/
   }
-
+/*
   private successCallback: PositionCallback = position => {
     this.logger.log(position.coords.latitude);
     this.logger.log(position.coords.longitude);
@@ -37,6 +45,6 @@ export class HomeComponent implements OnInit {
 
   private errorCallback: PositionErrorCallback = positionError => {
     //window.alert(positionError.message);
-  }
+  }*/
 
 }

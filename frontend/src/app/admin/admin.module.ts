@@ -10,24 +10,29 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatListModule} from '@angular/material/list';
 import {MatTableModule} from '@angular/material/table';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 
 
 @NgModule({
   declarations: [
     AdminComponent
   ],
-    imports: [
-        CommonModule,
-        AdminRoutingModule,
-        MatButtonModule,
-        MatProgressSpinnerModule,
-        MatCheckboxModule,
-        MatListModule,
-        MatTableModule,
-        FontAwesomeModule,
-        FormsModule
-    ],
+  imports: [
+    CommonModule,
+    AdminRoutingModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatCheckboxModule,
+    MatListModule,
+    MatTableModule,
+    FontAwesomeModule,
+    FormsModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule,
+  ],
   providers: [AdminService],
 })
 export class AdminModule { }

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as exifr from 'exifr';
 import {ImageUploadService} from '../../services/image-upload.service';
 import {AcceptedMimeTypes, ImageUpload} from '../../types/image.type';
@@ -27,6 +27,9 @@ export class ImageUploadComponent implements OnInit {
   faCamera = findIconDefinition({prefix: 'fas', iconName: 'camera'});
   alreadyUploaded = false;
 
+  @ViewChild('file')
+  imageInput: ElementRef;
+
   constructor(private imageUploadService: ImageUploadService, private route: ActivatedRoute) {
   }
 
@@ -44,11 +47,15 @@ export class ImageUploadComponent implements OnInit {
 
   }
 
-  imageChanged($event: Event) {
-    const upload = ($event as HTMLInputEvent)?.target?.files?.[0];
+  private resetImageVariables() {
     this.image = undefined;
     this.url = undefined;
     this.contentType = undefined;
+  }
+
+  imageChanged($event: Event) {
+    const upload = ($event as HTMLInputEvent)?.target?.files?.[0];
+    this.resetImageVariables();
     if (upload) {
       console.log(upload.type);
       if (!(AcceptedMimeTypes.includes(upload.type))) {
@@ -92,6 +99,7 @@ export class ImageUploadComponent implements OnInit {
         if (requestURL) {
           const imageIndex = requestURL.indexOf('?');
           this.url = requestURL.slice(0, imageIndex);
+          this.alreadyUploaded = true;
         } else {
           window.alert('upload failed for some reason');
         }
@@ -104,6 +112,12 @@ export class ImageUploadComponent implements OnInit {
   }
 
   deleteImage(): void {
-
+    this.imageUploadService.deleteCurrentlyUploadedImage().subscribe(() => {
+      this.imageInput.nativeElement.value = '';
+      this.resetImageVariables();
+      this.alreadyUploaded = false;
+      this.title = '';
+      this.url = undefined;
+    });
   }
 }

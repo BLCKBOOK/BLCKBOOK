@@ -14,3 +14,10 @@ upload.latitude	LATITUDE
 upload.name	PROPOSED NAME (OPTIONAL)
 upload.submit	Submit
 upload.delete	Delete
+wallet.header	Wallet Options
+wallet.no-wallet	You currently don't have a wallet connected\n In order to upload images and vote you need to connect a wallet first.
+wallet.current	Your current wallet has the id:
+wallet.manually	Manually enter a wallet-id
+wallet.reconnect	Reconnect Wallet (Beacon)
+wallet.use-manually	Use entered id
+wallet.connect	Connect Wallet (Beacon)

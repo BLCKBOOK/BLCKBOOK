@@ -171,13 +171,14 @@ $theme: (
   min-height: 2.5em;
 }
 
-.material-icons {
+// we don't use material icons atm
+/*.material-icons {
   font-size: 24px;
   font-family: 'Material Icons', 'Material Icons';
   .mat-badge-content {
     font-family: 'GT Walsheim';
   }
-}
+}*/
 
 body {
   --accent-color: #797979;
@@ -249,6 +250,11 @@ input:-webkit-autofill {
   background-color: #212121 !important;
 }
 
-::ng-deep .mat-simple-snackbar-action {
-  color: #{$primary-color};
+.my-snackbar {
+  color: #{$light-primary-text};
+  background: #{$dark-bg-lighter-30};
+  button {
+    color: #{$primary-color};
+  }
 }
+
