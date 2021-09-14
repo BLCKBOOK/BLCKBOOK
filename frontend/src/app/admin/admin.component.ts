@@ -7,7 +7,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../components/confirm-dialog/confirm-dialog.component';
 import {MatTable} from '@angular/material/table';
 import {Observable} from 'rxjs';
-import { GetUploadedArtworksResponseBody } from '../../../../backend/src/rest/artwork/admin/getUploadedArtworks/apiSchema';
+import {GetUploadedArtworksResponseBody} from '../../../../backend/src/rest/artwork/admin/getUploadedArtworks/apiSchema';
 
 @Component({
   selector: 'app-admin',
@@ -76,7 +76,11 @@ export class AdminComponent implements OnInit {
   banUser(artwork: UploadedArtwork) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '250px',
-      data: {text: 'This will ban a user', header: 'Confirm Ban', action: 'Yes, ban!'} as ConfirmDialogData
+      data: {
+        text: 'This will ban the user with the name "' + artwork.uploader + '"',
+        header: 'Confirm Ban',
+        action: 'Yes, ban!'
+      } as ConfirmDialogData
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -101,6 +105,6 @@ export class AdminComponent implements OnInit {
     this.getArtworks().subscribe(artworks => {
       this.artworks = artworks.artworks;
       this.loading = false;
-    })
+    });
   }
 }
