@@ -32,7 +32,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   let updateItemCommand;
   try {
     updateItemCommand = new PutItemCommand({
-      TableName: process.env['UPLOADED_ARTWORKS_TABLE'],
+      TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
       Item: marshall(body),
       ConditionExpression: "uploaderId = :uploaderId AND uploadTimestamp = :uploadTimestamp",
       ExpressionAttributeValues: marshall({ ":uploaderId": body.uploaderId, ":uploadTimestamp": body.uploadTimestamp })
@@ -48,9 +48,9 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
 const handler = middy(baseHandler)
   .use(httpErrorHandler())
+  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
   .use(httpJsonBodyParser())
   .use(validator({ inputSchema: RequestValidationSchema }))
   .use(AuthMiddleware(['Admin']))
-  .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
 
 module.exports = { handler }
