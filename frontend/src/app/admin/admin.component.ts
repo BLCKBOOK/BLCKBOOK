@@ -6,6 +6,8 @@ import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../components/confirm-dialog/confirm-dialog.component';
 import {MatTable} from '@angular/material/table';
+import {Observable} from 'rxjs';
+import { GetUploadedArtworksResponseBody } from '../../../../backend/src/rest/artwork/admin/getUploadedArtworks/apiSchema';
 
 @Component({
   selector: 'app-admin',
@@ -30,7 +32,7 @@ export class AdminComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.adminService.getArtworks().subscribe(artworks => {
+    this.getArtworks().subscribe(artworks => {
       this.loading = false;
       this.artworks = artworks.artworks;
       if (artworks.lastKey) {
@@ -41,7 +43,7 @@ export class AdminComponent implements OnInit {
 
   getNextArtworks() {
     this.loading = true;
-    this.adminService.getArtworks(this.uploadIndexes[this.uploadIndexes.length - 1]).subscribe(artworks => {
+    this.getArtworks(this.uploadIndexes[this.uploadIndexes.length - 1]).subscribe(artworks => {
       this.loading = false;
       this.artworks = artworks.artworks;
       if (artworks.lastKey) {
@@ -52,7 +54,7 @@ export class AdminComponent implements OnInit {
 
   getPreviousArtworks() {
     if (this.uploadIndexes.length > 1) {
-      this.adminService.getArtworks(this.uploadIndexes.pop()).subscribe(artworks => {
+      this.getArtworks(this.uploadIndexes.pop()).subscribe(artworks => {
         this.loading = false;
         this.artworks = artworks.artworks;
         if (artworks.lastKey) {
@@ -90,7 +92,15 @@ export class AdminComponent implements OnInit {
     this.adminService.rejectArtwork(artwork).subscribe(deletion => console.log(deletion));
   }
 
-  inspectArtwork(artwork: UploadedArtwork) {
+  private getArtworks(index?: UploadedArtworkIndex): Observable<GetUploadedArtworksResponseBody> {
+    return this.onlyUnchecked ? this.adminService.getUncheckedArtworks(index) : this.adminService.getArtworks(index);
+  }
 
+  uncheckedChanged() {
+    this.loading = true;
+    this.getArtworks().subscribe(artworks => {
+      this.artworks = artworks.artworks;
+      this.loading = false;
+    })
   }
 }

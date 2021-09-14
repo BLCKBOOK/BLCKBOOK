@@ -2,9 +2,7 @@
   <mat-spinner></mat-spinner>
 </div>
 <ng-template #loaded>
-  <mat-checkbox [(ngModel)]="onlyUnchecked">Only show unchecked</mat-checkbox>
-
-
+  <mat-checkbox [(ngModel)]="onlyUnchecked" (change)="uncheckedChanged()">Only show unchecked</mat-checkbox>
   <table mat-table [dataSource]="artworks" class="mat-elevation-z8" #table>
 
     <!--- Note that these columns can be defined in any order.
@@ -14,9 +12,11 @@
     <ng-container matColumnDef="image">
       <th mat-header-cell *matHeaderCellDef> Image</th>
       <td mat-cell *matCellDef="let artwork">
-        <button (click)="inspectArtwork(artwork)">
-          <img src="{{artwork.imageUrl}}" height="200px">
-        </button>
+        <a href="{{artwork.imageUrl}}">
+          <button mat-raised-button>
+            <img src="{{artwork.imageUrl}}" height="200px" alt="no image">
+          </button>
+        </a>
       </td>
     </ng-container>
 
