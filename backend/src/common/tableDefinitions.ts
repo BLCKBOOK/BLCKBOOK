@@ -8,6 +8,7 @@ export interface UserInfo {
   email: string,
   userId: string,
   currentUpload?: { signedUploadUrl: string, expiryDate: string }
+  walletId?: string
 }
 
 interface Sale {
@@ -31,9 +32,9 @@ export interface UploadedArtwork {
   longitude: string
   latitude: string
   approvalState: 'unchecked' | 'approved' | 'rejected',
+  contentType: string
   title?: string
   artist?: string
-  contentType: string
 }
 
 export interface UploadedArtworkSchema {
