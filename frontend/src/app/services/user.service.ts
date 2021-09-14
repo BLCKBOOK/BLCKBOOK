@@ -4,6 +4,9 @@ import {BehaviorSubject, from, Observable, of} from 'rxjs';
 import Auth from '@aws-amplify/auth';
 import {LoggerService} from './logger.service';
 import {catchError, map} from 'rxjs/operators';
+import {UserInfo} from '../../../../backend/src/common/tableDefinitions'
+import {HttpClient} from '@angular/common/http';
+import {environment} from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +15,10 @@ export class UserService {
 
   private user: BehaviorSubject<CognitoUserInterface | undefined>;
   private authState: BehaviorSubject<AuthState>;
+  private readonly userInfoAPIURL = environment.urlString + '/user';
+  private readonly getUserInfoURL = '/getMyUserInfo';
 
-  constructor(private logger: LoggerService) {
+  constructor(private logger: LoggerService, private httpClient: HttpClient) {
     this.user = new BehaviorSubject<CognitoUserInterface | undefined>(undefined);
     this.authState = new BehaviorSubject<AuthState>(AuthState.SignedOut);
     Auth.currentAuthenticatedUser().then(user => {
@@ -68,5 +73,9 @@ export class UserService {
   public handleError(error: any): Observable<boolean> {
     console.error(error);
     return of(false);
+  }
+
+  public requestUserInfo(): Observable<UserInfo> {
+    return this.httpClient.get<UserInfo>(this.userInfoAPIURL + this.getUserInfoURL)
   }
 }

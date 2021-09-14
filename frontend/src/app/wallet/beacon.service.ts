@@ -1,43 +1,47 @@
 import {Injectable} from '@angular/core';
-import {DAppClient, TezosOperationType} from '@airgap/beacon-sdk';
+import {AccountInfo, DAppClient} from '@airgap/beacon-sdk';
+import {from, Observable, of} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
+import {HttpClient} from '@angular/common/http';
+import {UpdateUploadedArtworksRequestBody} from '../../../../backend/src/rest/user/setMyWalletId/apiSchema'
+import {environment} from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BeaconService {
 
+  private readonly userAPIURL = environment.urlString + '/user';
+  private readonly setWalletIDURL = '/setMyWalletId';
   dAppClient: DAppClient;
 
-  constructor() {
+  constructor(private httpClient: HttpClient) {
     this.dAppClient = new DAppClient({name: 'BLCKBOOK'});
   }
 
-  async connect(): Promise<void> {
-    let myAddress: string | undefined;
+  connect(): Observable<AccountInfo | undefined> {
     // Check if we are connected. If not, do a permission request first.
-    const activeAccount = await this.dAppClient.getActiveAccount();
-    console.log(this.dAppClient.connectionStatus);
-    if (!activeAccount) {
-      const permissions = await this.dAppClient.requestPermissions();
-      console.log('New connection:', permissions.address);
-      myAddress = permissions.address;
-    } else {
-      myAddress = activeAccount.address;
-    }
-    console.log(myAddress);
-    console.log(activeAccount?.accountIdentifier);
-    console.log(activeAccount);
+    return of(undefined);
+/*    return from(this.dAppClient.getActiveAccount());*/
+  }
 
-        // At this point we are connected to an account.
-        // Let's send a simple transaction to the wallet that sends 1 mutez to ourselves.
-        const response = await this.dAppClient.requestOperation({
-          operationDetails: [
-            {
-              kind: TezosOperationType.TRANSACTION,
-              destination: myAddress, // Send to ourselves
-              amount: '1', // Amount in mutez, the smallest unit in Tezos
-            },
-          ],
-        });
+  getAddress(): Observable<string> {
+    return this.connect().pipe(switchMap(activeAccount => {
+      if (activeAccount) {
+        return of(activeAccount.address);
+      }
+      else {
+        return from(this.dAppClient.requestPermissions()).pipe(map(response => response.address))
+      }
+    }));
+  }
+
+  getCurrentWalletID(): Observable<string> {
+    return of('');
+  }
+
+  setWalletID(walletId: string): Observable<string> {
+    const requestBody: UpdateUploadedArtworksRequestBody = {walletId: walletId};
+    return this.httpClient.post(this.userAPIURL + this.setWalletIDURL, requestBody, {responseType: 'text'})
   }
 }

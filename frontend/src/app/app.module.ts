@@ -46,6 +46,8 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {faTrash} from '@fortawesome/free-solid-svg-icons/faTrash';
 import {faSkull} from '@fortawesome/free-solid-svg-icons/faSkull';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatFormFieldModule} from '@angular/material/form-field';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -96,10 +98,11 @@ Auth.configure(awsconfig);
     NgxMasonryModule,
     ScrollingModule,
     MatTabsModule,
+    MatFormFieldModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
-    [AuthGuardService, AdminAuthGuardService]
+    [AuthGuardService, AdminAuthGuardService, MatSnackBar]
   ],
   bootstrap: [AppComponent]
 })
