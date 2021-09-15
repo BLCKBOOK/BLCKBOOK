@@ -49,7 +49,7 @@ export class ScrollComponent {
     const startUrl = '//via.placeholder.com/'
     for (let i = 0; i < amount; i++) {
       const width = this.randomIntFromInterval(400, 3000);
-      const height = this.randomIntFromInterval(width * .4, width * 1.6);
+      const height = this.randomIntFromInterval(width * 0.4, width * 1.8);
 
       const url = startUrl + width + 'x' + height;
       const item = {title: 'test', img: url, voted: false};

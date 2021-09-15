@@ -2,11 +2,13 @@
   <mat-spinner></mat-spinner>
 </div>
 <ng-template #loaded>
-  <mat-checkbox [(ngModel)]="onlyUnchecked" (change)="uncheckedChanged()">Only show unchecked</mat-checkbox>
-  <mat-form-field appearance="outline">
+  <mat-checkbox class="admin-control" [(ngModel)]="onlyUnchecked" (change)="uncheckedChanged()">Only show unchecked
+  </mat-checkbox>
+  <mat-form-field class="admin-control" appearance="outline">
     <mat-label>Image height</mat-label>
     <input type="number" matInput [(ngModel)]="imageHeight">
   </mat-form-field>
+  <span class="admin-control">Currently displayed: {{artworks.length}}</span>
   <table mat-table [dataSource]="artworks" class="mat-elevation-z8" #table>
 
     <!--- Note that these columns can be defined in any order.
@@ -14,7 +16,7 @@
 
     <!-- Position Column -->
     <ng-container matColumnDef="image">
-      <th mat-header-cell *matHeaderCellDef> Image</th>
+      <th mat-header-cell *matHeaderCellDef>Image</th>
       <td mat-cell *matCellDef="let artwork">
         <a href="{{artwork.imageUrl}}">
           <button mat-raised-button>
@@ -26,13 +28,13 @@
 
     <!-- Name Column -->
     <ng-container matColumnDef="title">
-      <th mat-header-cell *matHeaderCellDef> Title</th>
+      <th mat-header-cell *matHeaderCellDef>Title</th>
       <td mat-cell *matCellDef="let artwork"> {{artwork.title}} </td>
     </ng-container>
 
     <!-- Weight Column -->
     <ng-container matColumnDef="approved">
-      <th mat-header-cell *matHeaderCellDef> Approve</th>
+      <th class="small-cell" mat-header-cell *matHeaderCellDef>Approve</th>
       <td mat-cell *matCellDef="let artwork">
         <mat-checkbox [checked]="artwork.approvalState === 'approved'"
                       (change)="checkArtwork(artwork, $event)"></mat-checkbox>
@@ -41,7 +43,7 @@
 
     <!-- Symbol Column -->
     <ng-container matColumnDef="delete">
-      <th mat-header-cell *matHeaderCellDef> Reject</th>
+      <th class="small-cell" mat-header-cell *matHeaderCellDef>Reject</th>
       <td mat-cell *matCellDef="let artwork">
         <button mat-icon-button (click)="rejectArtwork(artwork)">
           <fa-icon [icon]="faTrash"></fa-icon>
@@ -51,7 +53,7 @@
     </ng-container>
 
     <ng-container matColumnDef="ban">
-      <th mat-header-cell *matHeaderCellDef> Ban</th>
+      <th class="small-cell" mat-header-cell *matHeaderCellDef>Ban</th>
       <td mat-cell *matCellDef="let artwork">
         <button mat-icon-button (click)="banUser(artwork)">
           <fa-icon [icon]="faSkull"></fa-icon>
@@ -62,9 +64,6 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
-
-<mat-divider></mat-divider>
-  <button mat-button (click)="getNextArtworks()">Get next</button>
-  <button *ngIf="uploadIndexes.length > 1" mat-button (click)="getPreviousArtworks()">Get previous</button>
-
+  <button class="admin-control" [disabled]="pageCounter === 0" mat-button (click)="getPreviousArtworks()">Get previous</button>
+  <button class="admin-control" mat-button (click)="getNextArtworks()">Get next</button>
 </ng-template>

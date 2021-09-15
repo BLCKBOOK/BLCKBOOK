@@ -8,6 +8,7 @@ import {ConfirmDialogComponent, ConfirmDialogData} from '../components/confirm-d
 import {MatTable} from '@angular/material/table';
 import {Observable} from 'rxjs';
 import {GetUploadedArtworksResponseBody} from '../../../../backend/src/rest/artwork/admin/getUploadedArtworks/apiSchema';
+import {SnackBarService} from '../services/snack-bar.service';
 
 @Component({
   selector: 'app-admin',
@@ -28,26 +29,36 @@ export class AdminComponent implements OnInit {
   @ViewChild('table') table: MatTable<any>;
   onlyUnchecked = false;
   imageHeight: number = 200;
+  pageCounter = 0;
+  alreadyReachedEnd = false;
 
-  constructor(private adminService: AdminService, public dialog: MatDialog) {
+  constructor(private adminService: AdminService, public dialog: MatDialog, private snackBarService: SnackBarService) {
   }
 
   ngOnInit() {
-    this.getArtworks().subscribe(artworks => {
-      this.loading = false;
-      this.artworks = artworks.artworks;
-      if (artworks.lastKey) {
-        this.uploadIndexes.push(artworks.lastKey);
-      }
-    });
+    this.getNextArtworks(true);
   }
 
-  getNextArtworks() {
+  getNextArtworks(initialLoad = false) {
+    if (initialLoad) {
+      this.pageCounter = 0;
+    }
     this.loading = true;
-    this.getArtworks(this.uploadIndexes[this.uploadIndexes.length - 1]).subscribe(artworks => {
+    const lastIndex = this.uploadIndexes[this.uploadIndexes.length - 1]
+    this.getArtworks(lastIndex).subscribe(artworks => {
+      if (!initialLoad && !this.alreadyReachedEnd) {
+        console.log('increased page counter');
+        this.pageCounter++;
+      }
+      console.log(artworks.lastKey?.uploaderId);
       this.loading = false;
       this.artworks = artworks.artworks;
-      if (artworks.lastKey) {
+      if (JSON.stringify(artworks.lastKey) === JSON.stringify(lastIndex)) {
+        this.snackBarService.openSnackBar('already reached the end', 'got it!');
+      } else if (artworks.lastKey === undefined) {
+        this.alreadyReachedEnd = true;
+        this.snackBarService.openSnackBar('Reached the end', 'got it!');
+      } else {
         this.uploadIndexes.push(artworks.lastKey);
       }
       console.log(this.uploadIndexes);
@@ -55,10 +66,13 @@ export class AdminComponent implements OnInit {
   }
 
   getPreviousArtworks() {
-    this.uploadIndexes.pop();
+    this.pageCounter--;
+    if (!this.alreadyReachedEnd) { // we have to pop one time less if we reached the end.
+      this.uploadIndexes.pop();
+    }
+    this.alreadyReachedEnd = false;
     this.uploadIndexes.pop();
     const currentIndex = this.uploadIndexes.pop();
-    console.log(currentIndex);
     this.getArtworks(currentIndex).subscribe(artworks => {
       if (currentIndex) {
         this.uploadIndexes.push(currentIndex);
@@ -74,6 +88,10 @@ export class AdminComponent implements OnInit {
   checkArtwork(artwork: UploadedArtwork, event: MatCheckboxChange) {
     if (event.checked) {
       artwork.approvalState = 'approved';
+      if (this.onlyUnchecked) {
+        this.artworks.splice(this.artworks.indexOf(artwork), 1);
+        this.table.renderRows();
+      }
     } else {
       artwork.approvalState = 'unchecked';
     }
@@ -84,7 +102,7 @@ export class AdminComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '250px',
       data: {
-        text: 'This will ban the user with the name "' + artwork.uploader + '"',
+        text: 'This will ban the user with the name "' + artwork.uploader + '"\n It will also delete the image',
         header: 'Confirm Ban',
         action: 'Yes, ban!'
       } as ConfirmDialogData
@@ -92,6 +110,7 @@ export class AdminComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.rejectArtwork(artwork);
         this.adminService.banUser(artwork).subscribe(ban => console.log(ban));
       }
     });
@@ -99,7 +118,6 @@ export class AdminComponent implements OnInit {
 
   rejectArtwork(artwork: UploadedArtwork) {
     this.artworks.splice(this.artworks.indexOf(artwork), 1);
-    this.table.renderRows();
     this.adminService.rejectArtwork(artwork).subscribe(deletion => console.log(deletion));
   }
 
@@ -109,9 +127,8 @@ export class AdminComponent implements OnInit {
 
   uncheckedChanged() {
     this.loading = true;
-    this.getArtworks().subscribe(artworks => {
-      this.artworks = artworks.artworks;
-      this.loading = false;
-    });
+    this.uploadIndexes = [];
+    this.alreadyReachedEnd = false;
+    this.getNextArtworks(true);
   }
 }

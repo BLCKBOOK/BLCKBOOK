@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import { GetUploadedArtworksResponseBody } from '../../../../backend/src/rest/artwork/admin/getUploadedArtworks/apiSchema';
 import {UploadedArtwork, UploadedArtworkIndex, UserInfoIndex } from '../../../../backend/src/common/tableDefinitions';
 import urlencode from 'urlencode';
+import {map, switchMap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -37,8 +38,19 @@ export class AdminService {
     if (index) {
       encodingString = '?lastKey=' + (urlencode(JSON.stringify(index)));
     }
+    console.log('called method with: ' + index?.uploaderId);
     const finalUrl = this.artworkAdminURL + this.getUncheckedArtworksURL + encodingString;
-    return this.httpClient.get<GetUploadedArtworksResponseBody>(finalUrl);
+    return this.httpClient.get<GetUploadedArtworksResponseBody>(finalUrl).pipe(switchMap(outerValue => {
+      if (outerValue.artworks.length < 20 && JSON.stringify(outerValue.lastKey) !== JSON.stringify(index) && outerValue.lastKey) {
+        return this.getUncheckedArtworks(outerValue.lastKey).pipe(map(innerValue => {
+          const lastKey = innerValue.lastKey ?? outerValue.lastKey;
+          console.log(lastKey?.uploaderId);
+          return {artworks: outerValue.artworks.concat(...innerValue.artworks), lastKey: lastKey} as GetUploadedArtworksResponseBody;
+        }));
+      }
+      console.log(outerValue.lastKey?.uploaderId);
+      return of(outerValue);
+    }));
   }
 
   public updateArtwork(artwork: UploadedArtwork): Observable<UploadedArtwork> {

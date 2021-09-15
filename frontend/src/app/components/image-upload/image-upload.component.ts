@@ -27,6 +27,9 @@ export class ImageUploadComponent implements OnInit {
   faCamera = findIconDefinition({prefix: 'fas', iconName: 'camera'});
   alreadyUploaded = false;
 
+  // ToDo: Check the aspect ratio: max 16/9 in any direction
+  // ToDo: also check for max size of 10mb
+
   @ViewChild('file')
   imageInput: ElementRef;
 
