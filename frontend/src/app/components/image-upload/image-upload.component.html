@@ -4,7 +4,7 @@
   </mat-card-header>
   <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container">
     <div fxFlex="1 1 50%">
-      <button *ngIf="!this.image && !this.alreadyUploaded; else noImage" mat-raised-button class="upload-button"
+      <button *ngIf="!this.image && !this.alreadyUploaded; else stagedImage" mat-raised-button class="upload-button"
               (click)="file.click()">
         <p>
           <span> some date info</span>
@@ -13,8 +13,18 @@
           <fa-icon [icon]="faCamera" stackItemSize="2x"></fa-icon>
         </fa-stack>
       </button>
-      <ng-template #noImage>
-        <img [src]="url" height="100%" #image>
+      <ng-template #stagedImage>
+        <div>
+          <img [src]="url" width="100%" #image>
+        </div>
+        <div fxLayout="row" fxLayoutAlign='space-evenly center'>
+          <button mat-icon-button (click)="enlargeImage()">
+            <fa-icon [icon]="faExpandArrowsAlt"></fa-icon>
+          </button>
+          <button *ngIf="!alreadyUploaded" mat-icon-button (click)="file.click()">
+            <fa-icon [icon]="faEdit"></fa-icon>
+          </button>
+        </div>
       </ng-template>
       <input
         type="file" id="fileInput" name="fileInput" accept="image/gif, image/jpeg, image/png" capture="camera" #file
@@ -42,7 +52,9 @@
     </div>
   </div>
   <div *ngIf="!alreadyUploaded" class="terms-box">
-    <mat-checkbox [(ngModel)]="acceptTerms"></mat-checkbox><span class="terms-distance"> I accept the </span><button mat-flat-button class="terms-button"(click)="openTermsAndConditions()">Terms and Conditions</button>
+    <mat-checkbox [(ngModel)]="acceptTerms"></mat-checkbox>
+    <span class="terms-distance"> I accept the </span>
+    <button mat-flat-button class="terms-button" (click)="openTermsAndConditions()">Terms and Conditions</button>
   </div>
   <mat-card-actions>
     <div *ngIf="!alreadyUploaded; else: deleteUpload">

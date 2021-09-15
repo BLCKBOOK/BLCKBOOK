@@ -52,6 +52,9 @@ import {MatCardModule} from '@angular/material/card';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { TermsDialogComponent } from './components/terms-dialog/terms-dialog.component';
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
+import {faExpandArrowsAlt} from '@fortawesome/free-solid-svg-icons/faExpandArrowsAlt';
+import {faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
+import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -75,7 +78,8 @@ Auth.configure(awsconfig);
     ScrollTrackerDirective,
     ConfirmDialogComponent,
     TermsDialogComponent,
-    ErrorDialogComponent
+    ErrorDialogComponent,
+    ImageDialogComponent
   ],
   imports: [
     MatDialogModule,
@@ -126,7 +130,9 @@ export class AppModule {
       faSprayCan,
       faSlash,
       faTrash,
-      faSkull
+      faSkull,
+      faExpandArrowsAlt,
+      faEdit
     );
   }
 }

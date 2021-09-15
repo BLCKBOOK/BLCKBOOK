@@ -9,6 +9,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {TermsDialogComponent} from '../terms-dialog/terms-dialog.component';
 import {TranslateService} from '@ngx-translate/core';
 import {ErrorDialogComponent, ErrorDialogData} from '../error-dialog/error-dialog.component';
+import {ImageDialogComponent, ImageDialogData} from '../image-dialog/image-dialog.component';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -29,6 +30,8 @@ export class ImageUploadComponent implements OnInit {
   contentType: string | undefined = undefined;
 
   faCamera = findIconDefinition({prefix: 'fas', iconName: 'camera'});
+  faExpandArrowsAlt = findIconDefinition({prefix: 'fas', iconName: 'expand-arrows-alt'});
+  faEdit = findIconDefinition({prefix: 'fas', iconName: 'edit'});
   alreadyUploaded = false;
 
   private readonly maxRatio = 1.8;
@@ -204,6 +207,15 @@ export class ImageUploadComponent implements OnInit {
   openTermsAndConditions() {
     this.dialog.open(TermsDialogComponent, {
       width: '80%'
+    });
+  }
+
+  enlargeImage() {
+    this.dialog.open(ImageDialogComponent, {
+      width: '95%',
+      data: {
+        url: this.url
+      } as ImageDialogData
     });
   }
 }
