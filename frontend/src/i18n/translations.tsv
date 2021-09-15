@@ -15,7 +15,7 @@ upload.name	PROPOSED NAME (OPTIONAL)
 upload.submit	Submit
 upload.delete	Delete
 wallet.header	Wallet Options
-wallet.no-wallet	You currently don't have a wallet connected\n In order to upload images and vote you need to connect a wallet first.
+wallet.no-wallet	You currently don't have a wallet connected<br> In order to upload images and vote you need to connect a wallet first.
 wallet.current	Your current wallet has the id:
 wallet.manually	Manually enter a wallet-id
 wallet.reconnect	Reconnect Wallet (Beacon)
@@ -23,3 +23,5 @@ wallet.use-manually	Use entered id
 wallet.connect	Connect Wallet (Beacon)
 wallet.updated-text	Wallet updated
 wallet.same-text	This wallet ID is already being used
+terms.header	Terms and Conditions
+terms.text	this is some text... <br> with line breaks  <br> multiple of them... woooow

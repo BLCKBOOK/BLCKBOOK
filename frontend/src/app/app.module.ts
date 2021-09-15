@@ -48,6 +48,10 @@ import {faSkull} from '@fortawesome/free-solid-svg-icons/faSkull';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatCardModule} from '@angular/material/card';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import { TermsDialogComponent } from './components/terms-dialog/terms-dialog.component';
+import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -69,7 +73,9 @@ Auth.configure(awsconfig);
     VotingComponent,
     ScrollComponent,
     ScrollTrackerDirective,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    TermsDialogComponent,
+    ErrorDialogComponent
   ],
   imports: [
     MatDialogModule,
@@ -99,6 +105,8 @@ Auth.configure(awsconfig);
     ScrollingModule,
     MatTabsModule,
     MatFormFieldModule,
+    MatCardModule,
+    MatCheckboxModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},

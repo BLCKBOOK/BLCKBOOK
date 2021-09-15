@@ -4,7 +4,7 @@
   "jsonFileName": "translations",
   "jsonExt": "json",
   "jsonIgnoreEmptyString": true,
-  "jsonReplace": { "''": "\"" },
+  "jsonReplace": {},
   "csvFieldSeparator": "\t",
   "csvEol": "\n",
   "csvEolAlt": ["\r\n", "\r"]

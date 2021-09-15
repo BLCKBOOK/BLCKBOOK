@@ -1,47 +1,56 @@
-<div class="welcome-line">
-  <app-bob-text [text]="'upload.header' | translate"></app-bob-text>
-</div>
-<div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container">
-  <div fxFlex="1 1 50%">
-    <button *ngIf="!this.image && !this.alreadyUploaded; else noImage" mat-raised-button class="upload-button" (click)="file.click()">
-      <p>
-        <span> some date info</span>
-      </p>
-      <fa-stack class="my-fa-stack">
-        <fa-icon [icon]="faCamera" stackItemSize="2x"></fa-icon>
-      </fa-stack>
-    </button>
-    <ng-template #noImage>
-      <img [src]="url" height="200">
+<mat-card>
+  <mat-card-header class="welcome-line">
+    <app-bob-text [text]="'upload.header' | translate"></app-bob-text>
+  </mat-card-header>
+  <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container">
+    <div fxFlex="1 1 50%">
+      <button *ngIf="!this.image && !this.alreadyUploaded; else noImage" mat-raised-button class="upload-button"
+              (click)="file.click()">
+        <p>
+          <span> some date info</span>
+        </p>
+        <fa-stack class="my-fa-stack">
+          <fa-icon [icon]="faCamera" stackItemSize="2x"></fa-icon>
+        </fa-stack>
+      </button>
+      <ng-template #noImage>
+        <img [src]="url" height="100%" #image>
+      </ng-template>
+      <input
+        type="file" id="fileInput" name="fileInput" accept="image/gif, image/jpeg, image/png" capture="camera" #file
+        (change)="imageChanged($event)">
+    </div>
+    <div class="meta-data-display" fxFlex="1 1 50%">
+      <div>
+        <mat-form-field appearance="fill" floatLabel="always" class="meta-input">
+          <mat-label>{{'upload.latitude' | translate}}</mat-label>
+          <input type="number" matInput placeholder="" [disabled]="true" value="{{latitude}}">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="fill" floatLabel="always" class="meta-input">
+          <mat-label>{{'upload.longitude' | translate}}</mat-label>
+          <input type="number" matInput placeholder="" [disabled]="true" value="{{longitude}}">
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field appearance="fill" class="meta-input">
+          <mat-label>{{'upload.name' | translate}}</mat-label>
+          <input matInput placeholder="" [(ngModel)]="title" [disabled]="alreadyUploaded">
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!alreadyUploaded" class="terms-box">
+    <mat-checkbox [(ngModel)]="acceptTerms"></mat-checkbox><span class="terms-distance"> I accept the </span><button mat-flat-button class="terms-button"(click)="openTermsAndConditions()">Terms and Conditions</button>
+  </div>
+  <mat-card-actions>
+    <div *ngIf="!alreadyUploaded; else: deleteUpload">
+      <button mat-raised-button (click)="submitImage()"
+              [disabled]="!(image && latitude && longitude && acceptTerms)">{{'upload.submit' | translate}}</button>
+    </div>
+    <ng-template #deleteUpload>
+      <button mat-raised-button (click)="deleteImage()">{{'upload.delete' | translate}}</button>
     </ng-template>
-    <input
-      type="file" id="fileInput" name="fileInput" accept="image/gif, image/jpeg, image/png" capture="camera" #file
-      (change)="imageChanged($event)">
-  </div>
-  <div class="meta-data-display" fxFlex="1 1 50%">
-    <div>
-      <mat-form-field appearance="fill" floatLabel="always" class="meta-input">
-        <mat-label>{{'upload.latitude' | translate}}</mat-label>
-        <input type="number" matInput placeholder="" [disabled]="true" value="{{latitude}}">
-      </mat-form-field>
-    </div>
-    <div>
-      <mat-form-field appearance="fill" floatLabel="always" class="meta-input">
-        <mat-label>{{'upload.longitude' | translate}}</mat-label>
-        <input type="number" matInput placeholder="" [disabled]="true" value="{{longitude}}">
-      </mat-form-field>
-    </div>
-    <div>
-      <mat-form-field appearance="fill" class="meta-input">
-        <mat-label>{{'upload.name' | translate}}</mat-label>
-        <input matInput placeholder="" [(ngModel)]="title" [disabled]="alreadyUploaded">
-      </mat-form-field>
-    </div>
-  </div>
-</div>
-<div *ngIf="!alreadyUploaded; else: deleteUpload">
-  <button mat-raised-button (click)="submitImage()" [disabled]="!(image && latitude && longitude)">{{'upload.submit' | translate}}</button>
-</div>
-<ng-template #deleteUpload>
-  <button mat-raised-button (click)="deleteImage()">{{'upload.delete' | translate}}</button>
-</ng-template>
+  </mat-card-actions>
+</mat-card>
