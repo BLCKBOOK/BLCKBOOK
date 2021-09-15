@@ -21,3 +21,5 @@ wallet.manually	Manually enter a wallet-id
 wallet.reconnect	Reconnect Wallet (Beacon)
 wallet.use-manually	Use entered id
 wallet.connect	Connect Wallet (Beacon)
+wallet.updated-text	Wallet updated
+wallet.same-text	This wallet ID is already being used

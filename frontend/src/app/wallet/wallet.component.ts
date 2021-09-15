@@ -2,6 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {BeaconService} from './beacon.service';
 import {UserService} from '../services/user.service';
 import {FormControl, Validators} from '@angular/forms';
+import {SnackBarService} from '../services/snack-bar.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-wallet',
@@ -14,18 +16,15 @@ export class WalletComponent implements OnInit {
   beaconWalletID: string = '';
   allowedWalletPrefix: string[] = ['ez1', 'ez2', 'ez3']; // ToDo: research this and add checks to field!
 
-  private readonly tezRegex = '(tz1|tz2|tz3|KT1)[0-9a-zA-Z]{33}$'
+  private readonly tezRegex = '(tz1|tz2|tz3|KT1)[0-9a-zA-Z]{33}$';
 
   walletIdForm = new FormControl('', [Validators.pattern(this.tezRegex)]);
 
-  constructor(private beaconService: BeaconService, private userService: UserService) { }
+  constructor(private beaconService: BeaconService, private userService: UserService, private snackBarService: SnackBarService, private translateService: TranslateService) {
+  }
 
   ngOnInit() {
     this.updateWalletIdFromServer();
-
-/*    this.beaconService.getAddress().subscribe(address => {
-      this.beaconWalletID = address; // ToDo: Check when the hell this is gonna reset
-    });*/
   }
 
   connectWallet() {
@@ -54,12 +53,13 @@ export class WalletComponent implements OnInit {
 
   private setWalletId(id: string) {
     if (id === this.walletID) {
-      console.log('this wallet ID is already being used');
+      this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('wallet.same-text'));
       return;
     }
     if (id.match(this.tezRegex)) {
       this.beaconService.setWalletID(id).subscribe(message => {
         this.updateWalletIdFromServer();
+        this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('wallet.updated-text'));
         console.log(message);
       });
     } else {
