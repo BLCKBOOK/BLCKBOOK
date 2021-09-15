@@ -16,8 +16,36 @@ export const RequestValidationSchema = {
                 "uploaderId": {
                     "type": "string"
                 },
-                "imageUrl": {
-                    "type": "string"
+                "imageUrls": {
+                    "type": "object",
+                    "properties": {
+                        "original": {
+                            "type": "string"
+                        },
+                        "1000w": {
+                            "type": "string"
+                        },
+                        "800w": {
+                            "type": "string"
+                        },
+                        "550w": {
+                            "type": "string"
+                        },
+                        "360w": {
+                            "type": "string"
+                        },
+                        "100w": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "original",
+                        "1000w",
+                        "800w",
+                        "550w",
+                        "360w",
+                        "100w"
+                    ]
                 },
                 "uploader": {
                     "type": "string"

@@ -1,13 +1,25 @@
-import { DynamoDB, GetItemCommand, PutItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
-import { S3Client, HeadBucketCommand, HeadObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteItemCommand, DynamoDB, GetItemCommand, PutItemCommand, PutItemCommandOutput, ServiceOutputTypes, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { S3Client, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import middy from "@middy/core";
-import cors from "@middy/http-cors";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
+import { extension } from "mime-types";
+import sharp from "sharp";
+import { Readable } from "stream";
+const ImageDimensionsStream = require('image-dimensions-stream');
 
 const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
+
+const desiredWidths = [
+  1000,
+  800,
+  550,
+  360,
+  100
+]
 
 const baseHandler = async (event, context) => {
   console.debug("event");
@@ -22,6 +34,8 @@ const baseHandler = async (event, context) => {
     const record = event.Records[index];
     const newImage = record.s3.object
     const userId = newImage.key.split('/')[1]
+    const artworkId = newImage.key.split('/')[2]
+    const imageUrls = { original: `https://${record.s3.bucket.name}.s3.${record.awsRegion}.amazonaws.com/${record.s3.object.key}` }
 
     const getUserInfo = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { userId: { S: userId } }, ConsistentRead: true });
     console.debug(getUserInfo.input)
@@ -39,8 +53,16 @@ const baseHandler = async (event, context) => {
 
     });
     console.debug(updateUserCommand.input)
-    console.debug(await DDBClient.send(updateUserCommand))
 
+    // get image from s3
+    let getImageCommand = new GetObjectCommand({
+      Bucket: record.s3.bucket.name,
+      Key: newImage.key
+    })
+    const getImageResponse = await s3Client.send(getImageCommand);
+    let imageStream = getImageResponse.Body as Readable
+
+    getImageResponse.ContentLength
 
     // get image metadata from s3
     const getImageMetadata = new HeadObjectCommand({
@@ -52,7 +74,39 @@ const baseHandler = async (event, context) => {
     console.debug("metadata")
     console.debug(metadata)
 
-    const imageUrl = `https://${record.s3.bucket.name}.s3.${record.awsRegion}.amazonaws.com/${record.s3.object.key}`
+    const sizeStream = new ImageDimensionsStream();
+    imageStream.pipe(sizeStream)
+    //TODO: check mime-type
+    sizeStream.on('mime', (mime) => {
+      console.log("mime", mime)
+    });
+    // check for illegal aspect ratio
+    sizeStream.on('dimensions', (dim) => {
+      const aspectRatio = Math.max((dim.width / dim.height), (dim.height / dim.width))
+      if (aspectRatio > 1.8) {
+        sizeStream.destroy();
+      }
+    });
+    // upload thumbnails
+    let imageUploads: Promise<ServiceOutputTypes>[] = [];
+    desiredWidths.forEach(width => {
+      const newKey = `thumbnails/${artworkId}/${width.toString()}w.${extension(metadata.contenttype.toString())}`
+      const upload = new Upload({
+        client: s3Client,
+        params: {
+          Bucket: process.env['ARTWORK_UPLOAD_S3_BUCKET_NAME'],
+          Key: newKey,
+          ACL: 'public-read',
+          Body: sizeStream.pipe(sharp().resize(width)),
+          ContentType: metadata.contenttype.toString()
+        }
+      })
+      imageUrls[width.toString() + "w"] = `https://${record.s3.bucket.name}.s3.${record.awsRegion}.amazonaws.com/${newKey}`
+      imageUploads.push(upload.done())
+    });
+
+
+
 
     // S3 metadata is stored in lowercase.
     // we need to restore our casing
@@ -69,7 +123,7 @@ const baseHandler = async (event, context) => {
       approvalState: metadata.approvalstate,
       uploadTimestamp: metadata.uploadTimestamp,
       title: metadata.title,
-      imageUrl
+      imageUrls
     }
     console.debug(`This Item Will be Written to the dynamodb table: ${process.env['UPLOADED_ARTWORKS_TABLE_NAME']}`)
     console.debug(JSON.stringify(metadata))
@@ -80,15 +134,22 @@ const baseHandler = async (event, context) => {
       TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
       Item: marshalledMetadata
     })
-    console.debug("createNewUserObjectCommand")
-    console.debug(createNewUploadObjectCommand)
+    console.debug("createNewUserObjectCommand", createNewUploadObjectCommand)
 
-    const newItem = await DDBClient.send(createNewUploadObjectCommand)
-    console.debug(newItem)
+    const writeDataPromises: Promise<any>[] = []
+    writeDataPromises.push(DDBClient.send(updateUserCommand).then(response => console.debug("Updated User", response)))
+    writeDataPromises.push(DDBClient.send(createNewUploadObjectCommand).then(response => console.debug("Updated Artwork", response)))
+    writeDataPromises.push(Promise.all(imageUploads).then(response => console.debug("Created Thumbnails", response)))
+
+    await Promise.all(writeDataPromises)
+
+
+
 
     return event
   }
 }
+
 
 const handler = middy(baseHandler)
   .use(httpErrorHandler())

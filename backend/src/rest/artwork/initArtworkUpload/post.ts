@@ -14,7 +14,7 @@ import { extension } from "mime-types";
 import { encode } from "ngeohash";
 
 import { initArtworkUploadSchema } from "./apiSchema";
-import { maxUploadCountReached, wrongContentType, youAreBanned } from "../../../common/responses";
+import { maxUploadCountReached, wrongContentType, youAreBanned, fileTooLarge } from "../../../common/responses";
 import { UserInfo } from "../../../common/tableDefinitions"
 import AuthMiddleware from "../../../common/AuthMiddleware"
 
@@ -39,6 +39,8 @@ const baseHandler = async (event, context) => {
   // validateRequest
   if (!supportedMimeTypes[body.contentType])
     return wrongContentType
+  if (Number(body.contentLength) > 10000000)
+    return fileTooLarge;
 
   // get userInfo
   const userInfo = event.requestContext.authorizer.claims;
@@ -76,6 +78,7 @@ const baseHandler = async (event, context) => {
     artist: 'Unknown Artist'
   });
 
+  console.debug(body)
   // create signed upload url
   const command = new PutObjectCommand({
     Key: `artwork/${userInfo['sub']}/${artworkId}.${extension(contentType)}`,
@@ -83,6 +86,8 @@ const baseHandler = async (event, context) => {
     ACL: 'public-read',
     //@ts-ignore next line
     Metadata: body
+    //ContentType: body.contentType,
+    //ContentLength: Number(body.contentLength)
   });
 
   let expiryDate = new Date(now)

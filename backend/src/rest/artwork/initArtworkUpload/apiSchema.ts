@@ -10,6 +10,10 @@ export const initArtworkUploadSchema = {
         "contentType": {
           "type": "string"
         },
+        "contentLength": {
+          "type": "string",
+          "pattern": "^\\d+$"
+        },
         "longitude": {
           "type": "string"
         },
@@ -32,6 +36,7 @@ export const initArtworkUploadSchema = {
 export interface InitArtworkUploadRequest {
   title?: string,
   contentType: string,
+  contentLength: string,
   longitude: string,
   latitude: string
 }

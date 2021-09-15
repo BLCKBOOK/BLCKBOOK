@@ -41,7 +41,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     console.debug("marshalled body", marshall(body))
 
     deleteItemCommand = new DeleteItemCommand({
-      TableName: process.env['UPLOADED_ARTWORKS_TABLE'],
+      TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
       Key: marshall(body),
       ReturnValues: "ALL_OLD"
     })

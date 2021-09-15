@@ -7,3 +7,4 @@ export const noUploadsYet: LambdaResponseToApiGw = { statusCode: 404, headers: {
 export const updateItemDoesntExist: LambdaResponseToApiGw = { statusCode: 404, headers: { "content-type": "text/plain" }, body: "The Item you tried to update doesn't exist." }
 export const couldNotBeDeleted: LambdaResponseToApiGw = { statusCode: 500, headers: { "content-type": "text/plain" }, body: "The Item could not be deleted." }
 export const youAreBanned: LambdaResponseToApiGw = { statusCode: 403, headers: { "content-type": "text/plain" }, body: "You are Banned!" }
+export const fileTooLarge: LambdaResponseToApiGw = { statusCode: 400, headers: { "content-type": "text/plain" }, body: "The file can only be up to 10Mb large!" }

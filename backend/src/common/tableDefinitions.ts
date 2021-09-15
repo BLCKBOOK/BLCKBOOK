@@ -28,7 +28,7 @@ export interface UploadedArtwork {
   periodId: string
   artworkId: string
   uploaderId: string,
-  imageUrl: string
+  imageUrls: { [Key: string]: string }
   uploader: string
   uploadTimestamp: string
   geoHash: string
@@ -39,22 +39,6 @@ export interface UploadedArtwork {
   title?: string
   artist?: string
 }
-
-export interface UploadedArtworkSchema {
-  periodId: { S: string }
-  artworkId: { S: string }
-  imageUrl: { S: string }
-  uploader: { S: string }
-  uploadTimestamp: { N: string }
-  longitude: { N: string }
-  latitude: { N: string }
-  approvalState: { S: string },
-  title?: { S: string }
-  artist?: { S: string }
-  contentType: { S: string }
-  geoHash: { S: string }
-}
-
 
 // Global index of uploadedartwork
 interface UploadedArtworkAdminView {

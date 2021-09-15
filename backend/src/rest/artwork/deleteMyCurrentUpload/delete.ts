@@ -46,7 +46,8 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     let allPromises: Promise<any>[] = []
 
     // delete image from S3
-    let s3Key = new URL(itemToDelete.imageUrl).pathname.substring(1)
+    // TODO: also delete thumbnails
+    let s3Key = new URL(itemToDelete.imageUrls[0]).pathname.substring(1)
     const deleteObjectCommand = new DeleteObjectCommand({
       Bucket: process.env['ARTWORK_UPLOAD_S3_BUCKET_NAME'],
       Key: s3Key

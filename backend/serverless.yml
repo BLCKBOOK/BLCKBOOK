@@ -63,6 +63,7 @@ functions:
       - Effect: Allow
         Action:
           - s3:DeleteObject
+          - s3:Put*
         Resource: 
           - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
     events:

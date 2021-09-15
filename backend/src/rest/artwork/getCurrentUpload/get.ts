@@ -5,7 +5,7 @@ import cors from "@middy/http-cors";
 import httpErrorHandler from "@middy/http-error-handler";
 
 import { getCurrentImageResponse } from "./apiSchema";
-import { UploadedArtwork, UploadedArtworkSchema } from "../../../common/tableDefinitions"
+import { UploadedArtwork } from "../../../common/tableDefinitions"
 import { noUploadsYet, unauthorized } from "../../../common/responses";
 import { LambdaResponseToApiGw } from "../../../common/lambdaResponseToApiGw";
 import AuthMiddleware from "../../../common/AuthMiddleware";
@@ -51,7 +51,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     periodId: latestUpload.periodId,
     uploaderId: latestUpload.uploaderId,
     artworkId: latestUpload.artworkId,
-    imageUrl: latestUpload.imageUrl,
+    imageUrls: latestUpload.imageUrls,
     uploader: latestUpload.uploader,
     uploadTimestamp: latestUpload.uploadTimestamp,
     geoHash: latestUpload.geoHash,
