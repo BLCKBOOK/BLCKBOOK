@@ -59,11 +59,9 @@ export class AdminComponent implements OnInit {
       console.log(artworks.lastKey?.uploaderId);
       this.loading = false;
       this.setArtworks(artworks.artworks);
-      if (JSON.stringify(artworks.lastKey) === JSON.stringify(lastIndex)) {
-        this.snackBarService.openSnackBar('already reached the end', 'got it!');
-      } else if (artworks.lastKey === undefined) {
-        this.alreadyReachedEnd = true;
+      if (JSON.stringify(artworks.lastKey) === JSON.stringify(lastIndex) || artworks.lastKey === undefined) {
         this.snackBarService.openSnackBar('Reached the end', 'got it!');
+        this.alreadyReachedEnd = true;
       } else {
         this.uploadIndexes.push(artworks.lastKey);
       }
