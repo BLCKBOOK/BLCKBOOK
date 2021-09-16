@@ -69,7 +69,7 @@ const baseHandler = async (event, context) => {
       Bucket: record.s3.bucket.name,
       Key: newImage.key,
     })
-    let metadata: { [key: string]: number | string } = await (await s3Client.send(getImageMetadata)).Metadata || {}
+    let metadata: { [key: string]: number | string | { [key: string]: string } } = await (await s3Client.send(getImageMetadata)).Metadata || {}
     metadata.uploadTimestamp = new Date().getTime();
     console.debug("metadata")
     console.debug(metadata)
@@ -97,16 +97,13 @@ const baseHandler = async (event, context) => {
           Bucket: process.env['ARTWORK_UPLOAD_S3_BUCKET_NAME'],
           Key: newKey,
           ACL: 'public-read',
-          Body: sizeStream.pipe(sharp().resize(width)),
+          Body: sizeStream.pipe(sharp().resize(width).withMetadata()),
           ContentType: metadata.contenttype.toString()
         }
       })
       imageUrls[width.toString() + "w"] = `https://${record.s3.bucket.name}.s3.${record.awsRegion}.amazonaws.com/${newKey}`
       imageUploads.push(upload.done())
     });
-
-
-
 
     // S3 metadata is stored in lowercase.
     // we need to restore our casing

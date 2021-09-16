@@ -80,7 +80,7 @@ export const RequestValidationSchema = {
                 "periodId",
                 "artworkId",
                 "uploaderId",
-                "imageUrl",
+                "imageUrls",
                 "uploader",
                 "uploadTimestamp",
                 "geoHash",
