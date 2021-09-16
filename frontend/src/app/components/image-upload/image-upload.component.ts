@@ -1,7 +1,7 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import * as exifr from 'exifr';
 import {ImageUploadService} from '../../services/image-upload.service';
-import {AcceptedMimeTypes, ImageUpload} from '../../types/image.type';
+import {AcceptedMimeTypes, ImageUpload, originalImageKey} from '../../types/image.type';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {InitArtworkUploadRequest} from '../../../../../backend/src/rest/artwork/initArtworkUpload/apiSchema';
 import {ActivatedRoute} from '@angular/router';
@@ -10,6 +10,9 @@ import {TermsDialogComponent} from '../terms-dialog/terms-dialog.component';
 import {TranslateService} from '@ngx-translate/core';
 import {ErrorDialogComponent, ErrorDialogData} from '../error-dialog/error-dialog.component';
 import {ImageDialogComponent, ImageDialogData} from '../image-dialog/image-dialog.component';
+import {UploadedArtwork} from '../../../../../backend/src/common/tableDefinitions';
+import {ImageSizeService} from '../../services/image-size.service';
+import {SnackBarService} from '../../services/snack-bar.service';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -27,7 +30,9 @@ export class ImageUploadComponent implements OnInit {
   image: File | undefined = undefined;
   title: string | undefined = ''; // ToDo: limit me!
   url: string | ArrayBuffer | null | undefined = '';
+  srcSet: string | undefined;
   contentType: string | undefined = undefined;
+  sizes: string | undefined;
 
   faCamera = findIconDefinition({prefix: 'fas', iconName: 'camera'});
   faExpandArrowsAlt = findIconDefinition({prefix: 'fas', iconName: 'expand-arrows-alt'});
@@ -48,27 +53,30 @@ export class ImageUploadComponent implements OnInit {
   acceptTerms = false;
   private readonly errorDialogSize: string = '80%';
 
-  constructor(public dialog: MatDialog, private imageUploadService: ImageUploadService, private route: ActivatedRoute, private translateService: TranslateService) {
+  constructor(public dialog: MatDialog, private imageUploadService: ImageUploadService, private route: ActivatedRoute,
+              private translateService: TranslateService, private imageSizeService: ImageSizeService,
+              private snackBarService: SnackBarService) {
   }
 
   ngOnInit(): void {
-    const upload = this.route.snapshot.data['uploadedImage'];
-    console.log(upload);
+    const upload: UploadedArtwork = this.route.snapshot.data['uploadedImage'];
     if (upload) {
       this.alreadyUploaded = true;
       this.longitude = upload.longitude;
       this.latitude = upload.latitude;
       this.title = upload.title;
-      this.url = upload.imageUrl;
-      console.log(upload);
+      const imageSizes = upload.imageUrls;
+      this.url = imageSizes[originalImageKey];
+      this.srcSet = this.imageSizeService.calculateSrcSetString(imageSizes);
+      this.url = this.imageSizeService.getOriginalString(imageSizes);
     }
-
   }
 
   private resetImageVariables() {
     this.image = undefined;
     this.url = undefined;
     this.contentType = undefined;
+    this.srcSet = undefined;
   }
 
   imageChanged($event: Event) {
@@ -178,11 +186,13 @@ export class ImageUploadComponent implements OnInit {
           contentType: this.contentType,
         } as InitArtworkUploadRequest
       } as ImageUpload;
+      // ToDo maybe show a loading thing here
       this.imageUploadService.uploadImage(image).subscribe((requestURL) => {
         if (requestURL) {
           const imageIndex = requestURL.indexOf('?');
           this.url = requestURL.slice(0, imageIndex);
           this.alreadyUploaded = true;
+          this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('upload.success'))
         } else {
           window.alert('upload failed for some reason');
         }
@@ -195,7 +205,8 @@ export class ImageUploadComponent implements OnInit {
   }
 
   deleteImage(): void {
-    this.imageUploadService.deleteCurrentlyUploadedImage().subscribe(() => {
+    this.imageUploadService.deleteCurrentlyUploadedImage().subscribe(value => {
+      console.log(value);
       this.imageInput.nativeElement.value = '';
       this.resetImageVariables();
       this.alreadyUploaded = false;

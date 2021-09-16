@@ -26,7 +26,8 @@
     "error-size-header": "Image too big",
     "error-size-text": "The image must be smaller than 10mb",
     "error-ratio-header": "Invalid Aspect-Ratio",
-    "error-ratio-text": "You can only upload images with a aspect-rations of 16/9 to 9/16"
+    "error-ratio-text": "You can only upload images with a aspect-rations of 16/9 to 9/16",
+    "success": "Image uploaded"
   },
   "wallet": {
     "header": "Wallet Options",
