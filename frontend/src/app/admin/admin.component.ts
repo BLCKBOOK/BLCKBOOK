@@ -9,6 +9,8 @@ import {MatTable} from '@angular/material/table';
 import {Observable} from 'rxjs';
 import {GetUploadedArtworksResponseBody} from '../../../../backend/src/rest/artwork/admin/getUploadedArtworks/apiSchema';
 import {SnackBarService} from '../services/snack-bar.service';
+import {ImageSizeService} from '../services/image-size.service';
+import {DisplayedArtwork} from '../types/image.type';
 
 @Component({
   selector: 'app-admin',
@@ -18,21 +20,25 @@ import {SnackBarService} from '../services/snack-bar.service';
 export class AdminComponent implements OnInit {
 
   loading = true;
-  artworks: UploadedArtwork[] = [];
+  artworks: DisplayedArtwork[] = [];
   uploadIndexes: UploadedArtworkIndex[] = [];
   dataSource = this.artworks;
 
   faSkull = findIconDefinition({prefix: 'fas', iconName: 'skull'});
   faTrash = findIconDefinition({prefix: 'fas', iconName: 'trash'});
   displayedColumns = ['image', 'title', 'approved', 'delete', 'ban'];
+  srcSets: string[] = [];
+  private readonly adminImageSizeKey = 'adminImageSize';
 
   @ViewChild('table') table: MatTable<any>;
   onlyUnchecked = false;
-  imageHeight: number = 200;
+  imageHeight: number;
   pageCounter = 0;
   alreadyReachedEnd = false;
 
-  constructor(private adminService: AdminService, public dialog: MatDialog, private snackBarService: SnackBarService) {
+  constructor(private adminService: AdminService, public dialog: MatDialog, private snackBarService: SnackBarService, private imageSizeService: ImageSizeService) {
+    const savedImageSize = localStorage.getItem(this.adminImageSizeKey);
+    this.imageHeight = savedImageSize ? Number(savedImageSize) : 200;
   }
 
   ngOnInit() {
@@ -52,7 +58,7 @@ export class AdminComponent implements OnInit {
       }
       console.log(artworks.lastKey?.uploaderId);
       this.loading = false;
-      this.artworks = artworks.artworks;
+      this.setArtworks(artworks.artworks);
       if (JSON.stringify(artworks.lastKey) === JSON.stringify(lastIndex)) {
         this.snackBarService.openSnackBar('already reached the end', 'got it!');
       } else if (artworks.lastKey === undefined) {
@@ -78,31 +84,31 @@ export class AdminComponent implements OnInit {
         this.uploadIndexes.push(currentIndex);
       }
       this.loading = false;
-      this.artworks = artworks.artworks;
+      this.setArtworks(artworks.artworks);
       if (artworks.lastKey) {
         this.uploadIndexes.push(artworks.lastKey);
       }
     });
   }
 
-  checkArtwork(artwork: UploadedArtwork, event: MatCheckboxChange) {
+  checkArtwork(artwork: DisplayedArtwork, event: MatCheckboxChange) {
     if (event.checked) {
-      artwork.approvalState = 'approved';
+      artwork.artwork.approvalState = 'approved';
       if (this.onlyUnchecked) {
         this.artworks.splice(this.artworks.indexOf(artwork), 1);
         this.table.renderRows();
       }
     } else {
-      artwork.approvalState = 'unchecked';
+      artwork.artwork.approvalState = 'unchecked';
     }
-    this.adminService.updateArtwork(artwork).subscribe(update => console.log(update));
+    this.adminService.updateArtwork(artwork.artwork).subscribe(update => console.log(update));
   }
 
-  banUser(artwork: UploadedArtwork) {
+  banUser(artwork: DisplayedArtwork) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '250px',
       data: {
-        text: 'This will ban the user with the name "' + artwork.uploader + '"\n It will also delete the image',
+        text: 'This will ban the user with the name "' + artwork.artwork.uploader + '"\n It will also delete the image',
         header: 'Confirm Ban',
         action: 'Yes, ban!'
       } as ConfirmDialogData
@@ -111,14 +117,15 @@ export class AdminComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.rejectArtwork(artwork);
-        this.adminService.banUser(artwork).subscribe(ban => console.log(ban));
+        this.adminService.banUser(artwork.artwork).subscribe(ban => console.log(ban));
       }
     });
   }
 
-  rejectArtwork(artwork: UploadedArtwork) {
+  rejectArtwork(artwork: DisplayedArtwork) {
     this.artworks.splice(this.artworks.indexOf(artwork), 1);
-    this.adminService.rejectArtwork(artwork).subscribe(deletion => console.log(deletion));
+    this.table.renderRows();
+    this.adminService.rejectArtwork(artwork.artwork).subscribe(deletion => console.log(deletion));
   }
 
   private getArtworks(index?: UploadedArtworkIndex): Observable<GetUploadedArtworksResponseBody> {
@@ -130,5 +137,17 @@ export class AdminComponent implements OnInit {
     this.uploadIndexes = [];
     this.alreadyReachedEnd = false;
     this.getNextArtworks(true);
+  }
+
+  private setArtworks(artworks: UploadedArtwork[]) {
+    this.artworks = artworks.map(artwork => {
+      return {
+        artwork: artwork,
+        src: this.imageSizeService.getOriginalString(artwork.imageUrls),
+        srcSet: this.imageSizeService.calculateSrcSetString(artwork.imageUrls)} as DisplayedArtwork});
+  }
+
+  saveImageHeight() {
+    localStorage.setItem(this.adminImageSizeKey, this.imageHeight.toString());
   }
 }

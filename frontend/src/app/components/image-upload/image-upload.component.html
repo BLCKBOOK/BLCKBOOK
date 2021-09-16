@@ -15,7 +15,7 @@
       </button>
       <ng-template #stagedImage>
         <div>
-          <img [src]="url" width="100%" #image>
+          <img [src]="url" [srcset]="srcSet" width="100%" #image [sizes]="'(max-width: 959px) calc(50vw - 88px), calc(50vw-44px)'" alt="'Upload'">
         </div>
         <div fxLayout="row" fxLayoutAlign='space-evenly center'>
           <button mat-icon-button (click)="enlargeImage()">
