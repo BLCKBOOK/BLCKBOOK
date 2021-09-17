@@ -58,3 +58,12 @@ ngx-masonry {
 .example-spacer {
   flex: 1 1 auto;
 }
+
+.voted-image {
+  outline-offset: -3px;
+  outline: var(--primary-color) solid 3px;
+}
+
+.mat-raised-button {
+  padding: 0!important;
+}
