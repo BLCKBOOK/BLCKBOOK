@@ -15,7 +15,7 @@ package:
 custom:
   user_info_table_name: 'user-info-${self:provider.stage}'
   uploaded_artworks_table_name: 'uploaded-artworks-${self:provider.stage}'
-  uploaded_artworks_admin_view_table_name: 'uploaded-artworks-Amdin-View-${self:provider.stage}'
+  vote_pages_table_name: 'votes-pages-${self:provider.stage}'
   artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks' 
   blckbook_user_pool: ${self:provider.stage}-blckbook-users
   period_table_name: period-table
@@ -39,6 +39,7 @@ provider:
     UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
     FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
     MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
+    VOTE_PAGES_TABLE_NAME: ${self:custom.vote_pages_table_name}
     ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
     PERIOD_TABLE_NAME: ${self:custom.period_table_name}
     USER_POOL_ID:
@@ -355,6 +356,33 @@ functions:
                 - Arn
           method: get
           cors: true
+    
+  getVotableArtworkPage:
+    handler: src/rest/vote/getVotePage/get.handler
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:GetItem
+        Resource:
+          - Fn::GetAtt: [ votePagesTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+        Resource:
+          - Fn::GetAtt: [ periodTable, Arn ]
+    events:
+      - http:
+          path: vote/getPage/{pageNumber}
+          authorizer: 
+            name: BlckBookUsersAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - BlckBookUsers
+                - Arn
+          method: get
+          cors: true
 
 resources:
   Resources:
@@ -465,21 +493,21 @@ resources:
             KeyType: HASH
         TableName: ${self:custom.period_table_name}
     
-    uploadedArtworkAdminViewTable:
+    votePagesTable:
       Type: AWS::DynamoDB::Table
       Properties:
         BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions:
-          - AttributeName: periodId
-            AttributeType: S
-          - AttributeName: uploadDate
+          - AttributeName: pageNumber
+            AttributeType: N
+          - AttributeName: artworkId
             AttributeType: S
         KeySchema:
-          - AttributeName: periodId
+          - AttributeName: pageNumber
             KeyType: HASH
-          - AttributeName: uploadDate
+          - AttributeName: artworkId
             KeyType: RANGE
-        TableName: ${self:custom.uploaded_artworks_admin_view_table_name}
+        TableName: ${self:custom.vote_pages_table_name}
 
     GatewayResponseDefault4XX:
       Type: 'AWS::ApiGateway::GatewayResponse'

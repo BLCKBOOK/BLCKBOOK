@@ -55,19 +55,24 @@ interface UploadedArtworkAdminView {
   artist?: string
 }
 
-interface VotableArtworks {
-  artworkId: string // PK
-  imageUrl: string
+export interface VotableArtwork {
+  pageNumber: string // PK
+  periodId: string
+  artworkId: string
+  uploaderId: string,
+  imageUrls: { [Key: string]: string }
   uploader: string
-  uploadTimestamp: Date
-  geohash: string
+  uploadTimestamp: string
+  geoHash: string
   longitude: string
   latitude: string
+  approvalState: 'unchecked' | 'approved' | 'rejected',
+  contentType: string
   title?: string
   artist?: string
 
   votes: [string]
-  votecount: number
+  voteCount: number
 }
 
 
