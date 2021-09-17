@@ -41,8 +41,7 @@ export class ImageUploadComponent implements OnInit {
 
   private readonly maxRatio = 1.8;
 
-  // ToDo: Check the aspect ratio: max 16/9 in any direction
-  // ToDo: also check for max size of 10mb
+  // ToDo: make the submit button disabled (or like that it is being uploaded) while uploading once the multiple-upload bug has been fixed
 
   @ViewChild('file')
   imageInput: ElementRef;

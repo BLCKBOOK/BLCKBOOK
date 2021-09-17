@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import {UploadedArtwork} from '../../../../backend/src/common/tableDefinitions'
-import {Observable, of} from 'rxjs';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {MasonryItem} from '../components/scroll/scroll.component';
+import {map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VotingService {
 
-  public selectedArtworks: UploadedArtwork[] = [];
   private votesLeft: number;
+  private votedArtworks: BehaviorSubject<MasonryItem[]> = new BehaviorSubject<MasonryItem[]>([]);
 
   constructor() {
     this.votesLeft = 0;
@@ -19,12 +20,18 @@ export class VotingService {
   }
 
   public getVotesSpent(): Observable<number> {
-    return of(3);
+    return this.votedArtworks.pipe(map(artworks => artworks.length));
   }
 
-/*
-  loadArtworks()
-*/
+  setVoted(selection: MasonryItem[]) {
+    this.votedArtworks.next(selection);
+  }
 
+  getVoted$(): Observable<MasonryItem[]> {
+    return this.votedArtworks.pipe();
+  }
 
+  getVoted(): MasonryItem[] {
+    return this.votedArtworks.getValue();
+  }
 }

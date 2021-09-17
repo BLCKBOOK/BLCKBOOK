@@ -1,17 +1,20 @@
-<ngx-masonry [options]="myOptions" appScrollTracker (scrollingFinished)="addMoreItems()">
+<ngx-masonry [options]="myOptions" appScrollTracker (scrollingFinished)="addMoreItems()" #masonry>
   <div class="grid-sizer"></div>
   <div class="gutter-sizer"></div>
   <div ngxMasonryItem class="masonry-item" *ngFor="let item of masonryItems">
-    <img src="{{item.img}}" class="masonry-image"> <br>
-    <div *ngIf="scrollType === 'voting'" class="vote-footer">
+    <button mat-raised-button (click)="imageClick(item)">
+      <img src="{{item.img}}" class="masonry-image" srcset="{{item.srcSet}}" sizes="{{sizes}}" alt="{{item.title}}"
+           [ngClass]="item.voted ? 'voted-image': ''">
+    </button>
+    <div *ngIf="scrollType === 'voting' || scrollType === 'voting-selected'" class="vote-footer">
       <span>{{item.title}}</span>
       <span class="example-spacer"></span>
-      <button mat-icon-button class="vote-button" *ngIf="!item.voted" (click)="item.voted = true">
+      <button mat-icon-button class="vote-button" *ngIf="!item.voted" (click)="vote(item)">
         <fa-stack>
           <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
         </fa-stack>
       </button>
-      <button mat-icon-button class="vote-button" *ngIf="item.voted" (click)="item.voted = false">
+      <button mat-icon-button class="vote-button" *ngIf="item.voted" (click)="unvote(item)">
         <fa-stack>
           <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
           <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>

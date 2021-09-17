@@ -55,6 +55,8 @@ import { ErrorDialogComponent } from './components/error-dialog/error-dialog.com
 import {faExpandArrowsAlt} from '@fortawesome/free-solid-svg-icons/faExpandArrowsAlt';
 import {faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
 import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
+import { DetailViewDialogComponent } from './components/detail-view-dialog/detail-view-dialog.component';
+import {faShareAlt} from '@fortawesome/free-solid-svg-icons/faShareAlt';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -79,7 +81,8 @@ Auth.configure(awsconfig);
     ConfirmDialogComponent,
     TermsDialogComponent,
     ErrorDialogComponent,
-    ImageDialogComponent
+    ImageDialogComponent,
+    DetailViewDialogComponent,
   ],
   imports: [
     MatDialogModule,
@@ -132,7 +135,8 @@ export class AppModule {
       faTrash,
       faSkull,
       faExpandArrowsAlt,
-      faEdit
+      faEdit,
+      faShareAlt,
     );
   }
 }
