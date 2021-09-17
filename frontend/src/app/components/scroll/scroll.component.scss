@@ -11,6 +11,10 @@
   height: auto;
 }
 
+ngx-masonry {
+  margin-top: 10px;
+}
+
 @media screen and (max-width: 599px) {
   .masonry-item,
   .grid-sizer { width: 100%; }
@@ -33,7 +37,11 @@
 
 @media screen and (min-width: 1920px) {
   .masonry-item,
-  .grid-sizer { width: calc(20% - 8.25px) }
+  .grid-sizer { width: calc(33.3% - 6.6px) }
+  ngx-masonry {
+    margin-left: calc((100vw - 1920px) / 2);
+    margin-right: calc((100vw - 1920px) / 2);
+  }
 }
 
 .vote-footer {

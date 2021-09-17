@@ -2,7 +2,7 @@
   <div class="grid-sizer"></div>
   <div class="gutter-sizer"></div>
   <div ngxMasonryItem class="masonry-item" *ngFor="let item of masonryItems">
-    <img src="{{item.img}}" class="masonry-image"> <br>
+    <img src="{{item.img}}" class="masonry-image" srcset="{{item.srcSet}}" sizes="{{sizes}}" alt="{{item.title}}"> <br>
     <div *ngIf="scrollType === 'voting'" class="vote-footer">
       <span>{{item.title}}</span>
       <span class="example-spacer"></span>
