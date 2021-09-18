@@ -1,4 +1,4 @@
-import { CognitoIdentityProviderClient, AdminGetUserCommand, ListUsersCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { CognitoIdentityProviderClient, AdminGetUserCommand, ListUsersCommand, AdminDeleteUserCommand } from "@aws-sdk/client-cognito-identity-provider";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
@@ -21,12 +21,16 @@ const baseHandler = async (event, context) => {
             const { Users } = await cognitoidentityserviceprovider.send(getUserCommand);
             console.log({ Users })
             if (Users && Users.length > 0) {
+                if (Users[0].UserStatus == 'UNCONFIRMED') {
+                    let deleteUserCommand = new AdminDeleteUserCommand({
+                        Username: Users[0].Username,
+                        UserPoolId: process.env['USER_POOL_ID']
+                    })
+                    await cognitoidentityserviceprovider.send(deleteUserCommand);
+                    return event
+                }
                 throw createError(503, 'Email already exists');
             } else {
-                //event.response = {
-                //    "autoConfirmUser": true,
-                //    "autoVerifyUser": true
-                //}
                 return event
             }
         } catch (error) {

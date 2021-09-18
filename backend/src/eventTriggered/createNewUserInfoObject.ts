@@ -1,38 +1,28 @@
-import { DynamoDBClient as DynamoDB, PutItemCommand } from "@aws-sdk/client-dynamodb";
-import { CognitoIdentityProvider } from "@aws-sdk/client-cognito-identity-provider";
+import { DynamoDBClient as DynamoDB, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { AdminGetUserCommand, CognitoIdentityProvider } from "@aws-sdk/client-cognito-identity-provider";
 import middy from "@middy/core";
-import cors from "@middy/http-cors";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
 
-if (!process.env["AWS_REGION"])
-  throw new Error(`region not set in env vars`)
-if (!process.env["USER_INFO_TABLE_NAME"])
-  throw new Error(`USER_INFO_TABLE_NAME not set in env vars`)
-if (!process.env["USER_POOL_ID"])
-  throw new Error(`USER_POOL_ID not set in env vars`)
+import RequestLogger from "../common/RequestLogger";
+import { marshall } from "@aws-sdk/util-dynamodb";
 
 const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
-const cognitoidentityserviceprovider = new CognitoIdentityProvider({});
+const cognitoidentityserviceprovider = new CognitoIdentityProvider({ region: process.env['AWS_REGION'] });
 
 const baseHandler = async (event, context) => {
-
-  console.log("event");
-  console.log(JSON.stringify(event));
-  console.log("process.env")
-  console.log(process.env)
-  console.log("context")
-  console.log(context)
-
-  // TODO update errors so that they get thrown to the user
-  if (event.request.userAttributes['cognito:user_status'] !== 'CONFIRMED')
-    throw new Error(`User ${event.request.userAttributes.sub} is not confirmed`)
-  if (event.request.userAttributes['email_verified'] !== 'true')
-    throw new Error(`Email ${event.request.userAttributes.email} is not verified`)
-
-
   const userAttributes = event.request.userAttributes
-  const username = event.userName
+  const username = event.userName as string
+
+  //dont recreate data if user already exists (fixes pw change resets user data) 
+  const getUserInfo = new GetItemCommand({
+    TableName: process.env['USER_INFO_TABLE_NAME'],
+    Key: marshall({ userId: userAttributes.sub })
+  })
+  const userInfo = await DDBClient.send(getUserInfo)
+  if (userInfo.Item) {
+    return event
+  }
 
   // create user info entry in Dynamodb
   const createNewUserObjectCommand = new PutItemCommand({
@@ -67,6 +57,7 @@ const baseHandler = async (event, context) => {
 }
 
 const handler = middy(baseHandler)
+  .use(RequestLogger())
   .use(httpErrorHandler())
   .use(httpJsonBodyParser())
 

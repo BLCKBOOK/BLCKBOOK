@@ -76,6 +76,7 @@ initializeUser:
     - Effect: Allow
       Action:
         - cognito-idp:AdminAddUserToGroup
+        - cognito-idp:AdminGetUser
       Resource:
         - Fn::GetAtt: [ BlckBookUsers, Arn ]
   events:
@@ -90,6 +91,7 @@ confirmUser:
     - Effect: Allow
       Action:
         - cognito-idp:ListUsers
+        - cognito-idp:AdminDeleteUser
       Resource:
         - Fn::GetAtt: [ BlckBookUsers, Arn ]
   events:

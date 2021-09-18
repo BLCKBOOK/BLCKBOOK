@@ -2,6 +2,7 @@ import { DeleteItemCommand, DynamoDB, GetItemCommand, PutItemCommand, PutItemCom
 import { S3Client, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { marshall } from "@aws-sdk/util-dynamodb";
+
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
@@ -42,7 +43,6 @@ const baseHandler = async (event, context) => {
     const oldUploadCount = Number((await DDBClient.send(getUserInfo)).Item.uploadsDuringThisPeriod.N);
 
     // Increase uploadDuringThisPeriod Counter
-
     const updateUserCommand = new UpdateItemCommand({
       TableName: process.env['USER_INFO_TABLE_NAME'],
       Key: marshall({ userId: userId }),
@@ -139,9 +139,6 @@ const baseHandler = async (event, context) => {
     writeDataPromises.push(Promise.all(imageUploads).then(response => console.debug("Created Thumbnails", response)))
 
     await Promise.all(writeDataPromises)
-
-
-
 
     return event
   }
