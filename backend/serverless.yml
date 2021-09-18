@@ -68,7 +68,7 @@ resources:
         UserPoolName: ${self:custom.blckbook_user_pool}
         AutoVerifiedAttributes:
           - email
-        UsernameAttributes:
+        AliasAttributes:
           - email
         Policies:
           PasswordPolicy:

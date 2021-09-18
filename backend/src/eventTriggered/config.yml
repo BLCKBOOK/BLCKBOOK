@@ -1,0 +1,99 @@
+triggerNextPeriod:
+  handler: src/eventTriggered/nextPeriod.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:Scan
+        - dynamodb:Query
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:DeleteItem
+        - dynamodb:PutItem
+        - dynamodb:Scan
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ votePagesTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ periodTable, Arn ]
+  events:
+    - http:
+        path: admin/triggerNextPeriod
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: post
+        cors: true
+
+updateUserstateAfterUpload:
+  handler: "src/eventTriggered/updateUserstateAfterUpload.handler"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource:
+        - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    - Effect: Allow
+      Action:
+        - s3:DeleteObject
+        - s3:Put*
+      Resource: 
+        - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+  events:
+    - s3:
+        bucket: ${self:custom.artwork_upload_s3_bucket_name}
+        event: s3:ObjectCreated:*
+        rules:
+          - prefix: artwork/
+        existing: true
+
+initializeUser:
+  handler: "src/eventTriggered/createNewUserInfoObject.handler"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - cognito-idp:AdminAddUserToGroup
+      Resource:
+        - Fn::GetAtt: [ BlckBookUsers, Arn ]
+  events:
+    - cognitoUserPool:
+        pool: ${self:provider.stage}-blckbook-users
+        trigger: PostConfirmation
+        existing: true
+
+confirmUser:
+  handler: "src/eventTriggered/confirmUser.handler"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - cognito-idp:ListUsers
+      Resource:
+        - Fn::GetAtt: [ BlckBookUsers, Arn ]
+  events:
+    - cognitoUserPool:
+        pool: ${self:provider.stage}-blckbook-users
+        trigger: PreSignUp
+        existing: true
