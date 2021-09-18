@@ -47,343 +47,19 @@ provider:
     STAGE:  ${self:provider.stage}
 
 functions:
-  updateUserstateAfterUpload:
-    handler: "src/eventTriggered/updateUserstateAfterUpload.handler"
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:UpdateItem
-        Resource:
-          - Fn::GetAtt: [ userInfoTable, Arn ]
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-        Resource:
-          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-      - Effect: Allow
-        Action:
-          - s3:DeleteObject
-          - s3:Put*
-        Resource: 
-          - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
-    events:
-      - s3:
-          bucket: ${self:custom.artwork_upload_s3_bucket_name}
-          event: s3:ObjectCreated:*
-          rules:
-            - prefix: artwork/
-          existing: true
-
-  initializeUser:
-    handler: "src/eventTriggered/createNewUserInfoObject.handler"
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-        Resource:
-          - Fn::GetAtt: [ userInfoTable, Arn ]
-      - Effect: Allow
-        Action:
-          - cognito-idp:AdminAddUserToGroup
-        Resource:
-          - Fn::GetAtt: [ BlckBookUsers, Arn ]
-    events:
-      - cognitoUserPool:
-          pool: ${self:provider.stage}-blckbook-users
-          trigger: PostConfirmation
-          existing: true
-             
-  getCurrentUpload:
-    handler: "src/rest/artwork/getCurrentUpload/get.handler"
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource:
-          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-    events:
-      - http:
-          path: artwork/getCurrentUpload
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: get
-          cors: true
-    
-  initArtworkUpload:
-    handler: "src/rest/artwork/initArtworkUpload/post.handler"
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - s3:GetObject
-          - s3:PutObject
-          - s3:PutObjectAcl
-        Resource:
-          - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:PutItem
-          - dynamodb:DeleteItem
-        Resource:
-          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:UpdateItem
-        Resource:
-          - Fn::GetAtt: [ userInfoTable, Arn ]
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource:
-          - Fn::GetAtt: [ periodTable, Arn ]
-    events:
-      - http:
-          path: artwork/initArtworkUpload
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: post
-          cors: true
-
-  adminGetUploadedArtworks:
-    handler: src/rest/artwork/admin/getUploadedArtworks/get.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:Scan
-        Resource:
-          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-    events:
-      - http:
-          path: artwork/admin/getUploadedArtworks
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: get
-          cors: true
+  - ${file(./src/eventTriggered/config.yml)}
+  - ${file(./src/rest/artwork/getCurrentUpload/config.yml)}
+  - ${file(./src/rest/artwork/initArtworkUpload/config.yml)}
+  - ${file(./src/rest/artwork/admin/getUploadedArtworks/config.yml)}
+  - ${file(./src/rest/artwork/admin/getUncheckedUploadedArtworks/config.yml)}
+  - ${file(./src/rest/artwork/admin/updateUploadedArtwork/config.yml)}
+  - ${file(./src/rest/artwork/admin/rejectUploadedArtwork/config.yml)}
+  - ${file(./src/rest/artwork/deleteMyCurrentUpload/config.yml)}
+  - ${file(./src/rest/user/admin/banUser/config.yml)}
+  - ${file(./src/rest/user/setMyWalletId/config.yml)}
+  - ${file(./src/rest/user/getMyUserInfo/config.yml)}
+  - ${file(./src/rest/vote/getVotePage/config.yml)}
   
-  adminGetUncheckedUploadedArtworks:
-    handler: src/rest/artwork/admin/getUncheckedUploadedArtworks/get.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:Scan
-        Resource:
-          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-    events:
-      - http:
-          path: artwork/admin/getUncheckedUploadedArtworks
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: get
-          cors: true
-  
-  adminUpdateUploadedArtwork:
-    handler: src/rest/artwork/admin/updateUploadedArtwork/post.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-        Resource:
-          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-    events:
-      - http:
-          path: artwork/admin/updateUploadedArtwork
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: post
-          cors: true
-
-  adminDeleteUploadedArtwork:
-    handler: src/rest/artwork/admin/rejectUploadedArtwork/post.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:DeleteItem
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-        Resource:
-          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-        Resource:
-          - Fn::GetAtt: [ userInfoTable, Arn ]
-      - Effect: Allow
-        Action:
-          - s3:DeleteObject
-        Resource:
-          - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
-    events:
-      - http:
-          path: artwork/admin/rejectUploadedArtwork
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: post
-          cors: true
-      
-  adminBanUser:
-    handler: src/rest/user/admin/banUser/post.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - cognito-idp:AdminDisableUser
-        Resource:
-          - Fn::GetAtt: [ BlckBookUsers, Arn ]
-      - Effect: Allow
-        Action:
-          - dynamodb:UpdateItem
-          - dynamodb:GetItem
-        Resource:
-          - Fn::GetAtt: [ userInfoTable, Arn ]
-    events:
-      - http:
-          path: user/admin/banUser
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: post
-          cors: true
-
-  deleteMyCurrentUpload:
-    handler: src/rest/artwork/deleteMyCurrentUpload/delete.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:DeleteItem
-          - dynamodb:GetItem
-          - dynamodb:Query
-        Resource:
-          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
-      - Effect: Allow
-        Action:
-          - dynamodb:UpdateItem
-          - dynamodb:GetItem
-        Resource:
-          - Fn::GetAtt: [ userInfoTable, Arn ]
-      - Effect: Allow
-        Action:
-          - s3:DeleteObject
-        Resource:
-          - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
-    events:
-      - http:
-          path: artwork/deleteMyCurrentUpload
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: delete
-          cors: true
-
-  setMyWalletId:
-    handler: src/rest/user/setMyWalletId/post.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:UpdateItem
-        Resource:
-          - Fn::GetAtt: [ userInfoTable, Arn ]
-    events:
-      - http:
-          path: user/setMyWalletId
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: post
-          cors: true
-  
-  getMyUserInfo:
-    handler: src/rest/user/getMyUserInfo/get.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource:
-          - Fn::GetAtt: [ userInfoTable, Arn ]
-    events:
-      - http:
-          path: user/getMyUserInfo
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: get
-          cors: true
-    
-  getVotableArtworkPage:
-    handler: src/rest/vote/getVotePage/get.handler
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-          - dynamodb:GetItem
-        Resource:
-          - Fn::GetAtt: [ votePagesTable, Arn ]
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-        Resource:
-          - Fn::GetAtt: [ periodTable, Arn ]
-    events:
-      - http:
-          path: vote/getPage/{pageNumber}
-          authorizer: 
-            name: BlckBookUsersAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - BlckBookUsers
-                - Arn
-          method: get
-          cors: true
-
 resources:
   Resources:
     BlckBookUsers:
@@ -392,7 +68,7 @@ resources:
         UserPoolName: ${self:custom.blckbook_user_pool}
         AutoVerifiedAttributes:
           - email
-        AliasAttributes:
+        UsernameAttributes:
           - email
         Policies:
           PasswordPolicy:
@@ -401,6 +77,7 @@ resources:
           RecoveryMechanisms:
             - Name: "verified_email"
               Priority: 1
+        
         Schema:
           - AttributeDataType: "String"
             Name: "email"
@@ -508,6 +185,13 @@ resources:
           - AttributeName: artworkId
             KeyType: RANGE
         TableName: ${self:custom.vote_pages_table_name}
+        GlobalSecondaryIndexes:
+          - IndexName: ArtworkIndex
+            KeySchema:
+              - AttributeName: artworkId
+                KeyType: HASH
+            Projection:
+              ProjectionType: 'ALL'
 
     GatewayResponseDefault4XX:
       Type: 'AWS::ApiGateway::GatewayResponse'

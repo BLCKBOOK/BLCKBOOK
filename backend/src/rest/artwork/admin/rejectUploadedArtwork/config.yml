@@ -1,0 +1,33 @@
+adminDeleteUploadedArtwork:
+  handler: src/rest/artwork/admin/rejectUploadedArtwork/post.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DeleteItem
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - s3:DeleteObject
+      Resource:
+        - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+  events:
+    - http:
+        path: artwork/admin/rejectUploadedArtwork
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: post
+        cors: true

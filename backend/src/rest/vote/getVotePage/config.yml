@@ -1,0 +1,26 @@
+getVotableArtworkPage:
+  handler: src/rest/vote/getVotePage/get.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ votePagesTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ periodTable, Arn ]
+  events:
+    - http:
+        path: vote/getPage/{pageNumber}
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: get
+        cors: true

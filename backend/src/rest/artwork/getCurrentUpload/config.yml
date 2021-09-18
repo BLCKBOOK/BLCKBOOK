@@ -1,0 +1,20 @@
+getCurrentUpload:
+  handler: "src/rest/artwork/getCurrentUpload/get.handler"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource:
+        - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+  events:
+    - http:
+        path: artwork/getCurrentUpload
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: get
+        cors: true
