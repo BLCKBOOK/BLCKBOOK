@@ -8,6 +8,7 @@ triggerNextPeriod:
         - dynamodb:Scan
         - dynamodb:Query
         - dynamodb:GetItem
+        - dynamodb:BatchWriteItem 
       Resource:
         - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
     - Effect: Allow
@@ -16,11 +17,18 @@ triggerNextPeriod:
         - dynamodb:PutItem
         - dynamodb:Scan
         - dynamodb:GetItem
+        - dynamodb:BatchWriteItem
       Resource:
         - Fn::GetAtt: [ votePagesTable, Arn ]
     - Effect: Allow
       Action:
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
         - dynamodb:GetItem
+        - dynamodb:UpdateItem
       Resource:
         - Fn::GetAtt: [ periodTable, Arn ]
   events:

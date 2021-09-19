@@ -3,19 +3,14 @@ import { BatchWriteItemCommand, DynamoDBClient, ScanCommand, UpdateItemCommand }
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
 import httpErrorHandler from "@middy/http-error-handler";
-import { createError } from "@middy/util";
 
-import { validate } from "jsonschema";
-
-import { GetUploadedArtworksResponseBody, queryParamSchema } from "./apiSchema";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
-import { UploadedArtwork, UploadedArtworkIndex } from "../common/tableDefinitions";
 import { LambdaResponseToApiGw } from "../common/lambdaResponseToApiGw";
 import AuthMiddleware from "../common/AuthMiddleware"
 import RequestLogger from "../common/RequestLogger";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
-let returnObject: GetUploadedArtworksResponseBody;
+
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   let lastKey = undefined as any;
@@ -43,7 +38,6 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
   while (true) {
     // read items from artwork table
-    console.log(lastKey)
     let scanArtworks = new ScanCommand({
       TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
       Limit: 6,
@@ -55,9 +49,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
       break;
     const artworks = scanResponse.Items.map(art => { art.pageNumber = { N: pagenumber.toString() }; art.voteCount = { N: "0" }; return art })
     pagenumber++;
-
     // write vote items 
-    console.log(artworks)
     const batchWriteCommand = new BatchWriteItemCommand({
       RequestItems: {
         "votes-pages-dev": artworks.map(art => { return { PutRequest: { Item: art } } })
@@ -65,7 +57,26 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     })
     await DDBclient.send(batchWriteCommand)
 
-    // delete uploadedArtworks
+    // delete artworks
+    const batchDeleteCommand = new BatchWriteItemCommand({
+      RequestItems: {
+        [process.env['UPLOADED_ARTWORKS_TABLE_NAME'] as string]: artworks.map(art => { return { DeleteRequest: { Key: { uploaderId: art.uploaderId, uploadTimestamp: art.uploadTimestamp } } } })
+      }
+    })
+    await DDBclient.send(batchDeleteCommand)
+
+    // update user State
+    for (let i = 0; i < artworks.length; i++) {
+      const artwork = artworks[i];
+      const updateUserCommand = new UpdateItemCommand({
+        TableName: process.env['USER_INFO_TABLE_NAME'],
+        Key: marshall({ userId: artwork.uploaderId.S }),
+        UpdateExpression: 'set uploadsDuringThisPeriod = :zero',
+        ExpressionAttributeValues: marshall({ ':zero': 0 })
+
+      })
+      await DDBclient.send(updateUserCommand)
+    }
 
     if (!scanResponse.LastEvaluatedKey)
       break;
