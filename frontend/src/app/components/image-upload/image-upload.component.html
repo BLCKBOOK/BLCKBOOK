@@ -72,7 +72,7 @@
   <mat-card-actions>
     <div *ngIf="!alreadyUploaded; else: deleteUpload">
       <button mat-raised-button (click)="submitImage()"
-              [disabled]="!(image && latitude && longitude && acceptTerms && currentlyUploading)">{{'upload.submit' | translate}}</button>
+              [disabled]="!(image && latitude && longitude && acceptTerms && !currentlyUploading)">{{'upload.submit' | translate}}</button>
     </div>
     <ng-template #deleteUpload>
       <button mat-raised-button (click)="deleteImage()">{{'upload.delete' | translate}}</button>

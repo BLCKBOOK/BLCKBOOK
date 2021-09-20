@@ -58,6 +58,9 @@ import { ImageDialogComponent } from './components/image-dialog/image-dialog.com
 import { DetailViewDialogComponent } from './components/detail-view-dialog/detail-view-dialog.component';
 import {faShareAlt} from '@fortawesome/free-solid-svg-icons/faShareAlt';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatListModule} from '@angular/material/list';
+import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
+import {faEllipsisH} from '@fortawesome/free-solid-svg-icons/faEllipsisH';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -85,38 +88,39 @@ Auth.configure(awsconfig);
     ImageDialogComponent,
     DetailViewDialogComponent,
   ],
-    imports: [
-        MatDialogModule,
-        BrowserModule,
-        AppRoutingModule,
-        MatButtonModule,
-        MatToolbarModule,
-        MatIconModule,
-        HttpClientModule,
-        FlexLayoutModule,
-        TranslateModule.forRoot({
-            defaultLanguage: 'en',
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient]
-            }
-        }),
-        BrowserAnimationsModule,
-        FontAwesomeModule,
-        MatInputModule,
-        FormsModule,
-        MatSidenavModule,
-        MatBadgeModule,
-        MatMenuModule,
-        NgxMasonryModule,
-        ScrollingModule,
-        MatTabsModule,
-        MatFormFieldModule,
-        MatCardModule,
-        MatCheckboxModule,
-        MatProgressSpinnerModule,
-    ],
+  imports: [
+    MatDialogModule,
+    BrowserModule,
+    AppRoutingModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatIconModule,
+    HttpClientModule,
+    FlexLayoutModule,
+    TranslateModule.forRoot({
+      defaultLanguage: 'en',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    }),
+    BrowserAnimationsModule,
+    FontAwesomeModule,
+    MatInputModule,
+    FormsModule,
+    MatSidenavModule,
+    MatBadgeModule,
+    MatMenuModule,
+    NgxMasonryModule,
+    ScrollingModule,
+    MatTabsModule,
+    MatFormFieldModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule,
+    MatListModule,
+  ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
     [AuthGuardService, AdminAuthGuardService, MatSnackBar]
@@ -139,6 +143,8 @@ export class AppModule {
       faExpandArrowsAlt,
       faEdit,
       faShareAlt,
+      faCheck,
+      faEllipsisH
     );
   }
 }

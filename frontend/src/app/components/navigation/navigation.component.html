@@ -25,17 +25,38 @@
       {{"navbar.sign-in" | translate}}
     </button>
     <ng-template #profile>
-      <button mat-icon-button matBadge="1" matBadgeColor="warn" matBadgePosition="after" class="nav-item">
+      <button mat-icon-button class="nav-item" [matMenuTriggerFor]="notificationMenu"
+              matBadge="{{unreadNotifications | async}}" matBadgeColor="warn" matBadgePosition="after"
+              matBadgeHidden="{{(unreadNotifications | async) === 0}}">
         <fa-icon [icon]="faBell"></fa-icon>
       </button>
+      <mat-menu #notificationMenu="matMenu" class="notification-menu">
+        <div *ngFor="let notification of (notifications | async)">
+          <div class="mat-menu-item notification-menu-item"
+               fxLayout="row">
+            <div fxLayout="column" class="left-column" fxFlex="1 1 calc(100% - 40px)">
+              <h4 class="notification-title">{{notification.title}}</h4>
+              <div class="notification-text">{{notification.text}}</div>
+            </div>
+            <div fxFlex="1 1 40px" class="icon-column">
+              <button mat-icon-button *ngIf="!notification.read">
+                <fa-icon [icon]="faCheck"></fa-icon>
+              </button>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+        </div>
+        <button mat-button class="mat-menu-item" fxLayout="row" fxLayoutAlign="space-evenly center" (click)="openNotificationMenu()">
+          <fa-icon [icon]="faEllipsisH"></fa-icon>
+        </button>
+      </mat-menu>
       <button mat-icon-button [matMenuTriggerFor]="profileMenu">
         <fa-icon [icon]="faUserCircle"></fa-icon>
       </button>
       <mat-menu #profileMenu="matMenu">
-        <button mat-menu-item routerLink="/wallet">{{'navbar.wallet' | translate}}</button >
-        <button mat-menu-item (click)="logOut()">{{'navbar.logout' | translate}}</button >
+        <button mat-menu-item routerLink="/wallet">{{'navbar.wallet' | translate}}</button>
+        <button mat-menu-item (click)="logOut()">{{'navbar.logout' | translate}}</button>
       </mat-menu>
-
     </ng-template>
   </mat-toolbar>
   <mat-sidenav-container fxFlexFill>
