@@ -35,6 +35,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
     const query = new QueryCommand({
         TableName: process.env['VOTE_PAGES_TABLE_NAME'],
+        IndexName: "PageIndex",
         KeyConditions: { pageNumber: { ComparisonOperator: "EQ", AttributeValueList: [{ N: accessedIndex.toString() }] } }
     })
     const queryResult = await DDBclient.send(query);
@@ -47,9 +48,9 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 }
 
 const handler = middy(baseHandler)
-    .use(httpErrorHandler())
     .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
     .use(RequestLogger())
     .use(AuthMiddleware(['User', 'Admin']))
+    .use(httpErrorHandler())
 
 module.exports = { handler }

@@ -20,6 +20,7 @@ triggerNextPeriod:
         - dynamodb:BatchWriteItem
       Resource:
         - Fn::GetAtt: [ votePagesTable, Arn ]
+        - !Sub '${votePagesTable.Arn}/index/*'
     - Effect: Allow
       Action:
         - dynamodb:UpdateItem

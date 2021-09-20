@@ -19,6 +19,7 @@ custom:
   artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks' 
   blckbook_user_pool: ${self:provider.stage}-blckbook-users
   period_table_name: period-table
+  max_votes_per_user: 5
   frontend_host_name: "*" # TODO change this to our domain as soon an we can move it 
   max_uploads_per_period: 1
   amplify:
@@ -39,6 +40,7 @@ provider:
     UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
     FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
     MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
+    MAX_VOTES_PER_PERIOD: ${self:custom.max_votes_per_user}
     VOTE_PAGES_TABLE_NAME: ${self:custom.vote_pages_table_name}
     ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
     PERIOD_TABLE_NAME: ${self:custom.period_table_name}
@@ -59,6 +61,7 @@ functions:
   - ${file(./src/rest/user/setMyWalletId/config.yml)}
   - ${file(./src/rest/user/getMyUserInfo/config.yml)}
   - ${file(./src/rest/vote/getVotePage/config.yml)}
+  - ${file(./src/rest/vote/voteForArtworks/config.yml)}
   
 resources:
   Resources:
@@ -175,21 +178,21 @@ resources:
       Properties:
         BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions:
-          - AttributeName: pageNumber
-            AttributeType: N
           - AttributeName: artworkId
             AttributeType: S
-        KeySchema:
           - AttributeName: pageNumber
-            KeyType: HASH
+            AttributeType: N
+        KeySchema:
           - AttributeName: artworkId
-            KeyType: RANGE
+            KeyType: HASH
         TableName: ${self:custom.vote_pages_table_name}
         GlobalSecondaryIndexes:
-          - IndexName: ArtworkIndex
+          - IndexName: PageIndex           
             KeySchema:
-              - AttributeName: artworkId
+              - AttributeName: pageNumber
                 KeyType: HASH
+              - AttributeName: artworkId
+                KeyType: RANGE
             Projection:
               ProjectionType: 'ALL'
 
