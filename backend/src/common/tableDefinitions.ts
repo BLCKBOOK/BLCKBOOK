@@ -8,6 +8,8 @@ export interface UserInfo {
   uploadsDuringThisPeriod: number,
   username: string,
   email: string,
+  hasVoted: boolean,
+  votes: string[],
   userId: string,
   banned?: boolean,
   currentUpload?: { signedUploadUrl: string, expiryDate: string }
@@ -70,9 +72,7 @@ export interface VotableArtwork {
   contentType: string
   title?: string
   artist?: string
-
   votes: [string]
-  voteCount: number
 }
 
 
