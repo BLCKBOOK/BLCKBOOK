@@ -6,6 +6,7 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
+import { createError } from "@middy/util";
 import { extension } from "mime-types";
 import sharp from "sharp";
 import { Readable } from "stream";
@@ -41,6 +42,9 @@ const baseHandler = async (event, context) => {
     const getUserInfo = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { userId: { S: userId } }, ConsistentRead: true });
     console.debug(getUserInfo.input)
     const oldUploadCount = Number((await DDBClient.send(getUserInfo)).Item.uploadsDuringThisPeriod.N);
+
+    if (oldUploadCount >= Number(process.env['MAX_UPLOADS_PER_PERIOD']))
+      throw new Error("Duplicate upload, user update aborted.")
 
     // Increase uploadDuringThisPeriod Counter
     const updateUserCommand = new UpdateItemCommand({
