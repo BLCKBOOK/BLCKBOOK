@@ -2,7 +2,8 @@
   <mat-card-header class="welcome-line">
     <app-bob-text [text]="'upload.header' | translate"></app-bob-text>
   </mat-card-header>
-  <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container">
+  <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container"
+       *ngIf="!currentlyUploading; else: showSpinner">
     <div fxFlex="1 1 50%">
       <button *ngIf="!this.image && !this.alreadyUploaded; else stagedImage" mat-raised-button class="upload-button"
               (click)="file.click()">
@@ -15,7 +16,8 @@
       </button>
       <ng-template #stagedImage>
         <div>
-          <img [src]="url" [srcset]="srcSet" width="100%" #image [sizes]="'(max-width: 959px) calc(50vw - 88px), calc(50vw-44px)'" alt="'Upload'">
+          <img [src]="url" [srcset]="srcSet" width="100%" #image
+               [sizes]="'(min-width: 960px) calc(50vw - 88px), calc(100vw-44px)'" alt="'Upload'">
         </div>
         <div fxLayout="row" fxLayoutAlign='space-evenly center'>
           <button mat-icon-button (click)="enlargeImage()">
@@ -32,25 +34,36 @@
     </div>
     <div class="meta-data-display" fxFlex="1 1 50%">
       <div>
-        <mat-form-field appearance="fill" floatLabel="always" class="meta-input">
+        <mat-form-field appearance="outline" floatLabel="always" class="meta-input">
           <mat-label>{{'upload.latitude' | translate}}</mat-label>
           <input type="number" matInput placeholder="" [disabled]="true" value="{{latitude}}">
         </mat-form-field>
       </div>
       <div>
-        <mat-form-field appearance="fill" floatLabel="always" class="meta-input">
+        <mat-form-field appearance="outline" floatLabel="always" class="meta-input">
           <mat-label>{{'upload.longitude' | translate}}</mat-label>
           <input type="number" matInput placeholder="" [disabled]="true" value="{{longitude}}">
         </mat-form-field>
       </div>
       <div>
-        <mat-form-field appearance="fill" class="meta-input">
+        <mat-form-field appearance="outline" class="meta-input">
           <mat-label>{{'upload.name' | translate}}</mat-label>
           <input matInput placeholder="" [(ngModel)]="title" [disabled]="alreadyUploaded">
         </mat-form-field>
       </div>
+      <div *ngIf="time">
+        <mat-form-field appearance="outline" class="meta-input">
+          <mat-label>{{'upload.timestamp' | translate}}</mat-label>
+          <input matInput placeholder="" [disabled]="true" value="{{time}}">
+        </mat-form-field>
+      </div>
     </div>
   </div>
+  <ng-template #showSpinner>
+    <div  fxLayout="row" fxLayoutAlign='space-evenly center'>
+      <mat-spinner></mat-spinner>
+    </div>
+  </ng-template>
   <div *ngIf="!alreadyUploaded" class="terms-box">
     <mat-checkbox [(ngModel)]="acceptTerms"></mat-checkbox>
     <span class="terms-distance"> I accept the </span>
@@ -59,7 +72,7 @@
   <mat-card-actions>
     <div *ngIf="!alreadyUploaded; else: deleteUpload">
       <button mat-raised-button (click)="submitImage()"
-              [disabled]="!(image && latitude && longitude && acceptTerms)">{{'upload.submit' | translate}}</button>
+              [disabled]="!(image && latitude && longitude && acceptTerms && currentlyUploading)">{{'upload.submit' | translate}}</button>
     </div>
     <ng-template #deleteUpload>
       <button mat-raised-button (click)="deleteImage()">{{'upload.delete' | translate}}</button>

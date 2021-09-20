@@ -57,6 +57,7 @@ import {faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
 import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
 import { DetailViewDialogComponent } from './components/detail-view-dialog/detail-view-dialog.component';
 import {faShareAlt} from '@fortawesome/free-solid-svg-icons/faShareAlt';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -84,37 +85,38 @@ Auth.configure(awsconfig);
     ImageDialogComponent,
     DetailViewDialogComponent,
   ],
-  imports: [
-    MatDialogModule,
-    BrowserModule,
-    AppRoutingModule,
-    MatButtonModule,
-    MatToolbarModule,
-    MatIconModule,
-    HttpClientModule,
-    FlexLayoutModule,
-    TranslateModule.forRoot({
-      defaultLanguage: 'en',
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient]
-      }
-    }),
-    BrowserAnimationsModule,
-    FontAwesomeModule,
-    MatInputModule,
-    FormsModule,
-    MatSidenavModule,
-    MatBadgeModule,
-    MatMenuModule,
-    NgxMasonryModule,
-    ScrollingModule,
-    MatTabsModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatCheckboxModule,
-  ],
+    imports: [
+        MatDialogModule,
+        BrowserModule,
+        AppRoutingModule,
+        MatButtonModule,
+        MatToolbarModule,
+        MatIconModule,
+        HttpClientModule,
+        FlexLayoutModule,
+        TranslateModule.forRoot({
+            defaultLanguage: 'en',
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            }
+        }),
+        BrowserAnimationsModule,
+        FontAwesomeModule,
+        MatInputModule,
+        FormsModule,
+        MatSidenavModule,
+        MatBadgeModule,
+        MatMenuModule,
+        NgxMasonryModule,
+        ScrollingModule,
+        MatTabsModule,
+        MatFormFieldModule,
+        MatCardModule,
+        MatCheckboxModule,
+        MatProgressSpinnerModule,
+    ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
     [AuthGuardService, AdminAuthGuardService, MatSnackBar]

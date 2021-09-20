@@ -1,7 +1,7 @@
 <mat-dialog-content fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container">
   <div fxFlex="1 1 50%" class="image-container">
     <img [src]="data.src" [srcset]="data.srcSet" class="big-image"
-         [sizes]="'(max-width: 959px) calc(50vw - 88px), calc(50vw-44px)'" alt="'Image'">
+         [sizes]="'(min-width: 960px) calc(50vw - 88px), calc(100vw-44px)'" alt="'Image'">
     <!--    <div fxLayout="row" fxLayoutAlign='space-evenly center'>
           <button mat-icon-button (click)="enlargeImage()">
             <fa-icon [icon]="faExpandArrowsAlt"></fa-icon>
@@ -22,7 +22,7 @@
         <span>LONGITUDE</span><span class="artwork-data">{{data.artwork.longitude}}</span>
       </div>
       <div class="line-container">
-        <span>TIMESTAMP</span><span class="artwork-data">{{data.artwork.uploadTimestamp}}</span>
+        <span>TIMESTAMP</span><span class="artwork-data">{{timeDisplay}}</span>
       </div>
     </div>
     <br>
