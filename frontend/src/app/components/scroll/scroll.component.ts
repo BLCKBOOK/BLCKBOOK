@@ -1,19 +1,20 @@
 import {AfterViewInit, Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgxMasonryComponent, NgxMasonryOptions} from 'ngx-masonry';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
-import {AdminService} from '../../admin/admin.service';
 import {ImageSizeService} from '../../services/image-size.service';
-import {UploadedArtwork, UploadedArtworkIndex} from '../../../../../backend/src/common/tableDefinitions';
+import {UploadedArtworkIndex, VotableArtwork} from '../../../../../backend/src/common/tableDefinitions';
 import {VotingService} from '../../services/voting.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, DetailViewDialogData} from '../detail-view-dialog/detail-view-dialog.component';
+import {Observable, of, zip} from 'rxjs';
+import {map, catchError} from 'rxjs/operators';
 
 export interface MasonryItem {
   title: string,
   img: string,
   voted: boolean,
   srcSet: string,
-  artwork: UploadedArtwork
+  artwork: VotableArtwork
 }
 
 export type ScrollType = 'voting' | 'gallery' | 'auction' | 'voting-selected';
@@ -25,7 +26,9 @@ export type ScrollType = 'voting' | 'gallery' | 'auction' | 'voting-selected';
 })
 export class ScrollComponent implements OnInit, AfterViewInit {
 
-  constructor(public dialog: MatDialog, private adminService: AdminService, private imageSizeService: ImageSizeService, private votingService: VotingService) {
+  currentIndex = 0;
+
+  constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService) {
   }
 
   ngAfterViewInit() {
@@ -73,15 +76,21 @@ export class ScrollComponent implements OnInit, AfterViewInit {
       console.log('already reached the end');
       return;
     }
-    console.log('did an addMore Items with: ');
-    console.log(this.lastIndex);
-    this.adminService.getArtworks(this.lastIndex).subscribe(artworks => {
-      this.lastIndex = artworks.lastKey;
-      if (!this.lastIndex) {
+
+    zip(this.getArtworks(this.currentIndex),
+      this.getArtworks(this.currentIndex + 1),
+      this.getArtworks(this.currentIndex + 2),
+      this.getArtworks(this.currentIndex + 3),
+      this.getArtworks(this.currentIndex + 4))
+      .subscribe(artworksArray => {
+        console.log(artworksArray);
+        const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
+        this.currentIndex = this.currentIndex + 5;
+      if (artworks.length === 0) {
         this.reachedEnd = true;
       }
       const items: MasonryItem[] = [];
-      artworks.artworks.forEach(artwork => {
+      artworks.forEach(artwork => {
         const title = artwork.title;
         const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
         const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
@@ -140,5 +149,21 @@ export class ScrollComponent implements OnInit, AfterViewInit {
         artwork: item.artwork
       } as DetailViewDialogData
     });
+  }
+
+  private getArtworks(index: number): Observable<VotableArtwork[]> {
+    return this.votingService.getVotableArtworks(index).pipe(catchError(this.handleError.bind(this)), map(array => array));
+  }
+
+  public handleError(error: any): Observable<VotableArtwork[]> {
+    if (error?.code === 404) {
+      this.reachedEnd = true;
+      console.log('reached End');
+      return of([]);
+    }
+    else {
+      console.error(error);
+      throw error;
+    }
   }
 }

@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {AccountInfo, DAppClient} from '@airgap/beacon-sdk';
+import {AccountInfo, ColorMode, DAppClient} from '@airgap/beacon-sdk';
 import {from, Observable, of} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
-import {UpdateUploadedArtworksRequestBody} from '../../../../backend/src/rest/user/setMyWalletId/apiSchema'
+import {UpdateUploadedArtworksRequestBody} from '../../../../backend/src/rest/user/setMyWalletId/apiSchema';
 import {environment} from '../../environments/environment';
 
 @Injectable({
@@ -17,6 +17,7 @@ export class BeaconService {
 
   constructor(private httpClient: HttpClient) {
     this.dAppClient = new DAppClient({name: 'BLCKBOOK'});
+    this.dAppClient.setColorMode(ColorMode.DARK).then();
   }
 
   connect(): Observable<AccountInfo | undefined> {

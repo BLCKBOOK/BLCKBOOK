@@ -33,6 +33,8 @@ export class ImageUploadComponent implements OnInit {
   srcSet: string | undefined;
   contentType: string | undefined = undefined;
   sizes: string | undefined;
+  time: string | undefined;
+  currentlyUploading = false;
 
   faCamera = findIconDefinition({prefix: 'fas', iconName: 'camera'});
   faExpandArrowsAlt = findIconDefinition({prefix: 'fas', iconName: 'expand-arrows-alt'});
@@ -68,6 +70,8 @@ export class ImageUploadComponent implements OnInit {
       this.url = imageSizes[originalImageKey];
       this.srcSet = this.imageSizeService.calculateSrcSetString(imageSizes);
       this.url = this.imageSizeService.getOriginalString(imageSizes);
+      const date = new Date(upload.uploadTimestamp);
+      this.time = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     }
   }
 
@@ -76,13 +80,15 @@ export class ImageUploadComponent implements OnInit {
     this.url = undefined;
     this.contentType = undefined;
     this.srcSet = undefined;
+    this.time = undefined;
+    this.latitude = undefined;
+    this.longitude = undefined;
   }
 
   imageChanged($event: Event) {
     const upload = ($event as HTMLInputEvent)?.target?.files?.[0];
     this.resetImageVariables();
     if (upload) {
-      console.log(upload.type);
       if (!(AcceptedMimeTypes.includes(upload.type))) {
         this.dialog.open(ErrorDialogComponent, {
           width: this.errorDialogSize,
@@ -176,6 +182,7 @@ export class ImageUploadComponent implements OnInit {
 
   submitImage(): void {
     if (this.image && this.longitude && this.latitude && this.contentType && this.acceptTerms) {
+      this.currentlyUploading = true;
       const image = {
         image: this.image,
         data: {
@@ -192,6 +199,7 @@ export class ImageUploadComponent implements OnInit {
           this.url = requestURL.slice(0, imageIndex);
           this.alreadyUploaded = true;
           this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('upload.success'))
+          this.currentlyUploading = false;
         } else {
           window.alert('upload failed for some reason');
         }

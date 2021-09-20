@@ -57,6 +57,10 @@ import {faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
 import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
 import { DetailViewDialogComponent } from './components/detail-view-dialog/detail-view-dialog.component';
 import {faShareAlt} from '@fortawesome/free-solid-svg-icons/faShareAlt';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatListModule} from '@angular/material/list';
+import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
+import {faEllipsisH} from '@fortawesome/free-solid-svg-icons/faEllipsisH';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -114,6 +118,8 @@ Auth.configure(awsconfig);
     MatFormFieldModule,
     MatCardModule,
     MatCheckboxModule,
+    MatProgressSpinnerModule,
+    MatListModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
@@ -137,6 +143,8 @@ export class AppModule {
       faExpandArrowsAlt,
       faEdit,
       faShareAlt,
+      faCheck,
+      faEllipsisH
     );
   }
 }

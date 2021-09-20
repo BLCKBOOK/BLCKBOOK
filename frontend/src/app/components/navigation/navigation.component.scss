@@ -1,5 +1,4 @@
 .nav-item {
-  margin-right: 1em;
   align-self: center;
 }
 
@@ -30,4 +29,36 @@ mat-sidenav {
 
 amplify-button > .button {
   text-align: end !important;
+}
+
+.notification-menu-item {
+  height: 100%;
+  max-height: 200px;
+  cursor: default;
+  line-height: unset;
+  white-space: inherit;
+}
+
+.icon-column {
+  align-self: center;
+}
+
+.notification-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* number of lines to show */
+  -webkit-box-orient: vertical;
+  margin-bottom: .5em;
+}
+
+.notification-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+::ng-deep .mat-menu-panel.notification-menu {
+  max-width: 600px;
+  width: 80vw;
 }

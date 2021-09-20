@@ -1,11 +1,11 @@
 import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
-import { UploadedArtwork } from '../../../../../backend/src/common/tableDefinitions';
+import { VotableArtwork } from '../../../../../backend/src/common/tableDefinitions';
 import {ImageDialogComponent, ImageDialogData} from '../image-dialog/image-dialog.component';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 
 export interface DetailViewDialogData {
-  artwork: UploadedArtwork,
+  artwork: VotableArtwork,
   voted: boolean,
   srcSet: string,
   src: string
@@ -18,12 +18,14 @@ export interface DetailViewDialogData {
 })
 export class DetailViewDialogComponent {
 
-  faExpandArrowsAlt = findIconDefinition({prefix: 'fas', iconName: 'expand-arrows-alt'});
   faShareAlt = findIconDefinition({prefix: 'fas', iconName: 'share-alt'});
+  timeDisplay: string;
 
   constructor(public dialog: MatDialog,
     public dialogRef: MatDialogRef<DetailViewDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DetailViewDialogData) {
+    const date = new Date(data.artwork.uploadTimestamp);
+    this.timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   }
 
   enlargeImage() {
