@@ -83,6 +83,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
       this.getArtworks(this.currentIndex + 3),
       this.getArtworks(this.currentIndex + 4))
       .subscribe(artworksArray => {
+        console.log(artworksArray);
         const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
         this.currentIndex = this.currentIndex + 5;
       if (artworks.length === 0) {
@@ -155,7 +156,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
   }
 
   public handleError(error: any): Observable<VotableArtwork[]> {
-    if (error?.code === 404 ){
+    if (error?.code === 404) {
       this.reachedEnd = true;
       console.log('reached End');
       return of([]);
