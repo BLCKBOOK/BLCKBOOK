@@ -18,7 +18,6 @@ const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 let returnObject: getVoteableArtworksPageResponseBody;
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
-
     const getPeriodInfoCommand = new GetItemCommand({
         TableName: process.env['PERIOD_TABLE_NAME'],
         Key: marshall({ periodId: 'current' })
@@ -43,7 +42,9 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     if (!queryResult.Items || queryResult.Items.length == 0)
         throw createError(404, "No votable artworks found")
 
-    returnObject = queryResult.Items.map(art => unmarshall(art)) as VotableArtwork[]
+    const queriedArtworks = queryResult.Items.map(art => unmarshall(art))
+
+    returnObject = queriedArtworks.map(art => { delete art.votes; return art }) as Omit<VotableArtwork, "votes">[]
     return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify(returnObject) };
 }
 
