@@ -27,7 +27,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
       break
     const batchWriteCommand = new BatchWriteItemCommand({
       RequestItems: {
-        [votesTableName]: returnedItems.Items.map(art => { return { DeleteRequest: { Key: { pageNumber: art.pageNumber, artworkId: art.artworkId } } } })
+        [votesTableName]: returnedItems.Items.map(art => { return { DeleteRequest: { Key: { artworkId: art.artworkId } } } })
       }
     })
     await DDBclient.send(batchWriteCommand)
