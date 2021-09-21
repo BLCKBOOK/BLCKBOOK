@@ -62,6 +62,8 @@ functions:
   - ${file(./src/rest/user/getMyUserInfo/config.yml)}
   - ${file(./src/rest/vote/getVotePage/config.yml)}
   - ${file(./src/rest/vote/voteForArtworks/config.yml)}
+  - ${file(./src/rest/vote/getVotableArtworkById/config.yml)}
+  - ${file(./src/rest/vote/getMyVotes/config.yml)}
   
 resources:
   Resources:

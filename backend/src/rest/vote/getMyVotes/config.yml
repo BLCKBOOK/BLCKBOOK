@@ -1,21 +1,20 @@
-getVotableArtworkPage:
-  handler: src/rest/vote/getVotePage/get.handler
+getMyVotes:
+  handler: src/rest/vote/getMyVotes/get.handler
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - dynamodb:Query
         - dynamodb:GetItem
       Resource:
-        - Fn::GetAtt: [ votePagesTable, Arn ]
-        - !Sub '${votePagesTable.Arn}/index/*'
+        - Fn::GetAtt: [ userInfoTable, Arn ]
     - Effect: Allow
       Action:
-        - dynamodb:GetItem
+        - dynamodb:getItem
+        - dynamodb:BatchGetItem
       Resource:
-        - Fn::GetAtt: [ periodTable, Arn ]
+        - Fn::GetAtt: [ votePagesTable, Arn ]
   events:
     - http:
-        path: vote/getPage/{pageNumber}
+        path: vote/getMyVotes
         authorizer: 
           name: BlckBookUsersAuthorizer
           type: COGNITO_USER_POOLS

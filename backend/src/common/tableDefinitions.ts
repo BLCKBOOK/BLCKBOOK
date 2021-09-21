@@ -68,7 +68,6 @@ export interface VotableArtwork {
   geoHash: string
   longitude: string
   latitude: string
-  approvalState: 'unchecked' | 'approved' | 'rejected',
   contentType: string
   title?: string
   artist?: string
