@@ -8,6 +8,7 @@ import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/d
 import {MatDialog} from '@angular/material/dialog';
 import {ImageSizeService} from '../../services/image-size.service';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../confirm-dialog/confirm-dialog.component';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-voting',
@@ -21,7 +22,8 @@ export class VotingComponent {
   $submitDisabled: Observable<boolean>;
   alreadyVoted$ = new BehaviorSubject<boolean>(false);
 
-  constructor(public dialog: MatDialog, private votingService: VotingService, private snackBarService: SnackBarService, private route: ActivatedRoute, private imageSizeService: ImageSizeService) {
+  constructor(public dialog: MatDialog, private votingService: VotingService, private snackBarService: SnackBarService,
+              private route: ActivatedRoute, private imageSizeService: ImageSizeService, private location: Location) {
     this.$totalVoteAmount = this.votingService.getMaxVoteAmount$();
     this.$votesSelected = this.votingService.getVotesSelected$();
     this.votingService.getMyVotes$().subscribe(votes => console.log(votes));
@@ -44,7 +46,7 @@ export class VotingComponent {
           const src = this.imageSizeService.getOriginalString(artwork.imageUrls);
           const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
           const voted = this.votingService.getVotedArtworks().some(voted => voted.artwork.artworkId === artwork.artworkId);
-          this.dialog.open(DetailViewDialogComponent, {
+          const dialogRef = this.dialog.open(DetailViewDialogComponent, {
             width: '90%',
             maxWidth: '90%',
             maxHeight: '100%',
@@ -54,6 +56,9 @@ export class VotingComponent {
               voted: voted,
               artwork: artwork
             } as VoteDetailData
+          });
+          dialogRef.afterClosed().subscribe(() => {
+            this.location.replaceState('/voting');
           });
         }, error => {
           if (error.status === 404) {

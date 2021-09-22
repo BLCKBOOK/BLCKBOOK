@@ -7,7 +7,8 @@ import {VotingService} from '../../services/voting.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
 import {Observable, of, zip} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
+import {catchError, map} from 'rxjs/operators'
+import {Location} from '@angular/common';
 
 export interface MasonryItem {
   title: string,
@@ -29,7 +30,8 @@ export class ScrollComponent implements OnInit, AfterViewInit {
   currentIndex = 0;
   alreadyVoted$: Observable<boolean>;
 
-  constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService) {
+  constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService,
+              private location: Location) {
     this.alreadyVoted$ = this.votingService.getHasVoted$();
   }
 
@@ -130,7 +132,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
 
   imageClick(item: MasonryItem) {
     const src = this.imageSizeService.getOriginalString(item.artwork.imageUrls);
-    this.dialog.open(DetailViewDialogComponent, {
+    const dialogRef = this.dialog.open(DetailViewDialogComponent, {
       width: '90%',
       maxWidth: '90%',
       maxHeight: '100%',
@@ -140,6 +142,9 @@ export class ScrollComponent implements OnInit, AfterViewInit {
         voted: item.voted,
         artwork: item.artwork
       } as VoteDetailData
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      this.location.replaceState('/voting');
     });
   }
 
