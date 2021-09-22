@@ -16,7 +16,8 @@
     max-height: 90vh;
   }
   .big-image {
-    width: 100%;
+    width: auto;
+    max-height: calc(100vh - 260px - 68px - 48px - 10px);
   }
 }
 
