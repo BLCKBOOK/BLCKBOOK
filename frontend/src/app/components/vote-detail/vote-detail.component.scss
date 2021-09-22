@@ -1,0 +1,54 @@
+.line-container {
+  display: flex;
+  justify-content: space-between;
+}
+.image-container {
+  display: flex;
+  justify-content: center;
+}
+.artwork-data {
+  color: var(--primary-color);
+}
+
+
+@media screen and (max-width: 959px) {
+  mat-dialog-content {
+    max-height: 90vh;
+  }
+  .big-image {
+    width: 100%;
+  }
+}
+
+@media screen and (min-width: 960px) {
+  .big-image, mat-dialog-content {
+    max-height: 70vh;
+  }
+}
+
+
+.big-image {
+  max-width: 100%;
+}
+
+.share {
+  display: flex;
+  justify-content: center;
+  color: var(--dark-background);
+  border-radius: 50%;
+
+  button {
+    color: var(--dark-primary-text);
+    background-color: var(--primary-color);
+    height: 4em;
+    width: 4em;
+    fa-icon {
+      font-size: 1.5em;
+    }
+  }
+}
+
+.button-container {
+  margin-top: .5em;
+  margin-bottom: .5em;
+}

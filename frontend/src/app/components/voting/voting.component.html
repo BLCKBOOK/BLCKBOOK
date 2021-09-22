@@ -1,5 +1,5 @@
 <div class="floating-submit">
-  <button mat-icon-button [disabled]="$submitDisabled | async" (click)="submitVote()"> SUBMIT</button>
+  <button *ngIf="(alreadyVoted$ | async) === false" mat-icon-button [disabled]="$submitDisabled | async" (click)="submitVote()"> SUBMIT</button>
 </div>
 <div class="floating-vote-tracker">
   <span>{{$votesSelected | async}} / {{$totalVoteAmount | async}}</span>

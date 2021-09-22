@@ -5,7 +5,7 @@ import {ImageSizeService} from '../../services/image-size.service';
 import {UploadedArtworkIndex, VotableArtwork} from '../../../../../backend/src/common/tableDefinitions';
 import {VotingService} from '../../services/voting.service';
 import {MatDialog} from '@angular/material/dialog';
-import {DetailViewDialogComponent, DetailViewDialogData} from '../detail-view-dialog/detail-view-dialog.component';
+import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
 import {Observable, of, zip} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 
@@ -41,6 +41,11 @@ export class ScrollComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     if (this.scrollType === 'voting') {
       this.addMoreItems();
+      this.votingService.getVotedArtworks$().subscribe(votedArtworks => {
+        this.masonryItems.forEach(item => {
+          item.voted = votedArtworks.some(voted => voted.artwork.artworkId === item.artwork.artworkId);
+        })
+      });
     } else if (this.scrollType === 'voting-selected') {
       this.votingService.getVotedArtworks$().subscribe(artworks => {
         this.masonryItems = artworks;
@@ -69,7 +74,6 @@ export class ScrollComponent implements OnInit, AfterViewInit {
     itemSelector: '.masonry-item',
   };
 
-
   public addMoreItems() {
     if (this.scrollType === 'voting-selected') {
       return;
@@ -90,18 +94,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
         this.currentIndex = this.currentIndex + 5;
         const items: MasonryItem[] = [];
         artworks.forEach(artwork => {
-          const title = artwork.title;
-          const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
-          const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
-          const voted = this.votingService.getVotedArtworks().some(item => item.srcSet === srcSet);
-          const item = {
-            title: title,
-            srcSet: srcSet,
-            img: url,
-            voted: voted,
-            artwork: artwork
-          } as MasonryItem;
-          items.push(item);
+          items.push(this.votingService.getMasonryItemOfArtwork(artwork));
         });
         this.masonryItems.push(...items);
       });
@@ -132,7 +125,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
 
   unvote(item: MasonryItem): void {
     item.voted = false;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => JSON.stringify(otherItem) !== JSON.stringify(item)));
+    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== item.artwork.artworkId));
   }
 
   imageClick(item: MasonryItem) {
@@ -146,7 +139,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
         srcSet: item.srcSet,
         voted: item.voted,
         artwork: item.artwork
-      } as DetailViewDialogData
+      } as VoteDetailData
     });
   }
 

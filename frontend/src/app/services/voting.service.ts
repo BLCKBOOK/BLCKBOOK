@@ -51,12 +51,30 @@ export class VotingService {
     })
   }
 
+  public getMasonryItemOfArtwork(artwork: VotableArtwork, voted?: boolean) {
+    const title = artwork.title;
+    const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
+    const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
+    const actuallyVoted = voted ?? this.getVotedArtworks().some(item => item.srcSet === srcSet);
+    return {
+      title: title,
+      srcSet: srcSet,
+      img: url,
+      voted: actuallyVoted,
+      artwork: artwork
+    } as MasonryItem;
+  }
+
   public getHasVoted$(): Observable<boolean> {
     return this.alreadyVoted.pipe();
   }
 
   public getMaxVoteAmount$(): Observable<number> {
     return this.maxVoteAmount.pipe();
+  }
+
+  public getMaxVoteAmount(): number {
+    return this.maxVoteAmount.getValue();
   }
 
   public getVotesSelected$(): Observable<number> {
@@ -89,7 +107,10 @@ export class VotingService {
     const voteAmount = actualVotes.length;
     if (voteAmount <= this.maxVoteAmount.getValue() && voteAmount > 0) {
       const artworkIDs = this.votedArtworks.getValue().map(artwork => artwork.artwork.artworkId);
-      this.httpClient.post(this.voteAPIURL + this.voteForArtworksURL, artworkIDs, {responseType: 'text'}).subscribe(ret => console.log(ret));
+      this.httpClient.post(this.voteAPIURL + this.voteForArtworksURL, artworkIDs, {responseType: 'text'})
+        .subscribe(() => {
+          this.updateVotingStatus();
+        });
     } else {
       console.error('had too many votes');
     }

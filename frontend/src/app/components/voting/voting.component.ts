@@ -4,9 +4,10 @@ import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {ActivatedRoute} from '@angular/router';
-import {DetailViewDialogComponent, DetailViewDialogData} from '../detail-view-dialog/detail-view-dialog.component';
+import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
 import {ImageSizeService} from '../../services/image-size.service';
+import {ConfirmDialogComponent, ConfirmDialogData} from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-voting',
@@ -52,7 +53,7 @@ export class VotingComponent {
               srcSet: srcSet,
               voted: voted,
               artwork: artwork
-            } as DetailViewDialogData
+            } as VoteDetailData
           });
         }, error => {
           if (error.status === 404) {
@@ -64,8 +65,37 @@ export class VotingComponent {
   }
 
   submitVote() {
-    // ToDo: add warn for less than max amount of votes.
-    // ToDo: probably also add warn that voting only works once in a period
-    this.votingService.voteForArtworks();
+    const votesSpent = this.votingService.getVotedArtworks().length;
+    const maxVoteAmount = this.votingService.getMaxVoteAmount();
+    if (votesSpent < maxVoteAmount) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          text: 'You only spent ' + votesSpent + ' Votes. The max amount you can spend is ' + maxVoteAmount + '.\n' +
+            'You can only vote once per voting-period and can not take back any votes.',
+          header: 'Not all votes spent',
+          action: 'Submit Vote'
+        } as ConfirmDialogData
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.alreadyVoted$.next(true);
+          this.votingService.voteForArtworks();
+        }
+      });
+    } else {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          text: 'You can only vote once per voting-period and can not take back any votes.',
+          header: 'Voting',
+          action: 'Submit Vote'
+        } as ConfirmDialogData
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.alreadyVoted$.next(true);
+          this.votingService.voteForArtworks();
+        }
+      });
+    }
   }
 }

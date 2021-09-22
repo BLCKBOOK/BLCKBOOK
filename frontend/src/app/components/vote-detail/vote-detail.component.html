@@ -1,0 +1,50 @@
+<div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container" fxLayoutAlign="space-evenly">
+  <div fxFlex="1 1 50%" fxFlex.gt-sm="10 1 fit-content" class="image-container">
+    <img [src]="data.src" [srcset]="data.srcSet" class="big-image"
+         [sizes]="'(min-width: 960px) calc(50vw - 88px), calc(100vw-44px)'" alt="'Image'">
+  </div>
+  <div class="meta-data-display" fxFlex="1 1 50%" fxFlex.gt-sm="1 1 30%" fxLayout.gt-md="column" fxLayoutAlign.gt-sm="space-evenly"
+       fxLayout="column" fxLayoutAlign="space-between">
+    <div>
+      <div>
+        <app-bob-text [text]="data.artwork.title ?? 'Unknown'"></app-bob-text>
+      </div>
+      <div>Uploaded by {{data.artwork.uploader}}</div>
+      <br>
+      <div class="meta-data-container">
+        <div class="line-container">
+          <span>LATITUDE</span><span class="artwork-data">{{data.artwork.latitude}}</span>
+        </div>
+        <div class="line-container">
+          <span>LONGITUDE</span><span class="artwork-data">{{data.artwork.longitude}}</span>
+        </div>
+        <div class="line-container">
+          <span>TIMESTAMP</span><span class="artwork-data">{{timeDisplay}}</span>
+        </div>
+      </div>
+      <!--<br>
+      <button mat-button>Show on map</button>-->
+    </div>
+    <div class="share button-container">
+      <button mat-icon-button [disabled]="false" (click)="copyToClipboard()">
+        <fa-icon [icon]="faShareAlt">
+        </fa-icon>
+      </button>
+    </div>
+    <button mat-button class="vote-button button-container" *ngIf="!data.voted" (click)="vote()"
+            [disabled]="alreadyVoted$ | async">
+      Select for Vote
+      <fa-stack>
+        <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
+      </fa-stack>
+    </button>
+    <button mat-button class="vote-button button-container" *ngIf="data.voted" (click)="unvote()"
+            [disabled]="alreadyVoted$ | async">
+      Deselect
+      <fa-stack>
+        <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
+        <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>
+      </fa-stack>
+    </button>
+  </div>
+</div>
