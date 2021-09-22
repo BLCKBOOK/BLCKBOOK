@@ -5,9 +5,10 @@ import {ImageSizeService} from '../../services/image-size.service';
 import {UploadedArtworkIndex, VotableArtwork} from '../../../../../backend/src/common/tableDefinitions';
 import {VotingService} from '../../services/voting.service';
 import {MatDialog} from '@angular/material/dialog';
-import {DetailViewDialogComponent, DetailViewDialogData} from '../detail-view-dialog/detail-view-dialog.component';
+import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
 import {Observable, of, zip} from 'rxjs';
-import {map, catchError} from 'rxjs/operators';
+import {catchError, map} from 'rxjs/operators'
+import {Location} from '@angular/common';
 
 export interface MasonryItem {
   title: string,
@@ -27,8 +28,11 @@ export type ScrollType = 'voting' | 'gallery' | 'auction' | 'voting-selected';
 export class ScrollComponent implements OnInit, AfterViewInit {
 
   currentIndex = 0;
+  alreadyVoted$: Observable<boolean>;
 
-  constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService) {
+  constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService,
+              private location: Location) {
+    this.alreadyVoted$ = this.votingService.getHasVoted$();
   }
 
   ngAfterViewInit() {
@@ -39,8 +43,13 @@ export class ScrollComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     if (this.scrollType === 'voting') {
       this.addMoreItems();
+      this.votingService.getVotedArtworks$().subscribe(votedArtworks => {
+        this.masonryItems.forEach(item => {
+          item.voted = votedArtworks.some(voted => voted.artwork.artworkId === item.artwork.artworkId);
+        })
+      });
     } else if (this.scrollType === 'voting-selected') {
-      this.votingService.getVoted$().subscribe(artworks => {
+      this.votingService.getVotedArtworks$().subscribe(artworks => {
         this.masonryItems = artworks;
         // after the order of items has changed
         this.masonry?.reloadItems();
@@ -58,7 +67,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
   faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   lastIndex: UploadedArtworkIndex | undefined = undefined;
-  public readonly sizes: string = '(max-width: 599px) 100vw, (max-width 959px) calc(50vw - 5px), (max-width 1279px) calc(33.3vw - 6.6px), (min-width: 1920px) 620.5px';
+  public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
   public myOptions: NgxMasonryOptions = {
     gutter: '.gutter-sizer',
@@ -66,7 +75,6 @@ export class ScrollComponent implements OnInit, AfterViewInit {
     columnWidth: '.grid-sizer',
     itemSelector: '.masonry-item',
   };
-
 
   public addMoreItems() {
     if (this.scrollType === 'voting-selected') {
@@ -86,26 +94,12 @@ export class ScrollComponent implements OnInit, AfterViewInit {
         console.log(artworksArray);
         const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
         this.currentIndex = this.currentIndex + 5;
-      if (artworks.length === 0) {
-        this.reachedEnd = true;
-      }
-      const items: MasonryItem[] = [];
-      artworks.forEach(artwork => {
-        const title = artwork.title;
-        const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
-        const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
-        const voted = this.votingService.getVoted().some(item => item.srcSet === srcSet);
-        const item = {
-          title: title,
-          srcSet: srcSet,
-          img: url,
-          voted: voted,
-          artwork: artwork
-        } as MasonryItem;
-        items.push(item);
+        const items: MasonryItem[] = [];
+        artworks.forEach(artwork => {
+          items.push(this.votingService.getMasonryItemOfArtwork(artwork));
+        });
+        this.masonryItems.push(...items);
       });
-      this.masonryItems.push(...items);
-    });
   }
 
   /*  private calculateExampleImages(amount: number): Observable<MasonryItem[]> {
@@ -128,17 +122,17 @@ export class ScrollComponent implements OnInit, AfterViewInit {
 
   vote(item: MasonryItem): void {
     item.voted = true;
-    this.votingService.setVoted(this.votingService.getVoted().concat(item));
+    this.votingService.setVoted(this.votingService.getVotedArtworks().concat(item));
   }
 
   unvote(item: MasonryItem): void {
     item.voted = false;
-    this.votingService.setVoted(this.votingService.getVoted().filter(otherItem => JSON.stringify(otherItem) !== JSON.stringify(item)));
+    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== item.artwork.artworkId));
   }
 
   imageClick(item: MasonryItem) {
     const src = this.imageSizeService.getOriginalString(item.artwork.imageUrls);
-    this.dialog.open(DetailViewDialogComponent, {
+    const dialogRef = this.dialog.open(DetailViewDialogComponent, {
       width: '90%',
       maxWidth: '90%',
       maxHeight: '100%',
@@ -147,23 +141,31 @@ export class ScrollComponent implements OnInit, AfterViewInit {
         srcSet: item.srcSet,
         voted: item.voted,
         artwork: item.artwork
-      } as DetailViewDialogData
+      } as VoteDetailData
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      this.location.replaceState('/voting');
     });
   }
 
   private getArtworks(index: number): Observable<VotableArtwork[]> {
-    return this.votingService.getVotableArtworks(index).pipe(catchError(this.handleError.bind(this)), map(array => array));
+    return this.votingService.getVotableArtworks$(index).pipe(catchError(this.handleError.bind(this)), map(array => array));
   }
 
+
   public handleError(error: any): Observable<VotableArtwork[]> {
-    if (error?.code === 404) {
-      this.reachedEnd = true;
+    if (error?.status === 404) {
       console.log('reached End');
+      this.reachedEnd = true;
       return of([]);
-    }
-    else {
+    } else {
       console.error(error);
       throw error;
     }
+  }
+
+  onResize() {
+    this.masonry?.reloadItems();
+    this.masonry?.layout();
   }
 }

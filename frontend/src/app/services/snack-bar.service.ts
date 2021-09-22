@@ -10,9 +10,9 @@ export class SnackBarService {
   constructor(private snackBar: MatSnackBar, private router: Router) {
   }
 
-  openSnackBarWithoutAction(message: string) {
+  openSnackBarWithoutAction(message: string, duration = 1000) {
     let config: MatSnackBarConfig = {};
-    config.duration = 1000;
+    config.duration = duration;
     config.panelClass = ['my-snackbar', 'no-action'];
     this.snackBar
       .open(message, '', config);

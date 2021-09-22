@@ -48,6 +48,7 @@ ngx-masonry {
   align-items: center;
   display: inline-flex;
   width: 100%;
+  margin-top: 6px;
 }
 
 .vote-button {
@@ -66,4 +67,8 @@ ngx-masonry {
 
 .mat-raised-button {
   padding: 0!important;
+}
+
+.nothing-selected-text {
+  text-align: center;
 }

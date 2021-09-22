@@ -61,6 +61,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatListModule} from '@angular/material/list';
 import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
 import {faEllipsisH} from '@fortawesome/free-solid-svg-icons/faEllipsisH';
+import { VoteDetailComponent } from './components/vote-detail/vote-detail.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -87,6 +88,7 @@ Auth.configure(awsconfig);
     ErrorDialogComponent,
     ImageDialogComponent,
     DetailViewDialogComponent,
+    VoteDetailComponent,
   ],
   imports: [
     MatDialogModule,
