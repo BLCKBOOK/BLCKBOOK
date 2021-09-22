@@ -67,7 +67,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
   faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   lastIndex: UploadedArtworkIndex | undefined = undefined;
-  public readonly sizes: string = '(max-width: 599px) 100vw, (max-width 959px) calc(50vw - 5px), (max-width 1279px) calc(33.3vw - 6.6px), (min-width: 1920px) 620.5px';
+  public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
   public myOptions: NgxMasonryOptions = {
     gutter: '.gutter-sizer',

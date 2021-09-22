@@ -32,7 +32,6 @@ export class ImageUploadComponent implements OnInit {
   url: string | ArrayBuffer | null | undefined = '';
   srcSet: string | undefined;
   contentType: string | undefined = undefined;
-  sizes: string | undefined;
   time: string | undefined;
   currentlyUploading = false;
 
