@@ -3,6 +3,8 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog
 import { VotableArtwork } from '../../../../../backend/src/common/tableDefinitions';
 import {ImageDialogComponent, ImageDialogData} from '../image-dialog/image-dialog.component';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
+import { Clipboard } from '@angular/cdk/clipboard';
+import {SnackBarService} from '../../services/snack-bar.service';
 
 export interface DetailViewDialogData {
   artwork: VotableArtwork,
@@ -23,7 +25,8 @@ export class DetailViewDialogComponent {
 
   constructor(public dialog: MatDialog,
     public dialogRef: MatDialogRef<DetailViewDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DetailViewDialogData) {
+    @Inject(MAT_DIALOG_DATA) public data: DetailViewDialogData, private clipboard: Clipboard,
+              private snackBarService: SnackBarService) {
     const date = new Date(data.artwork.uploadTimestamp);
     this.timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   }
@@ -37,4 +40,8 @@ export class DetailViewDialogComponent {
     });
   }
 
+  copyToClipboard() {
+    this.clipboard.copy(window.location.host + '/voting/' + this.data.artwork.artworkId);
+    this.snackBarService.openSnackBarWithoutAction('Url copied to clipboard', 2000);
+  }
 }

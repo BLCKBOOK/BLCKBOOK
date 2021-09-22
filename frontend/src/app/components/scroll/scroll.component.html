@@ -1,4 +1,4 @@
-<ngx-masonry [options]="myOptions" appScrollTracker (scrollingFinished)="addMoreItems()" #masonry>
+<ngx-masonry [options]="myOptions" appScrollTracker (scrollingFinished)="addMoreItems()" #masonry (window:resize)="onResize()">
   <div class="grid-sizer"></div>
   <div class="gutter-sizer"></div>
   <div ngxMasonryItem class="masonry-item" *ngFor="let item of masonryItems">
@@ -14,7 +14,7 @@
           <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
         </fa-stack>
       </button>
-      <button mat-icon-button class="vote-button" *ngIf="item.voted" (click)="unvote(item)">
+      <button mat-icon-button class="vote-button" *ngIf="item.voted" (click)="unvote(item)" [disabled]="alreadyVoted$ | async">
         <fa-stack>
           <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
           <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>
@@ -23,4 +23,7 @@
     </div>
   </div>
 </ngx-masonry>
+<div *ngIf="scrollType === 'voting-selected' && masonryItems.length === 0">
+  <p class="nothing-selected-text">You don't have items selected yet</p>
+</div>
 <div *ngIf="reachedEnd">YOU REACHED THE END</div>

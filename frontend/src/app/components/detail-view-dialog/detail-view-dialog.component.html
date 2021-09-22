@@ -2,11 +2,6 @@
   <div fxFlex="1 1 50%" class="image-container">
     <img [src]="data.src" [srcset]="data.srcSet" class="big-image"
          [sizes]="'(min-width: 960px) calc(50vw - 88px), calc(100vw-44px)'" alt="'Image'">
-    <!--    <div fxLayout="row" fxLayoutAlign='space-evenly center'>
-          <button mat-icon-button (click)="enlargeImage()">
-            <fa-icon [icon]="faExpandArrowsAlt"></fa-icon>
-          </button>
-        </div>-->
   </div>
   <div class="meta-data-display" fxFlex="1 1 50%">
     <div>
@@ -29,7 +24,7 @@
     <button mat-button>Show on map</button>
     <br>
     <div class="share">
-      <button mat-icon-button [disabled]="false">
+      <button mat-icon-button [disabled]="false" (click)="copyToClipboard()">
         <fa-icon [icon]="faShareAlt">
         </fa-icon>
       </button>

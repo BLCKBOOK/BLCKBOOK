@@ -1,8 +1,8 @@
 <div class="floating-submit">
-  <button mat-icon-button [disabled]="$submitDisabled | async"> SUBMIT</button>
+  <button mat-icon-button [disabled]="$submitDisabled | async" (click)="submitVote()"> SUBMIT</button>
 </div>
 <div class="floating-vote-tracker">
-  <span>{{$votesSpend | async}} / {{$totalVoteAmount | async}}</span>
+  <span>{{$votesSelected | async}} / {{$totalVoteAmount | async}}</span>
 </div>
 <mat-tab-group mat-align-tabs="center" animationDuration="0ms">
   <mat-tab label="All">
@@ -11,7 +11,7 @@
       </app-scroll>
     </ng-template>
   </mat-tab>
-  <mat-tab label="Selected">
+  <mat-tab label="{{(alreadyVoted$ | async) ? 'My Votes' : 'Selected'}}">
     <ng-template matTabContent>
       <app-scroll [scrollType]="'voting-selected'">
       </app-scroll>

@@ -38,7 +38,6 @@ export class AdminService {
     if (index) {
       encodingString = '?lastKey=' + (urlencode(JSON.stringify(index)));
     }
-    console.log('called method with: ' + index?.uploaderId);
     const finalUrl = this.artworkAdminURL + this.getUncheckedArtworksURL + encodingString;
     return this.httpClient.get<GetUploadedArtworksResponseBody>(finalUrl).pipe(switchMap(outerValue => {
       if (outerValue.artworks.length < 20 && JSON.stringify(outerValue.lastKey) !== JSON.stringify(index) && outerValue.lastKey) {

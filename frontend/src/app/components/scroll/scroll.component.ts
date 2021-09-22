@@ -7,7 +7,7 @@ import {VotingService} from '../../services/voting.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, DetailViewDialogData} from '../detail-view-dialog/detail-view-dialog.component';
 import {Observable, of, zip} from 'rxjs';
-import {map, catchError} from 'rxjs/operators';
+import {catchError, map} from 'rxjs/operators';
 
 export interface MasonryItem {
   title: string,
@@ -27,8 +27,10 @@ export type ScrollType = 'voting' | 'gallery' | 'auction' | 'voting-selected';
 export class ScrollComponent implements OnInit, AfterViewInit {
 
   currentIndex = 0;
+  alreadyVoted$: Observable<boolean>;
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService) {
+    this.alreadyVoted$ = this.votingService.getHasVoted$();
   }
 
   ngAfterViewInit() {
@@ -40,7 +42,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
     if (this.scrollType === 'voting') {
       this.addMoreItems();
     } else if (this.scrollType === 'voting-selected') {
-      this.votingService.getVoted$().subscribe(artworks => {
+      this.votingService.getVotedArtworks$().subscribe(artworks => {
         this.masonryItems = artworks;
         // after the order of items has changed
         this.masonry?.reloadItems();
@@ -86,26 +88,23 @@ export class ScrollComponent implements OnInit, AfterViewInit {
         console.log(artworksArray);
         const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
         this.currentIndex = this.currentIndex + 5;
-      if (artworks.length === 0) {
-        this.reachedEnd = true;
-      }
-      const items: MasonryItem[] = [];
-      artworks.forEach(artwork => {
-        const title = artwork.title;
-        const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
-        const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
-        const voted = this.votingService.getVoted().some(item => item.srcSet === srcSet);
-        const item = {
-          title: title,
-          srcSet: srcSet,
-          img: url,
-          voted: voted,
-          artwork: artwork
-        } as MasonryItem;
-        items.push(item);
+        const items: MasonryItem[] = [];
+        artworks.forEach(artwork => {
+          const title = artwork.title;
+          const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
+          const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
+          const voted = this.votingService.getVotedArtworks().some(item => item.srcSet === srcSet);
+          const item = {
+            title: title,
+            srcSet: srcSet,
+            img: url,
+            voted: voted,
+            artwork: artwork
+          } as MasonryItem;
+          items.push(item);
+        });
+        this.masonryItems.push(...items);
       });
-      this.masonryItems.push(...items);
-    });
   }
 
   /*  private calculateExampleImages(amount: number): Observable<MasonryItem[]> {
@@ -128,12 +127,12 @@ export class ScrollComponent implements OnInit, AfterViewInit {
 
   vote(item: MasonryItem): void {
     item.voted = true;
-    this.votingService.setVoted(this.votingService.getVoted().concat(item));
+    this.votingService.setVoted(this.votingService.getVotedArtworks().concat(item));
   }
 
   unvote(item: MasonryItem): void {
     item.voted = false;
-    this.votingService.setVoted(this.votingService.getVoted().filter(otherItem => JSON.stringify(otherItem) !== JSON.stringify(item)));
+    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => JSON.stringify(otherItem) !== JSON.stringify(item)));
   }
 
   imageClick(item: MasonryItem) {
@@ -152,18 +151,23 @@ export class ScrollComponent implements OnInit, AfterViewInit {
   }
 
   private getArtworks(index: number): Observable<VotableArtwork[]> {
-    return this.votingService.getVotableArtworks(index).pipe(catchError(this.handleError.bind(this)), map(array => array));
+    return this.votingService.getVotableArtworks$(index).pipe(catchError(this.handleError.bind(this)), map(array => array));
   }
 
+
   public handleError(error: any): Observable<VotableArtwork[]> {
-    if (error?.code === 404) {
-      this.reachedEnd = true;
+    if (error?.status === 404) {
       console.log('reached End');
+      this.reachedEnd = true;
       return of([]);
-    }
-    else {
+    } else {
       console.error(error);
       throw error;
     }
+  }
+
+  onResize() {
+    this.masonry?.reloadItems();
+    this.masonry?.layout();
   }
 }

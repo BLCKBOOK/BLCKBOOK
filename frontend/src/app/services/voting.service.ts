@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, of} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {MasonryItem} from '../components/scroll/scroll.component';
 import {map} from 'rxjs/operators';
 import { VotableArtwork } from '../../../../backend/src/common/tableDefinitions';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
+import {ImageSizeService} from './image-size.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,22 +14,56 @@ export class VotingService {
 
   private readonly voteAPIURL = environment.urlString + '/vote';
   private readonly getVotePageURL = '/getPage';
-  private votesLeft: number;
+  private readonly voteForArtworksURL = '/voteForArtworks';
+  private readonly getMyVotesURL = '/getMyVotes';
+  private readonly getArtworkByIdURL = '/getVotableArtwork'
   private votedArtworks: BehaviorSubject<MasonryItem[]> = new BehaviorSubject<MasonryItem[]>([]);
+  private readonly maxVoteAmount: BehaviorSubject<number> = new BehaviorSubject<number>(5);
+  private readonly alreadyVoted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  constructor(private httpClient: HttpClient) {
-    this.votesLeft = 0;
+  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService) {
+    this.updateVotingStatus();
   }
 
-  public getMaxVoteAmount(): Observable<number> {
-    return of(5);
+  public updateVotingStatus() {
+    this.getMyVotes$().subscribe(votes => {
+      const items: MasonryItem[] = [];
+      votes.forEach(artwork => {
+        const title = artwork.title;
+        const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
+        const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
+        const voted = true;
+        const item = {
+          title: title,
+          srcSet: srcSet,
+          img: url,
+          voted: voted,
+          artwork: artwork
+        } as MasonryItem;
+        items.push(item);
+      });
+      this.votedArtworks.next(items);
+      this.alreadyVoted.next(true);
+    }, error => {
+      if (error.status === 404) {
+        this.votedArtworks.next([]);
+      }
+    })
   }
 
-  public getVotesSpent(): Observable<number> {
+  public getHasVoted$(): Observable<boolean> {
+    return this.alreadyVoted.pipe();
+  }
+
+  public getMaxVoteAmount$(): Observable<number> {
+    return this.maxVoteAmount.pipe();
+  }
+
+  public getVotesSelected$(): Observable<number> {
     return this.votedArtworks.pipe(map(artworks => artworks.length));
   }
 
-  public getVotableArtworks(pagenumber: number): Observable<VotableArtwork[]> {
+  public getVotableArtworks$(pagenumber: number): Observable<VotableArtwork[]> {
     const urlString = this.voteAPIURL + this.getVotePageURL + '/' + pagenumber.toString();
     return this.httpClient.get<VotableArtwork[]>(urlString);
   }
@@ -37,11 +72,30 @@ export class VotingService {
     this.votedArtworks.next(selection);
   }
 
-  getVoted$(): Observable<MasonryItem[]> {
+  getVotedArtworks$(): Observable<MasonryItem[]> {
     return this.votedArtworks.pipe();
   }
 
-  getVoted(): MasonryItem[] {
+  getVotedArtworks(): MasonryItem[] {
     return this.votedArtworks.getValue();
+  }
+
+  public getMyVotes$(): Observable<VotableArtwork[]> {
+    return this.httpClient.get<VotableArtwork[]>(this.voteAPIURL + this.getMyVotesURL);
+  }
+
+  public voteForArtworks() {
+    const actualVotes = this.votedArtworks.getValue();
+    const voteAmount = actualVotes.length;
+    if (voteAmount <= this.maxVoteAmount.getValue() && voteAmount > 0) {
+      const artworkIDs = this.votedArtworks.getValue().map(artwork => artwork.artwork.artworkId);
+      this.httpClient.post(this.voteAPIURL + this.voteForArtworksURL, artworkIDs, {responseType: 'text'}).subscribe(ret => console.log(ret));
+    } else {
+      console.error('had too many votes');
+    }
+  }
+
+  public getVotableArtworkById(id: string): Observable<VotableArtwork> {
+    return this.httpClient.get<VotableArtwork>(this.voteAPIURL + this.getArtworkByIdURL + '/' + id);
   }
 }
