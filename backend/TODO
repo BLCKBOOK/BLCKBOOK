@@ -1,0 +1,11 @@
+- When freshly registering and logging in the admin field is not displayed
+
+save voted artworks to archive on trigger
+reset voted artworks when triggering vote switch
+notifications
+
+x endpoint get my voted artworks
+x endpoint get my current voted artwork
+x endpoint get votable artwork by id (for sending individual info)
+T endpoint vote for artwork
+x hide info provided from getVotableArtworks

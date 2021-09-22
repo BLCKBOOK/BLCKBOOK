@@ -42,7 +42,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   const userToDecrease = unmarshall(await (await DDBclient.send(getUserCommand)).Item) as UserInfo
   const oldUploadCount = userToDecrease.uploadsDuringThisPeriod;
   if (oldUploadCount <= 0)
-    throw createError(400, "Sanity check failed: User with 0 uploads tried to perform a delete")
+    return Promise.reject(createError(400, "Sanity check failed: User with 0 uploads tried to perform a delete"))
 
   if (!(foundItems && foundItems.length == 1))
     return { statusCode: 200, headers: { "content-type": "application/json" }, body: "You dont have any uploads Yet." }

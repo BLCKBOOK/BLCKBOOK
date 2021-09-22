@@ -27,7 +27,6 @@ export interface UploadedArtworkIndex {
 }
 
 export interface UploadedArtwork {
-  periodId: string
   artworkId: string
   uploaderId: string,
   imageUrls: { [Key: string]: string }
@@ -44,7 +43,6 @@ export interface UploadedArtwork {
 
 // Global index of uploadedartwork
 interface UploadedArtworkAdminView {
-  PeriodId: number //pk
   artworkId: string
   imageUrl: string
   uploader: string
@@ -59,7 +57,6 @@ interface UploadedArtworkAdminView {
 
 export interface VotableArtwork {
   pageNumber: string // PK
-  periodId: string
   artworkId: string
   uploaderId: string,
   imageUrls: { [Key: string]: string }
@@ -74,81 +71,16 @@ export interface VotableArtwork {
   votes: [string]
 }
 
-
-interface UsersArtworkView {
-  artworkId: string
-  imageUrl: string
-  uploader: string // PK
-  randomSortIndex: Number // SK
-  uploadTimestamp: Date
-  geohash: string
-  longitude: string
-  latitude: string
-  title?: string
-  artist?: string
+export interface Notification {
+  userId: string,
+  timestamp: string,
+  title: string,
+  body: string,
+  type: string,
+  seen: boolean,
 }
 
-interface StagedForMinting {
-  artworkId: string
-  imageUrl: string
-  uploader: string
-  randomSortIndex: Number
-  uploadTimestamp: Date
-  geohash: string
-  longitude: string
-  latitude: string
-  title?: string
-  artist?: string
-
-  mint?: {
-    mintingDate: Date
-    initialPrice: string,
-    IPFSLink: string,
-    currentOwner: String, // wallet address or blckbook username?
-    saleshistory?: [Sale]
-  }
+export interface NotificationIndex {
+  userId: string,
+  timestamp: string,
 }
-
-interface StagedForMinting {
-  artworkId: string
-  imageUrl: string
-  uploader: string
-  randomSortIndex: Number
-  uploadTimestamp: Date
-  geohash: string
-  longitude: string
-  latitude: string
-  title?: string
-  artist?: string
-
-  mint?: {
-    mintingDate: Date
-    initialPrice: string,
-    IPFSLink: string,
-    currentOwner: String, // wallet address or blckbook username?
-    saleshistory?: [Sale]
-  }
-}
-
-interface MintedArtworks {
-  artworkId: string
-  imageUrl: string
-  uploader: string
-  randomSortIndex: Number
-  uploadTimestamp: Date
-  geohash: string
-  longitude: string
-  latitude: string
-  title?: string
-  artist?: string
-
-  mint?: {
-    mintingDate: Date
-    initialPrice: string,
-    IPFSLink: string,
-    currentOwner: String, // wallet address or blckbook username?
-    saleshistory?: [Sale]
-  }
-}
-
-

@@ -55,7 +55,7 @@ const baseHandler = async (event, context) => {
   // check if user is eligible
   console.debug("user", user);
   if (!user.username)
-    throw Error(`A user who is not in the ${process.env['USER_INFO_TABLE_NAME']} table has tried to perform a initImageUpload request.`)
+    return Promise.reject(Error(`A user who is not in the ${process.env['USER_INFO_TABLE_NAME']} table has tried to perform a initImageUpload request.`))
 
   if (user.uploadsDuringThisPeriod >= Number(process.env['MAX_UPLOADS_PER_PERIOD']))
     return maxUploadCountReached;
@@ -68,7 +68,6 @@ const baseHandler = async (event, context) => {
   const artworkId = uuid()
   // create metadata object
   Object.assign(body, {
-    periodId: "current",
     artworkId,
     uploaderId: userInfo['sub'],
     uploader: userInfo['cognito:username'],

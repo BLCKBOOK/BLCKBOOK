@@ -22,7 +22,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   if (event['queryStringParameters']) {
     const decodedLastKey = JSON.parse(event['queryStringParameters']['lastKey'])
     if (!validate(decodedLastKey, queryParamSchema).valid)
-      throw createError(400, "LastKey doesn't have the correct format")
+      return Promise.reject(createError(400, "LastKey doesn't have the correct format"))
     lastKey = decodedLastKey
   }
 

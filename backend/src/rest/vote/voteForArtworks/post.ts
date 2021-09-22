@@ -20,7 +20,7 @@ let returnObject: getVoteableArtworksPageResponseBody;
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     if (event.body.length >= Number(process.env['MAX_VOTES_PER_PERIOD']))
-        throw createError(500, "Too many items selected")
+        return Promise.reject(createError(500, "Too many items selected"))
 
     // check if user already voted
     const getUserCommand = new GetItemCommand({
@@ -30,7 +30,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     })
     const user = unmarshall(await (await DDBclient.send(getUserCommand)).Item as any)
     if (user.hasVoted)
-        throw createError(500, "You already Voted")
+        return Promise.reject(createError(500, "You already Voted"))
 
     // check if all artworks exist
     const verifyArtworksExist = new BatchGetItemCommand({

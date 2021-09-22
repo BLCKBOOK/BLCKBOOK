@@ -58,7 +58,7 @@ const baseHandler = async (event, context) => {
 
 const handler = middy(baseHandler)
   .use(RequestLogger())
-  .use(httpErrorHandler())
   .use(httpJsonBodyParser())
+  .use(httpErrorHandler())
 
 module.exports = { handler }

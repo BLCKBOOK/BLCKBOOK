@@ -12,7 +12,7 @@ export const deleteArtwork = async (index: UploadedArtworkIndex, s3Client: S3Cli
     })
     const deleteItemResponse = await (await ddbClient.send(getArtworkCommand)).Item
     if (!deleteItemResponse)
-        throw createError(500, "The item to be deleted could not be found")
+        return Promise.reject(createError(500, "The item to be deleted could not be found"))
     const itemToDelete = unmarshall(deleteItemResponse) as UploadedArtwork;
 
     const deletePromises: Promise<DeleteItemCommandOutput | DeleteObjectCommandOutput>[] = []
@@ -24,7 +24,7 @@ export const deleteArtwork = async (index: UploadedArtworkIndex, s3Client: S3Cli
     })
     deletePromises.push(ddbClient.send(deleteArtworkCommand).catch(err => {
         console.error("could not delete artwork item", JSON.stringify(deleteArtworkCommand));
-        throw createError(500, `Error during deletion`)
+        return Promise.reject(createError(500, `Error during deletion`))
     }))
 
     // delete Images from S3
@@ -36,7 +36,7 @@ export const deleteArtwork = async (index: UploadedArtworkIndex, s3Client: S3Cli
         })
         deletePromises.push(s3Client.send(deleteImageCommand).catch(err => {
             console.error("could not delete artwork image", JSON.stringify(deleteImageCommand));
-            throw createError(500, `Error during deletion`)
+            return Promise.reject(createError(500, `Error during deletion`))
         }))
     })
 

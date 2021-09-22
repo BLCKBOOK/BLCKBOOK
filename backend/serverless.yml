@@ -13,6 +13,7 @@ package:
   individually: true
 
 custom:
+  notification_table_name: 'notifications-${self:provider.stage}'
   user_info_table_name: 'user-info-${self:provider.stage}'
   uploaded_artworks_table_name: 'uploaded-artworks-${self:provider.stage}'
   vote_pages_table_name: 'votes-pages-${self:provider.stage}'
@@ -44,6 +45,7 @@ provider:
     VOTE_PAGES_TABLE_NAME: ${self:custom.vote_pages_table_name}
     ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
     PERIOD_TABLE_NAME: ${self:custom.period_table_name}
+    NOTIFICATION_TABLE_NAME: ${self:custom.notification_table_name}
     USER_POOL_ID:
       Ref: BlckBookUsers
     STAGE:  ${self:provider.stage}
@@ -64,6 +66,8 @@ functions:
   - ${file(./src/rest/vote/voteForArtworks/config.yml)}
   - ${file(./src/rest/vote/getVotableArtworkById/config.yml)}
   - ${file(./src/rest/vote/getMyVotes/config.yml)}
+  - ${file(./src/rest/vote/getMyProposition/config.yml)}
+  - ${file(./src/rest/notifications/config.yml)}
   
 resources:
   Resources:
@@ -175,6 +179,22 @@ resources:
             KeyType: HASH
         TableName: ${self:custom.period_table_name}
     
+    notificationTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: "S"
+          - AttributeName: timestamp
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        TableName: ${self:custom.notification_table_name}
+    
     votePagesTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -184,6 +204,8 @@ resources:
             AttributeType: S
           - AttributeName: pageNumber
             AttributeType: N
+          - AttributeName: uploaderId
+            AttributeType: S
         KeySchema:
           - AttributeName: artworkId
             KeyType: HASH
@@ -195,6 +217,12 @@ resources:
                 KeyType: HASH
               - AttributeName: artworkId
                 KeyType: RANGE
+            Projection:
+              ProjectionType: 'ALL'
+          - IndexName: uploaderIndex           
+            KeySchema:
+              - AttributeName: uploaderId
+                KeyType: HASH
             Projection:
               ProjectionType: 'ALL'
 

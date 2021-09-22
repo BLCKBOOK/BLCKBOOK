@@ -6,10 +6,6 @@ export const RequestValidationSchema = {
         body: {
             "type": "object",
             "properties": {
-                "periodId": {
-                    "type": "string",
-                    "pattern": "^current$|^\\d+$"
-                },
                 "artworkId": {
                     "type": "string"
                 },
@@ -77,7 +73,6 @@ export const RequestValidationSchema = {
                 }
             },
             "required": [
-                "periodId",
                 "artworkId",
                 "uploaderId",
                 "imageUrls",

@@ -1,0 +1,20 @@
+getMyNotifications:
+  handler: src/rest/notifications/get.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource:
+        - Fn::GetAtt: [ notificationTable, Arn ]
+  events:
+    - http:
+        path: notifications/getMyNotifications
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: get
+        cors: true

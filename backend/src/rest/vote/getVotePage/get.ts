@@ -3,9 +3,7 @@ import { DynamoDBClient, GetItemCommand, QueryCommand, ScanCommand } from "@aws-
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
 import httpErrorHandler from "@middy/http-error-handler";
-import { createError, getInternal } from "@middy/util";
-
-import { validate } from "jsonschema";
+import { createError } from "@middy/util";
 
 import { getVoteableArtworksPageRequestQueryParam, getVoteableArtworksPageResponseBody } from "./apiSchema";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
@@ -24,11 +22,11 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     })
     let periodInfo = await (await DDBclient.send(getPeriodInfoCommand)).Item
     if (!periodInfo)
-        throw createError(500, "Period 'current' does not exist !!!")
+        return Promise.reject(createError(500, "Period 'current' does not exist !!!"))
     const votePageCount = unmarshall(periodInfo).votePageCount
     const requestedIndex = Number(event.path.split('/').pop())
     if (requestedIndex > votePageCount)
-        throw createError(404, 'Could not find the specified page.')
+        return Promise.reject(createError(404, 'Could not find the specified page.'))
     const baseIndex = Buffer.from(event.requestContext.authorizer.claims['sub']).reduce((a, b) => a + b) % (votePageCount + 1)
     const accessedIndex = (requestedIndex + baseIndex) % (votePageCount + 1)
 
@@ -40,7 +38,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     const queryResult = await DDBclient.send(query);
 
     if (!queryResult.Items || queryResult.Items.length == 0)
-        throw createError(404, "No votable artworks found")
+        return Promise.reject(createError(404, "No votable artworks found"))
 
     const queriedArtworks = queryResult.Items.map(art => unmarshall(art))
 

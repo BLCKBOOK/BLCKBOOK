@@ -20,33 +20,20 @@ let returnObject: getVoteableArtworksPageResponseBody;
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     const userId = event.requestContext.authorizer.claims['sub']
 
-    const getUserInfoCommand = new GetItemCommand({
-        TableName: process.env['USER_INFO_TABLE_NAME'],
-        Key: marshall({ userId })
+    const query = new QueryCommand({
+        TableName: process.env['VOTE_PAGES_TABLE_NAME'],
+        KeyConditionExpression: "uploaderId = :uploaderId",
+        ExpressionAttributeValues: marshall({ ":uploaderId": userId }),
+        IndexName: "uploaderIndex",
+        Limit: Number(process.env['MAX_UPLOADS_PER_PERIOD'])
     })
-    let userInfoResponse = await (await DDBclient.send(getUserInfoCommand)).Item
-    if (!userInfoResponse)
-        return Promise.reject(createError(404, "User does not exist !!!"))
-    const userInfo = unmarshall(userInfoResponse) as UserInfo
-    if (!userInfo.hasVoted)
-        return Promise.reject(createError(404, 'The user hasn\'t voted yet.'))
-    if (userInfo.votes.length == 0)
-        return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify([]) };
-
-    const query = new BatchGetItemCommand({
-        RequestItems: { [process.env['VOTE_PAGES_TABLE_NAME'] as string]: { Keys: userInfo.votes.map(artworkId => { return marshall({ artworkId }) }) } },
-    })
-    const queriedArtworks = await DDBclient.send(query);
-
-    if (!queriedArtworks.Responses || queriedArtworks.Responses[process.env['VOTE_PAGES_TABLE_NAME'] as string].length == 0)
-        return Promise.reject(createError(404, "Artworks Not Found"))
-
-    returnObject = queriedArtworks.Responses[process.env['VOTE_PAGES_TABLE_NAME'] as string].map(art => {
-        art = unmarshall(art)
-        delete art.votes;
-        return art as any
-    }) as getVoteableArtworksPageResponseBody
-
+    const queryResponse = await DDBclient.send(query)
+    const queriedPropositions = queryResponse.Items;
+    if (!queriedPropositions || queriedPropositions.length == 0)
+        return Promise.reject(createError(404, "No proposed artworks were found"))
+    let voteObject = unmarshall(queriedPropositions[0])
+    delete voteObject.votes;
+    returnObject = voteObject as Omit<VotableArtwork, "votes">
     return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify(returnObject) };
 }
 

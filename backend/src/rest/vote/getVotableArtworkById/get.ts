@@ -3,9 +3,7 @@ import { DynamoDBClient, GetItemCommand, QueryCommand, ScanCommand } from "@aws-
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
 import httpErrorHandler from "@middy/http-error-handler";
-import { createError, getInternal } from "@middy/util";
-
-import { validate } from "jsonschema";
+import { createError } from "@middy/util";
 
 import { getVoteableArtworksPageResponseBody } from "./apiSchema";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
@@ -26,7 +24,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     })
     const ddbItem = await (await DDBclient.send(getItemCommand)).Item
     if (!ddbItem)
-        throw createError(404, "Requestd artwork not found")
+        return Promise.reject(createError(404, "Requested artwork not found"))
     const item = unmarshall(ddbItem)
     delete item.votes
     returnObject = item as Omit<VotableArtwork, "votes">

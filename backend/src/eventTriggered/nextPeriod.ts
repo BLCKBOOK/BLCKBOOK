@@ -1,9 +1,10 @@
-import { BatchWriteItemCommand, DynamoDBClient, ScanCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
 import httpErrorHandler from "@middy/http-error-handler";
 
+import { v4 as uuid } from "uuid";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { LambdaResponseToApiGw } from "../common/lambdaResponseToApiGw";
 import AuthMiddleware from "../common/AuthMiddleware"
@@ -11,6 +12,35 @@ import RequestLogger from "../common/RequestLogger";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
+async function createNewPeriod(nextPeriodEndingDate: string) {
+  // get current period
+  let getPeriodCommand = new GetItemCommand({
+    TableName: process.env['PERIOD_TABLE_NAME'],
+    Key: marshall({ periodId: 'current' }),
+  })
+  const period = await (await DDBclient.send(getPeriodCommand)).Item
+  const now = Number(new Date()).toString()
+  const oldPeriod = uuid();
+
+  // if a current period exists copy it to another entry in the period table
+  if (period) {
+    period.periodId.S = oldPeriod;
+
+    let updateCommand = new PutItemCommand({
+      TableName: process.env['PERIOD_TABLE_NAME'],
+      Item: period
+    })
+    await DDBclient.send(updateCommand)
+  }
+
+  // create a new period
+  let createNewPeriod = new PutItemCommand({
+    TableName: process.env['PERIOD_TABLE_NAME'],
+    Item: marshall({ periodId: 'current', startingDate: now, endingDate: nextPeriodEndingDate })
+  })
+  await DDBclient.send(createNewPeriod)
+  return oldPeriod
+}
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   let lastKey = undefined as any;
@@ -59,7 +89,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
         rest = batchToSend
         break;
       }
-      const artworks = batchToSend.map(art => { art.pageNumber = { N: pagenumber.toString() }; art.voteCount = { N: "0" }; return art })
+      const artworks = batchToSend.map(art => { art.pageNumber = { N: pagenumber.toString() }; return art })
       console.log("artworks length", artworks.length)
       pagenumber++;
       // write vote items 

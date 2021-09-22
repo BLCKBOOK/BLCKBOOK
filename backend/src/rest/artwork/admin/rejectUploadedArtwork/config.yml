@@ -3,6 +3,11 @@ adminDeleteUploadedArtwork:
   iamRoleStatements:
     - Effect: Allow
       Action:
+        - dynamodb:PutItem
+      Resource:
+        - Fn::GetAtt: [ notificationTable, Arn ]
+    - Effect: Allow
+      Action:
         - dynamodb:DeleteItem
         - dynamodb:PutItem
         - dynamodb:GetItem

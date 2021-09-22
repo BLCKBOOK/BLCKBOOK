@@ -44,7 +44,7 @@ const baseHandler = async (event, context) => {
     const oldUploadCount = Number((await DDBClient.send(getUserInfo)).Item.uploadsDuringThisPeriod.N);
 
     if (oldUploadCount >= Number(process.env['MAX_UPLOADS_PER_PERIOD']))
-      throw new Error("Duplicate upload, user update aborted.")
+      return Promise.reject(new Error("Duplicate upload, user update aborted."))
 
     // Increase uploadDuringThisPeriod Counter
     const updateUserCommand = new UpdateItemCommand({
@@ -117,7 +117,6 @@ const baseHandler = async (event, context) => {
       longitude: metadata.longitude,
       latitude: metadata.latitude,
       artist: metadata.artist,
-      periodId: metadata.periodid,
       geoHash: metadata.geohash,
       artworkId: metadata.artworkid,
       contentType: metadata.contenttype,

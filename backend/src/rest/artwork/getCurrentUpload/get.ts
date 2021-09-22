@@ -48,7 +48,6 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   console.log(latestUpload)
 
   responseBody = {
-    periodId: latestUpload.periodId,
     uploaderId: latestUpload.uploaderId,
     artworkId: latestUpload.artworkId,
     imageUrls: latestUpload.imageUrls,

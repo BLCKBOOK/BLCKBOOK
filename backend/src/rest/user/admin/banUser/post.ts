@@ -29,7 +29,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   })
   const getUserResponse = await DDBclient.send(getUserCommand);
   if (!getUserResponse.Item)
-    throw createError(404, "User was not found")
+    return Promise.reject(createError(404, "User was not found"))
 
   const user = unmarshall(getUserResponse.Item) as UserInfo
   console.debug("User to ban", user)
