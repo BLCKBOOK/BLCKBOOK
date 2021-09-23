@@ -18,3 +18,29 @@ getMyNotifications:
               - Arn
         method: get
         cors: true
+
+seeNotifications:
+  handler: src/rest/notifications/seeNotifications.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ notificationTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+  events:
+    - http:
+        path: notifications/seeNotifications
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: post
+        cors: true
