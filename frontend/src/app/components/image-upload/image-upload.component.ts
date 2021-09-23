@@ -178,8 +178,8 @@ export class ImageUploadComponent implements OnInit {
                 text: this.translateService.instant('upload.error-location-text')
               } as ErrorDialogData
             });
+            this.imageInput.nativeElement.value = '';
           }
-          this.imageInput.nativeElement.value = '';
         });
 
         /*this.latitude = undefined;
