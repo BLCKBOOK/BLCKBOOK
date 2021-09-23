@@ -13,6 +13,7 @@ import {ImageDialogComponent, ImageDialogData} from '../image-dialog/image-dialo
 import {UploadedArtwork} from '../../../../../backend/src/common/tableDefinitions';
 import {ImageSizeService} from '../../services/image-size.service';
 import {SnackBarService} from '../../services/snack-bar.service';
+import {MapDialogComponent, MapLocation} from '../map-dialog/map-dialog.component';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -155,7 +156,33 @@ export class ImageUploadComponent implements OnInit {
           this.url = event.target?.result;
         };
       } else {
-        this.latitude = undefined;
+        const dialogRef = this.dialog.open(MapDialogComponent, {
+          width: this.errorDialogSize
+        });
+        dialogRef.afterClosed().subscribe((location: MapLocation) => {
+          if (location) {
+            this.latitude = location.lat.toString();
+            this.longitude = location.lng.toString();
+            this.image = upload;
+            const reader = new FileReader();
+            reader.readAsDataURL(upload); // read file as data url
+            reader.onload = (event) => { // called once readAsDataURL is completed
+              this.url = event.target?.result;
+            };
+          }
+          else {
+            this.dialog.open(ErrorDialogComponent, {
+              width: this.errorDialogSize,
+              data: {
+                header: this.translateService.instant('upload.error-location-header'),
+                text: this.translateService.instant('upload.error-location-text')
+              } as ErrorDialogData
+            });
+          }
+          this.imageInput.nativeElement.value = '';
+        });
+
+        /*this.latitude = undefined;
         this.longitude = undefined;
         this.dialog.open(ErrorDialogComponent, {
           width: this.errorDialogSize,
@@ -164,7 +191,7 @@ export class ImageUploadComponent implements OnInit {
             text: this.translateService.instant('upload.error-location-text')
           } as ErrorDialogData
         });
-        this.imageInput.nativeElement.value = '';
+        this.imageInput.nativeElement.value = '';*/
       }
     }).catch(error => {
       console.log(error);

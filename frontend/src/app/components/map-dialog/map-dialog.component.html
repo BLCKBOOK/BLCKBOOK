@@ -1,0 +1,12 @@
+<mat-dialog-content>
+  <div *ngIf="apiLoaded | async">
+    <google-map width="100%" height="60vh" [center]="center">
+      <map-marker *ngFor="let markerPosition of markerPositions"
+                  [position]="markerPosition"
+                  [options]="markerOptions"></map-marker>
+    </google-map>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button [mat-dialog-close]="center">Use Location</button>
+</mat-dialog-actions>
