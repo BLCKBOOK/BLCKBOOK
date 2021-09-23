@@ -42,6 +42,9 @@ export class NavigationComponent implements OnInit {
   logOut() {
     this.userService.logOut().subscribe(() => {
       this.router.navigate(['login']);
+    }, () => {
+      console.log('logout-error');
+      this.router.navigate(['login']);
     });
   }
 

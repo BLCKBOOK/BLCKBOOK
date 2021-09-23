@@ -17,6 +17,16 @@
       </app-scroll>
     </ng-template>
   </mat-tab>
-  <mat-tab label="My Upload"></mat-tab>
+  <mat-tab label="My Upload">
+    <ng-template matTabContent>
+      <div *ngIf="myUploadData; else noUpload" class="my-upload-border">
+        <app-vote-detail [data]="myUploadData">
+        </app-vote-detail>
+      </div>
+      <ng-template #noUpload class="">
+        <p class="no-upload-text my-upload-border">You don't have an upload in the current voting period.</p>
+      </ng-template>
+    </ng-template>
+  </mat-tab>
 </mat-tab-group>
 

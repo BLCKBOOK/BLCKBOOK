@@ -4,7 +4,7 @@ import {BehaviorSubject, from, Observable, of} from 'rxjs';
 import Auth from '@aws-amplify/auth';
 import {LoggerService} from './logger.service';
 import {catchError, map} from 'rxjs/operators';
-import {UserInfo} from '../../../../backend/src/common/tableDefinitions'
+import {UserInfo} from '../../../../backend/src/common/tableDefinitions';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 
@@ -19,6 +19,7 @@ export class UserService {
   private readonly getUserInfoURL = '/getMyUserInfo';
 
   constructor(private logger: LoggerService, private httpClient: HttpClient) {
+    console.log('called user-service constructor');
     this.user = new BehaviorSubject<CognitoUserInterface | undefined>(undefined);
     this.authState = new BehaviorSubject<AuthState>(AuthState.SignedOut);
     Auth.currentAuthenticatedUser().then(user => {
@@ -26,6 +27,7 @@ export class UserService {
       this.authState.next(AuthState.SignedIn);
     }).catch(reason => this.logger.log(reason));
     onAuthUIStateChange((authState: AuthState, authData: any) => {
+      console.log(authState);
       if (this.authState.getValue() !== authState) { // this sometimes gets triggered twice with the same state
         this.authState.next(authState);
         this.user.next(authData as CognitoUserInterface);
@@ -67,7 +69,12 @@ export class UserService {
   }
 
   public logOut(): Observable<any> {
-    return from(Auth.signOut({global: true}));
+    return from(Auth.signOut({global: false})).pipe(catchError(this.handleLogoutError));
+  }
+
+  public handleLogoutError(): Observable<any> {
+    this.authState.next(AuthState.SignedOut);
+    return of(undefined);
   }
 
   public handleError(error: any): Observable<boolean> {
@@ -76,6 +83,6 @@ export class UserService {
   }
 
   public requestUserInfo(): Observable<UserInfo> {
-    return this.httpClient.get<UserInfo>(this.userInfoAPIURL + this.getUserInfoURL)
+    return this.httpClient.get<UserInfo>(this.userInfoAPIURL + this.getUserInfoURL);
   }
 }
