@@ -6,6 +6,7 @@ import { VotableArtwork } from '../../../../backend/src/common/tableDefinitions'
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {ImageSizeService} from './image-size.service';
+import {SnackBarService} from './snack-bar.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,11 +18,12 @@ export class VotingService {
   private readonly voteForArtworksURL = '/voteForArtworks';
   private readonly getMyVotesURL = '/getMyVotes';
   private readonly getArtworkByIdURL = '/getVotableArtwork'
+  private readonly getMyUploadURL = '/getMyProposition'
   private votedArtworks: BehaviorSubject<MasonryItem[]> = new BehaviorSubject<MasonryItem[]>([]);
   private readonly maxVoteAmount: BehaviorSubject<number> = new BehaviorSubject<number>(5);
   private readonly alreadyVoted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService) {
+  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService) {
     this.updateVotingStatus();
   }
 
@@ -109,11 +111,16 @@ export class VotingService {
       const artworkIDs = this.votedArtworks.getValue().map(artwork => artwork.artwork.artworkId);
       this.httpClient.post(this.voteAPIURL + this.voteForArtworksURL, artworkIDs, {responseType: 'text'})
         .subscribe(() => {
+          this.snackBarService.openSnackBarWithoutAction('The vote was successfully cast', 2000);
           this.updateVotingStatus();
         });
     } else {
       console.error('had too many votes');
     }
+  }
+
+  public getMyUpload(): Observable<VotableArtwork> {
+    return this.httpClient.get<VotableArtwork>(this.voteAPIURL + this.getMyUploadURL);
   }
 
   public getVotableArtworkById(id: string): Observable<VotableArtwork> {
