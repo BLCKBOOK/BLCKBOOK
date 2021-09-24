@@ -1,47 +1,69 @@
-import { Component, OnInit } from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
+import {Component, Inject} from '@angular/core';
+import {icon, LatLng, latLng, Layer, LeafletMouseEvent, marker, tileLayer} from 'leaflet';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 
-export interface MapLocation {
-  lat: number,
-  lng: number,
+export interface MapDialogData {
+  latlng: LatLng;
 }
-
 
 @Component({
   selector: 'app-map-dialog',
   templateUrl: './map-dialog.component.html',
   styleUrls: ['./map-dialog.component.scss']
 })
-export class MapDialogComponent implements OnInit {
+export class MapDialogComponent {
 
-  apiLoaded: Observable<boolean>;
+  options: any;
 
-  markerOptions: google.maps.MarkerOptions = {draggable: false};
-  markerPositions: google.maps.LatLngLiteral[] = [];
-  center: MapLocation;
+  markers: Layer[] = [];
+  currentLocation: LatLng;
 
-  constructor(httpClient: HttpClient) {
-    this.apiLoaded = httpClient.jsonp('https://maps.googleapis.com/maps/api/js?key=AIzaSyCgPQRQlSGl-qyifcG1HAq0YXDLm8sjhPA', 'callback')
-      .pipe(
-        map(() => true),
-        catchError(() => of(false)),
-      );
+  constructor(@Inject(MAT_DIALOG_DATA) public data: MapDialogData) {
+    if (data?.latlng) {
+      this.options = {
+        layers: [
+          tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 20, attribution: 'Open Street Map'})
+        ],
+        zoom: 12,
+        center: this.data.latlng
+      };
+      this.addMarker(data.latlng);
+    } else {
+      this.options = {
+        layers: [
+          tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 20, attribution: 'Open Street Map'})
+        ],
+        zoom: 12,
+        center: latLng(52.49159913183949, 13.392532863660682)
+      };
+    }
   }
 
-  ngOnInit() {
-    navigator.geolocation.getCurrentPosition((position) => {
-      this.center = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
+  mapClick($event: LeafletMouseEvent) {
+    if (this.data?.latlng) {
+      return;
+    }
+    this.markers.pop();
+    this.addMarker($event.latlng);
+    this.currentLocation = $event.latlng;
+  }
+
+  addMarker(latlng: LatLng) {
+    const newMarker = marker(
+      latlng,
+      {
+        icon: icon({
+          iconSize: [25, 41],
+          iconAnchor: [13, 41],
+          shadowUrl: 'assets/marker-shadow.png',
+          iconUrl: 'assets/marker-icon.png',
+        })
       }
-    })
+    );
+    this.markers.push(newMarker);
   }
 
-
-  addMarker(event: google.maps.MapMouseEvent) {
-    this.markerPositions.push(event.latLng.toJSON());
+  removeMarker() {
+    this.markers.pop();
   }
-
 }

@@ -5,6 +5,8 @@ import {Clipboard} from '@angular/cdk/clipboard';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {VotingService} from '../../services/voting.service';
 import {Observable} from 'rxjs';
+import {MatDialog} from '@angular/material/dialog';
+import {MapDialogComponent, MapDialogData} from '../map-dialog/map-dialog.component';
 
 @Component({
   selector: 'app-vote-detail',
@@ -22,7 +24,7 @@ export class VoteDetailComponent implements OnInit {
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   alreadyVoted$: Observable<boolean>
 
-  constructor(private clipboard: Clipboard,
+  constructor(public dialog: MatDialog, private clipboard: Clipboard,
                 private snackBarService: SnackBarService, private votingService: VotingService) {
     this.alreadyVoted$ = this.votingService.getHasVoted$();
   }
@@ -46,5 +48,12 @@ export class VoteDetailComponent implements OnInit {
   unvote(): void {
     this.data.voted = false;
     this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== this.data.artwork.artworkId));
+  }
+
+  showOnMap() {
+    this.dialog.open(MapDialogComponent, {
+      width: '80%',
+      data: {latlng: {lat: parseFloat(this.data.artwork.latitude), lng: parseFloat(this.data.artwork.longitude)}} as MapDialogData
+    });
   }
 }

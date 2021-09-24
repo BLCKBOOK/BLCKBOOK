@@ -13,7 +13,8 @@ import {ImageDialogComponent, ImageDialogData} from '../image-dialog/image-dialo
 import {UploadedArtwork} from '../../../../../backend/src/common/tableDefinitions';
 import {ImageSizeService} from '../../services/image-size.service';
 import {SnackBarService} from '../../services/snack-bar.service';
-import {MapDialogComponent, MapLocation} from '../map-dialog/map-dialog.component';
+import {MapDialogComponent} from '../map-dialog/map-dialog.component';
+import {LatLng} from 'leaflet';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -159,7 +160,7 @@ export class ImageUploadComponent implements OnInit {
         const dialogRef = this.dialog.open(MapDialogComponent, {
           width: this.errorDialogSize
         });
-        dialogRef.afterClosed().subscribe((location: MapLocation) => {
+        dialogRef.afterClosed().subscribe((location: LatLng) => {
           if (location) {
             this.latitude = location.lat.toString();
             this.longitude = location.lng.toString();
