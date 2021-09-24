@@ -22,7 +22,7 @@
     "error-mime-header": "Not a valid image-type!",
     "error-mime-text": "An upload of this type of file is not allowed",
     "error-location-header": "No Location data",
-    "error-location-text": "The uploaded image must contain metadata of the image-location",
+    "error-location-text": "You must pick a location where the image was taken",
     "error-size-header": "Image too big",
     "error-size-text": "The image must be smaller than 10mb",
     "error-ratio-header": "Invalid Aspect-Ratio",

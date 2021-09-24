@@ -22,8 +22,8 @@
           <span>TIMESTAMP</span><span class="artwork-data">{{timeDisplay}}</span>
         </div>
       </div>
-      <!--<br>
-      <button mat-button>Show on map</button>-->
+      <br>
+      <button mat-button (click)="showOnMap()">Show on map</button>
     </div>
     <div class="share button-container">
       <button mat-icon-button [disabled]="false" (click)="copyToClipboard()">

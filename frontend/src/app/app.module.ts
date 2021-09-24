@@ -5,7 +5,7 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
-import {HTTP_INTERCEPTORS, HttpClient, HttpClientJsonpModule, HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from '@angular/common/http';
 import {NavigationComponent} from './components/navigation/navigation.component';
 import {MatButtonModule} from '@angular/material/button';
 import {MatToolbarModule} from '@angular/material/toolbar';
@@ -63,7 +63,7 @@ import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
 import {faEllipsisH} from '@fortawesome/free-solid-svg-icons/faEllipsisH';
 import { VoteDetailComponent } from './components/vote-detail/vote-detail.component';
 import { MapDialogComponent } from './components/map-dialog/map-dialog.component';
-import { GoogleMapsModule } from '@angular/google-maps'
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -94,8 +94,7 @@ Auth.configure(awsconfig);
     MapDialogComponent,
   ],
   imports: [
-    HttpClientJsonpModule,
-    GoogleMapsModule,
+    LeafletModule,
     MatDialogModule,
     BrowserModule,
     AppRoutingModule,
