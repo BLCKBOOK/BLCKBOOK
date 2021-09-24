@@ -9,3 +9,29 @@ x endpoint get my current voted artwork
 x endpoint get votable artwork by id (for sending individual info)
 T endpoint vote for artwork
 x hide info provided from getVotableArtworks
+
+
+image upload Terms and conditions
+signup login Terms and conditions
+blckbook logo
+landing page before login
+impressum
+create currentPeriod on deploy
+notifications
+
+domain registrieren
+endpoint getcurrentPeriod
+reset service data on logout
+resizing: image resizing is done independent from metadata rotaion info
+Select location from gmaps
+upload: persuade axel that it is not good to require metadata in immages for upload.
+buy fonts
+upload: refactor page for better UX 
+
+upload: file drag and drop
+home screen: display if you already uploaded an artwork
+save selected artworks in database
+upload: on mobile remove image enlarge dialog
+Email already exists error message
+voting icon
+Register/pw reset Emails aufhübschen

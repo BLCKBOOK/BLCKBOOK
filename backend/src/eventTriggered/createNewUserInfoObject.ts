@@ -37,6 +37,9 @@ const baseHandler = async (event, context) => {
       username: {
         S: username
       },
+      unseenNotifications: {
+        N: "0"
+      },
       uploadsDuringThisPeriod: {
         N: "0"
       }

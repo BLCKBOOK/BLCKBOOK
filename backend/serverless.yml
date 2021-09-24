@@ -21,6 +21,7 @@ custom:
   blckbook_user_pool: ${self:provider.stage}-blckbook-users
   period_table_name: period-table
   max_votes_per_user: 5
+  periodDuration: 604800 # time in seconds
   frontend_host_name: "*" # TODO change this to our domain as soon an we can move it 
   max_uploads_per_period: 1
   amplify:
