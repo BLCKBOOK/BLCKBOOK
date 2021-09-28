@@ -29,9 +29,16 @@ triggerNextPeriod:
     - Effect: Allow
       Action:
         - dynamodb:GetItem
+        - dynamodb:PutItem
         - dynamodb:UpdateItem
       Resource:
         - Fn::GetAtt: [ periodTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
+      Resource:
+        - Fn::GetAtt: [ archive, Arn ]                                                    
   events:
     - http:
         path: admin/triggerNextPeriod
