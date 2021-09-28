@@ -1,0 +1,22 @@
+.notification-text {
+  margin-bottom: .5em;
+}
+
+.notification-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-menu-item {
+  height: 100%;
+  max-height: 200px;
+  cursor: default;
+  line-height: unset;
+  white-space: inherit;
+}
+
+.icon-column {
+  align-self: center;
+}
+

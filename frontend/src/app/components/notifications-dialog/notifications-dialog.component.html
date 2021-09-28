@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>Notifications</h1>
+<mat-dialog-content>
+  <div *ngFor="let notification of (notifications | async); last as isLast">
+    <div class="notification-menu-item"
+         fxLayout="row">
+      <div fxLayout="column" class="left-column" fxFlex="1 1 calc(100% - 40px)">
+        <h4 class="notification-title">{{notification.title}}</h4>
+        <div class="notification-text">{{notification.body}}</div>
+      </div>
+      <div fxFlex="1 1 40px" class="icon-column">
+        <button mat-icon-button *ngIf="!notification.seen" (click)="markNotificationAsSeen(notification, $event)">
+          <fa-icon [icon]="faCheck"></fa-icon>
+        </button>
+      </div>
+    </div>
+    <mat-divider *ngIf="!isLast"></mat-divider>
+  </div>
+</mat-dialog-content>
+<div mat-dialog-actions>
+  <button mat-button [mat-dialog-close]="false">Close</button>
+</div>

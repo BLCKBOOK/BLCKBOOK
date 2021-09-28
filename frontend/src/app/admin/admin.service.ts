@@ -43,11 +43,9 @@ export class AdminService {
       if (outerValue.artworks.length < 20 && JSON.stringify(outerValue.lastKey) !== JSON.stringify(index) && outerValue.lastKey) {
         return this.getUncheckedArtworks(outerValue.lastKey).pipe(map(innerValue => {
           const lastKey = innerValue.lastKey ?? outerValue.lastKey;
-          console.log(lastKey?.uploaderId);
           return {artworks: outerValue.artworks.concat(...innerValue.artworks), lastKey: lastKey} as GetUploadedArtworksResponseBody;
         }));
       }
-      console.log(outerValue.lastKey?.uploaderId);
       return of(outerValue);
     }));
   }
