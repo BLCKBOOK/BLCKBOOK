@@ -27,6 +27,8 @@ Select location from gmaps
 upload: persuade axel that it is not good to require metadata in immages for upload.
 buy fonts
 upload: refactor page for better UX 
+remember accepting the Terms and conditions
+save period information in local storage. (this is necessary to reduce load on a single dynamodb partition.)
 
 upload: file drag and drop
 home screen: display if you already uploaded an artwork
