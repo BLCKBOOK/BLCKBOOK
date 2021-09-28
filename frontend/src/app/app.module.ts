@@ -65,6 +65,7 @@ import { VoteDetailComponent } from './components/vote-detail/vote-detail.compon
 import { MapDialogComponent } from './components/map-dialog/map-dialog.component';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { NotificationsDialogComponent } from './components/notifications-dialog/notifications-dialog.component';
+import {faMapMarkerAlt} from '@fortawesome/free-solid-svg-icons/faMapMarkerAlt';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -152,7 +153,8 @@ export class AppModule {
       faEdit,
       faShareAlt,
       faCheck,
-      faEllipsisH
+      faEllipsisH,
+      faMapMarkerAlt
     );
   }
 }

@@ -13,7 +13,7 @@ import {ImageDialogComponent, ImageDialogData} from '../image-dialog/image-dialo
 import {UploadedArtwork} from '../../../../../backend/src/common/tableDefinitions';
 import {ImageSizeService} from '../../services/image-size.service';
 import {SnackBarService} from '../../services/snack-bar.service';
-import {MapDialogComponent} from '../map-dialog/map-dialog.component';
+import {MapDialogComponent, MapDialogData} from '../map-dialog/map-dialog.component';
 import {LatLng} from 'leaflet';
 
 interface HTMLInputEvent extends Event {
@@ -40,6 +40,8 @@ export class ImageUploadComponent implements OnInit {
   faCamera = findIconDefinition({prefix: 'fas', iconName: 'camera'});
   faExpandArrowsAlt = findIconDefinition({prefix: 'fas', iconName: 'expand-arrows-alt'});
   faEdit = findIconDefinition({prefix: 'fas', iconName: 'edit'});
+  faTrash = findIconDefinition({prefix: 'fas', iconName: 'trash'});
+  faMapMarkerAlt = findIconDefinition({prefix: 'fas', iconName: 'map-marker-alt'});
   alreadyUploaded = false;
 
   private readonly maxRatio = 1.8;
@@ -158,7 +160,8 @@ export class ImageUploadComponent implements OnInit {
         };
       } else {
         const dialogRef = this.dialog.open(MapDialogComponent, {
-          width: this.errorDialogSize
+          width: '90%',
+          maxWidth: '90%'
         });
         dialogRef.afterClosed().subscribe((location: LatLng) => {
           if (location) {
@@ -238,14 +241,24 @@ export class ImageUploadComponent implements OnInit {
     }
   }
 
+  showOnMap() {
+    if (this.longitude && this.latitude) {
+      this.dialog.open(MapDialogComponent, {
+        width: '95%',
+        maxWidth: '95%',
+        data: {latlng: {lat: parseFloat(this.latitude ?? '0'), lng: parseFloat(this.longitude ?? '0')}} as MapDialogData
+      });
+    }
+  }
+
   deleteImage(): void {
+    this.imageInput.nativeElement.value = '';
+    this.resetImageVariables();
+    this.alreadyUploaded = false;
+    this.title = '';
+    this.url = undefined;
     this.imageUploadService.deleteCurrentlyUploadedImage().subscribe(value => {
       console.log(value);
-      this.imageInput.nativeElement.value = '';
-      this.resetImageVariables();
-      this.alreadyUploaded = false;
-      this.title = '';
-      this.url = undefined;
     });
   }
 

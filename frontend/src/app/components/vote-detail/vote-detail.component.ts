@@ -53,6 +53,7 @@ export class VoteDetailComponent implements OnInit {
   showOnMap() {
     this.dialog.open(MapDialogComponent, {
       width: '100%',
+      maxWidth: '100%',
       data: {latlng: {lat: parseFloat(this.data.artwork.latitude), lng: parseFloat(this.data.artwork.longitude)}} as MapDialogData
     });
   }

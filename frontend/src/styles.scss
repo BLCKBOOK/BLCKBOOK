@@ -212,6 +212,7 @@ body {
 
   --dark-primary-text: #{$dark-primary-text};
   --dark-disabled-text: #{$dark-disabled-text};
+  --light-disabled-text: #{$light-disabled-text};
 }
 
 :root {
@@ -282,3 +283,6 @@ mat-menu {
   color: white;
 }
 
+.my-raised-button {
+  box-shadow: 0 3px 1px -2px rgb(255 255 255 / 20%), 0px 2px 2px 0px rgb(255 255 255 / 14%), 0px 1px 5px 0px rgb(255 255 255 / 12%) !important;
+}

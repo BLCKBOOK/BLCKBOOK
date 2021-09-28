@@ -4,8 +4,8 @@
     <div class="notification-menu-item"
          fxLayout="row">
       <div fxLayout="column" class="left-column" fxFlex="1 1 calc(100% - 40px)">
-        <h4 class="notification-title">{{notification.title}}</h4>
-        <div class="notification-text">{{notification.body}}</div>
+        <h4 class="notification-title" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.title}}</h4>
+        <div class="notification-text" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
       </div>
       <div fxFlex="1 1 40px" class="icon-column">
         <button mat-icon-button *ngIf="!notification.seen" (click)="markNotificationAsSeen(notification, $event)">

@@ -2,7 +2,7 @@
   <mat-card-header class="welcome-line">
     <app-bob-text [text]="'upload.header' | translate"></app-bob-text>
   </mat-card-header>
-  <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container"
+  <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap.xs="0" fxLayoutGap.sm="0" fxLayoutGap="2em"
        *ngIf="!currentlyUploading; else: showSpinner">
     <div fxFlex="1 1 50%">
       <button *ngIf="!this.image && !this.alreadyUploaded; else stagedImage" mat-raised-button class="upload-button"
@@ -15,8 +15,8 @@
         </fa-stack>
       </button>
       <ng-template #stagedImage>
-        <div>
-          <img [src]="url" [srcset]="srcSet" width="100%" #image
+        <div class="upload-image-container">
+          <img [src]="url" [srcset]="srcSet" class="big-image" #image
                [sizes]="'(min-width: 960px) calc(50vw - 88px), calc(100vw-44px)'" alt="'Upload'">
         </div>
         <div fxLayout="row" fxLayoutAlign='space-evenly center'>
@@ -26,10 +26,16 @@
           <button *ngIf="!alreadyUploaded" mat-icon-button (click)="file.click()">
             <fa-icon [icon]="faEdit"></fa-icon>
           </button>
+          <button *ngIf="alreadyUploaded" mat-icon-button (click)="deleteImage()">
+            <fa-icon [icon]="faTrash"></fa-icon>
+          </button>
+          <button *ngIf="alreadyUploaded" mat-icon-button (click)="showOnMap()">
+            <fa-icon [icon]="faMapMarkerAlt"></fa-icon>
+          </button>
         </div>
       </ng-template>
       <input
-        type="file" id="fileInput" name="fileInput" accept="image/gif, image/jpeg, image/png" capture="camera" #file
+        type="file" id="fileInput" name="fileInput" accept="image/gif, image/jpeg, image/png" #file
         (change)="imageChanged($event)">
     </div>
     <div class="meta-data-display" fxFlex="1 1 50%">
@@ -71,11 +77,11 @@
   </div>
   <mat-card-actions>
     <div *ngIf="!alreadyUploaded; else: deleteUpload">
-      <button mat-raised-button (click)="submitImage()"
+      <button mat-raised-button class="my-raised-button" (click)="submitImage()"
               [disabled]="!(image && latitude && longitude && acceptTerms && !currentlyUploading)">{{'upload.submit' | translate}}</button>
     </div>
     <ng-template #deleteUpload>
-      <button mat-raised-button (click)="deleteImage()">{{'upload.delete' | translate}}</button>
+      <button mat-raised-button class="my-raised-button" (click)="deleteImage()">{{'upload.delete' | translate}}</button>
     </ng-template>
   </mat-card-actions>
 </mat-card>
