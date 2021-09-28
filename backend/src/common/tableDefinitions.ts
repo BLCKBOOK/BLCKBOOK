@@ -12,6 +12,7 @@ export interface UserInfo {
   votes: string[],
   userId: string,
   banned?: boolean,
+  unseenNotifications: number,
   currentUpload?: { signedUploadUrl: string, expiryDate: string }
   walletId?: string
 }
@@ -83,4 +84,35 @@ export interface Notification {
 export interface NotificationIndex {
   userId: string,
   timestamp: string,
+}
+
+export interface Period {
+  periodId: string,
+  StartingDate: string,
+  EndingDate: string,
+  votePageCount: number  
+}
+
+export interface PeriodIndex {
+  periodId: string,
+}
+
+export interface Archive {
+  artworkId: string // PK
+  uploaderId: string,
+  imageUrls: { [Key: string]: string }
+  uploader: string
+  uploadTimestamp: string
+  geoHash: string
+  longitude: string
+  latitude: string
+  contentType: string
+  title?: string
+  artist?: string
+  votes: [string]
+  periodId: string 
+}
+
+export interface ArchiveIndex {
+  periodId: string,
 }
