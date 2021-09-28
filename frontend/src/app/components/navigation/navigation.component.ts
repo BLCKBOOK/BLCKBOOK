@@ -4,7 +4,10 @@ import {Observable} from 'rxjs';
 import {AuthState} from '@aws-amplify/ui-components';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {Router} from '@angular/router';
-import {BlckNotification, NotificationService} from '../../services/notification.service';
+import {NotificationService} from '../../services/notification.service';
+import {Notification} from '../../../../../backend/src/common/tableDefinitions';
+import {MatDialog} from '@angular/material/dialog';
+import {NotificationsDialogComponent} from '../notifications-dialog/notifications-dialog.component';
 
 @Component({
   selector: 'app-navigation',
@@ -21,14 +24,14 @@ export class NavigationComponent implements OnInit {
   public authState$: Observable<AuthState>;
   isAdmin$: Observable<boolean>;
   unreadNotifications: Observable<number>;
-  notifications: Observable<BlckNotification[]>;
+  notifications: Observable<Notification[]>;
 
   constructor(private userService: UserService, private ref: ChangeDetectorRef, private router: Router,
-              private notificationService: NotificationService) {
+              private notificationService: NotificationService, private dialog: MatDialog) {
     this.authState$ = this.userService.getAuthState();
     this.isAdmin$ = this.userService.isAdmin();
     this.unreadNotifications = this.notificationService.getUnreadNotificationsNumber();
-    this.notifications = this.notificationService.getNotifications();
+    this.notifications = this.notificationService.getAFewNotifications(5);
   }
 
   ngOnInit() {
@@ -48,7 +51,17 @@ export class NavigationComponent implements OnInit {
     });
   }
 
-  openNotificationMenu() {
+  openNotificationsDialog() {
+    this.dialog.open(NotificationsDialogComponent, {
+      width: '90%',
+      maxWidth: '90%',
+      maxHeight: '100%',
+    });
+  }
 
+  markNotificationAsSeen(notification: Notification, $event: MouseEvent) {
+    $event.preventDefault();
+    $event.stopPropagation();
+    this.notificationService.setNotificationSeen(notification);
   }
 }

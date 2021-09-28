@@ -64,6 +64,8 @@ import {faEllipsisH} from '@fortawesome/free-solid-svg-icons/faEllipsisH';
 import { VoteDetailComponent } from './components/vote-detail/vote-detail.component';
 import { MapDialogComponent } from './components/map-dialog/map-dialog.component';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { NotificationsDialogComponent } from './components/notifications-dialog/notifications-dialog.component';
+import {faMapMarkerAlt} from '@fortawesome/free-solid-svg-icons/faMapMarkerAlt';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -92,6 +94,7 @@ Auth.configure(awsconfig);
     DetailViewDialogComponent,
     VoteDetailComponent,
     MapDialogComponent,
+    NotificationsDialogComponent,
   ],
   imports: [
     LeafletModule,
@@ -150,7 +153,8 @@ export class AppModule {
       faEdit,
       faShareAlt,
       faCheck,
-      faEllipsisH
+      faEllipsisH,
+      faMapMarkerAlt
     );
   }
 }

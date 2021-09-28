@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {AuthState, CognitoUserInterface, onAuthUIStateChange} from '@aws-amplify/ui-components';
-import {BehaviorSubject, from, Observable, of} from 'rxjs';
+import {BehaviorSubject, from, interval, Observable, of} from 'rxjs';
 import Auth from '@aws-amplify/auth';
 import {LoggerService} from './logger.service';
 import {catchError, map} from 'rxjs/operators';
@@ -17,6 +17,7 @@ export class UserService {
   private authState: BehaviorSubject<AuthState>;
   private readonly userInfoAPIURL = environment.urlString + '/user';
   private readonly getUserInfoURL = '/getMyUserInfo';
+  private userInfo: BehaviorSubject<UserInfo | undefined> = new BehaviorSubject<UserInfo | undefined>(undefined);
 
   constructor(private logger: LoggerService, private httpClient: HttpClient) {
     console.log('called user-service constructor');
@@ -33,6 +34,10 @@ export class UserService {
         this.user.next(authData as CognitoUserInterface);
       }
     });
+    this.updateUserInfo();
+    interval(60000).subscribe(() => {
+      this.updateUserInfo();
+    })
   }
 
   public getAuthState(): Observable<AuthState> {
@@ -84,5 +89,15 @@ export class UserService {
 
   public requestUserInfo(): Observable<UserInfo> {
     return this.httpClient.get<UserInfo>(this.userInfoAPIURL + this.getUserInfoURL);
+  }
+
+  private updateUserInfo() {
+    this.requestUserInfo().subscribe(userInfo => {
+      this.userInfo.next(userInfo);
+    })
+  }
+
+  getUserInfo(): Observable<UserInfo | undefined> {
+    return this.userInfo.pipe();
   }
 }
