@@ -12,39 +12,48 @@ import RequestLogger from "../common/RequestLogger";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
-async function createNewPeriod(nextPeriodEndingDate: string) {
+async function createNewPeriod() {
   // get current period
   let getPeriodCommand = new GetItemCommand({
     TableName: process.env['PERIOD_TABLE_NAME'],
     Key: marshall({ periodId: 'current' }),
   })
-  const period = await (await DDBclient.send(getPeriodCommand)).Item
+  const oldPeriod = await (await DDBclient.send(getPeriodCommand)).Item
   const now = Number(new Date()).toString()
-  const oldPeriod = uuid();
+  const oldPeriodUUID = uuid();
 
   // if a current period exists copy it to another entry in the period table
-  if (period) {
-    period.periodId.S = oldPeriod;
+  if (oldPeriod) {
+    oldPeriod.periodId.S = oldPeriodUUID;
+    oldPeriod.endingDate = { N: now };
 
     let updateCommand = new PutItemCommand({
       TableName: process.env['PERIOD_TABLE_NAME'],
-      Item: period
+      Item: oldPeriod
     })
     await DDBclient.send(updateCommand)
   }
-
   // create a new period
-  let createNewPeriod = new PutItemCommand({
+  console.log(Number(now))
+  console.log(Number(process.env['PERIOD_DURATION']))
+  console.log(Number(now) + Number(process.env['PERIOD_DURATION']))
+
+  const newEndingDate = Number(now) + Number(process.env['PERIOD_DURATION'])
+  let createNewPeriodCommand = new PutItemCommand({
     TableName: process.env['PERIOD_TABLE_NAME'],
-    Item: marshall({ periodId: 'current', startingDate: now, endingDate: nextPeriodEndingDate })
+    Item: marshall({ periodId: 'current', startingDate: now, endingDate: newEndingDate })
   })
-  await DDBclient.send(createNewPeriod)
-  return oldPeriod
+  await DDBclient.send(createNewPeriodCommand)
+  return oldPeriodUUID
 }
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   let lastKey = undefined as any;
   let votesTableName = process.env['VOTE_PAGES_TABLE_NAME'] as string
+  let archiveTableName = process.env['ARCHIVE_TABLE_NAME'] as string
+  const oldPeriodUUID = await createNewPeriod()
+
+  // write artworks to archive table
   while (true) {
     let scanVotes = new ScanCommand({
       TableName: votesTableName,
@@ -57,10 +66,17 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
       break
     const batchWriteCommand = new BatchWriteItemCommand({
       RequestItems: {
-        [votesTableName]: returnedItems.Items.map(art => { return { DeleteRequest: { Key: { artworkId: art.artworkId } } } })
+        [archiveTableName]: returnedItems.Items.map(art => { return { PutRequest: { Item: { ...art, periodId: { S: oldPeriodUUID } } } } })
       }
     })
     await DDBclient.send(batchWriteCommand)
+    console.log("artworks written")
+    const batchDeleteCommand = new BatchWriteItemCommand({
+      RequestItems: {
+        [votesTableName]: returnedItems.Items.map(art => { return { DeleteRequest: { Key: { artworkId: art.artworkId } } } })
+      }
+    })
+    await DDBclient.send(batchDeleteCommand)
   }
 
   lastKey = undefined;
@@ -133,7 +149,6 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     ExpressionAttributeValues: marshall({ ':newVotePageCount': pagenumber - 1 })
   })
   await DDBclient.send(updateCommand)
-
   return { statusCode: 200, headers: { "content-type": "application/json" }, body: "OK" };
 }
 
