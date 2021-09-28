@@ -1,0 +1,20 @@
+getCurrentPeriod:
+  handler: src/rest/period/getCurrentPeriod/get.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ periodTable, Arn ]
+  events:
+    - http:
+        path: period/getCurrentPeriod
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: get
+        cors: true

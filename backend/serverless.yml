@@ -72,6 +72,7 @@ functions:
   - ${file(./src/rest/vote/getMyVotes/config.yml)}
   - ${file(./src/rest/vote/getMyProposition/config.yml)}
   - ${file(./src/rest/notifications/config.yml)}
+  - ${file(./src/rest/period/getCurrentPeriod/config.yml)}
   
 resources:
   Resources:
