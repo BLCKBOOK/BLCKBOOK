@@ -34,7 +34,7 @@ export class UserService {
         this.user.next(authData as CognitoUserInterface);
       }
     });
-
+    this.updateUserInfo();
     interval(60000).subscribe(() => {
       this.updateUserInfo();
     })
