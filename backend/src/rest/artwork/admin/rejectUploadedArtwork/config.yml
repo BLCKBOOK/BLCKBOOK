@@ -16,6 +16,7 @@ adminDeleteUploadedArtwork:
     - Effect: Allow
       Action:
         - dynamodb:PutItem
+        - dynamodb:UpdateItem
         - dynamodb:GetItem
       Resource:
         - Fn::GetAtt: [ userInfoTable, Arn ]

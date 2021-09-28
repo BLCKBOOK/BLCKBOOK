@@ -14,7 +14,7 @@ import { LambdaResponseToApiGw } from "../../../../common/lambdaResponseToApiGw"
 import RequestLogger from "../../../../common/RequestLogger";
 import { deleteArtwork } from "../../../../common/actions/deleteUploadedArtwork";
 import AuthMiddleware from "../../../../common/AuthMiddleware";
-
+import {createNotification} from "../../../../common/actions/createNotification";
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] });
 
@@ -42,8 +42,9 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     ConditionExpression: "uploadsDuringThisPeriod = :oldUploadCount",
     ExpressionAttributeValues: marshall({ ":oldUploadCount": oldUploadCount })
   })
-
   await DDBclient.send(updateUploadCountCommand)
+
+  createNotification({body:'Your upload did not meet the minimum quality requirements and has been deleted. Your may upload another image during this period.',title:'Upload rejected',type:'message',userId:body.uploaderId},DDBclient)
 
   console.debug("Item was successfully deleted")
   return { statusCode: 200, headers: { "content-type": "text/plain" }, body: "Item was successfully deleted" };
