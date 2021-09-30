@@ -10,6 +10,6 @@
   </div>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="">Close</button>
-  <button mat-button [mat-dialog-close]="currentLocation" *ngIf="!data">Use Location</button>
+  <button mat-raised-button [mat-dialog-close]="">Close</button>
+  <button mat-raised-button [mat-dialog-close]="currentLocation" *ngIf="!data" [disabled]="markers.length === 0">Use Location</button>
 </mat-dialog-actions>

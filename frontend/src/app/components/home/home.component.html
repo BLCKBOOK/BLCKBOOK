@@ -2,21 +2,21 @@
   <app-bob-text [text]="('home.welcome' | translate) + ' ' + username"></app-bob-text>
 </div>
 <div class="button-container" fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayout.md="column" fxLayoutGap="2em">
-  <button routerLink="/upload" class="navigate-button" mat-raised-button fxFlex="1 1 33%">
+  <button routerLink="/upload" class="navigate-button" mat-flat-button fxFlex="1 1 33%">
     <div>
-      <span>Some Image Upload Text</span>
+      <app-bob-text [text]="startTime + ' - ' + endTime"></app-bob-text>
     </div>
     <fa-stack class="my-fa-stack">
       <fa-icon [icon]="faImage" stackItemSize="2x"></fa-icon>
      <!-- <fa-icon [icon]="faUpload" stackItemSize="1x" [inverse]="true"></fa-icon>-->
     </fa-stack>
   </button>
-  <button routerLink="/voting" class="navigate-button" mat-raised-button fxFlex="1 1 33%">
+  <button routerLink="/voting" class="navigate-button" mat-flat-button fxFlex="1 1 33%">
     <div>
       <span>Some Voting text</span>
     </div>
   </button>
-  <button mat-raised-button class="navigate-button" fxFlex="1 1 33%" [disabled]="true">
+  <button mat-flat-button class="navigate-button" fxFlex="1 1 33%" [disabled]="true">
     <div>
       <span>Some Territory Text (not available)</span>
     </div>

@@ -21,9 +21,8 @@
         <div class="line-container">
           <span>TIMESTAMP</span><span class="artwork-data">{{timeDisplay}}</span>
         </div>
+        <button class="button-container" mat-raised-button (click)="showOnMap()">Show on map</button>
       </div>
-      <br>
-      <button mat-button (click)="showOnMap()">Show on map</button>
     </div>
     <div class="share button-container">
       <button mat-icon-button [disabled]="false" (click)="copyToClipboard()">
@@ -31,14 +30,14 @@
         </fa-icon>
       </button>
     </div>
-    <button mat-button class="vote-button button-container" *ngIf="!data.voted" (click)="vote()"
+    <button mat-raised-button class="vote-button button-container" *ngIf="!data.voted" (click)="vote()"
             [disabled]="alreadyVoted$ | async">
       Select for Vote
       <fa-stack>
         <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
       </fa-stack>
     </button>
-    <button mat-button class="vote-button button-container" *ngIf="data.voted" (click)="unvote()"
+    <button mat-raised-button class="vote-button button-container" *ngIf="data.voted" (click)="unvote()"
             [disabled]="alreadyVoted$ | async">
       Deselect
       <fa-stack>

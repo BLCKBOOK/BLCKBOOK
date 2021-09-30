@@ -33,7 +33,7 @@ export class VotingComponent {
       .pipe(map(([totalVoteAmount, votesSpend, voted]) => {
         if (voted) {
           this.alreadyVoted$.next(true);
-          this.snackBarService.openSnackBarWithoutAction('You already voted this period', 2000);
+          this.snackBarService.openSnackBar('You already voted this period', 'Got it');
         }
         return votesSpend === 0 || totalVoteAmount < votesSpend || voted;
       }, startWith(false)));

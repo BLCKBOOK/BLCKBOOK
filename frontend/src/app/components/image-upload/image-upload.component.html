@@ -5,7 +5,7 @@
   <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap.xs="0" fxLayoutGap.sm="0" fxLayoutGap="2em"
        *ngIf="!currentlyUploading; else: showSpinner">
     <div fxFlex="1 1 50%">
-      <button *ngIf="!this.image && !this.alreadyUploaded; else stagedImage" mat-raised-button class="upload-button"
+      <button *ngIf="!this.image && !this.alreadyUploaded; else stagedImage" mat-flat-button class="upload-button"
               (click)="file.click()">
         <p>
           <span> some date info</span>
