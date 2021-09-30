@@ -37,3 +37,7 @@ upload: on mobile remove image enlarge dialog
 Email already exists error message
 voting icon
 Register/pw reset Emails aufhübschen
+
+currentPeriod:
+change all date types to number (endingDate and startingDate) and also send both as number
+uploadTimestamp change datatype to number in the interface
