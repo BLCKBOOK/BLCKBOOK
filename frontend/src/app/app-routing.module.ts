@@ -1,8 +1,8 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
-import {AuctionComponent} from './components/auction/auction.component';
-import {GalleryComponent} from './components/gallery/gallery.component';
+import {AuctionComponent} from './auction/auction.component';
+import {GalleryComponent} from './gallery/gallery.component';
 import {AdminAuthGuardService, AuthGuardService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
 import {VotingComponent} from './components/voting/voting.component';
@@ -31,6 +31,8 @@ const routes: Routes = [
     canActivate: [AdminAuthGuardService],
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
   },
+  { path: 'auction', loadChildren: () => import('./auction/auction.module').then(m => m.AuctionModule) },
+  { path: 'gallery', loadChildren: () => import('./gallery/gallery.module').then(m => m.GalleryModule) },
 ];
 
 @NgModule({

@@ -14,8 +14,6 @@ import {MatIconModule} from '@angular/material/icon';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {BobTextComponent} from './components/bob-text/bob-text.component';
 import {HomeComponent} from './components/home/home.component';
-import {AuctionComponent} from './components/auction/auction.component';
-import {GalleryComponent} from './components/gallery/gallery.component';
 import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
 import {MatDialogModule} from '@angular/material/dialog';
@@ -80,8 +78,6 @@ Auth.configure(awsconfig);
     NavigationComponent,
     BobTextComponent,
     HomeComponent,
-    AuctionComponent,
-    GalleryComponent,
     WelcomeComponent,
     ImageUploadComponent,
     VotingComponent,
