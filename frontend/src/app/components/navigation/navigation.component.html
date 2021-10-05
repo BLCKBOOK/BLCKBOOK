@@ -46,9 +46,14 @@
           </div>
           <mat-divider></mat-divider>
         </div>
-        <button mat-button class="mat-menu-item" fxLayout="row" fxLayoutAlign="space-evenly center" (click)="openNotificationsDialog()">
-          <fa-icon [icon]="faEllipsisH"></fa-icon>
-        </button>
+        <div *ngIf="(notifications | async)?.length === 0; else: expandNotificationsButton" class="mat-menu-item">
+          <span>You currently don't have any notifications</span>
+        </div>
+        <ng-template #expandNotificationsButton>
+          <button mat-button class="mat-menu-item" fxLayout="row" fxLayoutAlign="space-evenly center" (click)="openNotificationsDialog()">
+            <fa-icon [icon]="faEllipsisH"></fa-icon>
+          </button>
+        </ng-template>
       </mat-menu>
       <button mat-icon-button [matMenuTriggerFor]="profileMenu">
         <fa-icon [icon]="faUserCircle"></fa-icon>

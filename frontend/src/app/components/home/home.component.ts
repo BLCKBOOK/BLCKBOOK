@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {LoggerService} from '../../services/logger.service';
 import {UserService} from '../../services/user.service';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {SnackBarService} from '../../services/snack-bar.service';
@@ -18,7 +17,7 @@ export class HomeComponent implements OnInit {
   endTime: string;
   startTime: string;
 
-  constructor(private logger: LoggerService, private userService: UserService, private snackBarService: SnackBarService,
+  constructor(private userService: UserService, private snackBarService: SnackBarService,
               private periodService: PeriodService) {
     this.username = '';
   }

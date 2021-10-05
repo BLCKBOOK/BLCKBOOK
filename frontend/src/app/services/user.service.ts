@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {AuthState, CognitoUserInterface, onAuthUIStateChange} from '@aws-amplify/ui-components';
 import {BehaviorSubject, from, interval, Observable, of} from 'rxjs';
 import Auth from '@aws-amplify/auth';
-import {LoggerService} from './logger.service';
 import {catchError, map} from 'rxjs/operators';
 import {UserInfo} from '../../../../backend/src/common/tableDefinitions';
 import {HttpClient} from '@angular/common/http';
@@ -19,14 +18,14 @@ export class UserService {
   private readonly getUserInfoURL = '/getMyUserInfo';
   private userInfo: BehaviorSubject<UserInfo | undefined> = new BehaviorSubject<UserInfo | undefined>(undefined);
 
-  constructor(private logger: LoggerService, private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient) {
     console.log('called user-service constructor');
     this.user = new BehaviorSubject<CognitoUserInterface | undefined>(undefined);
     this.authState = new BehaviorSubject<AuthState>(AuthState.SignedOut);
     Auth.currentAuthenticatedUser().then(user => {
       this.user.next(user);
       this.authState.next(AuthState.SignedIn);
-    }).catch(reason => this.logger.log(reason));
+    }).catch(reason => console.log(reason));
     onAuthUIStateChange((authState: AuthState, authData: any) => {
       console.log(authState);
       if (this.authState.getValue() !== authState) { // this sometimes gets triggered twice with the same state

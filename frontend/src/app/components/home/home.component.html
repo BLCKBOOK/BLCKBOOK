@@ -4,12 +4,12 @@
 <div class="button-container" fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayout.md="column" fxLayoutGap="2em">
   <button routerLink="/upload" class="navigate-button" mat-flat-button fxFlex="1 1 33%">
     <div>
-      <app-bob-text [text]="startTime + ' - ' + endTime"></app-bob-text>
+      <app-bob-text [text]="startTime + ' - \n' + endTime"></app-bob-text>
     </div>
     <fa-stack class="my-fa-stack">
       <fa-icon [icon]="faImage" stackItemSize="2x"></fa-icon>
-     <!-- <fa-icon [icon]="faUpload" stackItemSize="1x" [inverse]="true"></fa-icon>-->
     </fa-stack>
+    <div>SPOT YOUR TAG THIS WEEK</div>
   </button>
   <button routerLink="/voting" class="navigate-button" mat-flat-button fxFlex="1 1 33%">
     <div>
