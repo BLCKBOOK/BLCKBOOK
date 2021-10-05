@@ -3,7 +3,6 @@ import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
 import {AdminAuthGuardService, AuthGuardService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
-import {VotingComponent} from './components/voting/voting.component';
 import {UploadedImageResolver} from './services/data-resolver';
 
 const routes: Routes = [
@@ -14,8 +13,6 @@ const routes: Routes = [
       uploadedImage: UploadedImageResolver
     }
   },
-  {path: 'voting', component: VotingComponent, canActivate: [AuthGuardService]},
-  {path: 'voting/:id', component: VotingComponent, canActivate: [AuthGuardService]},
   {
     path: 'wallet',
     canActivate: [AuthGuardService],
@@ -29,6 +26,7 @@ const routes: Routes = [
   },
   { path: 'auction', loadChildren: () => import('./auction/auction.module').then(m => m.AuctionModule) },
   { path: 'gallery', loadChildren: () => import('./gallery/gallery.module').then(m => m.GalleryModule) },
+  { path: 'voting', loadChildren: () => import('./voting/voting.module').then(m => m.VotingModule) },
 ];
 
 @NgModule({

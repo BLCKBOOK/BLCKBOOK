@@ -3,10 +3,10 @@ import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
 import {Clipboard} from '@angular/cdk/clipboard';
 import {SnackBarService} from '../../services/snack-bar.service';
-import {VotingService} from '../../services/voting.service';
+import {VotingService} from '../voting.service';
 import {Observable} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {MapDialogComponent, MapDialogData} from '../map-dialog/map-dialog.component';
+import {MapDialogComponent, MapDialogData} from '../../components/map-dialog/map-dialog.component';
 
 @Component({
   selector: 'app-vote-detail',
@@ -14,7 +14,6 @@ import {MapDialogComponent, MapDialogData} from '../map-dialog/map-dialog.compon
   styleUrls: ['./vote-detail.component.scss']
 })
 export class VoteDetailComponent implements OnInit {
-
 
   @Input() data: VoteDetailData;
 

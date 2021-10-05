@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {MasonryItem} from '../components/scroll/scroll.component';
+import {MasonryItem} from './scroll/scroll.component';
 import {map} from 'rxjs/operators';
 import { VotableArtwork } from '../../../../backend/src/common/tableDefinitions';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
-import {ImageSizeService} from './image-size.service';
-import {SnackBarService} from './snack-bar.service';
+import {ImageSizeService} from '../services/image-size.service';
+import {SnackBarService} from '../services/snack-bar.service';
 
 @Injectable({
   providedIn: 'root'
