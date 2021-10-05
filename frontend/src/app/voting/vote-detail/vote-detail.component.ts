@@ -35,7 +35,7 @@ export class VoteDetailComponent implements OnInit {
 
 
   copyToClipboard() {
-    this.clipboard.copy(window.location.host + '/voting/' + this.data.artwork.artworkId);
+    this.clipboard.copy(window.location.href);
     this.snackBarService.openSnackBarWithoutAction('Url copied to clipboard', 2000);
   }
 
