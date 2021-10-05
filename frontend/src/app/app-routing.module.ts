@@ -1,8 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
-import {AuctionComponent} from './auction/auction.component';
-import {GalleryComponent} from './gallery/gallery.component';
 import {AdminAuthGuardService, AuthGuardService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
 import {VotingComponent} from './components/voting/voting.component';
@@ -11,8 +9,6 @@ import {UploadedImageResolver} from './services/data-resolver';
 const routes: Routes = [
   {path: '', component: HomeComponent, canActivate: [AuthGuardService]},
   {path: 'home', component: HomeComponent, canActivate: [AuthGuardService]},
-  {path: 'auction', component: AuctionComponent},
-  {path: 'gallery', component: GalleryComponent},
   {
     path: 'upload', component: ImageUploadComponent, canActivate: [AuthGuardService], resolve: {
       uploadedImage: UploadedImageResolver
