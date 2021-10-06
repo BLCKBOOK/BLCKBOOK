@@ -50,7 +50,7 @@ export class AdminComponent implements OnInit {
       this.pageCounter = 0;
     }
     this.loading = true;
-    const lastIndex = this.uploadIndexes[this.uploadIndexes.length - 1]
+    const lastIndex = this.uploadIndexes[this.uploadIndexes.length - 1];
     this.getArtworks(lastIndex).subscribe(artworks => {
       if (!initialLoad && !this.alreadyReachedEnd) {
         console.log('increased page counter');
@@ -142,10 +142,32 @@ export class AdminComponent implements OnInit {
       return {
         artwork: artwork,
         src: this.imageSizeService.getOriginalString(artwork.imageUrls),
-        srcSet: this.imageSizeService.calculateSrcSetString(artwork.imageUrls)} as DisplayedArtwork});
+        srcSet: this.imageSizeService.calculateSrcSetString(artwork.imageUrls)
+      } as DisplayedArtwork;
+    });
   }
 
   saveImageHeight() {
     localStorage.setItem(this.adminImageSizeKey, this.imageHeight.toString());
+  }
+
+  triggerNextPeriod() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '250px',
+      data: {
+        text: 'This will trigger the next Period and can not be undone. You will need to reload to see the changes',
+        header: 'Confirm next Period',
+        action: 'Yes, next!'
+      } as ConfirmDialogData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.adminService.triggerNextPeriod().subscribe(val => {
+          console.log(val);
+          console.log('next period triggered');
+        });
+      }
+    });
   }
 }

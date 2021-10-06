@@ -12,13 +12,18 @@ import {map, switchMap} from 'rxjs/operators';
 })
 export class AdminService {
 
-  private readonly artworkAdminURL = environment.urlString + '/artwork/admin';
+  // There are 3 different endpoints.
+
+  private readonly artworkAdminURL = environment.urlString + '/artwork/admin'; // artwork endpoint
   private readonly getArtworksURL = '/getUploadedArtworks';
   private readonly getUncheckedArtworksURL = '/getUncheckedUploadedArtworks';
   private readonly rejectArtworkURL = '/rejectUploadedArtwork';
   private readonly updateArtworkURL = '/updateUploadedArtwork';
-  private readonly userAdminURL = environment.urlString + '/user/admin';
 
+  private readonly adminURL = environment.urlString + '/admin' // plain admin endpoint
+  private readonly triggerNextPeriodURL = '/triggerNextPeriod';
+
+  private readonly userAdminURL = environment.urlString + '/user/admin'; // user-admin endpoint
   private readonly banUserURL = '/banUser';
 
 
@@ -67,5 +72,9 @@ export class AdminService {
       userId: artwork.uploaderId,
     }
     return this.httpClient.post(this.userAdminURL + this.banUserURL, index, {responseType: 'text'});
+  }
+
+  public triggerNextPeriod(): Observable<string> {
+    return this.httpClient.post(this.adminURL + this.triggerNextPeriodURL, '', {responseType: 'text'})
   }
 }

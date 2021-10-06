@@ -10,6 +10,7 @@
   </mat-form-field>
   <button mat-button (click)="saveImageHeight()">saveHeight</button>
   <span class="admin-control">Currently displayed: {{artworks.length}}</span>
+  <button mat-button (click)="triggerNextPeriod()">next Period</button>
   <table mat-table [dataSource]="artworks" class="mat-elevation-z8" #table>
 
     <!--- Note that these columns can be defined in any order.
