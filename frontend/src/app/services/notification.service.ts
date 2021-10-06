@@ -6,6 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {Notification} from '../../../../backend/src/common/tableDefinitions';
 import urlencode from 'urlencode';
 import {UserService} from './user.service';
+import {UpdateService} from './update.service';
 
 export interface LastKey {
   userId: string,
@@ -29,17 +30,18 @@ export class NotificationService {
   notifications: BehaviorSubject<Notification[]> = new BehaviorSubject<Notification[]>([]);
   private unreadNotifications$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
-  constructor(private httpClient: HttpClient, private userService: UserService) {
-    this.userService.requestUserInfo().subscribe(userInfo => this.unreadNotifications$.next(userInfo.unseenNotifications));
-    this.userService.getUserInfo()
-      .subscribe(userInfo => {
-        if (userInfo && userInfo.unseenNotifications && userInfo.unseenNotifications !== this.unreadNotifications$.getValue()) {
-          console.log('reloaded all notifications');
-          this.unreadNotifications$.next(userInfo.unseenNotifications);
-          this.updateAllNotifications();
-        }
-      });
-    this.updateAllNotifications();
+  constructor(private httpClient: HttpClient, private userService: UserService, private updateService: UpdateService) {
+    // we update the notifications on every update-event. Sadly an update-event also triggers a user-info event.
+    // But not every user-info event triggers the update-event -> therefore we sometimes load all notifications.
+    this.userService.getUserInfo().subscribe(userInfo => {
+      if (userInfo.unseenNotifications && userInfo.unseenNotifications !== this.unreadNotifications$.getValue()) {
+        this.unreadNotifications$.next(userInfo.unseenNotifications);
+        this.updateAllNotifications();
+      }
+    });
+    this.updateService.getUpdateEvent$().subscribe(() => {
+      this.updateAllNotifications();
+    });
   }
 
   /**

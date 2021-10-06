@@ -25,7 +25,7 @@ export class AdminAuthGuardService implements CanActivate {
   }
 
   canActivate(): Observable<boolean> {
-    return this.userService.isAdmin().pipe(map(admin => {
+    return this.userService.adminCheckForRouting().pipe(map(admin => {
       if (!admin) {
         this.router.navigate(['login']);
       }

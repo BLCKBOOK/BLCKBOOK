@@ -1,5 +1,5 @@
 <div class="welcome-line">
-  <app-bob-text [text]="('home.welcome' | translate) + ' ' + username"></app-bob-text>
+  <app-bob-text [text]="('home.welcome' | translate) + ' ' + (username | async)"></app-bob-text>
 </div>
 <div class="button-container" fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayout.md="column" fxLayoutGap="2em">
   <button routerLink="/upload" class="navigate-button" mat-flat-button fxFlex="1 1 33%">

@@ -119,10 +119,6 @@ Auth.configure(awsconfig);
     [AuthGuardService, AdminAuthGuardService, MatSnackBar]
   ],
   bootstrap: [AppComponent],
-  exports: [
-    BobTextComponent,
-    MapDialogComponent,
-  ]
 })
 export class AppModule {
   constructor() {

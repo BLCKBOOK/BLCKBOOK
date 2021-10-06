@@ -7,6 +7,7 @@ import {UploadedArtwork} from '../../../../backend/src/common/tableDefinitions';
 import {UpdateUploadedArtworksResponseBody} from '../../../../backend/src/rest/artwork/deleteMyCurrentUpload/apiSchema';
 import {environment} from '../../environments/environment';
 import {ImageUpload} from '../types/image.type';
+import {UpdateService} from './update.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,10 @@ export class ImageUploadService {
   private readonly currentUploadURL = '/getCurrentUpload';
   private readonly deleteCurrentUploadURL = '/deleteMyCurrentUpload';
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private updateService: UpdateService) {
+    this.updateService.getUpdateEvent$().subscribe(() => {
+      // ToDo: move getUploadedArtwork here. And make it a subject
+    });
   }
 
   public uploadImage(imageUpload: ImageUpload): Observable<string> {

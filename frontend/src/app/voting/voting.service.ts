@@ -7,6 +7,7 @@ import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {ImageSizeService} from '../services/image-size.service';
 import {SnackBarService} from '../services/snack-bar.service';
+import {UpdateService} from '../services/update.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,8 +24,10 @@ export class VotingService {
   private readonly maxVoteAmount: BehaviorSubject<number> = new BehaviorSubject<number>(5);
   private readonly alreadyVoted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService) {
-    this.updateVotingStatus();
+  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService, private updateService: UpdateService) {
+    this.updateService.getUpdateEvent$().subscribe(() => {
+      this.updateVotingStatus();
+    });
   }
 
   public updateVotingStatus() {

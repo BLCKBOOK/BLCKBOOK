@@ -3,7 +3,8 @@ import {UserService} from '../../services/user.service';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {PeriodService} from '../../services/period.service';
-
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +12,7 @@ import {PeriodService} from '../../services/period.service';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  username: string;
+  username: Observable<string>;
   faImage = findIconDefinition({prefix: 'fas', iconName: 'image'});
   faUpload = findIconDefinition({prefix: 'fas', iconName: 'upload'});
   endTime: string;
@@ -19,11 +20,10 @@ export class HomeComponent implements OnInit {
 
   constructor(private userService: UserService, private snackBarService: SnackBarService,
               private periodService: PeriodService) {
-    this.username = '';
+    this.username = this.userService.getUserName$().pipe(map(name => name ?? 'unknown'));
   }
 
   ngOnInit(): void {
-    this.username = this.userService.getUserName() ?? 'unknown';
     this.periodService.getPeriod().subscribe(period => {
       const date = new Date(period.startingDate);
       this.startTime = date.toLocaleDateString();

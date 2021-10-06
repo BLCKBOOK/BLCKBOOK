@@ -16,7 +16,7 @@
       <button mat-button class="nav-item" routerLink="/gallery">
         {{"navbar.gallery" | translate}}
       </button>
-      <button *ngIf="isAdmin$ | async" mat-button class="nav-item" routerLink="/admin">
+      <button *ngIf="(isAdmin$ | async)" mat-button class="nav-item" routerLink="/admin">
         {{"navbar.admin" | translate}}
       </button>
     </div>
