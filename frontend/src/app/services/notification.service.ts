@@ -9,7 +9,7 @@ import {UserService} from './user.service';
 
 export interface LastKey {
   userId: string,
-  timestamp: string,
+  timestamp: number,
 }
 
 export interface NotificationResponse {
