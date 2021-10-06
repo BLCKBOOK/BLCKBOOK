@@ -19,8 +19,8 @@ const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 let returnObject: getVoteableArtworksPageResponseBody;
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
-    if (event.body.length >= Number(process.env['MAX_VOTES_PER_PERIOD']))
-        return Promise.reject(createError(500, "Too many items selected"))
+    if (event.body.length > Number(process.env['MAX_VOTES_PER_PERIOD']))
+        return Promise.reject(createError(400, "Too many items selected"))
 
     // check if user already voted
     const getUserCommand = new GetItemCommand({
@@ -30,14 +30,13 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     })
     const user = unmarshall(await (await DDBclient.send(getUserCommand)).Item as any)
     if (user.hasVoted)
-        return Promise.reject(createError(500, "You already Voted"))
+        return Promise.reject(createError(400, "You already Voted"))
 
     // check if all artworks exist
     const verifyArtworksExist = new BatchGetItemCommand({
         RequestItems: { [process.env['VOTE_PAGES_TABLE_NAME'] as string]: { Keys: event.body.map(artworkId => { return marshall({ artworkId }) }) } }
     })
     await DDBclient.send(verifyArtworksExist)
-
 
     // add voted  artworks to user item
     const updateUserCommand = new UpdateItemCommand({
@@ -54,8 +53,8 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
         const updatedIndexCommand = new UpdateItemCommand({
             TableName: process.env['VOTE_PAGES_TABLE_NAME'],
             Key: marshall({ artworkId }),
-            UpdateExpression: "SET votes = list_append(if_not_exists(votes, :empty_list), :userId)",
-            ExpressionAttributeValues: marshall({ ":userId": [event.requestContext.authorizer.claims['sub']], ":empty_list": [] })
+            UpdateExpression: "SET votes = list_append(if_not_exists(votes, :empty_list), :userId) ADD voteCount :one",
+            ExpressionAttributeValues: marshall({ ":userId": [event.requestContext.authorizer.claims['sub']], ":empty_list": [], ":one":1 })
         })
         await DDBclient.send(updatedIndexCommand)
     }
@@ -64,10 +63,10 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 }
 
 const handler = middy(baseHandler)
-    .use(httpJsonBodyParser())
-    .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
-    .use(RequestLogger())
-    .use(AuthMiddleware(['User', 'Admin']))
-    .use(httpErrorHandler())
+.use(httpJsonBodyParser())
+.use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
+.use(RequestLogger())
+.use(AuthMiddleware(['User', 'Admin']))
+.use(httpErrorHandler())
 
 module.exports = { handler }

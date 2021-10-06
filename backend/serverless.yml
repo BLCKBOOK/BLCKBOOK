@@ -8,7 +8,7 @@ plugins:
   - serverless-plugin-typescript
   - serverless-iam-roles-per-function
   - serverless-plugin-include-dependencies
-
+  - serverless-lift
 package:
   individually: true
 
@@ -22,6 +22,7 @@ custom:
   blckbook_user_pool: ${self:provider.stage}-blckbook-users
   period_table_name: period-table-dev
   max_votes_per_user: 5
+  best_percentile: 10
   periodDuration: 604800000 # in ms
   frontend_host_name: "*" # TODO change this to our domain as soon an we can move it 
   max_uploads_per_period: 1
@@ -50,6 +51,7 @@ provider:
     NOTIFICATION_TABLE_NAME: ${self:custom.notification_table_name}
     ARCHIVE_TABLE_NAME: ${self:custom.archive_table_name}
     PERIOD_DURATION: ${self:custom.periodDuration}
+    BEST_PERCENTILE: ${self:custom.best_percentile}
     USER_POOL_ID:
       Ref: BlckBookUsers
     STAGE:  ${self:provider.stage}
@@ -192,7 +194,7 @@ resources:
           - AttributeName: userId
             AttributeType: "S"
           - AttributeName: timestamp
-            AttributeType: "S"
+            AttributeType: "N"
         KeySchema:
           - AttributeName: userId
             KeyType: HASH

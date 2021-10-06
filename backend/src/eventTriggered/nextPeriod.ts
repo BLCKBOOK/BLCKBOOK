@@ -47,11 +47,78 @@ async function createNewPeriod() {
   return oldPeriodUUID
 }
 
+async function sendBestArtworksToMint() {
+  let lastKey;
+  let count;
+  // count artworks
+  while (true) {
+      let scanVotes = new ScanCommand({
+          TableName: process.env['VOTE_PAGES_TABLE_NAME'],
+          Select: "COUNT",
+          ExclusiveStartKey: lastKey
+      })
+      let countedItems = await (await DDBclient.send(scanVotes))
+      lastKey = countedItems.LastEvaluatedKey;
+      count = countedItems.Count;
+      if (lastKey == undefined)
+          break
+  }
+
+  // get best artworks
+  lastKey = undefined
+  let bestArtworks: any[] = [];
+  let bestArtworkLength = Math.ceil(count / Number(process.env['BEST_PERCENTILE']))
+  while (true) {
+      let scanVotes = new ScanCommand({
+          TableName: process.env['VOTE_PAGES_TABLE_NAME'],
+          AttributesToGet: ['voteCount', 'artworkId'],
+          ExclusiveStartKey: lastKey
+      })
+      let itemsToCompareRequest = await (await DDBclient.send(scanVotes))
+      lastKey = itemsToCompareRequest.LastEvaluatedKey;
+      if (!itemsToCompareRequest.Items || itemsToCompareRequest.Items.length == 0)
+          break
+      bestArtworks = bestArtworks.concat(itemsToCompareRequest.Items)
+      bestArtworks = bestArtworks.sort((a, b) => b.voteCount ? b.voteCount.N : 0 - a.voteCount ? a.voteCount.N : 0).slice(0, bestArtworkLength)
+      if (lastKey == undefined)
+          break
+  }
+  bestArtworks = bestArtworks.filter(art => art.voteCount ? art.voteCount.N > 0 : false)
+
+  // TODO send artworks to the minter
+}
+
+async function resetUserVotes(){
+  let lastKey;
+  while (true){
+    let scanVotes = new ScanCommand({
+      TableName: process.env['USER_INFO_TABLE_NAME'],
+      Limit: 25,
+      ExclusiveStartKey: lastKey
+    })
+    let returnedItems = await (await DDBclient.send(scanVotes))
+    lastKey = returnedItems.LastEvaluatedKey;
+    console.log(lastKey)
+    if (!returnedItems.Items || returnedItems.Items.length == 0)
+      return
+    const batchWriteCommand = new BatchWriteItemCommand({
+      RequestItems: {
+        [process.env['USER_INFO_TABLE_NAME']as string]: returnedItems.Items.map(user => { delete user.votes; user.hasVoted ={BOOL: false}; user.uploadsDuringThisPeriod = {N:'0'};return { PutRequest: { Item: user } } })
+      }
+    })
+    await DDBclient.send(batchWriteCommand)
+    if (lastKey == undefined)
+      return
+  }
+}
+
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   let lastKey = undefined as any;
   let votesTableName = process.env['VOTE_PAGES_TABLE_NAME'] as string
   let archiveTableName = process.env['ARCHIVE_TABLE_NAME'] as string
   const oldPeriodUUID = await createNewPeriod()
+  await sendBestArtworksToMint()
+  await resetUserVotes();
 
   // write artworks to archive table
   while (true) {
@@ -123,19 +190,6 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
         }
       })
       await DDBclient.send(batchDeleteCommand)
-
-      // update user State
-      for (let i = 0; i < artworks.length; i++) {
-        const artwork = artworks[i];
-        const updateUserCommand = new UpdateItemCommand({
-          TableName: process.env['USER_INFO_TABLE_NAME'],
-          Key: marshall({ userId: artwork.uploaderId.S }),
-          UpdateExpression: 'set uploadsDuringThisPeriod = :zero',
-          ExpressionAttributeValues: marshall({ ':zero': 0 })
-
-        })
-        await DDBclient.send(updateUserCommand)
-      }
     } while (scanResponse.Items.length > 0)
 
     if (!scanResponse.LastEvaluatedKey)

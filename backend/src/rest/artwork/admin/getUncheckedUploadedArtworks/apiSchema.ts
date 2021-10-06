@@ -7,7 +7,7 @@ export const queryParamSchema = {
             "type": "string"
         },
         "uploadTimestamp": {
-            "type": "number"
+            "type": "integer"
         }
     },
     "required": [

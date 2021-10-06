@@ -75,8 +75,7 @@ const baseHandler = async (event, context) => {
     })
     let metadata: { [key: string]: number | string | { [key: string]: string } } = await (await s3Client.send(getImageMetadata)).Metadata || {}
     metadata.uploadTimestamp = new Date().getTime();
-    console.debug("metadata")
-    console.debug(metadata)
+    console.debug("metadata", metadata)
 
     const sizeStream = new ImageDimensionsStream();
     imageStream.pipe(sizeStream)
@@ -121,7 +120,7 @@ const baseHandler = async (event, context) => {
       artworkId: metadata.artworkid,
       contentType: metadata.contenttype,
       approvalState: metadata.approvalstate,
-      uploadTimestamp: metadata.uploadTimestamp,
+      uploadTimestamp: Number(metadata.uploadTimestamp),
       title: metadata.title,
       imageUrls
     }

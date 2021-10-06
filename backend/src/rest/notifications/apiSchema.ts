@@ -25,7 +25,7 @@ export const getNotificationsPageRequestSchema = {
 export type getNotificationsRequestQueryParams = { lastKey?: NotificationIndex, limit?: number }
 export type getNotificationsResponseBody = {notifications: Notification[], lastKey: {
   userId: {S: string},
-  timestamp: {S: string},
+  timestamp: {N: number},
 }}
 
 export const seeNotifivationsRequestSchema={
@@ -43,7 +43,7 @@ export const seeNotifivationsRequestSchema={
                   "type": "string"
                 },
                 "timestamp": {
-                  "type": "string"
+                  "type": "integer"
                 }
               },
               "required": [

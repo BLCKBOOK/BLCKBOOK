@@ -27,6 +27,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
         return Promise.reject(createError(404, "Requested artwork not found"))
     const item = unmarshall(ddbItem)
     delete item.votes
+    delete item.voteCount
     returnObject = item as Omit<VotableArtwork, "votes">
     return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify(returnObject) };
 }

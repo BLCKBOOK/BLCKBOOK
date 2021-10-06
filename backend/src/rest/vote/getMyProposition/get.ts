@@ -33,6 +33,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
         return Promise.reject(createError(404, "No proposed artworks were found"))
     let voteObject = unmarshall(queriedPropositions[0])
     delete voteObject.votes;
+    delete voteObject.voteCount;
     returnObject = voteObject as Omit<VotableArtwork, "votes">
     return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify(returnObject) };
 }

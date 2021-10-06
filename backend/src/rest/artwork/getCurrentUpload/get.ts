@@ -44,8 +44,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     return noUploadsYet
 
   const latestUpload = unmarshall(item.Items[0]) as UploadedArtwork
-  console.log("latestUpload")
-  console.log(latestUpload)
+  console.log("latestUpload",latestUpload)
 
   responseBody = {
     uploaderId: latestUpload.uploaderId,

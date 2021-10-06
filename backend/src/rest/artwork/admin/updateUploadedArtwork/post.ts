@@ -26,7 +26,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
   let body: UploadedArtwork = event.body;
 
-  body.uploadTimestamp = (Number(body.uploadTimestamp) as unknown) as string
+  body.uploadTimestamp = Number(body.uploadTimestamp)
   console.debug(body)
 
   let updateItemCommand;

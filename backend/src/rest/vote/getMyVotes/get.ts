@@ -44,6 +44,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     returnObject = queriedArtworks.Responses[process.env['VOTE_PAGES_TABLE_NAME'] as string].map(art => {
         art = unmarshall(art)
         delete art.votes;
+        delete art.voteCount;
         return art as any
     }) as getVoteableArtworksPageResponseBody
 

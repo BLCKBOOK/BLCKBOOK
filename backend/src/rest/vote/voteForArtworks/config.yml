@@ -1,4 +1,4 @@
-voreForArtwork:
+voteForArtwork:
   handler: src/rest/vote/voteForArtworks/post.handler
   iamRoleStatements:
     - Effect: Allow

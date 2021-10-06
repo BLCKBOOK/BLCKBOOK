@@ -10,7 +10,7 @@ export const RequestValidationSchema = {
                     "type": "string"
                 },
                 "uploadTimestamp": {
-                    "type": "string"
+                    "type": "integer"
                 },
             },
             "required": [

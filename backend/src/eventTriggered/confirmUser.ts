@@ -29,7 +29,7 @@ const baseHandler = async (event, context) => {
                     await cognitoidentityserviceprovider.send(deleteUserCommand);
                     return event
                 }
-                return Promise.reject(createError(503, 'Email already exists'));
+                return Promise.reject(createError(400, 'Email already exists'));
             } else {
                 return event
             }
@@ -38,7 +38,7 @@ const baseHandler = async (event, context) => {
             return Promise.reject(createError(500, JSON.stringify(error)));
         }
     } else {
-        return Promise.reject(createError(500, 'MissingParameters'));
+        return Promise.reject(createError(400, 'MissingParameters'));
     }
 }
 

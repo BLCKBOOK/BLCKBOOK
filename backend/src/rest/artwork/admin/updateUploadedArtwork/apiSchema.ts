@@ -47,7 +47,7 @@ export const RequestValidationSchema = {
                     "type": "string"
                 },
                 "uploadTimestamp": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "geoHash": {
                     "type": "string"

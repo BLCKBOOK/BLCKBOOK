@@ -23,7 +23,9 @@ triggerNextPeriod:
         - !Sub '${votePagesTable.Arn}/index/*'
     - Effect: Allow
       Action:
-        - dynamodb:UpdateItem
+        - dynamodb:Scan
+        - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
       Resource:
         - Fn::GetAtt: [ userInfoTable, Arn ]
     - Effect: Allow

@@ -50,7 +50,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
     body.notifications.forEach(notification => {  
         if (notification.userId !== event.requestContext.authorizer.claims.sub)
-            return Promise.reject(createError(503, "You can only see your own notifications"))  
+            return Promise.reject(createError(403, "You can only see your own notifications"))  
         updatePromises.push(updateItems(notification))
     })
     await Promise.all(updatePromises)

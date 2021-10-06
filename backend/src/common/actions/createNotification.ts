@@ -19,7 +19,7 @@ export const createNotification = async (notification: Omit<Omit<Notification, "
 
     const createNotificationCommand = new PutItemCommand({
         TableName: process.env['NOTIFICATION_TABLE_NAME'],
-        Item: marshall({ ...notification, seen: false, timestamp: Number(new Date()).toString() })
+        Item: marshall({ ...notification, seen: false, timestamp: Number(new Date()) })
     })
     console.log(JSON.stringify(createNotificationCommand))
     await DDBclient.send(createNotificationCommand)

@@ -42,7 +42,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
     const queriedArtworks = queryResult.Items.map(art => unmarshall(art))
 
-    returnObject = queriedArtworks.map(art => { delete art.votes; return art }) as Omit<VotableArtwork, "votes">[]
+    returnObject = queriedArtworks.map(art => { delete art.votes;delete art.voteCount; return art }) as Omit<VotableArtwork, "votes">[]
     return { statusCode: 200, headers: { "content-type": "application/json" }, body: JSON.stringify(returnObject) };
 }
 

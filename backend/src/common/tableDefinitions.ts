@@ -24,7 +24,7 @@ interface Sale {
 
 export interface UploadedArtworkIndex {
   uploaderId: string,
-  uploadTimestamp: string
+  uploadTimestamp: number
 }
 
 export interface UploadedArtwork {
@@ -32,7 +32,7 @@ export interface UploadedArtwork {
   uploaderId: string,
   imageUrls: { [Key: string]: string }
   uploader: string
-  uploadTimestamp: string
+  uploadTimestamp: number
   geoHash: string
   longitude: string
   latitude: string
@@ -62,7 +62,7 @@ export interface VotableArtwork {
   uploaderId: string,
   imageUrls: { [Key: string]: string }
   uploader: string
-  uploadTimestamp: string
+  uploadTimestamp: number
   geoHash: string
   longitude: string
   latitude: string
@@ -74,7 +74,7 @@ export interface VotableArtwork {
 
 export interface Notification {
   userId: string,
-  timestamp: string,
+  timestamp: number,
   title: string,
   body: string,
   type: string,
@@ -83,7 +83,7 @@ export interface Notification {
 
 export interface NotificationIndex {
   userId: string,
-  timestamp: string,
+  timestamp: number,
 }
 
 export interface Period {
@@ -102,7 +102,7 @@ export interface Archive {
   uploaderId: string,
   imageUrls: { [Key: string]: string }
   uploader: string
-  uploadTimestamp: string
+  uploadTimestamp: number
   geoHash: string
   longitude: string
   latitude: string

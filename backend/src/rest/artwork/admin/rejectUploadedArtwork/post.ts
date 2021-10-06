@@ -23,7 +23,7 @@ let returnObject: UpdateUploadedArtworksResponseBody;
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   let body: UploadedArtworkIndex = event.body;
 
-  body.uploadTimestamp = (Number(body.uploadTimestamp) as unknown) as string
+  body.uploadTimestamp = Number(body.uploadTimestamp)
   await deleteArtwork(body, s3Client, DDBclient)
 
   let getUserCommand = new GetItemCommand({
@@ -44,7 +44,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   })
   await DDBclient.send(updateUploadCountCommand)
 
-  createNotification({body:'Your upload did not meet the minimum quality requirements and has been deleted. Your may upload another image during this period.',title:'Upload rejected',type:'message',userId:body.uploaderId},DDBclient)
+  await createNotification({body:'Your upload did not meet the minimum quality requirements and has been deleted. Your may upload another image during this period.',title:'Upload rejected',type:'message',userId:body.uploaderId},DDBclient)
 
   console.debug("Item was successfully deleted")
   return { statusCode: 200, headers: { "content-type": "text/plain" }, body: "Item was successfully deleted" };
