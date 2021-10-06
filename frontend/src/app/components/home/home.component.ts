@@ -25,12 +25,8 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.username = this.userService.getUserName() ?? 'unknown';
     this.periodService.getPeriod().subscribe(period => {
-      // ToDo fix these horrible casts
-      // @ts-ignore
-      const date = new Date(parseInt(period.startingDate));
+      const date = new Date(period.startingDate);
       this.startTime = date.toLocaleDateString();
-      // ToDo fix these horrible casts
-      // @ts-ignore
       const endDate = new Date(period.endingDate);
       this.endTime = endDate.toLocaleDateString();
     });
