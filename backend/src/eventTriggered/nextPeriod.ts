@@ -19,13 +19,13 @@ async function createNewPeriod() {
     Key: marshall({ periodId: 'current' }),
   })
   const oldPeriod = await (await DDBclient.send(getPeriodCommand)).Item
-  const now = Number(new Date()).toString()
+  const now = Number(new Date())
   const oldPeriodUUID = uuid();
 
   // if a current period exists copy it to another entry in the period table
   if (oldPeriod) {
     oldPeriod.periodId.S = oldPeriodUUID;
-    oldPeriod.endingDate = { N: now };
+    oldPeriod.endingDate = { N: now.toString() };
 
     let updateCommand = new PutItemCommand({
       TableName: process.env['PERIOD_TABLE_NAME'],

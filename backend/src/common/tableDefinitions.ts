@@ -88,8 +88,8 @@ export interface NotificationIndex {
 
 export interface Period {
   periodId: string,
-  startingDate: string,
-  endingDate: string,
+  startingDate: number,
+  endingDate: number,
   votePageCount: number  
 }
 
