@@ -3,7 +3,7 @@ import {NgxMasonryComponent, NgxMasonryOptions} from 'ngx-masonry';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {ImageSizeService} from '../../services/image-size.service';
 import {UploadedArtworkIndex, VotableArtwork} from '../../../../../backend/src/common/tableDefinitions';
-import {VotingService} from '../../services/voting.service';
+import {VotingService} from '../voting.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
 import {Observable, of, zip} from 'rxjs';

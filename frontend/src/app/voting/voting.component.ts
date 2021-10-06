@@ -1,15 +1,15 @@
 import {Component} from '@angular/core';
-import {VotingService} from '../../services/voting.service';
+import {VotingService} from './voting.service';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
-import {SnackBarService} from '../../services/snack-bar.service';
+import {SnackBarService} from '../services/snack-bar.service';
 import {ActivatedRoute} from '@angular/router';
-import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
+import {DetailViewDialogComponent, VoteDetailData} from './detail-view-dialog/detail-view-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
-import {ImageSizeService} from '../../services/image-size.service';
-import {ConfirmDialogComponent, ConfirmDialogData} from '../confirm-dialog/confirm-dialog.component';
+import {ImageSizeService} from '../services/image-size.service';
+import {ConfirmDialogComponent, ConfirmDialogData} from '../components/confirm-dialog/confirm-dialog.component';
 import {Location} from '@angular/common';
-import { VotableArtwork } from '../../../../../backend/src/common/tableDefinitions';
+import { VotableArtwork } from '../../../../backend/src/common/tableDefinitions';
 
 @Component({
   selector: 'app-voting',

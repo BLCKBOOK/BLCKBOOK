@@ -21,7 +21,6 @@ import {AuthInterceptor} from './services/AuthInterceptor';
 import {WelcomeComponent} from './components/welcome/welcome.component';
 import {AdminAuthGuardService, AuthGuardService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
-import {VotingComponent} from './components/voting/voting.component';
 import {MatInputModule} from '@angular/material/input';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {FormsModule} from '@angular/forms';
@@ -34,10 +33,7 @@ import {faBell} from '@fortawesome/free-solid-svg-icons/faBell';
 import {faBars} from '@fortawesome/free-solid-svg-icons/faBars';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons/faUserCircle';
 import {MatMenuModule} from '@angular/material/menu';
-import { ScrollComponent } from './components/scroll/scroll.component';
-import {NgxMasonryModule} from 'ngx-masonry';
 import {ScrollingModule} from '@angular/cdk/scrolling';
-import {ScrollTrackerDirective} from './components/scroll/scroll-tracker.directive';
 import {faSprayCan} from '@fortawesome/free-solid-svg-icons/faSprayCan';
 import {faSlash} from '@fortawesome/free-solid-svg-icons/faSlash';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -53,13 +49,11 @@ import { ErrorDialogComponent } from './components/error-dialog/error-dialog.com
 import {faExpandArrowsAlt} from '@fortawesome/free-solid-svg-icons/faExpandArrowsAlt';
 import {faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
 import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
-import { DetailViewDialogComponent } from './components/detail-view-dialog/detail-view-dialog.component';
 import {faShareAlt} from '@fortawesome/free-solid-svg-icons/faShareAlt';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatListModule} from '@angular/material/list';
 import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
 import {faEllipsisH} from '@fortawesome/free-solid-svg-icons/faEllipsisH';
-import { VoteDetailComponent } from './components/vote-detail/vote-detail.component';
 import { MapDialogComponent } from './components/map-dialog/map-dialog.component';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { NotificationsDialogComponent } from './components/notifications-dialog/notifications-dialog.component';
@@ -80,15 +74,10 @@ Auth.configure(awsconfig);
     HomeComponent,
     WelcomeComponent,
     ImageUploadComponent,
-    VotingComponent,
-    ScrollComponent,
-    ScrollTrackerDirective,
     ConfirmDialogComponent,
     TermsDialogComponent,
     ErrorDialogComponent,
     ImageDialogComponent,
-    DetailViewDialogComponent,
-    VoteDetailComponent,
     MapDialogComponent,
     NotificationsDialogComponent,
   ],
@@ -117,7 +106,6 @@ Auth.configure(awsconfig);
     MatSidenavModule,
     MatBadgeModule,
     MatMenuModule,
-    NgxMasonryModule,
     ScrollingModule,
     MatTabsModule,
     MatFormFieldModule,
@@ -130,7 +118,11 @@ Auth.configure(awsconfig);
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
     [AuthGuardService, AdminAuthGuardService, MatSnackBar]
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  exports: [
+    BobTextComponent,
+    MapDialogComponent,
+  ]
 })
 export class AppModule {
   constructor() {
