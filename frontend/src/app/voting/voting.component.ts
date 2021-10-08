@@ -28,7 +28,11 @@ export class VotingComponent {
               private route: ActivatedRoute, private imageSizeService: ImageSizeService, private location: Location) {
     this.$totalVoteAmount = this.votingService.getMaxVoteAmount$();
     this.$votesSelected = this.votingService.getVotesSelected$();
-    this.votingService.getMyVotes$().subscribe(votes => console.log(votes));
+    this.votingService.getHasVoted$().subscribe(voted => {
+      if (this.alreadyVoted$.getValue() && !voted) {
+        this.alreadyVoted$.next(false);
+      }
+    });
     this.$submitDisabled = combineLatest([this.$totalVoteAmount, this.$votesSelected, this.votingService.getHasVoted$()])
       .pipe(map(([totalVoteAmount, votesSpend, voted]) => {
         if (voted) {

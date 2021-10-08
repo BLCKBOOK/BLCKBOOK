@@ -30,6 +30,7 @@ export class UserService {
     Auth.currentAuthenticatedUser().then(user => {
       this.user.next(user);
       this.authState.next(AuthState.SignedIn);
+      this.updateIsAdmin();
     }).catch(reason => console.log(reason));
     onAuthUIStateChange((authState: AuthState, authData: any) => {
       if (this.authState.getValue() !== authState) { // this sometimes gets triggered twice with the same state

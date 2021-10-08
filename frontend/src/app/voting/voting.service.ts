@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, ReplaySubject, Subject} from 'rxjs';
 import {MasonryItem} from './scroll/scroll.component';
 import {map} from 'rxjs/operators';
 import { VotableArtwork } from '../../../../backend/src/common/tableDefinitions';
@@ -23,10 +23,18 @@ export class VotingService {
   private votedArtworks: BehaviorSubject<MasonryItem[]> = new BehaviorSubject<MasonryItem[]>([]);
   private readonly maxVoteAmount: BehaviorSubject<number> = new BehaviorSubject<number>(5);
   private readonly alreadyVoted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private myUpload: Subject<VotableArtwork> = new ReplaySubject<VotableArtwork>(1);
 
   constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService, private updateService: UpdateService) {
     this.updateService.getUpdateEvent$().subscribe(() => {
-      this.updateVotingStatus();
+      this.initialize();
+    });
+  }
+
+  private initialize() {
+    this.updateVotingStatus();
+    this.httpClient.get<VotableArtwork>(this.voteAPIURL + this.getMyUploadURL).subscribe(upload => {
+      this.myUpload.next(upload);
     });
   }
 
@@ -52,6 +60,7 @@ export class VotingService {
     }, error => {
       if (error.status === 404) {
         this.votedArtworks.next([]);
+        this.alreadyVoted.next(false);
       }
     })
   }
@@ -103,7 +112,7 @@ export class VotingService {
     return this.votedArtworks.getValue();
   }
 
-  public getMyVotes$(): Observable<VotableArtwork[]> {
+  private getMyVotes$(): Observable<VotableArtwork[]> {
     return this.httpClient.get<VotableArtwork[]>(this.voteAPIURL + this.getMyVotesURL);
   }
 
@@ -123,7 +132,7 @@ export class VotingService {
   }
 
   public getMyUpload(): Observable<VotableArtwork> {
-    return this.httpClient.get<VotableArtwork>(this.voteAPIURL + this.getMyUploadURL);
+    return this.myUpload.pipe();
   }
 
   public getVotableArtworkById(id: string): Observable<VotableArtwork> {

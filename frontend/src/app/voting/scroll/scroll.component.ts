@@ -7,8 +7,9 @@ import {VotingService} from '../voting.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
 import {Observable, of, zip} from 'rxjs';
-import {catchError, map} from 'rxjs/operators'
+import {catchError, map, takeUntil} from 'rxjs/operators';
 import {Location} from '@angular/common';
+import {UpdateService} from '../../services/update.service';
 
 export interface MasonryItem {
   title: string,
@@ -29,9 +30,21 @@ export class ScrollComponent implements OnInit, AfterViewInit {
 
   currentIndex = 0;
   alreadyVoted$: Observable<boolean>;
+  @Input() scrollType: ScrollType = 'voting';
+  @Input() items: MasonryItem[];
+
+  @ViewChild('masonry') masonry: NgxMasonryComponent;
+  masonryItems: MasonryItem[] = [];
+  reachedEnd = false;
+  lastIndex: UploadedArtworkIndex | undefined = undefined;
+
+  faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
+  faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
+
+  public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService,
-              private location: Location) {
+              private location: Location, private updateService: UpdateService) {
     this.alreadyVoted$ = this.votingService.getHasVoted$();
   }
 
@@ -41,33 +54,31 @@ export class ScrollComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.initialize();
+    this.updateService.periodChanges().subscribe(() => {
+      this.initialize();
+    });
+  }
+
+  private initialize() {
+    this.currentIndex = 0;
+    this.reachedEnd = false;
+    this.lastIndex = undefined;
+    this.masonryItems = [];
     if (this.scrollType === 'voting') {
       this.addMoreItems();
-      this.votingService.getVotedArtworks$().subscribe(votedArtworks => {
+      this.votingService.getVotedArtworks$().pipe(takeUntil(this.updateService.periodChanges())).subscribe(votedArtworks => {
         this.masonryItems.forEach(item => {
           item.voted = votedArtworks.some(voted => voted.artwork.artworkId === item.artwork.artworkId);
-        })
+        });
       });
     } else if (this.scrollType === 'voting-selected') {
-      this.votingService.getVotedArtworks$().subscribe(artworks => {
+      this.votingService.getVotedArtworks$().pipe(takeUntil(this.updateService.periodChanges())).subscribe(artworks => {
         this.masonryItems = artworks;
         // after the order of items has changed
-        this.masonry?.reloadItems();
-        this.masonry?.layout();
       });
     }
   }
-
-  @Input() scrollType: ScrollType = 'voting';
-  @Input() items: MasonryItem[];
-
-  @ViewChild('masonry') masonry: NgxMasonryComponent;
-  masonryItems: MasonryItem[] = [];
-  reachedEnd = false;
-  faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
-  faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
-  lastIndex: UploadedArtworkIndex | undefined = undefined;
-  public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
   public myOptions: NgxMasonryOptions = {
     gutter: '.gutter-sizer',
