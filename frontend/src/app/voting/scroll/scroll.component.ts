@@ -87,13 +87,18 @@ export class ScrollComponent implements OnInit, AfterViewInit {
     itemSelector: '.masonry-item',
   };
 
-  public addMoreItems() {
+  public addMoreItems(throughScrolling = false) {
     if (this.scrollType === 'voting-selected') {
       return;
     }
     if (this.reachedEnd) {
       console.log('already reached the end');
       return;
+    }
+    if (throughScrolling) {
+      if (this.currentIndex === 0) { // prevent to get more images by scrolling if we haven't even gotten the initial data
+        return;
+      }
     }
 
     zip(this.getArtworks(this.currentIndex),
