@@ -100,7 +100,7 @@ const baseHandler = async (event, context) => {
           Bucket: process.env['ARTWORK_UPLOAD_S3_BUCKET_NAME'],
           Key: newKey,
           ACL: 'public-read',
-          Body: sizeStream.pipe(sharp().resize(width).withMetadata()),
+          Body: sizeStream.pipe(sharp().rotate().resize(width).withMetadata()),
           ContentType: metadata.contenttype.toString()
         }
       })
