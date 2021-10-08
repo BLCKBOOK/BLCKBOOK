@@ -33,16 +33,14 @@
 }
 
 .share {
-  display: flex;
-  justify-content: center;
   color: var(--dark-background);
   border-radius: 50%;
 
   button {
     color: var(--dark-primary-text);
     background-color: var(--primary-color);
-    height: 4em;
-    width: 4em;
+    height: 3em;
+    width: 3em;
     fa-icon {
       font-size: 1.5em;
     }
@@ -50,6 +48,8 @@
 }
 
 .button-container {
+  display: flex;
+  justify-content: space-around;
   margin-top: .5em;
   margin-bottom: .5em;
 }
