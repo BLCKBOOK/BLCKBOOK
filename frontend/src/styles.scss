@@ -11,14 +11,14 @@
 }
 
 @font-face {
-  font-family: "Bob";
-  src: local("bob-regular"), url(./assets/fonts/bob-regular.ttf) format("truetype");
+  font-family: "Art Grootfontein";
+  src: local("Art-Grootfontein-Flexible-Variable") , url(./assets/fonts/Art-Grootfontein-Flexible-Variable.ttf) format("truetype");
 }
 
 
 $fontConfig: (
-  display-4: mat.define-typography-level(112px, 112px, 300, 'Bob', -0.0134em),
-  display-3: mat.define-typography-level(56px, 56px, 400, 'Bob', -0.0089em),
+  display-4: mat.define-typography-level(112px, 112px, 300, 'Art Grootfontein', -0.0134em),
+  display-3: mat.define-typography-level(56px, 56px, 400, 'Art Grootfontein', -0.0089em),
   display-2: mat.define-typography-level(45px, 48px, 400, 'GT Walsheim', 0.0000em),
   display-1: mat.define-typography-level(34px, 40px, 400, 'GT Walsheim', 0.0074em),
   headline: mat.define-typography-level(24px, 32px, 400, 'GT Walsheim', 0.0000em),

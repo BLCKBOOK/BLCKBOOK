@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
+import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 
 @Component({
   selector: 'app-welcome',
@@ -7,6 +8,10 @@ import { Component } from '@angular/core';
 })
 export class WelcomeComponent {
 
-  constructor() { }
+  constructor() {
+  }
 
+  faTelegram = findIconDefinition({prefix: 'fab', iconName: 'telegram'});
+  faTwitter = findIconDefinition({prefix: 'fab', iconName: 'twitter'});
+  faImage = findIconDefinition({prefix: 'fas', iconName: 'image'});
 }

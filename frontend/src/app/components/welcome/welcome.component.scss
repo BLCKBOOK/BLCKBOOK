@@ -1,0 +1,14 @@
+.faq-heading-padding {
+  padding: 0 16px;
+}
+
+.faq-accordion {
+  mat-expansion-panel {
+    mat-expansion-panel-header {
+      mat-panel-title {
+        font-size: 1.5em;
+      }
+    }
+  }
+  margin-bottom: 16px;
+}

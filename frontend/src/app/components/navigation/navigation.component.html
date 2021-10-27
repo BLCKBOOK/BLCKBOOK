@@ -5,9 +5,10 @@
         <fa-icon [icon]="faBars"></fa-icon>
       </button>
     </div>
-    <button mat-button class="nav-item" routerLink="/home">
-      <app-bob-text [text]="'navbar.blckbook' | translate">
-      </app-bob-text>
+    <button mat-button class="nav-item" routerLink="/">
+      <div class="logo">
+        <h4>{{'navbar.blckbook' | translate}}</h4>
+      </div>
     </button>
     <div fxShow="true" fxHide.lt-sm="true">
       <button mat-button class="nav-item" routerLink="/auction">

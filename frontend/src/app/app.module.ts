@@ -19,7 +19,7 @@ import awsconfig from '../aws-exports';
 import {MatDialogModule} from '@angular/material/dialog';
 import {AuthInterceptor} from './services/AuthInterceptor';
 import {WelcomeComponent} from './components/welcome/welcome.component';
-import {AdminAuthGuardService, AuthGuardService} from './services/auth-guard.service';
+import {AdminAuthGuardService, AuthGuardService, HomeNavigationService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
 import {MatInputModule} from '@angular/material/input';
 import {FlexLayoutModule} from '@angular/flex-layout';
@@ -49,7 +49,6 @@ import { ErrorDialogComponent } from './components/error-dialog/error-dialog.com
 import {faExpandArrowsAlt} from '@fortawesome/free-solid-svg-icons/faExpandArrowsAlt';
 import {faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
 import { ImageDialogComponent } from './components/image-dialog/image-dialog.component';
-import {faShareAlt} from '@fortawesome/free-solid-svg-icons/faShareAlt';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatListModule} from '@angular/material/list';
 import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
@@ -58,6 +57,11 @@ import { MapDialogComponent } from './components/map-dialog/map-dialog.component
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { NotificationsDialogComponent } from './components/notifications-dialog/notifications-dialog.component';
 import {faMapMarkerAlt} from '@fortawesome/free-solid-svg-icons/faMapMarkerAlt';
+import {faTelegram} from '@fortawesome/free-brands-svg-icons/faTelegram';
+import {faTwitter} from '@fortawesome/free-brands-svg-icons/faTwitter';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {faShareSquare} from '@fortawesome/free-solid-svg-icons/faShareSquare';
+import {faMapPin} from '@fortawesome/free-solid-svg-icons/faMapPin';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -113,10 +117,11 @@ Auth.configure(awsconfig);
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatListModule,
+    MatExpansionModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
-    [AuthGuardService, AdminAuthGuardService, MatSnackBar]
+    [AuthGuardService, AdminAuthGuardService, MatSnackBar, HomeNavigationService]
   ],
   bootstrap: [AppComponent],
 })
@@ -135,10 +140,13 @@ export class AppModule {
       faSkull,
       faExpandArrowsAlt,
       faEdit,
-      faShareAlt,
+      faShareSquare,
       faCheck,
       faEllipsisH,
-      faMapMarkerAlt
+      faMapMarkerAlt,
+      faTelegram,
+      faTwitter,
+      faMapPin
     );
   }
 }

@@ -19,6 +19,24 @@ export class AuthGuardService implements CanActivate {
   }
 }
 
+/*
+navigates to home if the user is logged in.
+ */
+@Injectable()
+export class HomeNavigationService implements CanActivate {
+  constructor(public userService: UserService, public router: Router) {
+  }
+
+  canActivate(): Observable<boolean> {
+    return this.userService.isAuthenticated().pipe(map(authenticated => {
+      if (authenticated) {
+        this.router.navigate(['home']);
+      }
+      return !authenticated;
+    }));
+  }
+}
+
 @Injectable()
 export class AdminAuthGuardService implements CanActivate {
   constructor(public userService: UserService, public router: Router) {

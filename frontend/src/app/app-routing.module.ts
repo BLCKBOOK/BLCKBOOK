@@ -1,12 +1,13 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
-import {AdminAuthGuardService, AuthGuardService} from './services/auth-guard.service';
+import {AdminAuthGuardService, AuthGuardService, HomeNavigationService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
 import {UploadedImageResolver} from './services/data-resolver';
+import {WelcomeComponent} from './components/welcome/welcome.component';
 
 const routes: Routes = [
-  {path: '', component: HomeComponent, canActivate: [AuthGuardService]},
+  {path: '', component: WelcomeComponent, canActivate: [HomeNavigationService]},
   {path: 'home', component: HomeComponent, canActivate: [AuthGuardService]},
   {
     path: 'upload', component: ImageUploadComponent, canActivate: [AuthGuardService], resolve: {
@@ -24,9 +25,9 @@ const routes: Routes = [
     canActivate: [AdminAuthGuardService],
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
   },
-  { path: 'auction', loadChildren: () => import('./auction/auction.module').then(m => m.AuctionModule) },
-  { path: 'gallery', loadChildren: () => import('./gallery/gallery.module').then(m => m.GalleryModule) },
-  { path: 'voting', loadChildren: () => import('./voting/voting.module').then(m => m.VotingModule) },
+  {path: 'auction', loadChildren: () => import('./auction/auction.module').then(m => m.AuctionModule)},
+  {path: 'gallery', loadChildren: () => import('./gallery/gallery.module').then(m => m.GalleryModule)},
+  {path: 'voting', loadChildren: () => import('./voting/voting.module').then(m => m.VotingModule)},
 ];
 
 @NgModule({

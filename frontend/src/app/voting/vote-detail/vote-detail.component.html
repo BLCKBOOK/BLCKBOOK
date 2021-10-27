@@ -25,29 +25,33 @@
         </div>
       </div>
     </div>
+    <div class="button-container">
+      <button mat-raised-button (click)="showOnMap()">
+        <fa-icon [icon]="faMapPin"></fa-icon>
+        Show on map
+      </button> <br>
+      <button mat-raised-button [disabled]="false" (click)="copyToClipboard()">
+        <fa-icon [icon]="faShareSquare">
+        </fa-icon>
+        Share Graffiti
+      </button>
+    </div>
+    <div class="vote-button-container">
+      <button mat-raised-button *ngIf="!data.voted" (click)="vote()"
+              [disabled]="alreadyVoted$ | async">
+        Select for Vote
+        <fa-stack>
+          <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
+        </fa-stack>
+      </button>
+      <button mat-raised-button *ngIf="data.voted" (click)="unvote()"
+              [disabled]="alreadyVoted$ | async">
+        Deselect
+        <fa-stack>
+          <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
+          <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>
+        </fa-stack>
+      </button>
+    </div>
   </div>
-</div>
-<div class="button-container">
-  <button mat-raised-button (click)="showOnMap()">Show on map</button>
-  <div class="share">
-    <button mat-icon-button [disabled]="false" (click)="copyToClipboard()">
-      <fa-icon [icon]="faShareAlt">
-      </fa-icon>
-    </button>
-  </div>
-  <button mat-raised-button *ngIf="!data.voted" (click)="vote()"
-          [disabled]="alreadyVoted$ | async">
-    Select for Vote
-    <fa-stack>
-      <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
-    </fa-stack>
-  </button>
-  <button mat-raised-button *ngIf="data.voted" (click)="unvote()"
-          [disabled]="alreadyVoted$ | async">
-    Deselect
-    <fa-stack>
-      <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
-      <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>
-    </fa-stack>
-  </button>
 </div>

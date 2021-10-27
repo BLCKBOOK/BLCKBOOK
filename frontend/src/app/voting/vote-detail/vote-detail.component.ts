@@ -17,10 +17,11 @@ export class VoteDetailComponent implements OnInit {
 
   @Input() data: VoteDetailData;
 
-  faShareAlt = findIconDefinition({prefix: 'fas', iconName: 'share-alt'});
   timeDisplay: string;
   faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
+  faShareSquare = findIconDefinition({prefix: 'fas', iconName: 'share-square'});
+  faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
   alreadyVoted$: Observable<boolean>
 
   constructor(public dialog: MatDialog, private clipboard: Clipboard,
