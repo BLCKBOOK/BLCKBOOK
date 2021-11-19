@@ -10,5 +10,157 @@
       }
     }
   }
+
   margin-bottom: 16px;
+}
+
+@media only screen and (max-width: 800px) {
+  .landing-1 {
+    background-image: url("/assets/images/landing/landing1/800w.jpg");
+  }
+
+  .landing-2 {
+    background-image: url("/assets/images/landing/landing2/800w.jpg");
+  }
+
+  .landing-3 {
+    background-image: url("/assets/images/landing/landing3/800w.jpg");
+  }
+  .thumb {
+    width:  20vw;
+    height: auto;
+  }
+
+  .okay {
+    display: none;
+  }
+
+  .clap {
+    display: none;
+  }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 800px) {
+  .landing-1 {
+    background-image: url("/assets/images/landing/landing1/1200w.jpg");
+  }
+
+  .landing-2 {
+    background-image: url("/assets/images/landing/landing2/1200w.jpg");
+  }
+
+  .landing-3 {
+    background-image: url("/assets/images/landing/landing3/1200w.jpg");
+  }
+  .thumb {
+    width: 139px;
+    height: 149px;
+  }
+
+  .okay {
+    width: 72px;
+  }
+
+  .clap {
+    width: 58px;
+    height: 60px;
+  }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 1200px) {
+
+  .inner-wrapper > div > p {
+    width: 50vw;
+  }
+
+  .landing-1 {
+    background-image: url("/assets/images/landing/landing1/2000w.jpg");
+  }
+
+  .landing-2 {
+    background-image: url("/assets/images/landing/landing2/2000w.jpg");
+  }
+
+  .landing-3 {
+    background-image: url("/assets/images/landing/landing3/2000w.jpg");
+  }
+  .thumb {
+    width: 139px;
+    height: 149px;
+  }
+
+  .okay {
+    width: 72px;
+  }
+
+  .clap {
+    width: 58px;
+    height: 60px;
+  }
+}
+
+
+.inner-wrapper {
+  mat-card-title {
+  }
+
+  height: 70vh;
+}
+
+.page-wrapper {
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;
+}
+
+.mat-expansion-panel {
+  background: black;
+}
+
+.step-image {
+  width: 33vw;
+}
+
+.step-text {
+  h3 {
+    text-align: center;
+  }
+}
+
+.first-text > p {
+  max-width: 400px;
+}
+
+.xtz-logo {
+  height: 2em;
+  position: absolute;
+  bottom: 3em;
+  right: 3em;
+}
+
+.dark-example {
+  width: 33vw;
+}
+
+.bag-circle {
+  position: absolute;
+  right: 4vw;
+  height: 10vw;
+  width: 10vw;
+  top:0;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  background: hsl(21deg 51% 71%);
+}
+
+.bag {
+  height: 8vw;
+}
+
+.step-icon {
+  position: relative;
 }

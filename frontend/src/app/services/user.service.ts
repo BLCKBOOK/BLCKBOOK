@@ -22,7 +22,6 @@ export class UserService {
 
   constructor(private httpClient: HttpClient, private updateService: UpdateService) {
     this.updateService.getUpdateEvent$().subscribe(() => {
-      console.log('got update in user-service');
       this.updateUserInfo();
     });
     this.user = new ReplaySubject<CognitoUserInterface>(1);
