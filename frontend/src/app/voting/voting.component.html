@@ -7,14 +7,14 @@
 <mat-tab-group mat-align-tabs="center" animationDuration="0ms">
   <mat-tab label="All">
     <ng-template matTabContent>
-      <app-scroll [scrollType]="'voting'">
-      </app-scroll>
+      <app-voting-scroll [scrollType]="'voting'">
+      </app-voting-scroll>
     </ng-template>
   </mat-tab>
   <mat-tab label="{{(alreadyVoted$ | async) ? 'My Votes' : 'Selected'}}">
     <ng-template matTabContent>
-      <app-scroll [scrollType]="'voting-selected'">
-      </app-scroll>
+      <app-voting-scroll [scrollType]="'voting-selected'">
+      </app-voting-scroll>
     </ng-template>
   </mat-tab>
   <mat-tab label="My Upload">

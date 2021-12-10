@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable, ReplaySubject, Subject} from 'rxjs';
-import {MasonryItem} from './scroll/scroll.component';
+import {VoteMasonryItem} from './vote-scroll/voting-scroll.component';
 import {map} from 'rxjs/operators';
 import { VotableArtwork } from '../../../../backend/src/common/tableDefinitions';
 import {HttpClient} from '@angular/common/http';
@@ -20,7 +20,7 @@ export class VotingService {
   private readonly getMyVotesURL = '/getMyVotes';
   private readonly getArtworkByIdURL = '/getVotableArtwork'
   private readonly getMyUploadURL = '/getMyProposition'
-  private votedArtworks: BehaviorSubject<MasonryItem[]> = new BehaviorSubject<MasonryItem[]>([]);
+  private votedArtworks: BehaviorSubject<VoteMasonryItem[]> = new BehaviorSubject<VoteMasonryItem[]>([]);
   private readonly maxVoteAmount: BehaviorSubject<number> = new BehaviorSubject<number>(5);
   private readonly alreadyVoted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private myUpload: Subject<VotableArtwork> = new ReplaySubject<VotableArtwork>(1);
@@ -40,7 +40,7 @@ export class VotingService {
 
   public updateVotingStatus() {
     this.getMyVotes$().subscribe(votes => {
-      const items: MasonryItem[] = [];
+      const items: VoteMasonryItem[] = [];
       votes.forEach(artwork => {
         const title = artwork.title;
         const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
@@ -52,7 +52,7 @@ export class VotingService {
           img: url,
           voted: voted,
           artwork: artwork
-        } as MasonryItem;
+        } as VoteMasonryItem;
         items.push(item);
       });
       this.votedArtworks.next(items);
@@ -76,7 +76,7 @@ export class VotingService {
       img: url,
       voted: actuallyVoted,
       artwork: artwork
-    } as MasonryItem;
+    } as VoteMasonryItem;
   }
 
   public getHasVoted$(): Observable<boolean> {
@@ -100,15 +100,15 @@ export class VotingService {
     return this.httpClient.get<VotableArtwork[]>(urlString);
   }
 
-  setVoted(selection: MasonryItem[]) {
+  setVoted(selection: VoteMasonryItem[]) {
     this.votedArtworks.next(selection);
   }
 
-  getVotedArtworks$(): Observable<MasonryItem[]> {
+  getVotedArtworks$(): Observable<VoteMasonryItem[]> {
     return this.votedArtworks.pipe();
   }
 
-  getVotedArtworks(): MasonryItem[] {
+  getVotedArtworks(): VoteMasonryItem[] {
     return this.votedArtworks.getValue();
   }
 

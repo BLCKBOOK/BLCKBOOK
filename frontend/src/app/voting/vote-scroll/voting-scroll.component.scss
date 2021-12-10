@@ -1,0 +1,78 @@
+.masonry-item {
+  margin-bottom: 10px;
+}
+
+.gutter-sizer {
+  width: 10px;
+}
+
+.masonry-image {
+  width: 100%;
+  height: auto;
+}
+
+ngx-masonry {
+  margin-top: 10px;
+}
+
+@media screen and (max-width: 599px) {
+  .masonry-item,
+  .grid-sizer { width: 100%; }
+}
+
+@media screen and (min-width: 600px) and (max-width: 959px) {
+  .masonry-item,
+  .grid-sizer { width: calc(50% - 5px); }
+}
+
+@media screen and (min-width: 960px) and (max-width: 1279px) {
+  .masonry-item,
+  .grid-sizer { width: calc(33.3% - 6.6px); }
+}
+
+@media screen and (min-width: 1280px) and (max-width: 1919px) {
+  .masonry-item,
+  .grid-sizer { width: calc(33.3% - 6.6px); }
+}
+
+@media screen and (min-width: 1920px) {
+  .masonry-item,
+  .grid-sizer { width: calc(33.3% - 6.6px) }
+  ngx-masonry {
+    margin-left: calc((100vw - 1920px) / 2);
+    margin-right: calc((100vw - 1920px) / 2);
+  }
+}
+
+.vote-footer {
+  align-items: center;
+  display: inline-flex;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.vote-button {
+  background-color: var(--dark-background-lighter-10);
+  align-self: end;
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+.voted-image {
+  outline-offset: -3px;
+  outline: var(--primary-color) solid 3px;
+}
+
+.mat-raised-button {
+  padding: 0!important;
+}
+
+.nothing-selected-text {
+  text-align: center;
+}
+
+.image-button {
+  padding: 0;
+}
