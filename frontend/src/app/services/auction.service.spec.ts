@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TzktService } from './tzkt.service';
+import { AuctionService } from './auction.service';
 
 describe('TzktService', () => {
-  let service: TzktService;
+  let service: AuctionService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(TzktService);
+    service = TestBed.inject(AuctionService);
   });
 
   it('should be created', () => {

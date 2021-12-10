@@ -2,50 +2,43 @@ import {AfterViewInit, Component, Input, OnInit, ViewChild} from '@angular/core'
 import {NgxMasonryComponent, NgxMasonryOptions} from 'ngx-masonry';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {ImageSizeService} from '../../services/image-size.service';
-import {UploadedArtworkIndex, VotableArtwork} from '../../../../../backend/src/common/tableDefinitions';
-import {VotingService} from '../voting.service';
+import {UploadedArtworkIndex} from '../../../../../backend/src/common/tableDefinitions';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
 import {Observable, of, zip} from 'rxjs';
 import {catchError, map, takeUntil} from 'rxjs/operators';
 import {Location} from '@angular/common';
-import {UpdateService} from '../../services/update.service';
+import {TzktAuction} from '../../types/tzkt.auction';
+import {AuctionService} from '../../services/auction.service';
 
-export interface MasonryItem {
+export interface AuctionMasonryItem {
   title: string,
   img: string,
-  voted: boolean,
   srcSet: string,
-  artwork: VotableArtwork
+  auction: TzktAuction
 }
 
-export type ScrollType = 'voting' | 'gallery' | 'auction' | 'voting-selected';
-
 @Component({
-  selector: 'app-scroll',
-  templateUrl: './scroll.component.html',
-  styleUrls: ['./scroll.component.scss']
+  selector: 'app-auction-scroll',
+  templateUrl: './auction-scroll.component.html',
+  styleUrls: ['./auction-scroll.component.scss']
 })
-export class ScrollComponent implements OnInit, AfterViewInit {
+export class AuctionScrollComponent implements OnInit, AfterViewInit {
 
   currentIndex = 0;
-  alreadyVoted$: Observable<boolean>;
-  @Input() scrollType: ScrollType = 'voting';
-  @Input() items: MasonryItem[];
+  @Input() items: AuctionMasonryItem[];
 
   @ViewChild('masonry') masonry: NgxMasonryComponent;
-  masonryItems: MasonryItem[] = [];
+  masonryItems: AuctionMasonryItem[] = [];
   reachedEnd = false;
-  lastIndex: UploadedArtworkIndex | undefined = undefined;
+  lastIndex: number | undefined = undefined;
 
-  faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
 
   public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
-  constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService,
-              private location: Location, private updateService: UpdateService) {
-    this.alreadyVoted$ = this.votingService.getHasVoted$();
+  constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService,
+              private location: Location, private auctionService: AuctionService) {
   }
 
   ngAfterViewInit() {
@@ -55,9 +48,6 @@ export class ScrollComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initialize();
-    this.updateService.periodChanges().subscribe(() => {
-      this.initialize();
-    });
   }
 
   private initialize() {
@@ -65,19 +55,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
     this.reachedEnd = false;
     this.lastIndex = undefined;
     this.masonryItems = [];
-    if (this.scrollType === 'voting') {
-      this.addMoreItems();
-      this.votingService.getVotedArtworks$().pipe(takeUntil(this.updateService.periodChanges())).subscribe(votedArtworks => {
-        this.masonryItems.forEach(item => {
-          item.voted = votedArtworks.some(voted => voted.artwork.artworkId === item.artwork.artworkId);
-        });
-      });
-    } else if (this.scrollType === 'voting-selected') {
-      this.votingService.getVotedArtworks$().pipe(takeUntil(this.updateService.periodChanges())).subscribe(artworks => {
-        this.masonryItems = artworks;
-        // after the order of items has changed
-      });
-    }
+    this.addMoreItems();
   }
 
   public myOptions: NgxMasonryOptions = {
@@ -88,9 +66,6 @@ export class ScrollComponent implements OnInit, AfterViewInit {
   };
 
   public addMoreItems(throughScrolling = false) {
-    if (this.scrollType === 'voting-selected') {
-      return;
-    }
     if (this.reachedEnd) {
       console.log('already reached the end');
       return;
@@ -101,18 +76,13 @@ export class ScrollComponent implements OnInit, AfterViewInit {
       }
     }
 
-    zip(this.getArtworks(this.currentIndex),
-      this.getArtworks(this.currentIndex + 1),
-      this.getArtworks(this.currentIndex + 2),
-      this.getArtworks(this.currentIndex + 3),
-      this.getArtworks(this.currentIndex + 4))
-      .subscribe(artworksArray => {
-        console.log(artworksArray);
-        const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
-        this.currentIndex = this.currentIndex + 5;
-        const items: MasonryItem[] = [];
-        artworks.forEach(artwork => {
-          items.push(this.votingService.getMasonryItemOfArtwork(artwork));
+    this.getAuctions(this.currentIndex)
+      .subscribe(auctions => {
+        console.log(auctions);
+        this.currentIndex += 1;
+        const items: AuctionMasonryItem[] = [];
+        auctions.forEach(auction => {
+          items.push(this.auctionService.getMasonryItemOfAuction(auction));
         });
         this.masonryItems.push(...items);
       });
@@ -136,18 +106,19 @@ export class ScrollComponent implements OnInit, AfterViewInit {
       return Math.floor(Math.random() * (max - min + 1) + min);
     }*/
 
-  vote(item: MasonryItem): void {
+  /*vote(item: AuctionMasonryItem): void {
     item.voted = true;
     this.votingService.setVoted(this.votingService.getVotedArtworks().concat(item));
   }
 
-  unvote(item: MasonryItem): void {
+  unvote(item: AuctionMasonryItem): void {
     item.voted = false;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== item.artwork.artworkId));
-  }
+    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== item.auction.artworkId));
+  }*/
 
-  imageClick(item: MasonryItem) {
-    const src = this.imageSizeService.getOriginalString(item.artwork.imageUrls);
+  imageClick(item: AuctionMasonryItem) {
+    // ToDo: open the auction in a dialog here.
+    /*const src = this.imageSizeService.getOriginalString(item.auction.imageUrls);
     const dialogRef = this.dialog.open(DetailViewDialogComponent, {
       width: '90%',
       maxWidth: '90%',
@@ -156,20 +127,20 @@ export class ScrollComponent implements OnInit, AfterViewInit {
         src: src,
         srcSet: item.srcSet,
         voted: item.voted,
-        artwork: item.artwork
+        artwork: item.auction
       } as VoteDetailData
     });
     dialogRef.afterClosed().subscribe(() => {
       this.location.replaceState('/voting');
-    });
+    });*/
   }
 
-  private getArtworks(index: number): Observable<VotableArtwork[]> {
-    return this.votingService.getVotableArtworks$(index).pipe(catchError(this.handleError.bind(this)), map(array => array));
+  private getAuctions(index: number): Observable<TzktAuction[]> {
+    return this.auctionService.getAuctions().pipe(catchError(this.handleError.bind(this)), map(array => array));
   }
 
 
-  public handleError(error: any): Observable<VotableArtwork[]> {
+  public handleError(error: any): Observable<TzktAuction[]> {
     if (error?.status === 404) {
       console.log('reached End');
       this.reachedEnd = true;

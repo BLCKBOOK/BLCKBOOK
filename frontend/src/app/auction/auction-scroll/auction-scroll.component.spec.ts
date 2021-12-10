@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ScrollComponent } from './scroll.component';
+import { AuctionScrollComponent } from './auction-scroll.component';
 
 describe('ScrollComponent', () => {
-  let component: ScrollComponent;
-  let fixture: ComponentFixture<ScrollComponent>;
+  let component: AuctionScrollComponent;
+  let fixture: ComponentFixture<AuctionScrollComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ScrollComponent ]
+      declarations: [ AuctionScrollComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ScrollComponent);
+    fixture = TestBed.createComponent(AuctionScrollComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

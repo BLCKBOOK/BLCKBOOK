@@ -44,33 +44,19 @@ ngx-masonry {
   }
 }
 
-.vote-footer {
+.auction-footer {
   align-items: center;
   display: inline-flex;
   width: 100%;
   margin-top: 6px;
 }
 
-.vote-button {
-  background-color: var(--dark-background-lighter-10);
-  align-self: end;
-}
-
 .example-spacer {
   flex: 1 1 auto;
 }
 
-.voted-image {
-  outline-offset: -3px;
-  outline: var(--primary-color) solid 3px;
-}
-
 .mat-raised-button {
   padding: 0!important;
-}
-
-.nothing-selected-text {
-  text-align: center;
 }
 
 .image-button {

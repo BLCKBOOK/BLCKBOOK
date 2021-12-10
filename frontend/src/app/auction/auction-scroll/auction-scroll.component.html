@@ -1,0 +1,15 @@
+<ngx-masonry [options]="myOptions" appAuctionScrollTracker (scrollingFinished)="addMoreItems(true)" #masonry (window:resize)="onResize()">
+  <div class="grid-sizer"></div>
+  <div class="gutter-sizer"></div>
+  <div ngxMasonryItem class="masonry-item" *ngFor="let item of masonryItems">
+    <button mat-button class="image-button" (click)="imageClick(item)">
+      <img src="{{item.img}}" class="masonry-image" srcset="{{item.srcSet}}" sizes="{{sizes}}" alt="{{item.title}}">
+    </button>
+    <div class="auction-footer">
+      <span>{{item.title}}</span>
+      <span class="example-spacer"></span>
+      <span>{{item.auction.bid_amount}}</span>
+    </div>
+  </div>
+</ngx-masonry>
+<!--<div *ngIf="reachedEnd">YOU REACHED THE END</div>-->
