@@ -1,4 +1,4 @@
-<ngx-masonry [options]="myOptions" appScrollTracker (scrollingFinished)="addMoreItems(true)" #masonry (window:resize)="onResize()">
+<ngx-masonry [options]="myOptions" appVoteScrollTracker (scrollingFinished)="addMoreItems(true)" #masonry (window:resize)="onResize()">
   <div class="grid-sizer"></div>
   <div class="gutter-sizer"></div>
   <div ngxMasonryItem class="masonry-item" *ngFor="let item of masonryItems">
@@ -6,7 +6,7 @@
       <img src="{{item.img}}" class="masonry-image" srcset="{{item.srcSet}}" sizes="{{sizes}}" alt="{{item.title}}"
            [ngClass]="item.voted ? 'voted-image': ''">
     </button>
-    <div *ngIf="scrollType === 'voting' || scrollType === 'voting-selected'" class="vote-footer">
+    <div class="vote-footer">
       <span>{{item.title}}</span>
       <span class="example-spacer"></span>
       <button mat-icon-button class="vote-button" *ngIf="!item.voted" (click)="vote(item)" [disabled]="alreadyVoted$ | async">

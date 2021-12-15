@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ScrollComponent } from './scroll.component';
+import { DetailViewDialogComponent } from './detail-view-dialog.component';
 
-describe('ScrollComponent', () => {
-  let component: ScrollComponent;
-  let fixture: ComponentFixture<ScrollComponent>;
+describe('DetailViewDialogComponent', () => {
+  let component: DetailViewDialogComponent;
+  let fixture: ComponentFixture<DetailViewDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ScrollComponent ]
+      declarations: [ DetailViewDialogComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ScrollComponent);
+    fixture = TestBed.createComponent(DetailViewDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

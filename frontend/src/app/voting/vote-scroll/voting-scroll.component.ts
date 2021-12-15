@@ -11,7 +11,7 @@ import {catchError, map, takeUntil} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {UpdateService} from '../../services/update.service';
 
-export interface MasonryItem {
+export interface VoteMasonryItem {
   title: string,
   img: string,
   voted: boolean,
@@ -19,22 +19,22 @@ export interface MasonryItem {
   artwork: VotableArtwork
 }
 
-export type ScrollType = 'voting' | 'gallery' | 'auction' | 'voting-selected';
+export type ScrollType = 'voting' | 'voting-selected';
 
 @Component({
-  selector: 'app-scroll',
-  templateUrl: './scroll.component.html',
-  styleUrls: ['./scroll.component.scss']
+  selector: 'app-voting-scroll',
+  templateUrl: './voting-scroll.component.html',
+  styleUrls: ['./voting-scroll.component.scss']
 })
-export class ScrollComponent implements OnInit, AfterViewInit {
+export class VotingScrollComponent implements OnInit, AfterViewInit {
 
   currentIndex = 0;
   alreadyVoted$: Observable<boolean>;
   @Input() scrollType: ScrollType = 'voting';
-  @Input() items: MasonryItem[];
+  @Input() items: VoteMasonryItem[];
 
   @ViewChild('masonry') masonry: NgxMasonryComponent;
-  masonryItems: MasonryItem[] = [];
+  masonryItems: VoteMasonryItem[] = [];
   reachedEnd = false;
   lastIndex: UploadedArtworkIndex | undefined = undefined;
 
@@ -110,7 +110,7 @@ export class ScrollComponent implements OnInit, AfterViewInit {
         console.log(artworksArray);
         const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
         this.currentIndex = this.currentIndex + 5;
-        const items: MasonryItem[] = [];
+        const items: VoteMasonryItem[] = [];
         artworks.forEach(artwork => {
           items.push(this.votingService.getMasonryItemOfArtwork(artwork));
         });
@@ -136,17 +136,17 @@ export class ScrollComponent implements OnInit, AfterViewInit {
       return Math.floor(Math.random() * (max - min + 1) + min);
     }*/
 
-  vote(item: MasonryItem): void {
+  vote(item: VoteMasonryItem): void {
     item.voted = true;
     this.votingService.setVoted(this.votingService.getVotedArtworks().concat(item));
   }
 
-  unvote(item: MasonryItem): void {
+  unvote(item: VoteMasonryItem): void {
     item.voted = false;
     this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== item.artwork.artworkId));
   }
 
-  imageClick(item: MasonryItem) {
+  imageClick(item: VoteMasonryItem) {
     const src = this.imageSizeService.getOriginalString(item.artwork.imageUrls);
     const dialogRef = this.dialog.open(DetailViewDialogComponent, {
       width: '90%',

@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { VotingRoutingModule } from './voting-routing.module';
 import { VotingComponent } from './voting.component';
 import {VotingService} from './voting.service';
-import {ScrollComponent} from './scroll/scroll.component';
-import {ScrollTrackerDirective} from './scroll/scroll-tracker.directive';
+import {VotingScrollComponent} from './vote-scroll/voting-scroll.component';
+import {VotingScrollTrackerDirective} from './vote-scroll/voting-scroll-tracker.directive';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
@@ -19,8 +19,8 @@ import {FlexLayoutModule} from '@angular/flex-layout';
   declarations: [
     VoteDetailComponent,
     VotingComponent,
-    ScrollComponent,
-    ScrollTrackerDirective,
+    VotingScrollComponent,
+    VotingScrollTrackerDirective,
     DetailViewDialogComponent,
   ],
   imports: [

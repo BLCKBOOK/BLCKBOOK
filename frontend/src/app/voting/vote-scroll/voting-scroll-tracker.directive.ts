@@ -1,9 +1,9 @@
 import {Directive, EventEmitter, HostListener, Output} from '@angular/core';
 
 @Directive({
-  selector: '[appScrollTracker]'
+  selector: '[appVoteScrollTracker]'
 })
-export class ScrollTrackerDirective {
+export class VotingScrollTrackerDirective {
   @Output() scrollingFinished = new EventEmitter<void>();
 
   emitted = false;

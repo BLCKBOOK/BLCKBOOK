@@ -7,7 +7,7 @@ import awsmobile from "../aws-exports";
 export const environment = {
   production: false,
   urlString: awsmobile.aws_cloud_logic_custom ?  awsmobile.aws_cloud_logic_custom[0].endpoint : ""
-}; 
+};
 
 /*
  * For easier debugging in development mode, you can import the following file
