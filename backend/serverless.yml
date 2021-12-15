@@ -21,6 +21,7 @@ custom:
   archive_table_name: 'archive-${self:provider.stage}'
   blckbook_user_pool: ${self:provider.stage}-blckbook-users
   period_table_name: period-table-dev
+  minting_queue_name: 'MintingQueue.fifo'
   max_votes_per_user: 5
   best_percentile: 10
   periodDuration: 604800000 # in ms
@@ -40,6 +41,9 @@ provider:
   lambdaHashingVersion: '20201221'
   region: 'eu-west-1'
   environment:
+    FA2_CONTRACT_ADDRESS: 'KT1HAtdXKvXqK2He3Xr2xmHQ9cYrxPTL7X9Z'
+    AUCTION_HOUSE_CONTRACT_ADDRESS:  'KT1RG8SzC5exEXedFEpFwjisuAcjjf7TTwNB'
+    VOTER_MONEY_POOL_CONTRACT_ADDRESS: 'KT1XeA6tZYeBCm7aux3SAPswTuRE72R3VUCW'
     USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
     UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
     FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
@@ -52,6 +56,7 @@ provider:
     ARCHIVE_TABLE_NAME: ${self:custom.archive_table_name}
     PERIOD_DURATION: ${self:custom.periodDuration}
     BEST_PERCENTILE: ${self:custom.best_percentile}
+    MINTING_QUEUE_NAME: ${self:custom.minting_queue_name}
     USER_POOL_ID:
       Ref: BlckBookUsers
     STAGE:  ${self:provider.stage}
@@ -254,3 +259,11 @@ resources:
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: ApiGatewayRestApi
+    
+    MintingQueue:
+      Type: 'AWS::SQS::Queue'
+      Properties:
+        VisibilityTimeout: 180
+        QueueName: ${self:custom.minting_queue_name}
+        ContentBasedDeduplication: true
+        FifoQueue: true

@@ -70,6 +70,7 @@ export interface VotableArtwork {
   title?: string
   artist?: string
   votes: [string]
+  voteCount: number
 }
 
 export interface Notification {

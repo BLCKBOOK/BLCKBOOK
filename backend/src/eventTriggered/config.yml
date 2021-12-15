@@ -40,7 +40,12 @@ triggerNextPeriod:
         - dynamodb:PutItem
         - dynamodb:BatchWriteItem
       Resource:
-        - Fn::GetAtt: [ archive, Arn ]                                                    
+        - Fn::GetAtt: [ archive, Arn ]
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+      Resource:
+        - Fn::GetAtt: [ MintingQueue, Arn ]                                                    
   events:
     - http:
         path: admin/triggerNextPeriod
@@ -117,3 +122,36 @@ confirmUser:
         pool: ${self:provider.stage}-blckbook-users
         trigger: PreSignUp
         existing: true
+
+mintingQueueWorker:
+    handler: src/eventTriggered/minter.handler
+    timeout: 180
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/hangzhouFaucet-ioAJGW"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:pinataAccessKey-ZJzp7t"
+      - Effect: Allow
+        Action:
+        - dynamodb:GetItem
+        Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+        - dynamodb:GetItem
+        Resource:
+        - Fn::GetAtt: [ votePagesTable, Arn ]
+      - Effect: Allow
+        Action:
+        - s3:GetObject
+        Resource:
+        - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt:
+              - MintingQueue
+              - Arn
