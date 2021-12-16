@@ -1,4 +1,3 @@
-<!--
 <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container"
      fxLayoutAlign="space-evenly">
   <div fxFlex="1 1 50%" fxFlex.gt-sm="10 1 fit-content" class="image-container">
@@ -10,19 +9,25 @@
        fxLayout="column" fxLayoutAlign="space-between">
     <div>
       <div>
-        <h4>{{data.artwork.title ?? 'Unknown'}}</h4>
+        <h4>{{data.auctionKey.key ?? 'Unknown'}}</h4>
       </div>
-      <div>Uploaded by {{data.artwork.uploader}}</div>
+      <div>Uploaded by {{data.auctionKey.value.uploader}}</div>
       <br>
       <div class="meta-data-container">
         <div class="line-container">
-          <span>LATITUDE</span><span class="artwork-data">{{data.artwork.latitude}}</span>
+          <span>LATITUDE</span><span class="artwork-data">{{207}}</span>
         </div>
         <div class="line-container">
-          <span>LONGITUDE</span><span class="artwork-data">{{data.artwork.longitude}}</span>
+          <span>LONGITUDE</span><span class="artwork-data">{{101}}</span>
         </div>
         <div class="line-container">
-          <span>TIMESTAMP</span><span class="artwork-data">{{timeDisplay}}</span>
+          <span>Auction End</span><span class="artwork-data">{{timeDisplay}}</span>
+        </div>
+        <div class="line-container">
+          <span>Highest Bid</span><span class="artwork-data">{{data.auctionKey.value.bid_amount}}</span>
+        </div>
+        <div class="line-container">
+          <span>Highest Bidder</span><span class="artwork-data">{{data.auctionKey.value.bidder}}</span>
         </div>
       </div>
     </div>
@@ -30,30 +35,47 @@
       <button mat-raised-button (click)="showOnMap()">
         <fa-icon [icon]="faMapPin"></fa-icon>
         Show on map
-      </button> <br>
+      </button>
+      <br>
       <button mat-raised-button [disabled]="false" (click)="copyToClipboard()">
         <fa-icon [icon]="faShareSquare">
         </fa-icon>
-        Share Graffiti
+        Share Auction
       </button>
     </div>
-    <div class="vote-button-container">
-      <button mat-raised-button *ngIf="!data.voted" (click)="vote()"
-              [disabled]="alreadyVoted$ | async">
-        Select for Vote
-        <fa-stack>
-          <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
-        </fa-stack>
-      </button>
-      <button mat-raised-button *ngIf="data.voted" (click)="unvote()"
-              [disabled]="alreadyVoted$ | async">
-        Deselect
-        <fa-stack>
-          <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
-          <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>
-        </fa-stack>
-      </button>
+    <div *ngIf="!auctionOver else: auctionEnded">
+      <div>
+        <form class="bid-form">
+          <mat-form-field>
+            <input
+              type="number"
+              class="form-control"
+              matInput
+              name="Bid"
+              placeholder="Your Bid"
+              [formControl]="bidFormControl" [errorStateMatcher]="bidErrorMatcher"
+              min="{{minAuctionBid}}">
+          </mat-form-field>
+          <mat-error *ngIf="bidFormControl.hasError('min') && !bidFormControl.hasError('required')">
+            You need to bid at least {{minAuctionBid}}
+          </mat-error>
+          <mat-error *ngIf="bidFormControl.hasError('required')">
+            A bid amount is <strong>required</strong>
+          </mat-error>
+        </form>
+      </div>
+      <div class="bid-button-container">
+        <button mat-raised-button (click)="bid(data.auctionKey.key)"
+                [disabled]="bidFormControl.hasError('min') || bidFormControl.hasError('required')">
+          Bid
+          <!--       <fa-stack>
+                   <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
+                 </fa-stack>-->
+        </button>
+      </div>
     </div>
+    <ng-template #auctionEnded>
+      The Auction already ended
+    </ng-template>
   </div>
 </div>
--->

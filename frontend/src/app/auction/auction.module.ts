@@ -12,8 +12,11 @@ import {NgxMasonryModule} from 'ngx-masonry';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {AuctionScrollComponent} from './auction-scroll/auction-scroll.component';
 import {AuctionScrollTrackerDirective} from './auction-scroll/auction-scroll-tracker.directive';
-import {DetailViewDialogComponent} from './detail-view-dialog/detail-view-dialog.component';
+import {DetailViewAuctionDialogComponent} from './detail-view-dialog/detail-view-auction-dialog.component';
 import {AuctionDetailComponent} from './auction-detail/auction-detail.component';
+import {WalletModule} from '../wallet/wallet.module';
+import {MatInputModule} from '@angular/material/input';
+import {ReactiveFormsModule} from '@angular/forms';
 
 
 @NgModule({
@@ -22,7 +25,7 @@ import {AuctionDetailComponent} from './auction-detail/auction-detail.component'
     AuctionDetailComponent,
     AuctionScrollComponent,
     AuctionScrollTrackerDirective,
-    DetailViewDialogComponent,
+    DetailViewAuctionDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -34,6 +37,9 @@ import {AuctionDetailComponent} from './auction-detail/auction-detail.component'
     MatTabsModule,
     NgxMasonryModule,
     FlexLayoutModule,
+    WalletModule,
+    MatInputModule,
+    ReactiveFormsModule,
   ]
 })
 export class AuctionModule { }

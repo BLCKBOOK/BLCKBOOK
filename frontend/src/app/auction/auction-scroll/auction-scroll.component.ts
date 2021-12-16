@@ -4,18 +4,18 @@ import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {ImageSizeService} from '../../services/image-size.service';
 import {UploadedArtworkIndex} from '../../../../../backend/src/common/tableDefinitions';
 import {MatDialog} from '@angular/material/dialog';
-import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
+import {DetailViewAuctionDialogComponent, AuctionDetailData} from '../detail-view-dialog/detail-view-auction-dialog.component';
 import {Observable, of, zip} from 'rxjs';
 import {catchError, map, takeUntil} from 'rxjs/operators';
 import {Location} from '@angular/common';
-import {TzktAuction} from '../../types/tzkt.auction';
+import {TzktAuction, TzktAuctionKey} from '../../types/tzkt.auction';
 import {AuctionService} from '../../services/auction.service';
 
 export interface AuctionMasonryItem {
   title: string,
   img: string,
   srcSet: string,
-  auction: TzktAuction
+  auction: TzktAuctionKey
 }
 
 @Component({
@@ -102,45 +102,29 @@ export class AuctionScrollComponent implements OnInit, AfterViewInit {
       return of(items);
     }*/
 
-  /*  private randomIntFromInterval(min: number, max: number) { // min and max included
-      return Math.floor(Math.random() * (max - min + 1) + min);
-    }*/
-
-  /*vote(item: AuctionMasonryItem): void {
-    item.voted = true;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().concat(item));
-  }
-
-  unvote(item: AuctionMasonryItem): void {
-    item.voted = false;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== item.auction.artworkId));
-  }*/
-
   imageClick(item: AuctionMasonryItem) {
     // ToDo: open the auction in a dialog here.
-    /*const src = this.imageSizeService.getOriginalString(item.auction.imageUrls);
-    const dialogRef = this.dialog.open(DetailViewDialogComponent, {
+    const dialogRef = this.dialog.open(DetailViewAuctionDialogComponent, {
       width: '90%',
       maxWidth: '90%',
       maxHeight: '100%',
       data: {
-        src: src,
-        srcSet: item.srcSet,
-        voted: item.voted,
-        artwork: item.auction
-      } as VoteDetailData
+        src: item.img,
+        auctionKey: item.auction,
+        srcSet: item.srcSet
+      } as AuctionDetailData
     });
     dialogRef.afterClosed().subscribe(() => {
       this.location.replaceState('/voting');
-    });*/
+    });
   }
 
-  private getAuctions(index: number): Observable<TzktAuction[]> {
-    return this.auctionService.getAuctions().pipe(catchError(this.handleError.bind(this)), map(array => array));
+  private getAuctions(index: number): Observable<TzktAuctionKey[]> {
+    return this.auctionService.getAuctions(index).pipe(catchError(this.handleError.bind(this)), map(array => array));
   }
 
 
-  public handleError(error: any): Observable<TzktAuction[]> {
+  public handleError(error: any): Observable<TzktAuctionKey[]> {
     if (error?.status === 404) {
       console.log('reached End');
       this.reachedEnd = true;

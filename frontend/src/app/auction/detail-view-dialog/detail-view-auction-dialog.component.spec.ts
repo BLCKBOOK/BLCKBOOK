@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DetailViewDialogComponent } from './detail-view-dialog.component';
+import { DetailViewAuctionDialogComponent } from './detail-view-auction-dialog.component';
 
 describe('DetailViewDialogComponent', () => {
-  let component: DetailViewDialogComponent;
-  let fixture: ComponentFixture<DetailViewDialogComponent>;
+  let component: DetailViewAuctionDialogComponent;
+  let fixture: ComponentFixture<DetailViewAuctionDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DetailViewDialogComponent ]
+      declarations: [ DetailViewAuctionDialogComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DetailViewDialogComponent);
+    fixture = TestBed.createComponent(DetailViewAuctionDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
