@@ -35,6 +35,7 @@ export class AuctionDetailComponent implements OnInit {
   faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
   auctionOver = false;
   minAuctionBid: number;
+  currentBid: number;
   readonly bidStepThreshold = 100000;
 
   bidFormControl = new FormControl('', [Validators.required]);
@@ -50,6 +51,7 @@ export class AuctionDetailComponent implements OnInit {
 
     this.timeDisplay = end_date.toLocaleDateString() + ' ' + end_date.toLocaleTimeString();
     this.auctionOver = (new Date().getDate() > end_date.getDate());
+    this.currentBid = parseInt(this.data.auctionKey.value.bid_amount) / 1000000;
     this.minAuctionBid = (parseInt(this.data.auctionKey.value.bid_amount) + this.bidStepThreshold) / 1000000;
     this.bidFormControl.addValidators(Validators.min(this.minAuctionBid));
     this.bidFormControl.setValue(this.minAuctionBid);

@@ -7,8 +7,7 @@ import {
   NetworkType,
   TezosOperationType
 } from '@airgap/beacon-sdk';
-import {from, Observable, of} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {UpdateUploadedArtworksRequestBody} from '../../../../backend/src/rest/user/setMyWalletId/apiSchema';
 import {environment} from '../../environments/environment';
@@ -21,36 +20,36 @@ export class BeaconService {
 
   private readonly userAPIURL = environment.urlString + '/user';
   private readonly setWalletIDURL = '/setMyWalletId';
+  private readonly network = NetworkType.HANGZHOUNET;
   dAppClient: DAppClient;
 
   constructor(private httpClient: HttpClient, private snackBarService: SnackBarService) {
     this.dAppClient = new DAppClient(
-      {name: 'BLCKBOOK', preferredNetwork: NetworkType.HANGZHOUNET});
+      {name: 'BLCKBOOK', preferredNetwork: this.network});
     this.dAppClient.setColorMode(ColorMode.DARK).then();
   }
 
-  connect(): Observable<AccountInfo | undefined> {
+  async getActiveAccount(): Promise<AccountInfo | undefined> {
     // Check if we are connected. If not, do a permission request first.
-    return of(undefined);
-    /*    return from(this.dAppClient.getActiveAccount());*/
+    return await this.dAppClient.getActiveAccount();
   }
 
-  getAddress(): Observable<string> {
-    return this.connect().pipe(switchMap(activeAccount => {
-      if (activeAccount) {
-        return of(activeAccount.address);
-      } else {
-        return from(this.dAppClient.requestPermissions({
-          network: {
-            type: NetworkType.HANGZHOUNET,
-          },
-        })).pipe(map(response => response.address));
-      }
-    }));
+  async connect(): Promise<string> {
+    const activeAccount = await this.dAppClient.requestPermissions({
+      network: {
+        type: this.network,
+      },
+    });
+    return activeAccount.address;
   }
 
-  getCurrentWalletID(): Observable<string> {
-    return of('');
+  async getAddress(): Promise<string> {
+    let activeAccount = await this.getActiveAccount();
+    if (activeAccount) {
+      return activeAccount.address;
+    } else {
+      return await this.connect();
+    }
   }
 
   setWalletID(walletId: string): Observable<string> {
@@ -58,31 +57,38 @@ export class BeaconService {
     return this.httpClient.post(this.userAPIURL + this.setWalletIDURL, requestBody, {responseType: 'text'});
   }
 
-  bid(auctionId: string, amountInMutez: string) {
-    this.dAppClient.requestOperation({
-      operationDetails: [
-        {
-          kind: TezosOperationType.TRANSACTION,
-          amount: amountInMutez,
-          destination: environment.auctionHouseContractAddress,
-          parameters: {
-            entrypoint: 'bid',
-            value: {
-              int: auctionId,
+  async bid(auctionId: string, amountInMutez: string) {
+    const activeAccount = await this.getActiveAccount();
+    if (!activeAccount) {
+      await this.connect();
+    }
+    try {
+      const result = await this.dAppClient.requestOperation({
+        operationDetails: [
+          {
+            kind: TezosOperationType.TRANSACTION,
+            amount: amountInMutez,
+            destination: environment.auctionHouseContractAddress,
+            parameters: {
+              entrypoint: 'bid',
+              value: {
+                int: auctionId,
+              },
             },
           },
-        },
-      ],
-    }).then(result => {
+        ],
+      });
       console.log(result);
-      this.snackBarService.openSnackBarWithoutAction('bid was successfully placed');
-    }).catch(error => {
+      this.snackBarService.openSnackBarWithoutAction('Bid was successfully placed');
+    } catch (error) {
       if (error instanceof AbortedBeaconError) {
         console.log('User aborted beacon interaction');
       } else {
         this.snackBarService.openSnackBarWithoutAction('There was an unknown error with the transaction, please try again!', 5000);
-        console.error(error)
+        console.error(error);
       }
-    });
+    }
   }
+
+
 }

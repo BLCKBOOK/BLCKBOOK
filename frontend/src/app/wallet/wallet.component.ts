@@ -4,6 +4,7 @@ import {UserService} from '../services/user.service';
 import {FormControl, Validators} from '@angular/forms';
 import {SnackBarService} from '../services/snack-bar.service';
 import {TranslateService} from '@ngx-translate/core';
+import {from} from 'rxjs';
 
 @Component({
   selector: 'app-wallet',
@@ -28,7 +29,7 @@ export class WalletComponent implements OnInit {
   }
 
   connectWallet() {
-    this.beaconService.getAddress().subscribe(address => {
+    from(this.beaconService.getAddress()).subscribe(address => {
       this.setWalletId(address);
       this.beaconWalletID = address;
     });
