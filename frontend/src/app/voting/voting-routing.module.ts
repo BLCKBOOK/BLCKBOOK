@@ -4,7 +4,7 @@ import { VotingComponent } from './voting.component';
 import {AuthGuardService} from '../services/auth-guard.service';
 
 const routes: Routes = [
-  { path: '', component: VotingComponent },
+  { path: '', component: VotingComponent, canActivate: [AuthGuardService] },
   {path: ':id', component: VotingComponent, canActivate: [AuthGuardService]},
 ];
 

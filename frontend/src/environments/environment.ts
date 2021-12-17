@@ -7,11 +7,15 @@ import awsmobile from "../aws-exports";
 export const environment = {
   production: false,
   urlString: awsmobile.aws_cloud_logic_custom ?  awsmobile.aws_cloud_logic_custom[0].endpoint : "",
-  auctionHouseContractAddress: 'KT1RG8SzC5exEXedFEpFwjisuAcjjf7TTwNB',
+  auctionHouseContractAddress: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw',
+  tokenContractAddress: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2',
+  voterMoneyPoolContractAddress: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj',
+  tzktAddress: 'https://api.hangzhou2net.tzkt.io/v1/',
+  cryptoNet: 'hangzhounet',
 };
 
 /*
- * For easier debugging in development mode, you can import the following file
+ * For easier debugging in development mode, you can impo<rt the following file
  * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
  *
  * This import should be commented out in production mode because it will have a negative impact

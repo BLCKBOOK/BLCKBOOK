@@ -36,6 +36,7 @@ export class AuctionDetailComponent implements OnInit {
   auctionOver = false;
   minAuctionBid: number;
   currentBid: number;
+  auctionEnded: boolean;
   readonly bidStepThreshold = 100000;
 
   bidFormControl = new FormControl('', [Validators.required]);
@@ -50,7 +51,9 @@ export class AuctionDetailComponent implements OnInit {
     const end_date = new Date(this.data.auctionKey.value.end_timestamp);
 
     this.timeDisplay = end_date.toLocaleDateString() + ' ' + end_date.toLocaleTimeString();
-    this.auctionOver = (new Date().getDate() > end_date.getDate());
+    this.auctionOver = (new Date().getTime() > end_date.getTime());
+    this.auctionEnded = !this.data.auctionKey.active;
+    console.log(`auctionOver: ${this.auctionOver}`);
     this.currentBid = parseInt(this.data.auctionKey.value.bid_amount) / 1000000;
     this.minAuctionBid = (parseInt(this.data.auctionKey.value.bid_amount) + this.bidStepThreshold) / 1000000;
     this.bidFormControl.addValidators(Validators.min(this.minAuctionBid));
@@ -64,17 +67,17 @@ export class AuctionDetailComponent implements OnInit {
   }
 
   showOnMap() {
-  /*  this.dialog.open(MapDialogComponent, {
+    this.dialog.open(MapDialogComponent, {
       width: '100%',
       maxWidth: '100%',
-      data: {latlng: {lat: parseFloat(this.data.artwork.latitude), lng: parseFloat(this.data.artwork.longitude)}} as MapDialogData
-    });*/
+      data: {latlng: {lat: parseFloat(this.data.mintedArtwork.latitude), lng: parseFloat(this.data.mintedArtwork.longitude)}} as MapDialogData
+    });
   }
 
   bid(key: string) {
     if (this.bidFormControl.value && isNumeric(this.bidFormControl.value)) {
       const mutezAmount = this.bidFormControl.value as number * 1000000;
-      this.beaconService.bid(key, mutezAmount.toString());
+      this.beaconService.bid(key, mutezAmount.toString()); // ToDo: don't ignore the Promise and do something here
     } else {
       this.snackBarService.openSnackBarWithoutAction('Some error in the bid-amount');
     }

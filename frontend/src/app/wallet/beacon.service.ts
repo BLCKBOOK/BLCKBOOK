@@ -20,7 +20,7 @@ export class BeaconService {
 
   private readonly userAPIURL = environment.urlString + '/user';
   private readonly setWalletIDURL = '/setMyWalletId';
-  private readonly network = NetworkType.HANGZHOUNET;
+  private readonly network = environment.cryptoNet as NetworkType;
   dAppClient: DAppClient;
 
   constructor(private httpClient: HttpClient, private snackBarService: SnackBarService) {
@@ -83,12 +83,10 @@ export class BeaconService {
     } catch (error) {
       if (error instanceof AbortedBeaconError) {
         console.log('User aborted beacon interaction');
-      } else {
+      } else { // ToDo: maybe do a better error managing. (All error cases from the contract maybe)
         this.snackBarService.openSnackBarWithoutAction('There was an unknown error with the transaction, please try again!', 5000);
         console.error(error);
       }
     }
   }
-
-
 }

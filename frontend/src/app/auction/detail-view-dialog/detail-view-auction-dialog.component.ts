@@ -1,11 +1,12 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { VotableArtwork } from '../../../../../backend/src/common/tableDefinitions';
+import { MintedArtwork } from '../../../../../backend/src/common/tableDefinitions';
 import {Location} from '@angular/common';
 import {TzktAuctionKey} from '../../types/tzkt.auction';
 
 export interface AuctionDetailData {
   auctionKey: TzktAuctionKey,
+  mintedArtwork: MintedArtwork,
   srcSet: string,
   src: string
 }

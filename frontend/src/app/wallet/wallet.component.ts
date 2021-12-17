@@ -44,8 +44,10 @@ export class WalletComponent implements OnInit {
   }
 
   reconnectWallet() {
-    this.beaconWalletID = '';
-    this.connectWallet();
+    from(this.beaconService.connect()).subscribe(address => {
+      this.setWalletId(address);
+      this.beaconWalletID = address;
+    });
   }
 
   getErrorMessage(): string {

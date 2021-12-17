@@ -6,41 +6,61 @@ import {TzktAuction, TzktAuctionKey} from '../types/tzkt.auction';
 import {AuctionMasonryItem} from '../auction/auction-scroll/auction-scroll.component';
 import {ImageSizeService} from './image-size.service';
 import {environment} from '../../environments/environment';
+import {MintedArtwork} from '../../../../backend/src/common/tableDefinitions'
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuctionService {
 
-  readonly tokenContractAddress = 'KT1HAtdXKvXqK2He3Xr2xmHQ9cYrxPTL7X9Z';
-  readonly voterMoneyPoolContractAddress = 'KT1XeA6tZYeBCm7aux3SAPswTuRE72R3VUCW';
-  readonly tzkt = 'https://api.hangzhou2net.tzkt.io/v1/';
-  private readonly loadLimit = 30;
+  private readonly mintedArtworkByTokenIDURL = environment.urlString + '/mints/getMintedArtworkByTokenId/'
+  //
+  private readonly loadLimit = 15;
 
   constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService) {
   }
 
-  public getAuctions(offset: number = 0): Observable<TzktAuctionKey[]> {
+  public getLiveAuctions(offset: number = 0): Observable<TzktAuctionKey[]> {
     const actualOffset = offset * this.loadLimit;
-    return this.httpClient.get<TzktAuctionKey[]>(this.tzkt + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys'
+    return this.httpClient.get<TzktAuctionKey[]>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys'
       + `?limit=${this.loadLimit}&offset=${actualOffset}`);
   }
 
-  public getTokenInfoForAuction(auctionId: number): Observable<number> {
-    return of(auctionId); //ToDo: when the backend function is here call it here.
+  public getPastAuctions(offset: number = 0): Observable<TzktAuctionKey[]> {
+    const actualOffset = offset * this.loadLimit;
+    return this.httpClient.get<TzktAuctionKey[]>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys'
+      + `?limit=${this.loadLimit}&offset=${actualOffset}&active=false`);
   }
 
-  public getMasonryItemOfAuction(auction: TzktAuctionKey): AuctionMasonryItem {
-    /*const title = artwork.title;
-    const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
-    const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);*/
-    const srcSet = 'https://blckbook-uploaded-artworks.s3.eu-west-1.amazonaws.com/thumbnails/79485423-51dd-476b-bda4-a4f3bff9e047/100w.jpg 100w, https://blckbook-uploaded-artworks.s3.eu-west-1.amazonaws.com/thumbnails/79485423-51dd-476b-bda4-a4f3bff9e047/360w.jpg 360w, https://blckbook-uploaded-artworks.s3.eu-west-1.amazonaws.com/thumbnails/79485423-51dd-476b-bda4-a4f3bff9e047/550w.jpg 550w, https://blckbook-uploaded-artworks.s3.eu-west-1.amazonaws.com/thumbnails/79485423-51dd-476b-bda4-a4f3bff9e047/800w.jpg 800w, https://blckbook-uploaded-artworks.s3.eu-west-1.amazonaws.com/thumbnails/79485423-51dd-476b-bda4-a4f3bff9e047/1000w.jpg 1000w';
-    const url = 'https://blckbook-uploaded-artworks.s3.eu-west-1.amazonaws.com/thumbnails/79485423-51dd-476b-bda4-a4f3bff9e047/1000w.jpg';
+  public getAuction(id: number): Observable<TzktAuctionKey> {
+    return this.httpClient.get<TzktAuctionKey>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys/' + id);
+  }
+
+  async getMintedArtworkForId(auctionId: number): Promise<MintedArtwork> {
+    return this.httpClient.get<MintedArtwork>(this.mintedArtworkByTokenIDURL + auctionId).toPromise();
+  }
+
+  //ToDo: write me  | public getIPFSLinkForAuction
+  public async getMasonryItemsOfLiveAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
+    const liveAuctions = await this.getLiveAuctions(offset).toPromise();
+    const retValue = [];
+    for (const auction of liveAuctions) {
+      const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
+      retValue.push(this.getMasonryItemOfAuction(auction, mintedArtwork));
+    }
+    return retValue;
+  }
+
+  public getMasonryItemOfAuction(auctionKey: TzktAuctionKey, mintedArtwork: MintedArtwork): AuctionMasonryItem {
+    const title = mintedArtwork.title;
+    const url = this.imageSizeService.get1000WImage(mintedArtwork.imageUrls);
+    const srcSet = this.imageSizeService.calculateSrcSetString(mintedArtwork.imageUrls);
     return {
-      title: `id: ${auction.key} `,
+      title,
       srcSet: srcSet,
       img: url,
-      auction,
+      auctionKey: auctionKey,
+      mintedArtwork,
     } as AuctionMasonryItem;
   }
 
