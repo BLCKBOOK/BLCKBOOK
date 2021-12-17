@@ -73,6 +73,22 @@ export interface VotableArtwork {
   voteCount: number
 }
 
+export interface MintedArtwork {
+  tokenId: number
+  artworkId: string
+  uploaderId: string,
+  imageUrls: { [Key: string]: string }
+  uploader: string
+  uploadTimestamp: number
+  geoHash: string
+  longitude: string
+  latitude: string
+  contentType: string
+  title?: string
+  artist?: string
+  voteCount: number
+}
+
 export interface Notification {
   userId: string,
   timestamp: number,

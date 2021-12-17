@@ -20,6 +20,7 @@ custom:
   artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks' 
   archive_table_name: 'archive-${self:provider.stage}'
   blckbook_user_pool: ${self:provider.stage}-blckbook-users
+  minted_artworks_table_name: ${self:provider.stage}-minted-artworks
   period_table_name: period-table-dev
   minting_queue_name: 'MintingQueue.fifo'
   max_votes_per_user: 5
@@ -54,6 +55,7 @@ provider:
     PERIOD_TABLE_NAME: ${self:custom.period_table_name}
     NOTIFICATION_TABLE_NAME: ${self:custom.notification_table_name}
     ARCHIVE_TABLE_NAME: ${self:custom.archive_table_name}
+    MINTED_ARTWORKS_TABLE_NAME: ${self:custom.minted_artworks_table_name}
     PERIOD_DURATION: ${self:custom.periodDuration}
     BEST_PERCENTILE: ${self:custom.best_percentile}
     MINTING_QUEUE_NAME: ${self:custom.minting_queue_name}
@@ -80,6 +82,7 @@ functions:
   - ${file(./src/rest/vote/getMyProposition/config.yml)}
   - ${file(./src/rest/notifications/config.yml)}
   - ${file(./src/rest/period/getCurrentPeriod/config.yml)}
+  - ${file(./src/rest/mints/getMintedArtworkByTokenId/config.yml)}
   
 resources:
   Resources:
@@ -249,6 +252,18 @@ resources:
           - AttributeName: artworkId
             KeyType: HASH
         TableName: ${self:custom.archive_table_name}
+  
+    mintedArtworks:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: tokenId
+            AttributeType: "N"
+        KeySchema:
+          - AttributeName: tokenId
+            KeyType: HASH
+        TableName: ${self:custom.minted_artworks_table_name}
 
     GatewayResponseDefault4XX:
       Type: 'AWS::ApiGateway::GatewayResponse'

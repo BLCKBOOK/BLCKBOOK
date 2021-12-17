@@ -140,6 +140,12 @@ mintingQueueWorker:
         - Fn::GetAtt: [ userInfoTable, Arn ]
       - Effect: Allow
         Action:
+        - dynamodb:PutItem
+        Resource:
+        - Fn::GetAtt: [ mintedArtworks, Arn ]
+      
+      - Effect: Allow
+        Action:
         - dynamodb:GetItem
         Resource:
         - Fn::GetAtt: [ votePagesTable, Arn ]

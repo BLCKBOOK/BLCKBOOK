@@ -13,7 +13,7 @@ import RequestLogger from "../common/RequestLogger";
 import { GetObjectAclCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { VotableArtwork, UserInfo } from '../common/tableDefinitions';
 import { Readable } from 'stream';
-import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
@@ -156,6 +156,14 @@ const baseHandler = async (event, context) => {
             .send()
 
         await batch.confirmation(2)
+
+        // save minted artwork to mintedArtworks table
+        const saveMintedArtworkCommand = new PutItemCommand({
+            TableName: process.env['MINTED_ARTWORKS_TABLE_NAME'],
+            Item: marshall(Object.assign(artworkToMint, {tokenId: currentTokenIndex}))
+        })
+        await ddbClient.send(saveMintedArtworkCommand)
+
     }
 }
 
