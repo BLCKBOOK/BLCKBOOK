@@ -23,6 +23,7 @@ export class VoteDetailComponent implements OnInit {
   faShareSquare = findIconDefinition({prefix: 'fas', iconName: 'share-square'});
   faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
   alreadyVoted$: Observable<boolean>
+  @Input() withinDialog: boolean;
 
   constructor(public dialog: MatDialog, private clipboard: Clipboard,
                 private snackBarService: SnackBarService, private votingService: VotingService) {
