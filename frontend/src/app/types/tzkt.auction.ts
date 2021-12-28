@@ -16,3 +16,11 @@ export interface TzktAuctionKey {
   lastLevel: number,
   updates: number,
 }
+
+export interface TzKtAuctionHistoricalKey {
+  action: 'add_key' | 'remove_key' | 'update_key',
+  id: number,
+  level: number,
+  timestamp: string,
+  value: TzktAuction,
+}

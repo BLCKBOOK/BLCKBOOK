@@ -35,11 +35,20 @@
 .button-container {
   button {
     margin-bottom: .5em;
+    width: 50%;
   }
+}
+
+.bid-form, .reconnect-button {
+  margin: .5em;
 }
 
 .bid-button-container {
   button {
     width: 100%;
   }
+}
+
+.recent-bids-container {
+  margin-top: 1em;
 }

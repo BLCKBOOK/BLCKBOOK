@@ -20,6 +20,7 @@ export interface AuctionMasonryItem {
   srcSet: string,
   auctionKey: TzktAuctionKey,
   mintedArtwork: MintedArtwork,
+  tezBidAmount: string,
 }
 
 @Component({
@@ -83,12 +84,15 @@ export class AuctionScrollComponent implements OnInit, AfterViewInit {
     this.getAuctions(this.currentIndex).subscribe(masonryItems => {
       console.log('added more items');
       this.currentIndex += 1;
-      this.masonryItems.push(...masonryItems);
+      if (masonryItems.length === 0) {
+        this.reachedEnd = true;
+      } else {
+        this.masonryItems.push(...masonryItems);
+      }
     });
   }
 
   imageClick(item: AuctionMasonryItem) {
-    // ToDo: open the auction in a dialog here.
     const dialogRef = this.dialog.open(DetailViewAuctionDialogComponent, {
       width: '90%',
       maxWidth: '90%',

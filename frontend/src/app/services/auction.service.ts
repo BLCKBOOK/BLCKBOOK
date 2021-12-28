@@ -1,35 +1,41 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {TzktAuction, TzktAuctionKey} from '../types/tzkt.auction';
+import {Observable} from 'rxjs';
+import {TzKtAuctionHistoricalKey, TzktAuctionKey} from '../types/tzkt.auction';
 import {AuctionMasonryItem} from '../auction/auction-scroll/auction-scroll.component';
 import {ImageSizeService} from './image-size.service';
 import {environment} from '../../environments/environment';
-import {MintedArtwork} from '../../../../backend/src/common/tableDefinitions'
+import {MintedArtwork} from '../../../../backend/src/common/tableDefinitions';
+import {CurrencyService} from './currency.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuctionService {
 
-  private readonly mintedArtworkByTokenIDURL = environment.urlString + '/mints/getMintedArtworkByTokenId/'
+  private readonly mintedArtworkByTokenIDURL = environment.urlString + '/mints/getMintedArtworkByTokenId/';
   //
   private readonly loadLimit = 15;
 
-  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService) {
+  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private currencyService: CurrencyService) {
   }
 
   public getLiveAuctions(offset: number = 0): Observable<TzktAuctionKey[]> {
-    const actualOffset = offset * this.loadLimit;
-    return this.httpClient.get<TzktAuctionKey[]>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys'
-      + `?limit=${this.loadLimit}&offset=${actualOffset}`);
+    return this.getAuctions('true', offset);
   }
 
   public getPastAuctions(offset: number = 0): Observable<TzktAuctionKey[]> {
+    return this.getAuctions('false', offset);
+  }
+
+  public getHistoricalKeysOfAuction(auctionId: string): Observable<TzKtAuctionHistoricalKey[]> {
+    return this.httpClient.get<TzKtAuctionHistoricalKey[]>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys/' + auctionId + '/updates')
+  }
+
+  private getAuctions(active: 'true' | 'false', offset: number = 0): Observable<TzktAuctionKey[]> {
     const actualOffset = offset * this.loadLimit;
     return this.httpClient.get<TzktAuctionKey[]>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys'
-      + `?limit=${this.loadLimit}&offset=${actualOffset}&active=false`);
+      + `?limit=${this.loadLimit}&offset=${actualOffset}&active=${active}`);
   }
 
   public getAuction(id: number): Observable<TzktAuctionKey> {
@@ -40,9 +46,8 @@ export class AuctionService {
     return this.httpClient.get<MintedArtwork>(this.mintedArtworkByTokenIDURL + auctionId).toPromise();
   }
 
-  //ToDo: write me  | public getIPFSLinkForAuction
   public async getMasonryItemsOfLiveAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
-    const liveAuctions = await this.getLiveAuctions(offset).toPromise();
+    const liveAuctions = await this.getPastAuctions(offset).toPromise(); //ToDo: change me back to live
     const retValue = [];
     for (const auction of liveAuctions) {
       const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
@@ -61,8 +66,7 @@ export class AuctionService {
       img: url,
       auctionKey: auctionKey,
       mintedArtwork,
+      tezBidAmount: this.currencyService.getTezAmountFromMutez(auctionKey.value.bid_amount),
     } as AuctionMasonryItem;
   }
-
-  // ToDo: use this somewhere
 }
