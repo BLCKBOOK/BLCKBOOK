@@ -37,7 +37,12 @@
                fxLayout="row">
             <div fxLayout="column" fxFlex="1 1 calc(100% - 40px)" (click)="openNotificationsDialog()">
               <h4 class="notification-title" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.title}}</h4>
-              <div class="notification-text" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
+              <div *ngIf="notification.link else noLink">
+                <div class="notification-text link" routerLink="{{notification.link}}" (click)="notificationLinkClick($event)" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
+              </div>
+              <ng-template #noLink>
+                <div class="notification-text" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
+              </ng-template>
             </div>
             <div fxFlex="1 1 40px" class="icon-column">
               <button mat-icon-button *ngIf="!notification.seen" (click)="markNotificationAsSeen(notification, $event)">

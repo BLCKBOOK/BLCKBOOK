@@ -23,4 +23,8 @@ export class NotificationsDialogComponent {
     $event.stopPropagation();
     this.notificationService.setNotificationSeen(notification);
   }
+
+  getLinkLocation(pathSuffix: string): string {
+    return window.location.origin + pathSuffix;
+  }
 }
