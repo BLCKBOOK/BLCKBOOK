@@ -8,7 +8,7 @@ import {
 export abstract class Contract {
     public Ready: Promise<void>;
     protected contract: ContractAbstraction<any> | undefined;
-
+    
     protected constructor(contractAddress: string, tezosToolkit: TezosToolkit) {
         this.Ready = new Promise((resolve, reject) => {
             tezosToolkit.contract.at(contractAddress).then(result => {

@@ -123,6 +123,24 @@ confirmUser:
         trigger: PreSignUp
         existing: true
 
+endAuctions:
+  handler: "src/eventTriggered/endAuctions.handler"
+  timeout: 180
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ mintedArtworks, Arn ]
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+      Resource:
+        - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/hangzhouFaucet-ioAJGW"
+  events:
+    # TODO increase this timer
+    - schedule: rate(10 minutes) 
+
 mintingQueueWorker:
     handler: src/eventTriggered/minter.handler
     timeout: 180

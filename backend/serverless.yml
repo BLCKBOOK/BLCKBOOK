@@ -42,9 +42,10 @@ provider:
   lambdaHashingVersion: '20201221'
   region: 'eu-west-1'
   environment:
-    FA2_CONTRACT_ADDRESS: 'KT1HAtdXKvXqK2He3Xr2xmHQ9cYrxPTL7X9Z'
-    AUCTION_HOUSE_CONTRACT_ADDRESS:  'KT1RG8SzC5exEXedFEpFwjisuAcjjf7TTwNB'
-    VOTER_MONEY_POOL_CONTRACT_ADDRESS: 'KT1XeA6tZYeBCm7aux3SAPswTuRE72R3VUCW'
+    FA2_CONTRACT_ADDRESS: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
+    AUCTION_HOUSE_CONTRACT_ADDRESS:  'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
+    VOTER_MONEY_POOL_CONTRACT_ADDRESS: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
+    TEZOS_RPC_CLIENT_INTERFACE: 'https://hangzhounet.api.tez.ie'
     USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
     UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
     FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
@@ -59,6 +60,7 @@ provider:
     PERIOD_DURATION: ${self:custom.periodDuration}
     BEST_PERCENTILE: ${self:custom.best_percentile}
     MINTING_QUEUE_NAME: ${self:custom.minting_queue_name}
+    AUCTION_LENGTH: 4320 #minutes
     USER_POOL_ID:
       Ref: BlckBookUsers
     STAGE:  ${self:provider.stage}
