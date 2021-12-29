@@ -17,6 +17,9 @@ import {AuctionDetailComponent} from './auction-detail/auction-detail.component'
 import {WalletModule} from '../wallet/wallet.module';
 import {MatInputModule} from '@angular/material/input';
 import {ReactiveFormsModule} from '@angular/forms';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { AuctionBidComponent } from './auction-bid/auction-bid.component';
+import {MatDividerModule} from '@angular/material/divider';
 
 
 @NgModule({
@@ -26,20 +29,23 @@ import {ReactiveFormsModule} from '@angular/forms';
     AuctionScrollComponent,
     AuctionScrollTrackerDirective,
     DetailViewAuctionDialogComponent,
+    AuctionBidComponent,
   ],
-  imports: [
-    CommonModule,
-    AuctionRoutingModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatCardModule,
-    FontAwesomeModule,
-    MatTabsModule,
-    NgxMasonryModule,
-    FlexLayoutModule,
-    WalletModule,
-    MatInputModule,
-    ReactiveFormsModule,
-  ]
+    imports: [
+        CommonModule,
+        AuctionRoutingModule,
+        MatDialogModule,
+        MatButtonModule,
+        MatCardModule,
+        FontAwesomeModule,
+        MatTabsModule,
+        NgxMasonryModule,
+        FlexLayoutModule,
+        WalletModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        MatProgressSpinnerModule,
+        MatDividerModule,
+    ]
 })
 export class AuctionModule { }

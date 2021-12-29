@@ -4,14 +4,12 @@
     <img [src]="data.src" [srcset]="data.srcSet" class="big-image"
          [sizes]="'(min-width: 960px) calc(50vw - 88px), calc(100vw-44px)'" alt="'Image'">
   </div>
-  <div class="meta-data-display" fxFlex="1 1 50%" fxFlex.gt-sm="1 1 30%" fxLayout.gt-md="column"
-       fxLayoutAlign.gt-sm="space-evenly"
-       fxLayout="column" fxLayoutAlign="space-between">
+  <div class="meta-data-display" fxFlex="1 1" fxLayout.gt-md="column" fxLayout="column">
     <div>
       <div>
-        <h4>{{data.auctionKey.key ?? 'Unknown'}}</h4>
+        <h4>{{data.mintedArtwork.title ?? 'Unknown'}}</h4>
       </div>
-      <div>Uploaded by {{data.auctionKey.value.uploader}}</div>
+      <div>Uploaded by {{data.mintedArtwork.uploader}}</div>
       <br>
       <div class="meta-data-container">
         <div class="line-container">
@@ -20,31 +18,37 @@
         <div class="line-container">
           <span>LONGITUDE</span><span class="artwork-data">{{data.mintedArtwork.longitude}}</span>
         </div>
+        <div class="button-container" fxLayout="row">
+          <button mat-raised-button (click)="showOnMap()">
+            <fa-icon [icon]="faMapPin"></fa-icon>
+            Show on map
+          </button>
+          <br>
+          <button mat-raised-button [disabled]="false" (click)="copyToClipboard()">
+            <fa-icon [icon]="faShareSquare">
+            </fa-icon>
+            Share Auction
+          </button>
+        </div>
+        <div *ngIf="ipfsUri">
+          <a target="_blank" href="{{ipfsUri}}">IPFS</a>
+        </div>
+        <div *ngIf="metadataUri">
+          <a target="_blank" href="{{metadataUri}}">metadata</a>
+        </div>
         <div class="line-container">
           <span>Auction End</span><span class="artwork-data">{{timeDisplay}}</span>
         </div>
         <div class="line-container">
-          <span>Highest Bid</span><span class="artwork-data">{{currentBid}}</span>
+          <span>Highest Bid</span><div><span class="artwork-data">{{currentBidString}}</span><span class="tezos-symbol artwork-data">ꜩ</span></div>
         </div>
-        <div class="line-container">
+        <div fxLayout="column" fxLayout.xs="column" fxLayout.sm="row" fxLayoutGap=".25em" fxLayout.gt-md="row" fxLayoutAlign="space-between">
           <span>Highest Bidder</span><span class="artwork-data">{{data.auctionKey.value.bidder}}</span>
         </div>
       </div>
     </div>
-    <div class="button-container">
-      <button mat-raised-button (click)="showOnMap()">
-        <fa-icon [icon]="faMapPin"></fa-icon>
-        Show on map
-      </button>
-      <br>
-      <button mat-raised-button [disabled]="false" (click)="copyToClipboard()">
-        <fa-icon [icon]="faShareSquare">
-        </fa-icon>
-        Share Auction
-      </button>
-    </div>
     <div *ngIf="!auctionOver else: auctionEnded">
-      <div>
+      <div fxLayout="row" fxLayoutAlign="space-between">
         <form class="bid-form">
           <mat-form-field>
             <input
@@ -54,28 +58,40 @@
               name="Bid"
               placeholder="Your Bid"
               [formControl]="bidFormControl" [errorStateMatcher]="bidErrorMatcher"
-              min="{{minAuctionBid}}">
+              min="{{minAuctionBidString}}">
+            <div matSuffix> ꜩ</div>
           </mat-form-field>
           <mat-error *ngIf="bidFormControl.hasError('min') && !bidFormControl.hasError('required')">
-            You need to bid at least {{minAuctionBid}}
+            You need to bid at least {{minAuctionBidString}}
           </mat-error>
           <mat-error *ngIf="bidFormControl.hasError('required')">
             A bid amount is <strong>required</strong>
           </mat-error>
+          <button class="reconnect-button" mat-flat-button (click)="reconnectWallet()">
+            Reconnect Wallet
+          </button>
         </form>
+
       </div>
       <div class="bid-button-container">
         <button mat-raised-button (click)="bid(data.auctionKey.key)"
                 [disabled]="bidFormControl.hasError('min') || bidFormControl.hasError('required')">
           Bid
-          <!--       <fa-stack>
-                   <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
-                 </fa-stack>-->
         </button>
       </div>
     </div>
     <ng-template #auctionEnded>
       The Auction already ended
     </ng-template>
+  </div>
+</div>
+<div class="recent-bids-container">
+  <h3>Recent Bids</h3>
+  <div *ngIf="noOtherBids">
+    There are no recent bids
+  </div>
+  <div *ngFor="let bid of bidHistory | async; let lastItem = last;">
+    <app-auction-bid [bid]="bid"></app-auction-bid>
+    <mat-divider *ngIf="!lastItem"></mat-divider>
   </div>
 </div>

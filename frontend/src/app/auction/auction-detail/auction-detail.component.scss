@@ -10,7 +10,6 @@
   color: var(--primary-color);
 }
 
-
 @media screen and (max-width: 959px) {
   mat-dialog-content {
     max-height: 90vh;
@@ -35,11 +34,20 @@
 .button-container {
   button {
     margin-bottom: .5em;
+    width: 50%;
   }
+}
+
+.bid-form, .reconnect-button {
+  margin: .5em;
 }
 
 .bid-button-container {
   button {
     width: 100%;
   }
+}
+
+.recent-bids-container {
+  margin-top: 1em;
 }

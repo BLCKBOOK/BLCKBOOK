@@ -20,7 +20,7 @@
   <mat-tab label="My Upload">
     <ng-template matTabContent>
       <div *ngIf="myUploadData; else noUpload" class="my-upload-border">
-        <app-vote-detail [data]="myUploadData">
+        <app-vote-detail [withinDialog]="false" [data]="myUploadData">
         </app-vote-detail>
       </div>
       <ng-template #noUpload class="">

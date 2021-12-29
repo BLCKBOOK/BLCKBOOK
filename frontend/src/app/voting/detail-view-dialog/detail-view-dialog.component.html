@@ -1,6 +1,21 @@
 <mat-dialog-content>
-  <app-vote-detail [data]="data"></app-vote-detail>
+  <app-vote-detail [data]="data" [withinDialog]="true"></app-vote-detail>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-raised-button [mat-dialog-close]="false">Close</button>
+  <button mat-raised-button *ngIf="!data.voted" (click)="vote()"
+          [disabled]="alreadyVoted$ | async">
+    Select for Vote
+    <fa-stack>
+      <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
+    </fa-stack>
+  </button>
+  <button mat-raised-button *ngIf="data.voted" (click)="unvote()"
+          [disabled]="alreadyVoted$ | async">
+    Deselect
+    <fa-stack>
+      <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
+      <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>
+    </fa-stack>
+  </button>
 </mat-dialog-actions>
