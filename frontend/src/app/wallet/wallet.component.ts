@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
-import {BeaconService} from './beacon.service';
 import {UserService} from '../services/user.service';
 import {FormControl, Validators} from '@angular/forms';
 import {SnackBarService} from '../services/snack-bar.service';
 import {TranslateService} from '@ngx-translate/core';
 import {from} from 'rxjs';
+import {BeaconService} from '../beacon/beacon.service';
 
 @Component({
   selector: 'app-wallet',

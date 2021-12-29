@@ -14,12 +14,12 @@ import {AuctionScrollComponent} from './auction-scroll/auction-scroll.component'
 import {AuctionScrollTrackerDirective} from './auction-scroll/auction-scroll-tracker.directive';
 import {DetailViewAuctionDialogComponent} from './detail-view-dialog/detail-view-auction-dialog.component';
 import {AuctionDetailComponent} from './auction-detail/auction-detail.component';
-import {WalletModule} from '../wallet/wallet.module';
 import {MatInputModule} from '@angular/material/input';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { AuctionBidComponent } from './auction-bid/auction-bid.component';
 import {MatDividerModule} from '@angular/material/divider';
+import {BeaconModule} from '../beacon/beacon.module';
 
 
 @NgModule({
@@ -41,7 +41,7 @@ import {MatDividerModule} from '@angular/material/divider';
         MatTabsModule,
         NgxMasonryModule,
         FlexLayoutModule,
-        WalletModule,
+        BeaconModule,
         MatInputModule,
         ReactiveFormsModule,
         MatProgressSpinnerModule,

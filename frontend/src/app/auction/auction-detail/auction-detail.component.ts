@@ -5,7 +5,6 @@ import {Clipboard} from '@angular/cdk/clipboard';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {MatDialog} from '@angular/material/dialog';
 import {MapDialogComponent, MapDialogData} from '../../components/map-dialog/map-dialog.component';
-import {BeaconService} from '../../wallet/beacon.service';
 import {ErrorStateMatcher} from '@angular/material/core';
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {isNumeric} from 'rxjs/internal-compatibility';
@@ -14,6 +13,7 @@ import {BehaviorSubject} from 'rxjs';
 import {TzktAuction, TzKtAuctionHistoricalKey} from '../../types/tzkt.auction';
 import {CurrencyService} from '../../services/currency.service';
 import Dinero from 'dinero.js';
+import {BeaconService} from '../../beacon/beacon.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
