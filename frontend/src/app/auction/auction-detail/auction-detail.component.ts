@@ -56,6 +56,8 @@ export class AuctionDetailComponent implements OnInit {
   auctionStartDate: string;
   auctionEndDate: string;
 
+  private readonly mutezRegex = '\\d*\\.?\\d?\\d?\\d?\\d?\\d?\\d?$'
+
   constructor(public dialog: MatDialog, private clipboard: Clipboard,
               private snackBarService: SnackBarService, private beaconService: BeaconService, private auctionService: AuctionService,
               private currencyService: CurrencyService) {
@@ -70,6 +72,7 @@ export class AuctionDetailComponent implements OnInit {
     this.minAuctionBid = this.currencyService.mutezToDinero(this.data.auctionKey.value.bid_amount).add(this.currencyService.mutezToDinero(this.bidStepThreshold));
     this.minAuctionBidString = this.currencyService.getAmountInTez(this.minAuctionBid);
     this.bidFormControl.addValidators(Validators.min(parseFloat(this.minAuctionBidString)));
+    this.bidFormControl.addValidators(Validators.pattern(this.mutezRegex));
     this.bidFormControl.setValue(this.minAuctionBidString);
     this.auctionService.getHistoricalKeysOfAuction(this.data.auctionKey.key).subscribe(res => {
       this.auctionEndKey = res.find(historicalKey => historicalKey.action === 'remove_key');
