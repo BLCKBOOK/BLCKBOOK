@@ -56,7 +56,6 @@ export class AuctionService {
     return this.httpClient.get<Object>(uri).pipe(map(object => {
       // @ts-ignore access the metadata-json
       const artifactUri = object['artifactUri'];
-      console.log(artifactUri);
       return environment.pinataGateway + artifactUri.substring(7); // second part gets the hash
     }));
   }

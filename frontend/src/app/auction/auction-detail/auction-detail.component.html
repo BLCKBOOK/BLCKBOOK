@@ -39,15 +39,25 @@
         <div class="line-container">
           <span>Auction End</span><span class="artwork-data">{{timeDisplay}}</span>
         </div>
-        <div class="line-container">
-          <span>Highest Bid</span><div><span class="artwork-data">{{currentBidString}}</span><span class="tezos-symbol artwork-data">ꜩ</span></div>
+        <div *ngIf="noBidsYet; else: weGotBids">
+          <div class="line-container">
+            <span>Highest Bid</span>
+          </div>
+          <div class="line-container">
+            <span>Highest Bidder</span>
+          </div>
         </div>
-        <div fxLayout="column" fxLayout.xs="column" fxLayout.sm="row" fxLayoutGap=".25em" fxLayout.gt-md="row" fxLayoutAlign="space-between">
-          <span>Highest Bidder</span><span class="artwork-data">{{data.auctionKey.value.bidder}}</span>
-        </div>
+        <ng-template #weGotBids>
+          <div class="line-container">
+            <span>Highest Bid</span><div><span class="artwork-data">{{currentBidString}}</span><span class="tezos-symbol artwork-data">ꜩ</span></div>
+          </div>
+          <div fxLayout="column" fxLayout.xs="column" fxLayout.gt-xs="row" fxLayoutGap=".25em" fxLayoutAlign="space-between">
+            <span>Highest Bidder</span><span class="artwork-data">{{data.auctionKey.value.bidder}}</span>
+          </div>
+        </ng-template>
       </div>
     </div>
-    <div *ngIf="!auctionOver else: auctionEnded">
+    <div *ngIf="!auctionOver">
       <div fxLayout="row" fxLayoutAlign="space-between">
         <form class="bid-form">
           <mat-form-field>
@@ -80,18 +90,23 @@
         </button>
       </div>
     </div>
-    <ng-template #auctionEnded>
-      The Auction already ended
-    </ng-template>
   </div>
 </div>
 <div class="recent-bids-container">
-  <h3>Recent Bids</h3>
-  <div *ngIf="noOtherBids">
-    There are no recent bids
+  <h3>History</h3>
+  <div *ngIf="auctionEndKey">
+    <div class="line-container">
+      <span>Auction Ended</span><span>{{auctionEndDate}}</span>
+    </div>
+    <mat-divider></mat-divider>
   </div>
-  <div *ngFor="let bid of bidHistory | async; let lastItem = last;">
+  <div *ngFor="let bid of bidHistory | async">
     <app-auction-bid [bid]="bid"></app-auction-bid>
-    <mat-divider *ngIf="!lastItem"></mat-divider>
+    <mat-divider></mat-divider>
+  </div>
+  <div *ngIf="auctionStartKey">
+    <div class="line-container">
+      <span>Auction Started</span><span>{{auctionStartDate}}</span>
+    </div>
   </div>
 </div>

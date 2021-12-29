@@ -11,7 +11,7 @@ import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/form
 import {isNumeric} from 'rxjs/internal-compatibility';
 import {AuctionService} from '../../services/auction.service';
 import {BehaviorSubject} from 'rxjs';
-import {TzktAuction} from '../../types/tzkt.auction';
+import {TzktAuction, TzKtAuctionHistoricalKey} from '../../types/tzkt.auction';
 import {CurrencyService} from '../../services/currency.service';
 import Dinero from 'dinero.js';
 
@@ -42,15 +42,19 @@ export class AuctionDetailComponent implements OnInit {
   currentBidString: string;
   auctionEnded: boolean;
   readonly bidStepThreshold = '100000';
+  noBidsYet: boolean = false;
 
   bidFormControl = new FormControl('', [Validators.required]);
 
   bidErrorMatcher = new MyErrorStateMatcher();
 
+  auctionStartKey: TzKtAuctionHistoricalKey | undefined;
+  auctionEndKey: TzKtAuctionHistoricalKey | undefined;
   bidHistory: BehaviorSubject<TzktAuction[]> = new BehaviorSubject<TzktAuction[]>([]);
-  noOtherBids: boolean | undefined = undefined;
   ipfsUri: string;
   metadataUri: string;
+  auctionStartDate: string;
+  auctionEndDate: string;
 
   constructor(public dialog: MatDialog, private clipboard: Clipboard,
               private snackBarService: SnackBarService, private beaconService: BeaconService, private auctionService: AuctionService,
@@ -69,7 +73,16 @@ export class AuctionDetailComponent implements OnInit {
     this.bidFormControl.setValue(this.minAuctionBidString);
     this.auctionService.getHistoricalKeysOfAuction(this.data.auctionKey.key).subscribe(res => {
       const updates = res.filter(historicalKey => historicalKey.action === 'update_key');
-      this.noOtherBids = updates.length === 0;
+      this.auctionEndKey = res.find(historicalKey => historicalKey.action === 'remove_key');
+      if (this.auctionEndKey) {
+        const end_date = new Date(this.auctionEndKey.timestamp);
+        this.auctionEndDate = end_date.toLocaleDateString() + ' ' + end_date.toLocaleTimeString();
+      }
+      this.auctionStartKey = res.find(historicalKey => historicalKey.action === 'add_key');
+      if (this.auctionStartKey) {
+        const end_date = new Date(this.auctionStartKey.timestamp);
+        this.auctionStartDate = end_date.toLocaleDateString() + ' ' + end_date.toLocaleTimeString();
+      }
       this.bidHistory.next(updates.map(historicalKey => historicalKey.value));
     });
     this.auctionService.getArtworkMetadata(this.data.auctionKey.key).subscribe(metadata => {
@@ -78,6 +91,9 @@ export class AuctionDetailComponent implements OnInit {
         this.ipfsUri = artifact;
       });
     });
+    if (this.data.auctionKey.value.uploader === this.data.auctionKey.value.bidder) {
+      this.noBidsYet = true;
+    }
   }
 
 
