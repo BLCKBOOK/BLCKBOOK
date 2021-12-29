@@ -72,7 +72,6 @@ export class AuctionDetailComponent implements OnInit {
     this.bidFormControl.addValidators(Validators.min(parseFloat(this.minAuctionBidString)));
     this.bidFormControl.setValue(this.minAuctionBidString);
     this.auctionService.getHistoricalKeysOfAuction(this.data.auctionKey.key).subscribe(res => {
-      const updates = res.filter(historicalKey => historicalKey.action === 'update_key');
       this.auctionEndKey = res.find(historicalKey => historicalKey.action === 'remove_key');
       if (this.auctionEndKey) {
         const end_date = new Date(this.auctionEndKey.timestamp);
@@ -83,6 +82,7 @@ export class AuctionDetailComponent implements OnInit {
         const end_date = new Date(this.auctionStartKey.timestamp);
         this.auctionStartDate = end_date.toLocaleDateString() + ' ' + end_date.toLocaleTimeString();
       }
+      const updates = res.filter(historicalKey => historicalKey.action === 'update_key').reverse();
       this.bidHistory.next(updates.map(historicalKey => historicalKey.value));
     });
     this.auctionService.getArtworkMetadata(this.data.auctionKey.key).subscribe(metadata => {

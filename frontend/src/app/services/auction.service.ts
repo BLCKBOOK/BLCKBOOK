@@ -74,7 +74,7 @@ export class AuctionService {
   }
 
   public async getMasonryItemsOfLiveAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
-    const liveAuctions = await this.getPastAuctions(offset).toPromise(); //ToDo: change me back to live
+    const liveAuctions = await this.getLiveAuctions(offset).toPromise();
     const retValue = [];
     for (const auction of liveAuctions) {
       const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
