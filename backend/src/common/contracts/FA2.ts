@@ -30,4 +30,21 @@ export class FA2Contract extends Contract {
             console.log(`Error: ${JSON.stringify(error, null, 2)}`);
         }
     }
+
+    transfer(from:string,to:string, tokenId:number) {
+        return this.contract?.methods
+  .transfer([
+    {
+      from_: from,
+      txs: [
+        {
+          to_: to,
+          token_id: tokenId,
+          amount: 1,
+        },
+      ],
+    },
+  ])
+  .send();
+    }
 }

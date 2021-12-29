@@ -15,6 +15,7 @@ import { VotableArtwork, UserInfo } from '../common/tableDefinitions';
 import { Readable } from 'stream';
 import { DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { createNotification } from "../common/actions/createNotification";
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
@@ -59,7 +60,7 @@ const baseHandler = async (event, context) => {
 
     // setup taquito with credentials from secret store 
     console.log("setup taquito with credentials from secret store ")
-    const Tezos = new TezosToolkit('https://hangzhounet.api.tez.ie');
+    const Tezos = new TezosToolkit(process.env['TEZOS_RPC_CLIENT_INTERFACE']);
     Tezos.addExtension(new Tzip16Module());
     const faucet = await getTezosAdminAccount();
     await importKey(
@@ -128,8 +129,9 @@ const baseHandler = async (event, context) => {
 
     // create token metadata and pin it to ipfs
     console.log("create token metadata and pin it to ipfs")
-    let nextWeek = new Date()
-    nextWeek.setDate(nextWeek.getDate() + 7)
+    const minutesUntilExpiration = Number(process.env['AUCTION_LENGTH'])
+    let now = new Date()
+    now = new Date(now.getTime() + (minutesUntilExpiration * 60 * 1000))
     const tokenMetadata = createTokenMetadata(artworkToMint, adminPublicKey, uploaderWalletAddress, adminPublicKey, "ipfs://" + ipfsOriginalResponse.IpfsHash, "ipfs://" + ipfsThumbnailResponse.IpfsHash);
     const pinataResponse = await pinata.pinJSONToIPFS(tokenMetadata);
 
@@ -151,19 +153,31 @@ const baseHandler = async (event, context) => {
         console.log("blockchain interaction")
         const batch = await Tezos.wallet.batch()
             .withContractCall(fa2Contract.mint("ipfs://" + pinataResponse.IpfsHash, currentTokenIndex, auctionHouseContractAddress))
-            .withContractCall(auctionHouseContract.create_auction(currentTokenIndex, 1000000, nextWeek.toISOString(), uploaderWalletAddress, 5))
+            .withContractCall(auctionHouseContract.create_auction(currentTokenIndex, 1000000, now.toISOString(), uploaderWalletAddress, 5))
             .withContractCall(voterMoneyPoolContract.addVotes(currentTokenIndex, voterWalletAddresses))
             .send()
 
         await batch.confirmation(2)
 
         // save minted artwork to mintedArtworks table
+        // TODO delete voter ids from artworks
         const saveMintedArtworkCommand = new PutItemCommand({
             TableName: process.env['MINTED_ARTWORKS_TABLE_NAME'],
-            Item: marshall(Object.assign(artworkToMint, {tokenId: currentTokenIndex}))
+            Item: marshall(Object.assign(artworkToMint, { tokenId: currentTokenIndex, currentlyAuctioned: true }))
         })
         await ddbClient.send(saveMintedArtworkCommand)
 
+        // send notification to uploader
+        await createNotification({ body: 'Your uploaded Artwork has been minted.', title: 'Artwork Minted', type: 'message', userId: artworkToMint.uploaderId, link: `/auction/${currentTokenIndex}` }, ddbClient)
+
+        // send notifications to voters
+        const sendVoterNotifications = artworkToMint.votes.map(voterId => createNotification({
+            body: 'An Artwork that you voted for has been minted.',
+            title: 'Voted Artwork Minted',
+            type: 'message', userId: voterId,
+            link: `/auction/${currentTokenIndex}`
+        }, ddbClient))
+        await Promise.all(sendVoterNotifications);
     }
 }
 

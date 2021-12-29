@@ -32,6 +32,5 @@ const handler = middy(baseHandler)
   .use(httpErrorHandler())
   .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
   .use(RequestLogger())
-  .use(AuthMiddleware(['User', 'Admin']))
 
 module.exports = { handler }

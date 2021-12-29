@@ -1,9 +1,10 @@
 import { TransactionOperation, TransactionWalletOperation, TezosToolkit, ContractMethodObject, ContractMethod } from "@taquito/taquito";
 import { Contract } from "./Contract";
-
 export class AuctionHouseContract extends Contract {
+    auctionHouseContractAddress: string;
     constructor(auctionHouseContractAddress: string, tezosToolkit: TezosToolkit) {
         super(auctionHouseContractAddress, tezosToolkit);
+        this.auctionHouseContractAddress = auctionHouseContractAddress;
     }
 
     create_auction(auction_and_token_id: number, bid_amount: number, end_timestamp: string, uploader: string, voter_amount: number) {
@@ -16,14 +17,11 @@ export class AuctionHouseContract extends Contract {
         ) as ContractMethod<any>;
     }
 
-    async end_auction(auction_index: number, confirmations = 3) {
-        try {
-            const call: TransactionWalletOperation | TransactionOperation | undefined
-                = await this.contract?.methods.end_auction(auction_index).send();
-            const hash: any | undefined = await call?.confirmation(confirmations);
-            console.log(`Operation injected: https://hangzhou.tzstats.com/${hash}`);
-        } catch (error) {
-            console.log(`Error: ${JSON.stringify(error, null, 2)}`);
-        }
+    get_expired_auctions(timestamp: string) {
+        return this.contract?.methods.get_expired_auctions(timestamp) as ContractMethod<any>;
+    }
+
+    end_auction(auction_index: number, confirmations = 3) {
+        return this.contract?.methods.end_auction(auction_index) as ContractMethod<any>;
     }
 }

@@ -17,11 +17,6 @@ export interface UserInfo {
   walletId?: string
 }
 
-interface Sale {
-  buyer: String //  either walletid or blckbook username
-  seller: string // either walletid or blckbook username
-}
-
 export interface UploadedArtworkIndex {
   uploaderId: string,
   uploadTimestamp: number
@@ -51,7 +46,7 @@ interface UploadedArtworkAdminView {
   geohash: string
   longitude: string
   latitude: string
-  approvedForVoting: true // TODO: https://trello.com/c/x6E66C1h/15-should-the-approved-state-of-artworks-default-to-true
+  approvedForVoting: true // TODO: https://trello.com/c/x6E66C1h/15-should-the-approved-state-of-artworks-default-to-truegit 
   title?: string
   artist?: string
 }
@@ -75,6 +70,7 @@ export interface VotableArtwork {
 
 export interface MintedArtwork {
   tokenId: number
+  currentlyAuctioned: boolean
   artworkId: string
   uploaderId: string,
   imageUrls: { [Key: string]: string }
@@ -96,6 +92,7 @@ export interface Notification {
   body: string,
   type: string,
   seen: boolean,
+  link?: string
 }
 
 export interface NotificationIndex {
