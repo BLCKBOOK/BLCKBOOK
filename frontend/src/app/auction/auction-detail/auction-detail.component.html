@@ -9,7 +9,7 @@
       <div>
         <h4>{{data.mintedArtwork.title ?? 'Unknown'}}</h4>
       </div>
-      <div>Uploaded by {{data.auctionKey.value.uploader}}</div>
+      <div>Uploaded by {{data.mintedArtwork.uploader}}</div>
       <br>
       <div class="meta-data-container">
         <div class="line-container">
@@ -18,31 +18,37 @@
         <div class="line-container">
           <span>LONGITUDE</span><span class="artwork-data">{{data.mintedArtwork.longitude}}</span>
         </div>
+        <div class="button-container" fxLayout="row">
+          <button mat-raised-button (click)="showOnMap()">
+            <fa-icon [icon]="faMapPin"></fa-icon>
+            Show on map
+          </button>
+          <br>
+          <button mat-raised-button [disabled]="false" (click)="copyToClipboard()">
+            <fa-icon [icon]="faShareSquare">
+            </fa-icon>
+            Share Auction
+          </button>
+        </div>
+        <div *ngIf="ipfsUri">
+          <a target="_blank" href="{{ipfsUri}}">IPFS</a>
+        </div>
+        <div *ngIf="metadataUri">
+          <a target="_blank" href="{{metadataUri}}">metadata</a>
+        </div>
         <div class="line-container">
           <span>Auction End</span><span class="artwork-data">{{timeDisplay}}</span>
         </div>
         <div class="line-container">
-          <span>Highest Bid</span><span class="artwork-data">{{currentBidString}}</span>
+          <span>Highest Bid</span><div><span class="artwork-data">{{currentBidString}}</span><span class="tezos-symbol artwork-data">ꜩ</span></div>
         </div>
-        <div fxLayout="column" fxLayout.xs="row" fxLayout.sm="row" fxLayoutGap=".25em" fxLayout.gt-md="row" fxLayoutAlign="space-between">
+        <div fxLayout="column" fxLayout.xs="column" fxLayout.sm="row" fxLayoutGap=".25em" fxLayout.gt-md="row" fxLayoutAlign="space-between">
           <span>Highest Bidder</span><span class="artwork-data">{{data.auctionKey.value.bidder}}</span>
         </div>
       </div>
     </div>
-    <div class="button-container" fxLayout="row">
-      <button mat-raised-button (click)="showOnMap()">
-        <fa-icon [icon]="faMapPin"></fa-icon>
-        Show on map
-      </button>
-      <br>
-      <button mat-raised-button [disabled]="false" (click)="copyToClipboard()">
-        <fa-icon [icon]="faShareSquare">
-        </fa-icon>
-        Share Auction
-      </button>
-    </div>
     <div *ngIf="!auctionOver else: auctionEnded">
-      <div fxLayout="row" fxLayoutAlign="space-evenly">
+      <div fxLayout="row" fxLayoutAlign="space-between">
         <form class="bid-form">
           <mat-form-field>
             <input
@@ -53,6 +59,7 @@
               placeholder="Your Bid"
               [formControl]="bidFormControl" [errorStateMatcher]="bidErrorMatcher"
               min="{{minAuctionBidString}}">
+            <div matSuffix> ꜩ</div>
           </mat-form-field>
           <mat-error *ngIf="bidFormControl.hasError('min') && !bidFormControl.hasError('required')">
             You need to bid at least {{minAuctionBidString}}
@@ -60,10 +67,11 @@
           <mat-error *ngIf="bidFormControl.hasError('required')">
             A bid amount is <strong>required</strong>
           </mat-error>
+          <button class="reconnect-button" mat-flat-button (click)="reconnectWallet()">
+            Reconnect Wallet
+          </button>
         </form>
-        <button class="reconnect-button" mat-raised-button (click)="reconnectWallet()">
-          Reconnect Wallet
-        </button>
+
       </div>
       <div class="bid-button-container">
         <button mat-raised-button (click)="bid(data.auctionKey.key)"
@@ -79,6 +87,9 @@
 </div>
 <div class="recent-bids-container">
   <h3>Recent Bids</h3>
+  <div *ngIf="noOtherBids">
+    There are no recent bids
+  </div>
   <div *ngFor="let bid of bidHistory | async; let lastItem = last;">
     <app-auction-bid [bid]="bid"></app-auction-bid>
     <mat-divider *ngIf="!lastItem"></mat-divider>

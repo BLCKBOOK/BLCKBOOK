@@ -299,3 +299,11 @@ mat-menu {
   font-weight: 300;
   margin-left: 2px;
 }
+
+a {
+ color: #{$primary-darker-color};
+}
+
+a:active {
+  color: #{$primary-color};
+}

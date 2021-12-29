@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgxMasonryComponent, NgxMasonryOptions} from 'ngx-masonry';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {ImageSizeService} from '../../services/image-size.service';
@@ -28,7 +28,7 @@ export interface AuctionMasonryItem {
   templateUrl: './auction-scroll.component.html',
   styleUrls: ['./auction-scroll.component.scss']
 })
-export class AuctionScrollComponent implements OnInit, AfterViewInit {
+export class AuctionScrollComponent implements OnInit {
 
   currentIndex = 0;
   @Input() items: AuctionMasonryItem[];
@@ -37,6 +37,7 @@ export class AuctionScrollComponent implements OnInit, AfterViewInit {
   masonryItems: AuctionMasonryItem[] = [];
   reachedEnd = false;
   lastIndex: number | undefined = undefined;
+  currentlyLoading = true;
 
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
 
@@ -44,11 +45,6 @@ export class AuctionScrollComponent implements OnInit, AfterViewInit {
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService,
               private location: Location, private auctionService: AuctionService) {
-  }
-
-  ngAfterViewInit() {
-    this.masonry.reloadItems();
-    this.masonry.layout();
   }
 
   ngOnInit() {
@@ -74,6 +70,8 @@ export class AuctionScrollComponent implements OnInit, AfterViewInit {
     if (this.reachedEnd) {
       console.log('already reached the end');
       return;
+    } else {
+      this.currentlyLoading = true;
     }
     if (throughScrolling) {
       if (this.currentIndex === 0) { // prevent to get more images by scrolling if we haven't even gotten the initial data
@@ -82,10 +80,12 @@ export class AuctionScrollComponent implements OnInit, AfterViewInit {
     }
 
     this.getAuctions(this.currentIndex).subscribe(masonryItems => {
+      this.currentlyLoading = false;
       console.log('added more items');
       this.currentIndex += 1;
       if (masonryItems.length === 0) {
         this.reachedEnd = true;
+        this.currentlyLoading = false;
       } else {
         this.masonryItems.push(...masonryItems);
       }

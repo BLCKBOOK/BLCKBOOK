@@ -8,4 +8,5 @@ export const environment = {
   voterMoneyPoolContractAddress: 'KT1XeA6tZYeBCm7aux3SAPswTuRE72R3VUCW',
   tzktAddress: 'https://api.hangzhou2net.tzkt.io/v1/',
   cryptoNet: 'mainnet',
+  pinataGateway: 'https://gateway.pinata.cloud/ipfs/',
 };

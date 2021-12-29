@@ -7,6 +7,7 @@ import {ImageSizeService} from './image-size.service';
 import {environment} from '../../environments/environment';
 import {MintedArtwork} from '../../../../backend/src/common/tableDefinitions';
 import {CurrencyService} from './currency.service';
+import {map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +30,7 @@ export class AuctionService {
   }
 
   public getHistoricalKeysOfAuction(auctionId: string): Observable<TzKtAuctionHistoricalKey[]> {
-    return this.httpClient.get<TzKtAuctionHistoricalKey[]>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys/' + auctionId + '/updates')
+    return this.httpClient.get<TzKtAuctionHistoricalKey[]>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys/' + auctionId + '/updates');
   }
 
   private getAuctions(active: 'true' | 'false', offset: number = 0): Observable<TzktAuctionKey[]> {
@@ -40,6 +41,33 @@ export class AuctionService {
 
   public getAuction(id: number): Observable<TzktAuctionKey> {
     return this.httpClient.get<TzktAuctionKey>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys/' + id);
+  }
+
+  getArtworkMetadata(id: string): Observable<string> {
+    return this.httpClient.get(environment.tzktAddress + 'contracts/' + environment.tokenContractAddress + '/bigmaps/token_metadata/keys/' + id).pipe(map(metadata => {
+      // @ts-ignore access the token-metadata
+      const byteString = metadata.value.token_info[''];
+      const ipfsAddress = this.hexStringToString(byteString);
+      return environment.pinataGateway + ipfsAddress.substring(7); // second part gets the hash
+    }));
+  }
+
+  getArtifactUriFromMetadataAddress(uri: string): Observable<string> {
+    return this.httpClient.get<Object>(uri).pipe(map(object => {
+      // @ts-ignore access the metadata-json
+      const artifactUri = object['artifactUri'];
+      console.log(artifactUri);
+      return environment.pinataGateway + artifactUri.substring(7); // second part gets the hash
+    }));
+  }
+
+
+  hexStringToString(byteString: string) {
+    let result = '';
+    for (let i = 0; i < byteString.length; i += 2) {
+      result += String.fromCharCode(parseInt(byteString.substr(i, 2), 16));
+    }
+    return result;
   }
 
   async getMintedArtworkForId(auctionId: number): Promise<MintedArtwork> {
