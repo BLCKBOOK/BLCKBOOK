@@ -1,4 +1,4 @@
-<ngx-masonry [options]="myOptions" appAuctionScrollTracker (scrollingFinished)="addMoreItems(true)" #masonry
+<ngx-masonry [options]="myOptions" appScrollTracker (scrollingFinished)="addMoreItems(true)" #masonry
              (window:resize)="onResize()">
   <div class="grid-sizer"></div>
   <div class="gutter-sizer"></div>
@@ -8,9 +8,11 @@
     </button>
     <div class="auction-footer">
       <span>{{item.title}}</span>
-      <span class="example-spacer"></span>
-      <span>{{(item.tezBidAmount)}}</span>
-      <span class="tezos-symbol">ꜩ</span>
+      <ng-template *ngIf="scrollType === 'auction'">
+        <span class="example-spacer"></span>
+        <span>{{item.tezBidAmount}}</span>
+        <span class="tezos-symbol">ꜩ</span>
+      </ng-template>
     </div>
   </div>
 </ngx-masonry>

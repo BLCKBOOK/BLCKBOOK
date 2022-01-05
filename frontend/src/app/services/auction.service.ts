@@ -73,6 +73,16 @@ export class AuctionService {
     return this.httpClient.get<MintedArtwork>(this.mintedArtworkByTokenIDURL + auctionId).toPromise();
   }
 
+  public async getMasonryItemsOfPastAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
+    const liveAuctions = await this.getPastAuctions(offset).toPromise();
+    const retValue = [];
+    for (const auction of liveAuctions) {
+      const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
+      retValue.push(this.getMasonryItemOfAuction(auction, mintedArtwork));
+    }
+    return retValue;
+  }
+
   public async getMasonryItemsOfLiveAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
     const liveAuctions = await this.getLiveAuctions(offset).toPromise();
     const retValue = [];

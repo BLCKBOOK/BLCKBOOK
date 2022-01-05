@@ -4,7 +4,6 @@ import { VotingRoutingModule } from './voting-routing.module';
 import { VotingComponent } from './voting.component';
 import {VotingService} from './voting.service';
 import {VotingScrollComponent} from './vote-scroll/voting-scroll.component';
-import {VotingScrollTrackerDirective} from './vote-scroll/voting-scroll-tracker.directive';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
@@ -14,13 +13,13 @@ import {NgxMasonryModule} from 'ngx-masonry';
 import {DetailViewDialogComponent} from './detail-view-dialog/detail-view-dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {FlexLayoutModule} from '@angular/flex-layout';
+import {ScrollModule} from '../scroll/scroll.module';
 
 @NgModule({
   declarations: [
     VoteDetailComponent,
     VotingComponent,
     VotingScrollComponent,
-    VotingScrollTrackerDirective,
     DetailViewDialogComponent,
   ],
   imports: [
@@ -33,6 +32,7 @@ import {FlexLayoutModule} from '@angular/flex-layout';
     MatTabsModule,
     NgxMasonryModule,
     FlexLayoutModule,
+    ScrollModule,
   ],
   providers: [VotingService]
 })

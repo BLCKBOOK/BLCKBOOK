@@ -27,7 +27,7 @@
           <button mat-raised-button [disabled]="false" (click)="copyToClipboard()">
             <fa-icon [icon]="faShareSquare">
             </fa-icon>
-            Share Auction
+            {{auctionOver ? 'Share' : 'Share Auction'}}
           </button>
         </div>
         <div *ngIf="ipfsUri">

@@ -11,7 +11,6 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {NgxMasonryModule} from 'ngx-masonry';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {AuctionScrollComponent} from './auction-scroll/auction-scroll.component';
-import {AuctionScrollTrackerDirective} from './auction-scroll/auction-scroll-tracker.directive';
 import {DetailViewAuctionDialogComponent} from './detail-view-dialog/detail-view-auction-dialog.component';
 import {AuctionDetailComponent} from './auction-detail/auction-detail.component';
 import {MatInputModule} from '@angular/material/input';
@@ -20,6 +19,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { AuctionBidComponent } from './auction-bid/auction-bid.component';
 import {MatDividerModule} from '@angular/material/divider';
 import {BeaconModule} from '../beacon/beacon.module';
+import {ScrollModule} from '../scroll/scroll.module';
 
 
 @NgModule({
@@ -27,25 +27,28 @@ import {BeaconModule} from '../beacon/beacon.module';
     AuctionComponent,
     AuctionDetailComponent,
     AuctionScrollComponent,
-    AuctionScrollTrackerDirective,
     DetailViewAuctionDialogComponent,
     AuctionBidComponent,
   ],
-    imports: [
-        CommonModule,
-        AuctionRoutingModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatCardModule,
-        FontAwesomeModule,
-        MatTabsModule,
-        NgxMasonryModule,
-        FlexLayoutModule,
-        BeaconModule,
-        MatInputModule,
-        ReactiveFormsModule,
-        MatProgressSpinnerModule,
-        MatDividerModule,
-    ]
+  exports: [
+    AuctionScrollComponent
+  ],
+  imports: [
+    CommonModule,
+    AuctionRoutingModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatCardModule,
+    FontAwesomeModule,
+    MatTabsModule,
+    NgxMasonryModule,
+    FlexLayoutModule,
+    BeaconModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatProgressSpinnerModule,
+    MatDividerModule,
+    ScrollModule,
+  ]
 })
 export class AuctionModule { }

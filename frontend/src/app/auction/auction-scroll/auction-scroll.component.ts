@@ -32,12 +32,13 @@ export class AuctionScrollComponent implements OnInit {
 
   currentIndex = 0;
   @Input() items: AuctionMasonryItem[];
+  @Input() scrollType: 'auction' | 'gallery'
 
   @ViewChild('masonry') masonry: NgxMasonryComponent;
   masonryItems: AuctionMasonryItem[] = [];
   reachedEnd = false;
   lastIndex: number | undefined = undefined;
-  currentlyLoading = true;
+  currentlyLoading = false;
 
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
 
@@ -70,8 +71,6 @@ export class AuctionScrollComponent implements OnInit {
     if (this.reachedEnd) {
       console.log('already reached the end');
       return;
-    } else {
-      this.currentlyLoading = true;
     }
     if (throughScrolling) {
       if (this.currentIndex === 0) { // prevent to get more images by scrolling if we haven't even gotten the initial data
@@ -79,17 +78,20 @@ export class AuctionScrollComponent implements OnInit {
       }
     }
 
-    this.getAuctions(this.currentIndex).subscribe(masonryItems => {
-      this.currentlyLoading = false;
-      console.log('added more items');
-      this.currentIndex += 1;
-      if (masonryItems.length === 0) {
-        this.reachedEnd = true;
+    if (!this.currentlyLoading) {
+      this.currentlyLoading = true;
+      this.getAuctions(this.currentIndex).subscribe(masonryItems => {
         this.currentlyLoading = false;
-      } else {
-        this.masonryItems.push(...masonryItems);
-      }
-    });
+        console.log('added more items');
+        this.currentIndex += 1;
+        if (masonryItems.length === 0) {
+          this.reachedEnd = true;
+          this.currentlyLoading = false;
+        } else {
+          this.masonryItems.push(...masonryItems);
+        }
+      });
+    }
   }
 
   imageClick(item: AuctionMasonryItem) {
@@ -105,12 +107,16 @@ export class AuctionScrollComponent implements OnInit {
       } as AuctionDetailData
     });
     dialogRef.afterClosed().subscribe(() => {
-      this.location.replaceState('/auction');
+      this.location.replaceState('/' + this.scrollType);
     });
   }
 
   private getAuctions(index: number): Observable<AuctionMasonryItem[]> {
-    return from(this.auctionService.getMasonryItemsOfLiveAuctions(index)).pipe(catchError(this.handleError.bind(this)));
+    if (this.scrollType === 'auction') {
+      return from(this.auctionService.getMasonryItemsOfLiveAuctions(index)).pipe(catchError(this.handleError.bind(this)));
+    } else {
+      return from(this.auctionService.getMasonryItemsOfPastAuctions(index)).pipe(catchError(this.handleError.bind(this)));
+    }
   }
 
   public handleError(error: any): Observable<AuctionMasonryItem[]> {

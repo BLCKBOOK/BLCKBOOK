@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {AuctionService} from '../services/auction.service';
 import {ActivatedRoute} from '@angular/router';
 import {SnackBarService} from '../services/snack-bar.service';

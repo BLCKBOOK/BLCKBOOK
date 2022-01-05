@@ -1,4 +1,4 @@
-<ngx-masonry [options]="myOptions" appVoteScrollTracker (scrollingFinished)="addMoreItems(true)" #masonry (window:resize)="onResize()">
+<ngx-masonry [options]="myOptions" appScrollTracker (scrollingFinished)="addMoreItems(true)" #masonry (window:resize)="onResize()">
   <div class="grid-sizer"></div>
   <div class="gutter-sizer"></div>
   <div ngxMasonryItem class="masonry-item" *ngFor="let item of masonryItems">
