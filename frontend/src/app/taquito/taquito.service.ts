@@ -3,8 +3,6 @@ import { TezosToolkit } from '@taquito/taquito';
 import {tzip16, Tzip16Module} from '@taquito/tzip16';
 import {environment} from '../../environments/environment';
 
-
-
 @Injectable({
   providedIn: 'root'
 })

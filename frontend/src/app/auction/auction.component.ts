@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {AuctionService} from '../services/auction.service';
+import {BlockchainService} from '../services/blockchain.service';
 import {ActivatedRoute} from '@angular/router';
 import {SnackBarService} from '../services/snack-bar.service';
 import {MatDialog} from '@angular/material/dialog';
@@ -17,7 +17,7 @@ import {
 })
 export class AuctionComponent {
 
-  constructor(public dialog: MatDialog, public auctionService: AuctionService, private route: ActivatedRoute,
+  constructor(public dialog: MatDialog, public auctionService: BlockchainService, private route: ActivatedRoute,
               private snackBarService: SnackBarService, private location: Location) {
     this.route.params.subscribe(params => {
       if (params.id) {

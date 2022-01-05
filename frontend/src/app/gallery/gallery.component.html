@@ -1,1 +1,9 @@
-<app-auction-scroll [scrollType]="'gallery'"></app-auction-scroll>
+<mat-form-field appearance="fill">
+  <mat-label>Sort</mat-label>
+  <mat-select [(value)]="scrollType">
+    <mat-option value="gallery">All</mat-option>
+    <mat-option value="my-gallery">My Collection</mat-option>
+  </mat-select>
+</mat-form-field>
+<app-auction-scroll *ngIf="scrollType === 'gallery'" [scrollType]="'gallery'"></app-auction-scroll>
+<app-auction-scroll *ngIf="scrollType === 'my-gallery'" [scrollType]="'my-gallery'"></app-auction-scroll>

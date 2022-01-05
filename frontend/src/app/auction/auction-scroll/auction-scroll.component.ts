@@ -12,7 +12,7 @@ import {from, Observable, of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {TzktAuctionKey} from '../../types/tzkt.auction';
-import {AuctionService} from '../../services/auction.service';
+import {BlockchainService} from '../../services/blockchain.service';
 
 export interface AuctionMasonryItem {
   title: string,
@@ -32,7 +32,7 @@ export class AuctionScrollComponent implements OnInit {
 
   currentIndex = 0;
   @Input() items: AuctionMasonryItem[];
-  @Input() scrollType: 'auction' | 'gallery'
+  @Input() scrollType: 'auction' | 'gallery' | 'my-gallery'
 
   @ViewChild('masonry') masonry: NgxMasonryComponent;
   masonryItems: AuctionMasonryItem[] = [];
@@ -45,7 +45,7 @@ export class AuctionScrollComponent implements OnInit {
   public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService,
-              private location: Location, private auctionService: AuctionService) {
+              private location: Location, private blockchainService: BlockchainService) {
   }
 
   ngOnInit() {
@@ -113,9 +113,11 @@ export class AuctionScrollComponent implements OnInit {
 
   private getAuctions(index: number): Observable<AuctionMasonryItem[]> {
     if (this.scrollType === 'auction') {
-      return from(this.auctionService.getMasonryItemsOfLiveAuctions(index)).pipe(catchError(this.handleError.bind(this)));
+      return from(this.blockchainService.getMasonryItemsOfLiveAuctions(index)).pipe(catchError(this.handleError.bind(this)));
+    } else if (this.scrollType === 'gallery') {
+      return from(this.blockchainService.getMasonryItemsOfPastAuctions(index)).pipe(catchError(this.handleError.bind(this)));
     } else {
-      return from(this.auctionService.getMasonryItemsOfPastAuctions(index)).pipe(catchError(this.handleError.bind(this)));
+      return from(this.blockchainService.getMasonryItemsOfUserTokens(index)).pipe(catchError(this.handleError.bind(this)));
     }
   }
 

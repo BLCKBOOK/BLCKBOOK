@@ -1,24 +1,28 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable, of} from 'rxjs';
 import {TzKtAuctionHistoricalKey, TzktAuctionKey} from '../types/tzkt.auction';
 import {AuctionMasonryItem} from '../auction/auction-scroll/auction-scroll.component';
 import {ImageSizeService} from './image-size.service';
 import {environment} from '../../environments/environment';
 import {MintedArtwork} from '../../../../backend/src/common/tableDefinitions';
 import {CurrencyService} from './currency.service';
-import {map} from 'rxjs/operators';
+import {map, switchMap} from 'rxjs/operators';
+import {TokenResponse} from '../types/token.type';
+import {UserService} from './user.service';
+import {take} from 'rxjs/internal/operators';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuctionService {
+export class BlockchainService {
 
   private readonly mintedArtworkByTokenIDURL = environment.urlString + '/mints/getMintedArtworkByTokenId/';
   //
   private readonly loadLimit = 15;
 
-  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private currencyService: CurrencyService) {
+  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private currencyService: CurrencyService,
+              private userService: UserService) {
   }
 
   public getLiveAuctions(offset: number = 0): Observable<TzktAuctionKey[]> {
@@ -59,7 +63,6 @@ export class AuctionService {
       return environment.pinataGateway + artifactUri.substring(7); // second part gets the hash
     }));
   }
-
 
   hexStringToString(byteString: string) {
     let result = '';
@@ -105,5 +108,33 @@ export class AuctionService {
       mintedArtwork,
       tezBidAmount: this.currencyService.getTezAmountFromMutez(auctionKey.value.bid_amount),
     } as AuctionMasonryItem;
+  }
+
+  public async getMasonryItemsOfUserTokens(offset: number = 0): Promise<AuctionMasonryItem[]> {
+    const tokens = await this.getTokensOfUser(offset).toPromise();
+    if (tokens && tokens?.total > 0) {
+      const retArray = [];
+      for (const token of tokens.balances) {
+        const artwork = await this.getMintedArtworkForId(token.token_id);
+        const auction = await this.getAuction(token.token_id).toPromise();
+        retArray.push(this.getMasonryItemOfAuction(auction, artwork));
+      }
+      return retArray;
+    } else {
+      return [];
+    }
+  }
+
+  public getTokensOfUser(offset: number = 0): Observable<TokenResponse | undefined> {
+    return this.userService.getUserInfo().pipe(take(1), switchMap(userInfo => {
+      if (userInfo.walletId) {
+        const actualOffset = offset * this.loadLimit;
+        const size = this.loadLimit;
+        const params = new HttpParams().set('contract', environment.tokenContractAddress).set('size', size).set('offset', actualOffset).set('hide_empty', true);
+        return this.httpClient.get<TokenResponse>(environment.betterCallDevAddress + userInfo.walletId + '/token_balances', {params: params});
+      } else {
+        return of(undefined);
+      }
+    }));
   }
 }

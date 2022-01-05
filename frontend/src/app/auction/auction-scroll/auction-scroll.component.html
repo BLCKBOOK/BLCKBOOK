@@ -8,13 +8,13 @@
     </button>
     <div class="auction-footer">
       <span>{{item.title}}</span>
-      <ng-template *ngIf="scrollType === 'auction'">
+      <ng-container *ngIf="scrollType === 'auction'">
         <span class="example-spacer"></span>
         <span>{{item.tezBidAmount}}</span>
         <span class="tezos-symbol">ꜩ</span>
-      </ng-template>
+      </ng-container>
     </div>
   </div>
 </ngx-masonry>
 <mat-spinner *ngIf="currentlyLoading" style="margin:0 auto;"></mat-spinner>
-<div *ngIf="reachedEnd">YOU REACHED THE END</div>
+<!--<div *ngIf="reachedEnd">YOU REACHED THE END</div>-->

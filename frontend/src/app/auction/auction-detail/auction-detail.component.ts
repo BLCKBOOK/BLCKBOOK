@@ -8,7 +8,7 @@ import {MapDialogComponent, MapDialogData} from '../../components/map-dialog/map
 import {ErrorStateMatcher} from '@angular/material/core';
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {isNumeric} from 'rxjs/internal-compatibility';
-import {AuctionService} from '../../services/auction.service';
+import {BlockchainService} from '../../services/blockchain.service';
 import {BehaviorSubject} from 'rxjs';
 import {TzktAuction, TzKtAuctionHistoricalKey} from '../../types/tzkt.auction';
 import {CurrencyService} from '../../services/currency.service';
@@ -59,7 +59,7 @@ export class AuctionDetailComponent implements OnInit {
   private readonly mutezRegex = '\\d*\\.?\\d?\\d?\\d?\\d?\\d?\\d?$'
 
   constructor(public dialog: MatDialog, private clipboard: Clipboard,
-              private snackBarService: SnackBarService, private beaconService: BeaconService, private auctionService: AuctionService,
+              private snackBarService: SnackBarService, private beaconService: BeaconService, private auctionService: BlockchainService,
               private currencyService: CurrencyService) {
   }
 
