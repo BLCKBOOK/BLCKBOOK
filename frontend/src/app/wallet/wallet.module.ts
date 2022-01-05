@@ -11,23 +11,27 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {TranslateModule} from '@ngx-translate/core';
 import {BeaconModule} from '../beacon/beacon.module';
+import {TaquitoModule} from '../taquito/taquito.module';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 
 @NgModule({
   declarations: [
     WalletComponent
   ],
-  imports: [
-    CommonModule,
-    WalletRoutingModule,
-    MatButtonModule,
-    MatCardModule,
-    FontAwesomeModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    TranslateModule,
-    BeaconModule,
-  ],
+    imports: [
+        CommonModule,
+        WalletRoutingModule,
+        MatButtonModule,
+        MatCardModule,
+        FontAwesomeModule,
+        MatFormFieldModule,
+        ReactiveFormsModule,
+        MatInputModule,
+        TranslateModule,
+        BeaconModule,
+        TaquitoModule,
+        MatProgressSpinnerModule,
+    ],
 })
 export class WalletModule { }

@@ -84,7 +84,40 @@ export class BeaconService {
       if (error instanceof AbortedBeaconError) {
         console.log('User aborted beacon interaction');
       } else { // ToDo: maybe do a better error managing. (All error cases from the contract maybe)
-        this.snackBarService.openSnackBarWithoutAction('There was an unknown error with the transaction, please try again!', 5000);
+        this.snackBarService.openSnackBarWithoutAction('There was an unknown error with the bid-transaction, please try again!', 5000);
+        console.error(error);
+      }
+    }
+  }
+
+  async withdraw() {
+    const activeAccount = await this.getActiveAccount();
+    if (!activeAccount) {
+      await this.connect();
+    }
+    try {
+      const result = await this.dAppClient.requestOperation({
+        operationDetails: [
+          {
+            kind: TezosOperationType.TRANSACTION,
+            amount: '0',
+            destination: environment.voterMoneyPoolContractAddress,
+            parameters: {
+              entrypoint: 'withdraw',
+              value: {
+                prim: 'Unit' // 'Unit' works 'UNIT' does not...
+              }
+            },
+          },
+        ],
+      });
+      console.log(result);
+      this.snackBarService.openSnackBarWithoutAction('Withdraw was successful');
+    } catch (error) {
+      if (error instanceof AbortedBeaconError) {
+        console.log('User aborted beacon interaction');
+      } else { // ToDo: maybe do a better error managing. (All error cases from the contract maybe)
+        this.snackBarService.openSnackBarWithoutAction('There was an unknown error with the withdraw-transaction, please try again!', 5000);
         console.error(error);
       }
     }

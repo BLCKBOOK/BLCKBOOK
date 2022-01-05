@@ -3,8 +3,10 @@ import {UserService} from '../services/user.service';
 import {FormControl, Validators} from '@angular/forms';
 import {SnackBarService} from '../services/snack-bar.service';
 import {TranslateService} from '@ngx-translate/core';
-import {from} from 'rxjs';
+import {BehaviorSubject, from} from 'rxjs';
 import {BeaconService} from '../beacon/beacon.service';
+import {TaquitoService} from '../taquito/taquito.service';
+import {CurrencyService} from '../services/currency.service';
 
 @Component({
   selector: 'app-wallet',
@@ -15,13 +17,16 @@ export class WalletComponent implements OnInit {
 
   walletID: string = '';
   beaconWalletID: string = '';
-  allowedWalletPrefix: string[] = ['ez1', 'ez2', 'ez3']; // ToDo: research this and add checks to field!
 
   private readonly tezRegex = '(tz1|tz2|tz3|KT1)[0-9a-zA-Z]{33}$';
+  currentAmount: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  calculating = false;
+  calculationTriggered = false;
 
   walletIdForm = new FormControl('', [Validators.pattern(this.tezRegex)]);
 
-  constructor(private beaconService: BeaconService, private userService: UserService, private snackBarService: SnackBarService, private translateService: TranslateService) {
+  constructor(private beaconService: BeaconService, private userService: UserService, private snackBarService: SnackBarService, private translateService: TranslateService,
+              private taquitoService: TaquitoService, private currencyService: CurrencyService) {
   }
 
   ngOnInit() {
@@ -40,6 +45,15 @@ export class WalletComponent implements OnInit {
       if (info.walletId) {
         this.walletID = info.walletId;
       }
+    });
+  }
+
+  calculateVoteMoneyPoolAmount() {
+    this.calculating = true;
+    this.taquitoService.getVoteMoneyPoolAmountOfAddress(this.walletID).then(amount => {
+      const displayAmount = this.currencyService.getTezAmountFromMutez(amount.toString());
+      this.currentAmount.next(displayAmount);
+      this.calculating = false;
     });
   }
 
@@ -74,5 +88,9 @@ export class WalletComponent implements OnInit {
     const id = this.walletIdForm.value;
     this.setWalletId(id);
     this.walletIdForm.setValue('');
+  }
+
+  withdraw() {
+    this.beaconService.withdraw();
   }
 }

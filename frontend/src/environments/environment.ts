@@ -13,6 +13,7 @@ export const environment = {
   tzktAddress: 'https://api.hangzhou2net.tzkt.io/v1/',
   cryptoNet: 'hangzhounet',
   pinataGateway: 'https://gateway.pinata.cloud/ipfs/',
+  taquitoRPC: 'https://hangzhounet.api.tez.ie',
 };
 
 /*
