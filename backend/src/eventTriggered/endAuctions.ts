@@ -11,10 +11,11 @@ import middy from '@middy/core';
 import httpErrorHandler from '@middy/http-error-handler';
 import RequestLogger from "../common/RequestLogger";
 import { GetObjectAclCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { VotableArtwork, UserInfo } from '../common/tableDefinitions';
+import { VotableArtwork, UserInfo, MintedArtwork } from '../common/tableDefinitions';
 import { Readable } from 'stream';
 import { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { createNotification } from "../common/actions/createNotification";
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
@@ -56,16 +57,33 @@ const baseHandler = async (event, context) => {
         const batchTransaction = await Tezos.wallet.batch(transfers).send()
         await batchTransaction.confirmation(3)
 
-        // update artworks in mintedArtworksTable
         for (let i = 0; i < batch.length; i += 1) {
-            const updateArtworkCommand = new UpdateItemCommand({
+            // get minted artwork
+            const getArtworkCommand = new GetItemCommand({
                 TableName: process.env['MINTED_ARTWORKS_TABLE_NAME'],
                 Key: marshall({ tokenId: batch[i].c }),
+            })
+            const item = await (await ddbClient.send(getArtworkCommand)).Item
+            if(!item) throw new Error("tried to end unknown auction");
+            const art = unmarshall(item) as MintedArtwork
+            
+            // update artworks in mintedArtworksTable
+            const updateArtworkCommand = new UpdateItemCommand({
+                TableName: process.env['MINTED_ARTWORKS_TABLE_NAME'],
+                Key: marshall({ tokenId: art.tokenId }),
                 UpdateExpression: "set currentlyAuctioned = :false",
                 ExpressionAttributeValues: marshall({ ":false": false})
             })
             await ddbClient.send(updateArtworkCommand)
+
+            // send notification to uploader
+            await createNotification({ body: 'An auction in which you are the uploader has been resolved.', title: 'Auction Resolved', type: 'message', userId: art.uploaderId, link: `/auction/${art.tokenId}` }, ddbClient)
+
+            // send notification to voters 
+            const voterNotifications = art.votes.map(voterId => createNotification({ body: 'An auction in which you are a voter has been resolved.', title: 'Auction Resolved', type: 'message', userId: voterId, link: `/auction/${art.tokenId}` }, ddbClient))
+            await Promise.all(voterNotifications);
         }
+
     }
 }
 

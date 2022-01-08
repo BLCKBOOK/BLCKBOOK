@@ -81,6 +81,7 @@ export interface MintedArtwork {
   latitude: string
   contentType: string
   title?: string
+  votes: [string]
   artist?: string
   voteCount: number
 }

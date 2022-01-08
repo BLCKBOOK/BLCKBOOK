@@ -10,6 +10,8 @@ import { LambdaResponseToApiGw } from "../../../common/lambdaResponseToApiGw";
 import AuthMiddleware from "../../../common/AuthMiddleware";
 import RequestLogger from "../../../common/RequestLogger";
 import { MintedArtwork } from "../../../common/tableDefinitions";
+import { createError } from "@middy/util";
+import { ReplicationRuleAndOperator } from "@aws-sdk/client-s3";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
@@ -19,12 +21,17 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   let tokenId = 0
   tokenId = Number(event.pathParameters.tokenId)
 
-  const updateUserCommand = new GetItemCommand({
-    TableName: process.env['MINTED_ARTWORKS_TABLE_NAME'],
-    Key: marshall({ tokenId }),
-  });
+    const updateUserCommand = new GetItemCommand({
+      TableName: process.env['MINTED_ARTWORKS_TABLE_NAME'],
+      Key: marshall({ tokenId }),
+    });  
+  
+  const item = (await DDBclient.send(updateUserCommand)).Item;
+  if (!item) return Promise.reject(createError(404, "No minted artwork found under the provided id"))
 
-  returnObject = unmarshall(await (await DDBclient.send(updateUserCommand)).Item) as MintedArtwork
+  const mintedArtwork = unmarshall(item) as Partial<MintedArtwork>
+  delete mintedArtwork.votes 
+  returnObject = mintedArtwork as getMintedArtworkByTokenIdResponseBody
   return { statusCode: 200, headers: { "content-type": "text/plain" }, body: JSON.stringify(returnObject) };
 }
 

@@ -129,7 +129,18 @@ endAuctions:
   iamRoleStatements:
     - Effect: Allow
       Action:
+      - dynamodb:PutItem
+      Resource:
+      - Fn::GetAtt: [ notificationTable, Arn ]
+    - Effect: Allow
+      Action:
+      - dynamodb:UpdateItem
+      Resource:
+      - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
         - dynamodb:UpdateItem
+        - dynamodb:GetItem
       Resource:
         - Fn::GetAtt: [ mintedArtworks, Arn ]
     - Effect: Allow
@@ -154,8 +165,14 @@ mintingQueueWorker:
       - Effect: Allow
         Action:
         - dynamodb:GetItem
+        - dynamodb:UpdateItem
         Resource:
         - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource:
+        - Fn::GetAtt: [ notificationTable, Arn ]
       - Effect: Allow
         Action:
         - dynamodb:PutItem

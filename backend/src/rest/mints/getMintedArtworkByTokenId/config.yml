@@ -1,4 +1,4 @@
-getCurrentPeriod:
+getMintedArtworkByTokenId:
   handler: src/rest/mints/getMintedArtworkByTokenId/get.handler
   iamRoleStatements:
     - Effect: Allow
