@@ -1,5 +1,5 @@
 .faq-heading-padding {
-  padding: 0 16px;
+  padding-left: 16px;
 }
 
 .faq-accordion {
@@ -163,4 +163,8 @@
 
 .step-icon {
   position: relative;
+}
+
+.mat-expansion-panel-header {
+  height: 64px;
 }

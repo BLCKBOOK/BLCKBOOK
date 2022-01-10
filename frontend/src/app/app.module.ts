@@ -12,7 +12,6 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatIconModule} from '@angular/material/icon';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
-import {BobTextComponent} from './components/bob-text/bob-text.component';
 import {HomeComponent} from './components/home/home.component';
 import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
@@ -74,7 +73,6 @@ Auth.configure(awsconfig);
   declarations: [
     AppComponent,
     NavigationComponent,
-    BobTextComponent,
     HomeComponent,
     WelcomeComponent,
     ImageUploadComponent,

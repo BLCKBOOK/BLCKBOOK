@@ -1,5 +1,5 @@
-<mat-form-field appearance="fill" *ngIf="(authState$ | async) === 'signedin'">
-  <mat-label>Sort</mat-label>
+<mat-form-field class="default-left-padding" appearance="fill" *ngIf="(authState$ | async) === 'signedin'">
+  <mat-label>Show</mat-label>
   <mat-select [(value)]="scrollType">
     <mat-option value="gallery">All</mat-option>
     <mat-option value="my-gallery">My Collection</mat-option>

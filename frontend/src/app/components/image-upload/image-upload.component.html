@@ -1,6 +1,6 @@
 <mat-card>
   <mat-card-header class="welcome-line">
-    <app-bob-text [text]="'upload.header' | translate"></app-bob-text>
+    <mat-card-title>{{'upload.header' | translate}}</mat-card-title>
   </mat-card-header>
   <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap.xs="0" fxLayoutGap.sm="0" fxLayoutGap="2em"
        *ngIf="!currentlyUploading; else: showSpinner">

@@ -1,10 +1,10 @@
 <div class="welcome-line">
-  <app-bob-text [text]="('home.welcome' | translate) + ' ' + (username | async)"></app-bob-text>
+  <h2> {{('home.welcome' | translate) + ' ' + (username | async)}}</h2>
 </div>
 <div class="button-container" fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayout.md="column" fxLayoutGap="2em">
   <button routerLink="/upload" class="navigate-button" mat-flat-button fxFlex="1 1 33%">
     <div>
-      <app-bob-text [text]="startTime + ' - \n' + endTime"></app-bob-text>
+      <h2>{{startTime + ' - \n' + endTime}} </h2>
     </div>
     <fa-stack class="my-fa-stack">
       <fa-icon [icon]="faImage" stackItemSize="2x"></fa-icon>
