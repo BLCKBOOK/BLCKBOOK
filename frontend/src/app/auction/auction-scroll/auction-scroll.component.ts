@@ -2,17 +2,18 @@ import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgxMasonryComponent, NgxMasonryOptions} from 'ngx-masonry';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {ImageSizeService} from '../../services/image-size.service';
-import {MintedArtwork} from '../../../../../backend/src/common/tableDefinitions';
+import {MintedArtwork, UserInfo} from '../../../../../backend/src/common/tableDefinitions';
 import {MatDialog} from '@angular/material/dialog';
 import {
   AuctionDetailData,
   DetailViewAuctionDialogComponent
 } from '../detail-view-dialog/detail-view-auction-dialog.component';
 import {from, Observable, of} from 'rxjs';
-import {catchError} from 'rxjs/operators';
+import {catchError, map} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {TzktAuctionKey} from '../../types/tzkt.auction';
 import {BlockchainService} from '../../services/blockchain.service';
+import {UserService} from '../../services/user.service';
 
 export interface AuctionMasonryItem {
   title: string,
@@ -39,16 +40,23 @@ export class AuctionScrollComponent implements OnInit {
   reachedEnd = false;
   lastIndex: number | undefined = undefined;
   currentlyLoading = false;
+  userInfo: Observable<UserInfo>
+  walletId: string | undefined;
 
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
 
   public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
+  public noTokensYet: boolean = false;
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService,
-              private location: Location, private blockchainService: BlockchainService) {
+              private location: Location, private blockchainService: BlockchainService, private userService: UserService) {
   }
 
   ngOnInit() {
+    this.userInfo = this.userService.getUserInfo();
+    this.userInfo.subscribe(userInfo => {
+      this.walletId = userInfo.walletId;
+    });
     this.initialize();
   }
 
@@ -117,8 +125,16 @@ export class AuctionScrollComponent implements OnInit {
     } else if (this.scrollType === 'gallery') {
       return from(this.blockchainService.getMasonryItemsOfPastAuctions(index)).pipe(catchError(this.handleError.bind(this)));
     } else {
-      return from(this.blockchainService.getMasonryItemsOfUserTokens(index)).pipe(catchError(this.handleError.bind(this)));
+      return from(this.blockchainService.getMasonryItemsOfUserTokens(index, this.walletId)).pipe(catchError(this.handleError.bind(this)), map(tokens => this.noTokens(tokens, index)));
     }
+  }
+
+  private noTokens(tokens: AuctionMasonryItem[], index: number): AuctionMasonryItem[] {
+    if (tokens.length === 0 && index === 0) {
+      this.reachedEnd = true;
+      this.noTokensYet = true;
+    }
+    return tokens;
   }
 
   public handleError(error: any): Observable<AuctionMasonryItem[]> {

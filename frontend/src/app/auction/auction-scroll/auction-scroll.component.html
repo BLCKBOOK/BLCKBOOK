@@ -17,4 +17,7 @@
   </div>
 </ngx-masonry>
 <mat-spinner *ngIf="currentlyLoading" style="margin:0 auto;"></mat-spinner>
+<div *ngIf="noTokensYet">
+  The wallet currently connected doesn't own any BLCKBOOK-Tokens.
+</div>
 <!--<div *ngIf="reachedEnd">YOU REACHED THE END</div>-->

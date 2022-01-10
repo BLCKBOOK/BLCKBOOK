@@ -21,8 +21,8 @@ $fontConfig: (
   display-3: mat.define-typography-level(56px, 56px, 400, 'Art Grootfontein', -0.0089em),
   display-2: mat.define-typography-level(45px, 48px, 400, 'GT Walsheim', 0.0000em),
   display-1: mat.define-typography-level(34px, 40px, 400, 'GT Walsheim', 0.0074em),
-  headline: mat.define-typography-level(24px, 32px, 400, 'GT Walsheim', 0.0000em),
-  title: mat.define-typography-level(20px, 32px, 500, 'GT Walsheim', 0.0075em),
+  headline: mat.define-typography-level(32px, 32px, 400, 'Art Grootfontein', 0.05em),
+  title: mat.define-typography-level(32px, 32px, 400, 'Art Grootfontein', 0.05em),
   subheading-2: mat.define-typography-level(16px, 28px, 400, 'GT Walsheim', 0.0094em),
   subheading-1: mat.define-typography-level(15px, 24px, 500, 'GT Walsheim', 0.0067em),
   body-2: mat.define-typography-level(14px, 24px, 500, 'GT Walsheim', 0.0179em),
@@ -298,6 +298,11 @@ mat-menu {
 .tezos-symbol {
   font-weight: 300;
   margin-left: 2px;
+}
+
+.mat-card-title {
+  font: 400 14px / 26px Art Grootfontein;
+  font-size: 32px;
 }
 
 a {

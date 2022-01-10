@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import {BlockchainService} from '../services/blockchain.service';
+import {Component} from '@angular/core';
+import {Observable} from 'rxjs';
+import {AuthState} from '@aws-amplify/ui-components';
+import {UserService} from '../services/user.service';
 
 @Component({
   selector: 'app-gallery',
@@ -8,10 +10,10 @@ import {BlockchainService} from '../services/blockchain.service';
 })
 export class GalleryComponent {
 
-  scrollType: 'gallery' | 'my-gallery' = 'gallery' ;
+  scrollType: 'gallery' | 'my-gallery' = 'gallery';
+  public authState$: Observable<AuthState>;
 
-  constructor(private blockchainService: BlockchainService) {
-    this.blockchainService.getTokensOfUser().subscribe(test => console.log(test));
+  constructor(private userService: UserService) {
+    this.authState$ = this.userService.getAuthState();
   }
-
 }

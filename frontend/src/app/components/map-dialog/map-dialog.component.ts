@@ -55,8 +55,8 @@ export class MapDialogComponent {
         icon: icon({
           iconSize: [25, 41],
           iconAnchor: [13, 41],
-          shadowUrl: 'assets/marker-shadow.png',
-          iconUrl: 'assets/marker-icon.png',
+          shadowUrl: './assets/marker-shadow.png',
+          iconUrl: './assets/marker-icon.png',
         })
       }
     );
