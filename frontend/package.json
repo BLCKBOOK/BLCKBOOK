@@ -16,7 +16,7 @@
     "explore": "ng build --prod --source-map && source-map-explorer dist/**/*.js",
     "build:server:serverless": "webpack --config webpack.server.config.js --progress",
     "deploy:prod": "ng build --configuration production && npm run build:server:serverless && serverless deploy --stage prod",
-    "deploy:dev": "ng build --configuration devDeployment --base-href /dev/ && npm run build:server:serverless && serverless deploy --stage dev"
+    "deploy:dev": "ng build --configuration devDeployment && npm run build:server:serverless && serverless deploy --stage dev"
   },
   "private": true,
   "dependencies": {
