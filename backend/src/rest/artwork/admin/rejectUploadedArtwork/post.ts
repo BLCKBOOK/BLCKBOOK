@@ -44,7 +44,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   })
   await DDBclient.send(updateUploadCountCommand)
 
-  await createNotification({body:'Your upload did not meet the minimum quality requirements and has been deleted. Your may upload another image during this period.',title:'Upload rejected',type:'message',userId:body.uploaderId},DDBclient)
+  await createNotification({body:'Your upload did not meet the minimum quality requirements and has been deleted. You may upload another image during this period.',title:'Upload rejected',type:'message',userId:body.uploaderId},DDBclient)
 
   console.debug("Item was successfully deleted")
   return { statusCode: 200, headers: { "content-type": "text/plain" }, body: "Item was successfully deleted" };
