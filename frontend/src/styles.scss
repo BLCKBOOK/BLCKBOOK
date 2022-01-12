@@ -6,30 +6,29 @@
 // have to load a single css file for Angular Material in your app.
 
 @font-face {
-  font-family: "GT Walsheim";
-  src: local("GT-Walsheim-Regular"), url(./assets/fonts/GT-Walsheim-Regular.ttf) format("truetype");
+  font-family: "Body Font";
+  src: local("GT Walsheim"), url(./assets/fonts/GT-Walsheim-Regular.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: "Art Grootfontein";
-  src: local("Art-Grootfontein-Flexible-Variable") , url(./assets/fonts/Art-Grootfontein-Flexible-Variable.ttf) format("truetype");
+  font-family: "Header Font";
+  src: local("TTTravelsNext-XBd") , url(./assets/fonts/TT-Travels-Extra-Bold.ttf) format("truetype");
 }
 
-
 $fontConfig: (
-  display-4: mat.define-typography-level(112px, 112px, 300, 'Art Grootfontein', -0.0134em),
-  display-3: mat.define-typography-level(56px, 56px, 400, 'Art Grootfontein', -0.0089em),
-  display-2: mat.define-typography-level(45px, 48px, 400, 'GT Walsheim', 0.0000em),
-  display-1: mat.define-typography-level(34px, 40px, 400, 'GT Walsheim', 0.0074em),
-  headline: mat.define-typography-level(32px, 32px, 400, 'Art Grootfontein', 0.05em),
-  title: mat.define-typography-level(32px, 32px, 400, 'Art Grootfontein', 0.05em),
-  subheading-2: mat.define-typography-level(16px, 28px, 400, 'GT Walsheim', 0.0094em),
-  subheading-1: mat.define-typography-level(15px, 24px, 500, 'GT Walsheim', 0.0067em),
-  body-2: mat.define-typography-level(14px, 24px, 500, 'GT Walsheim', 0.0179em),
-  body-1: mat.define-typography-level(14px, 20px, 400, 'GT Walsheim', 0.0179em),
-  button: mat.define-typography-level(14px, 14px, 500, 'GT Walsheim', 0.0893em),
-  caption: mat.define-typography-level(12px, 20px, 400, 'GT Walsheim', 0.0333em),
-  input: mat.define-typography-level(inherit, 1.125, 400, 'GT Walsheim', 1.5px)
+  display-4: mat.define-typography-level(112px, 112px, 300, 'Header Font', -0.0134em),
+  display-3: mat.define-typography-level(56px, 56px, 400, 'Header Font', -0.0089em),
+  display-2: mat.define-typography-level(45px, 48px, 400, 'Body Font', 0.0000em),
+  display-1: mat.define-typography-level(34px, 40px, 400, 'Body Font', 0.0074em),
+  headline: mat.define-typography-level(24px, 32px, 400, 'Header Font', 0.0000em),
+  title: mat.define-typography-level(20px, 32px, 500, 'Header Font', 0.0075em),
+  subheading-2: mat.define-typography-level(16px, 28px, 400, 'Body Font', 0.0094em),
+  subheading-1: mat.define-typography-level(15px, 24px, 500, 'Body Font', 0.0067em),
+  body-2: mat.define-typography-level(14px, 24px, 500, 'Body Font', 0.0179em),
+  body-1: mat.define-typography-level(14px, 20px, 400, 'Body Font', 0.0179em),
+  button: mat.define-typography-level(14px, 14px, 500, 'Body Font', 0.0893em),
+  caption: mat.define-typography-level(12px, 20px, 400, 'Body Font', 0.0333em),
+  input: mat.define-typography-level(inherit, 1.125, 400, 'Body Font', 1.5px)
 );
 
 // Foreground Elements
@@ -178,7 +177,7 @@ $theme: (
   font-size: 24px;
   font-family: 'Material Icons', 'Material Icons';
   .mat-badge-content {
-    font-family: 'GT Walsheim';
+    font-family: 'Body Font';
   }
 }*/
 
@@ -233,7 +232,7 @@ body {
   --amplify-white: #{$light-primary-text};
   --amplify-red: #{$dark-text};
   --amplify-background-color: #{$dark-bg-lighter-20};
-  --amplify-font-family: "GT Walsheim";
+  --amplify-font-family: "Body Font";
 }
 
 html, body {
@@ -301,7 +300,7 @@ mat-menu {
 }
 
 .mat-card-title {
-  font: 400 14px / 26px Art Grootfontein;
+  font: 400 14px / 26px Header Font;
   font-size: 32px;
 }
 

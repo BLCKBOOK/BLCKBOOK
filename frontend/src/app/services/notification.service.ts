@@ -75,16 +75,18 @@ export class NotificationService {
   }
 
   setNotificationSeen(notification: Notification) {
-    const lastKey: LastKey = {
-      userId: notification.userId,
-      timestamp: notification.timestamp
-    };
-    const request = {notifications: [lastKey]};
-    notification.seen = true;
-    this.unreadNotifications$.next(this.unreadNotifications$.getValue() - 1);
-    this.httpClient.post(this.notificationAPIURL + this.seeNotificationURL, request, {responseType: 'text'}).subscribe(() => {
-      this.updateAllNotifications();
-    });
+    if (!notification.seen) {
+      const lastKey: LastKey = {
+        userId: notification.userId,
+        timestamp: notification.timestamp
+      };
+      const request = {notifications: [lastKey]};
+      notification.seen = true;
+      this.unreadNotifications$.next(this.unreadNotifications$.getValue() - 1);
+      this.httpClient.post(this.notificationAPIURL + this.seeNotificationURL, request, {responseType: 'text'}).subscribe(() => {
+        this.updateAllNotifications();
+      });
+    }
   }
 
   getAllNotifications(): Observable<Notification[]> {

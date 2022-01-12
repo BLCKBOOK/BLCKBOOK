@@ -25,6 +25,10 @@
 }
 
 .link {
+  flex: 1 1 100%;
   cursor: pointer;
-  color: var(--primary-color);
+}
+
+.no-link {
+  flex: 1 1 calc(100px - 40px);
 }

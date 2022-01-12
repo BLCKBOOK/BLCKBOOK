@@ -20,4 +20,10 @@
 <div *ngIf="noTokensYet" class="default-left-padding">
   The wallet currently connected doesn't own any BLCKBOOK-Tokens.
 </div>
+<div *ngIf="!currentlyLoading && masonryItems.length === 0 && scrollType === 'auction'" class="default-left-padding">
+  No active auctions
+</div>
+<div *ngIf="!currentlyLoading && masonryItems.length === 0 && scrollType === 'gallery'" class="default-left-padding">
+  Gallery is empty
+</div>
 <!--<div *ngIf="reachedEnd">YOU REACHED THE END</div>-->

@@ -58,6 +58,17 @@ amplify-button > .button {
   white-space: nowrap;
 }
 
+.link-flex {
+  width: 100%;
+  cursor: pointer;
+}
+
+.no-link-flex {
+  flex: 1 1 calc(100% - 40px);
+  min-width: calc(100% - 40px);
+  cursor: pointer;
+}
+
 ::ng-deep .mat-menu-panel.notification-menu {
   max-width: 600px;
   width: 80vw;
@@ -71,7 +82,3 @@ amplify-button > .button {
   font-size: 2em;
 }
 
-.link {
-  cursor: pointer;
-  color: var(--primary-color);
-}

@@ -31,7 +31,7 @@
     "timestamp": "Timestamp"
   },
   "wallet": {
-    "header": "Wallet Options",
+    "header": "WALLET OPTIONS",
     "no-wallet": "You currently don't have a wallet connected\n In order to upload images and vote you need to connect a wallet first.",
     "current": "Your current wallet has the id:",
     "manually": "Manually enter a wallet-id",

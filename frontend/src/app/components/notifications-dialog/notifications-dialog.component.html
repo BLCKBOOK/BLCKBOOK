@@ -1,18 +1,15 @@
-<h1 mat-dialog-title>Notifications</h1>
+<h1 mat-dialog-title>NOTIFICATIONS</h1>
 <mat-dialog-content>
   <div *ngFor="let notification of (notifications | async); last as isLast">
     <div class="notification-menu-item"
          fxLayout="row">
-      <div fxLayout="column" class="left-column" fxFlex="1 1 calc(100% - 40px)">
+      <div fxLayout="column" class="left-column" [ngClass]="notification.link ? 'link' : 'no-link'" (click)="clickNotification(notification, $event)">
         <h4 class="notification-title" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.title}}</h4>
-        <div *ngIf="notification.link else noLink">
-          <div class="notification-text link" routerLink="{{notification.link}}" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
-        </div>
-        <ng-template #noLink>
+        <div>
           <div class="notification-text" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
-        </ng-template>
+        </div>
       </div>
-      <div fxFlex="1 1 40px" class="icon-column">
+      <div *ngIf="!notification.link" fxFlex="1 1 40px" class="icon-column">
         <button mat-icon-button *ngIf="!notification.seen" (click)="markNotificationAsSeen(notification, $event)">
           <fa-icon [icon]="faCheck"></fa-icon>
         </button>

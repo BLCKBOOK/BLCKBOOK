@@ -16,8 +16,8 @@ import {NotificationsDialogComponent} from '../notifications-dialog/notification
 })
 export class NavigationComponent implements OnInit {
 
-  faBars = findIconDefinition({ prefix: 'fas', iconName: 'bars' });
-  faBell = findIconDefinition({ prefix: 'fas', iconName: 'bell' });
+  faBars = findIconDefinition({prefix: 'fas', iconName: 'bars'});
+  faBell = findIconDefinition({prefix: 'fas', iconName: 'bell'});
   faUserCircle = findIconDefinition({prefix: 'fas', iconName: 'user-circle'});
   faCheck = findIconDefinition({prefix: 'fas', iconName: 'check'});
   faEllipsisH = findIconDefinition({prefix: 'fas', iconName: 'ellipsis-h'});
@@ -51,11 +51,32 @@ export class NavigationComponent implements OnInit {
     });
   }
 
-  openNotificationsDialog() {
+  openInNewTab(namedRoute: string) {
+    const url = this.router.serializeUrl(this.router.createUrlTree([namedRoute]));
+    window.open(url, '_blank');
+  }
+
+  notificationClick(notification: Notification, $event: MouseEvent) {
+    this.notificationService.setNotificationSeen(notification);
+    if (notification.link) {
+      if ($event.ctrlKey) {
+        this.openInNewTab(notification.link);
+      } else {
+        console.log('tried to navigate');
+        this.router.navigate([notification.link]);
+      }
+    } else {
+      console.log(notification);
+      this.openNotificationDialog(notification);
+    }
+  }
+
+  openNotificationDialog(notification: Notification | undefined) {
     this.dialog.open(NotificationsDialogComponent, {
       width: '90%',
       maxWidth: '90%',
       maxHeight: '100%',
+      data: notification as Notification | undefined,
     });
   }
 

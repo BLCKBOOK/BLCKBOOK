@@ -35,16 +35,16 @@
         <div *ngFor="let notification of (notifications | async)">
           <div class="mat-menu-item notification-menu-item"
                fxLayout="row">
-            <div fxLayout="column" fxFlex="1 1 calc(100% - 40px)" (click)="openNotificationsDialog()">
+            <div fxLayout="column" [ngClass]="notification.link ? 'link-flex' : 'no-link-flex'" (click)="notificationClick(notification, $event)">
               <h4 class="notification-title" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.title}}</h4>
               <div *ngIf="notification.link else noLink">
-                <div class="notification-text link" routerLink="{{notification.link}}" (click)="notificationLinkClick($event)" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
+                <div class="notification-text" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
               </div>
               <ng-template #noLink>
                 <div class="notification-text" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
               </ng-template>
             </div>
-            <div fxFlex="1 1 40px" class="icon-column">
+            <div *ngIf="!(notification.link)" fxFlex="1 1 40px" class="icon-column">
               <button mat-icon-button *ngIf="!notification.seen" (click)="markNotificationAsSeen(notification, $event)">
                 <fa-icon [icon]="faCheck"></fa-icon>
               </button>
@@ -55,7 +55,7 @@
         <div *ngIf="(notifications | async)?.length === 0" class="mat-menu-item">
           <span>You currently don't have any notifications</span>
         </div>
-        <button mat-button class="mat-menu-item" fxLayout="row" fxLayoutAlign="space-evenly center" (click)="openNotificationsDialog()">
+        <button mat-button class="mat-menu-item" fxLayout="row" fxLayoutAlign="space-evenly center" (click)="openNotificationDialog(undefined)">
           <fa-icon [icon]="faEllipsisH"></fa-icon>
         </button>
       </mat-menu>
