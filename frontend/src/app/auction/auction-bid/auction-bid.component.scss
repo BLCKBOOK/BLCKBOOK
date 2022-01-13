@@ -6,3 +6,9 @@
 .amount {
   color: var(--primary-color);
 }
+
+.ellipsis-overflow {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

@@ -14,6 +14,8 @@ import {TzktAuction, TzKtAuctionHistoricalKey} from '../../types/tzkt.auction';
 import {CurrencyService} from '../../services/currency.service';
 import Dinero from 'dinero.js';
 import {BeaconService} from '../../beacon/beacon.service';
+import {UserService} from '../../services/user.service';
+import {DialogService} from '../../services/dialog.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -26,7 +28,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 @Component({
   selector: 'app-auction-detail',
   templateUrl: './auction-detail.component.html',
-  styleUrls: ['./auction-detail.component.scss']
+  styleUrls: ['./auction-detail.component.scss', './../../shared/styles/detail.component.scss']
 })
 export class AuctionDetailComponent implements OnInit {
 
@@ -36,6 +38,7 @@ export class AuctionDetailComponent implements OnInit {
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   faShareSquare = findIconDefinition({prefix: 'fas', iconName: 'share-square'});
   faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
+  faRedo = findIconDefinition({prefix: 'fas', iconName: 'redo'});
   auctionOver = false;
   minAuctionBidString: string;
   minAuctionBid: Dinero.Dinero;
@@ -55,12 +58,13 @@ export class AuctionDetailComponent implements OnInit {
   metadataUri: string;
   auctionStartDate: string;
   auctionEndDate: string;
+  walletID: string; // wallet Id of logged-in user
 
   private readonly mutezRegex = '\\d*\\.?\\d?\\d?\\d?\\d?\\d?\\d?$'
 
   constructor(public dialog: MatDialog, private clipboard: Clipboard,
               private snackBarService: SnackBarService, private beaconService: BeaconService, private auctionService: BlockchainService,
-              private currencyService: CurrencyService) {
+              private currencyService: CurrencyService, private userService: UserService, private dialogService: DialogService) {
   }
 
   ngOnInit(): void {
@@ -97,6 +101,11 @@ export class AuctionDetailComponent implements OnInit {
     if (this.data.auctionKey.value.uploader === this.data.auctionKey.value.bidder) {
       this.noBidsYet = true;
     }
+    this.userService.getUserInfo().subscribe(info => {
+      if (info.walletId) {
+        this.walletID = info.walletId;
+      }
+    });
   }
 
 
@@ -106,7 +115,7 @@ export class AuctionDetailComponent implements OnInit {
   }
 
   showOnMap() {
-    this.dialog.open(MapDialogComponent, {
+    this.dialogService.open(MapDialogComponent, {
       width: '100%',
       maxWidth: '100%',
       data: {

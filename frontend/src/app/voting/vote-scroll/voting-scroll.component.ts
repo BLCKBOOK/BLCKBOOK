@@ -10,6 +10,7 @@ import {Observable, of, zip} from 'rxjs';
 import {catchError, map, takeUntil} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {UpdateService} from '../../services/update.service';
+import {DialogService} from '../../services/dialog.service';
 
 export interface VoteMasonryItem {
   title: string,
@@ -40,11 +41,12 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
 
   faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
+  currentlyLoading = false;
 
   public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService,
-              private location: Location, private updateService: UpdateService) {
+              private location: Location, private updateService: UpdateService, private dialogService: DialogService) {
     this.alreadyVoted$ = this.votingService.getHasVoted$();
   }
 
@@ -101,12 +103,14 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
       }
     }
 
+    this.currentlyLoading = true;
     zip(this.getArtworks(this.currentIndex),
       this.getArtworks(this.currentIndex + 1),
       this.getArtworks(this.currentIndex + 2),
       this.getArtworks(this.currentIndex + 3),
       this.getArtworks(this.currentIndex + 4))
       .subscribe(artworksArray => {
+        this.currentlyLoading = false;
         console.log(artworksArray);
         const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
         this.currentIndex = this.currentIndex + 5;
@@ -148,7 +152,7 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
 
   imageClick(item: VoteMasonryItem) {
     const src = this.imageSizeService.getOriginalString(item.artwork.imageUrls);
-    const dialogRef = this.dialog.open(DetailViewDialogComponent, {
+    const dialogRef = this.dialogService.open(DetailViewDialogComponent, {
       width: '90%',
       maxWidth: '90%',
       maxHeight: '100%',
@@ -156,7 +160,8 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
         src: src,
         srcSet: item.srcSet,
         voted: item.voted,
-        artwork: item.artwork
+        artwork: item.artwork,
+        votingService: this.votingService,
       } as VoteDetailData
     });
     dialogRef.afterClosed().subscribe(() => {

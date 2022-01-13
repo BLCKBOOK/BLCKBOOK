@@ -2,14 +2,14 @@
   <mat-card-header class="welcome-line">
     <mat-card-title>{{'upload.header' | translate}}</mat-card-title>
   </mat-card-header>
-  <div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap.xs="0" fxLayoutGap.sm="0" fxLayoutGap="2em"
+  <div [fxLayout]="'column'" fxLayoutGap="1em"
        *ngIf="!currentlyUploading; else: showSpinner">
     <div fxFlex="1 1 50%">
       <button *ngIf="!this.image && !this.alreadyUploaded; else stagedImage" mat-flat-button class="upload-button"
               (click)="file.click()">
-        <p>
-          <span> some date info</span>
-        </p>
+        <h4>
+          {{currentPeriod}}
+        </h4>
         <fa-stack class="my-fa-stack">
           <fa-icon [icon]="faCamera" stackItemSize="2x"></fa-icon>
         </fa-stack>
@@ -19,19 +19,21 @@
           <img [src]="url" [srcset]="srcSet" class="big-image" #image
                [sizes]="'(min-width: 960px) calc(50vw - 88px), calc(100vw-44px)'" alt="'Upload'">
         </div>
-        <div fxLayout="row" fxLayoutAlign='space-evenly center'>
-          <button mat-icon-button (click)="enlargeImage()">
-            <fa-icon [icon]="faExpandArrowsAlt"></fa-icon>
-          </button>
-          <button *ngIf="!alreadyUploaded" mat-icon-button (click)="file.click()">
-            <fa-icon [icon]="faEdit"></fa-icon>
-          </button>
-          <button *ngIf="alreadyUploaded" mat-icon-button (click)="deleteImage()">
-            <fa-icon [icon]="faTrash"></fa-icon>
-          </button>
-          <button *ngIf="alreadyUploaded" mat-icon-button (click)="showOnMap()">
-            <fa-icon [icon]="faMapMarkerAlt"></fa-icon>
-          </button>
+        <div fxLayout="row" fxLayoutAlign='center'>
+          <div class="image-action-buttons-container" fxLayout="row" fxLayoutAlign='space-around center'>
+            <button mat-icon-button (click)="enlargeImage()">
+              <fa-icon [icon]="faExpandArrowsAlt"></fa-icon>
+            </button>
+            <button *ngIf="!alreadyUploaded" mat-icon-button (click)="file.click()">
+              <fa-icon [icon]="faEdit"></fa-icon>
+            </button>
+            <button *ngIf="alreadyUploaded" mat-icon-button (click)="deleteImage()">
+              <fa-icon [icon]="faTrash"></fa-icon>
+            </button>
+            <button *ngIf="alreadyUploaded" mat-icon-button (click)="showOnMap()">
+              <fa-icon [icon]="faMapMarkerAlt"></fa-icon>
+            </button>
+          </div>
         </div>
       </ng-template>
       <input
@@ -66,7 +68,7 @@
     </div>
   </div>
   <ng-template #showSpinner>
-    <div  fxLayout="row" fxLayoutAlign='space-evenly center'>
+    <div fxLayout="row" fxLayoutAlign='space-evenly center'>
       <mat-spinner></mat-spinner>
     </div>
   </ng-template>
@@ -81,7 +83,8 @@
               [disabled]="!(image && latitude && longitude && acceptTerms && !currentlyUploading)">{{'upload.submit' | translate}}</button>
     </div>
     <ng-template #deleteUpload>
-      <button mat-raised-button class="my-raised-button" (click)="deleteImage()">{{'upload.delete' | translate}}</button>
+      <button mat-raised-button class="my-raised-button"
+              (click)="deleteImage()">{{'upload.delete' | translate}}</button>
     </ng-template>
   </mat-card-actions>
 </mat-card>

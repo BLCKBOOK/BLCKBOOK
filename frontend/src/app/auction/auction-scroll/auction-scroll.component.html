@@ -17,13 +17,13 @@
   </div>
 </ngx-masonry>
 <mat-spinner *ngIf="currentlyLoading" style="margin:0 auto;"></mat-spinner>
-<div *ngIf="noTokensYet" class="default-left-padding">
+<div *ngIf="noTokensYet" class="align-center">
   The wallet currently connected doesn't own any BLCKBOOK-Tokens.
 </div>
-<div *ngIf="!currentlyLoading && masonryItems.length === 0 && scrollType === 'auction'" class="default-left-padding">
+<div *ngIf="!currentlyLoading && masonryItems.length === 0 && scrollType === 'auction'" class="align-center">
   No active auctions
 </div>
-<div *ngIf="!currentlyLoading && masonryItems.length === 0 && scrollType === 'gallery'" class="default-left-padding">
+<div *ngIf="!currentlyLoading && masonryItems.length === 0 && scrollType === 'gallery'" class="align-center">
   Gallery is empty
 </div>
 <!--<div *ngIf="reachedEnd">YOU REACHED THE END</div>-->

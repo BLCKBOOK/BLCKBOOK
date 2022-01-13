@@ -21,7 +21,6 @@ import {MatDividerModule} from '@angular/material/divider';
 import {BeaconModule} from '../beacon/beacon.module';
 import {ScrollModule} from '../scroll/scroll.module';
 
-
 @NgModule({
   declarations: [
     AuctionComponent,

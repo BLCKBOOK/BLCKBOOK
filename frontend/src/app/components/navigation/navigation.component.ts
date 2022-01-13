@@ -8,6 +8,7 @@ import {NotificationService} from '../../services/notification.service';
 import {Notification} from '../../../../../backend/src/common/tableDefinitions';
 import {MatDialog} from '@angular/material/dialog';
 import {NotificationsDialogComponent} from '../notifications-dialog/notifications-dialog.component';
+import {DialogService} from '../../services/dialog.service';
 
 @Component({
   selector: 'app-navigation',
@@ -27,7 +28,7 @@ export class NavigationComponent implements OnInit {
   notifications: Observable<Notification[]>;
 
   constructor(private userService: UserService, private ref: ChangeDetectorRef, private router: Router,
-              private notificationService: NotificationService, private dialog: MatDialog) {
+              private notificationService: NotificationService, private dialog: MatDialog, private dialogService: DialogService) {
     this.authState$ = this.userService.getAuthState();
     this.isAdmin$ = this.userService.isAdmin();
     this.unreadNotifications = this.notificationService.getUnreadNotificationsNumber();
@@ -72,7 +73,7 @@ export class NavigationComponent implements OnInit {
   }
 
   openNotificationDialog(notification: Notification | undefined) {
-    this.dialog.open(NotificationsDialogComponent, {
+    this.dialogService.open(NotificationsDialogComponent, {
       width: '90%',
       maxWidth: '90%',
       maxHeight: '100%',

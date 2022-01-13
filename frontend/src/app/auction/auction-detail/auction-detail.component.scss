@@ -1,53 +1,27 @@
-.line-container {
-  display: flex;
-  justify-content: space-between;
-}
-.image-container {
-  display: flex;
-  justify-content: center;
-}
-.artwork-data {
-  color: var(--primary-color);
-}
-
-@media screen and (max-width: 959px) {
-  mat-dialog-content {
-    max-height: 90vh;
-  }
-  .big-image {
-    width: auto;
-    max-height: 70vh;
-  }
-}
-
-@media screen and (min-width: 960px) {
-  .big-image, mat-dialog-content {
-    max-height: 70vh;
-  }
-}
-
-
-.big-image {
-  max-width: 100%;
-}
-
-.button-container {
-  button {
-    margin-bottom: .5em;
-    width: 50%;
-  }
+.recent-bids-container {
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 .bid-form, .reconnect-button {
-  margin: .5em;
+  margin-top: .5em;
+  margin-bottom: .5em;
+}
+
+.mat-error {
+  margin-top: -1em;
+}
+
+.mat-form-field {
+  width: calc(100% - 100px);
+}
+
+.reconnect-button {
+  margin-left: .5em;
 }
 
 .bid-button-container {
   button {
     width: 100%;
   }
-}
-
-.recent-bids-container {
-  margin-top: 1em;
 }

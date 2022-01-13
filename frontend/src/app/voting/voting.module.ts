@@ -14,6 +14,7 @@ import {DetailViewDialogComponent} from './detail-view-dialog/detail-view-dialog
 import {MatDialogModule} from '@angular/material/dialog';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {ScrollModule} from '../scroll/scroll.module';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -22,18 +23,19 @@ import {ScrollModule} from '../scroll/scroll.module';
     VotingScrollComponent,
     DetailViewDialogComponent,
   ],
-  imports: [
-    MatDialogModule,
-    CommonModule,
-    VotingRoutingModule,
-    MatButtonModule,
-    MatCardModule,
-    FontAwesomeModule,
-    MatTabsModule,
-    NgxMasonryModule,
-    FlexLayoutModule,
-    ScrollModule,
-  ],
+    imports: [
+        MatDialogModule,
+        CommonModule,
+        VotingRoutingModule,
+        MatButtonModule,
+        MatCardModule,
+        FontAwesomeModule,
+        MatTabsModule,
+        NgxMasonryModule,
+        FlexLayoutModule,
+        ScrollModule,
+        MatProgressSpinnerModule,
+    ],
   providers: [VotingService]
 })
 export class VotingModule { }

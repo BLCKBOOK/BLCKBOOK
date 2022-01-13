@@ -11,6 +11,7 @@ import {GetUploadedArtworksResponseBody} from '../../../../backend/src/rest/artw
 import {SnackBarService} from '../services/snack-bar.service';
 import {ImageSizeService} from '../services/image-size.service';
 import {DisplayedArtwork} from '../types/image.type';
+import {DialogService} from '../services/dialog.service';
 
 @Component({
   selector: 'app-admin',
@@ -36,7 +37,7 @@ export class AdminComponent implements OnInit {
   pageCounter = 0;
   alreadyReachedEnd = false;
 
-  constructor(private adminService: AdminService, public dialog: MatDialog, private snackBarService: SnackBarService, private imageSizeService: ImageSizeService) {
+  constructor(private adminService: AdminService, public dialog: MatDialog, private snackBarService: SnackBarService, private imageSizeService: ImageSizeService, private dialogService: DialogService) {
     const savedImageSize = localStorage.getItem(this.adminImageSizeKey);
     this.imageHeight = savedImageSize ? Number(savedImageSize) : 200;
   }
@@ -103,11 +104,11 @@ export class AdminComponent implements OnInit {
   }
 
   banUser(artwork: DisplayedArtwork) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
       width: '250px',
       data: {
         text: 'This will ban the user with the name "' + artwork.artwork.uploader + '"\n It will also delete the image',
-        header: 'Confirm Ban',
+        header: 'CONFIRM BAN',
         action: 'Yes, ban!'
       } as ConfirmDialogData
     });
@@ -152,11 +153,11 @@ export class AdminComponent implements OnInit {
   }
 
   triggerNextPeriod() {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
       width: '250px',
       data: {
         text: 'This will trigger the next Period and can not be undone. You will need to reload to see the changes',
-        header: 'Confirm next Period',
+        header: 'CONFIRM NEXT PERIOD',
         action: 'Yes, next!'
       } as ConfirmDialogData
     });

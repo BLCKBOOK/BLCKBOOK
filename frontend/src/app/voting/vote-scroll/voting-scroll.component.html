@@ -23,7 +23,11 @@
     </div>
   </div>
 </ngx-masonry>
+<mat-spinner *ngIf="currentlyLoading" style="margin:0 auto;"></mat-spinner>
 <div *ngIf="scrollType === 'voting-selected' && masonryItems.length === 0">
-  <p class="nothing-selected-text">You don't have items selected yet</p>
+  <p class="align-center">You don't have items selected yet</p>
+</div>
+<div *ngIf="!currentlyLoading && masonryItems.length === 0 && scrollType === 'voting'" class="align-center">
+  Nothing to vote for
 </div>
 <!--<div *ngIf="reachedEnd">YOU REACHED THE END</div>-->

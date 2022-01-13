@@ -14,6 +14,7 @@ import {Location} from '@angular/common';
 import {TzktAuctionKey} from '../../types/tzkt.auction';
 import {BlockchainService} from '../../services/blockchain.service';
 import {UserService} from '../../services/user.service';
+import {DialogService} from '../../services/dialog.service';
 
 export interface AuctionMasonryItem {
   title: string,
@@ -48,7 +49,7 @@ export class AuctionScrollComponent implements OnInit {
   public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
   public noTokensYet: boolean = false;
 
-  constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService,
+  constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private dialogService: DialogService,
               private location: Location, private blockchainService: BlockchainService, private userService: UserService) {
   }
 
@@ -103,7 +104,7 @@ export class AuctionScrollComponent implements OnInit {
   }
 
   imageClick(item: AuctionMasonryItem) {
-    const dialogRef = this.dialog.open(DetailViewAuctionDialogComponent, {
+    const dialogRef = this.dialogService.open(DetailViewAuctionDialogComponent, {
       width: '90%',
       maxWidth: '90%',
       maxHeight: '100%',

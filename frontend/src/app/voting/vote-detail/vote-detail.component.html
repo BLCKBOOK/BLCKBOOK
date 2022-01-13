@@ -7,7 +7,7 @@
   <div class="meta-data-display" fxFlex="1 1" fxLayout.gt-md="column" fxLayout="column">
     <div>
       <div>
-        <h4>{{data.artwork.title ?? 'Unknown'}}</h4>
+        <h2>{{data.artwork.title ?? 'Unknown'}}</h2>
       </div>
       <div>Uploaded by {{data.artwork.uploader}}</div>
       <br>
@@ -23,12 +23,11 @@
         </div>
       </div>
     </div>
-    <div class="button-container" fxLayout="row">
+    <div class="button-container">
       <button mat-raised-button (click)="showOnMap()">
         <fa-icon [icon]="faMapPin"></fa-icon>
         Show on map
       </button>
-      <br>
       <button mat-raised-button [disabled]="false" (click)="copyToClipboard()">
         <fa-icon [icon]="faShareSquare">
         </fa-icon>

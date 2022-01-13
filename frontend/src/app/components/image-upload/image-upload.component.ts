@@ -15,6 +15,8 @@ import {ImageSizeService} from '../../services/image-size.service';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {MapDialogComponent, MapDialogData} from '../map-dialog/map-dialog.component';
 import {LatLng} from 'leaflet';
+import {PeriodService} from '../../services/period.service';
+import {DialogService} from '../../services/dialog.service';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -56,13 +58,15 @@ export class ImageUploadComponent implements OnInit {
 
   acceptTerms = false;
   private readonly errorDialogSize: string = '80%';
+  currentPeriod: string;
 
   constructor(public dialog: MatDialog, private imageUploadService: ImageUploadService, private route: ActivatedRoute,
               private translateService: TranslateService, private imageSizeService: ImageSizeService,
-              private snackBarService: SnackBarService) {
+              private snackBarService: SnackBarService, private periodService: PeriodService, private dialogService: DialogService) {
   }
 
   ngOnInit(): void {
+    this.periodService.getCurrentPeriodString().subscribe(period => this.currentPeriod = period);
     const upload: UploadedArtwork = this.route.snapshot.data['uploadedImage'];
     if (upload) {
       this.alreadyUploaded = true;
@@ -159,7 +163,7 @@ export class ImageUploadComponent implements OnInit {
           this.url = event.target?.result;
         };
       } else {
-        const dialogRef = this.dialog.open(MapDialogComponent, {
+        const dialogRef = this.dialogService.open(MapDialogComponent, {
           width: '90%',
           maxWidth: '90%'
         });
@@ -243,7 +247,7 @@ export class ImageUploadComponent implements OnInit {
 
   showOnMap() {
     if (this.longitude && this.latitude) {
-      this.dialog.open(MapDialogComponent, {
+      this.dialogService.open(MapDialogComponent, {
         width: '95%',
         maxWidth: '95%',
         data: {latlng: {lat: parseFloat(this.latitude ?? '0'), lng: parseFloat(this.longitude ?? '0')}} as MapDialogData
@@ -263,13 +267,13 @@ export class ImageUploadComponent implements OnInit {
   }
 
   openTermsAndConditions() {
-    this.dialog.open(TermsDialogComponent, {
+    this.dialogService.open(TermsDialogComponent, {
       width: '80%'
     });
   }
 
   enlargeImage() {
-    this.dialog.open(ImageDialogComponent, {
+    this.dialogService.open(ImageDialogComponent, {
       width: '95%',
       data: {
         url: this.url

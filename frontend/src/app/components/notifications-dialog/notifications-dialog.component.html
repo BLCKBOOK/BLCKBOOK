@@ -1,3 +1,4 @@
+<button class="close" mat-button [mat-dialog-close]="true">X</button>
 <h1 mat-dialog-title>NOTIFICATIONS</h1>
 <mat-dialog-content>
   <div *ngFor="let notification of (notifications | async); last as isLast">

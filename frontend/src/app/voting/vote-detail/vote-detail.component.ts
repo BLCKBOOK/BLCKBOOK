@@ -7,11 +7,12 @@ import {VotingService} from '../voting.service';
 import {Observable} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
 import {MapDialogComponent, MapDialogData} from '../../components/map-dialog/map-dialog.component';
+import {DialogService} from '../../services/dialog.service';
 
 @Component({
   selector: 'app-vote-detail',
   templateUrl: './vote-detail.component.html',
-  styleUrls: ['./vote-detail.component.scss']
+  styleUrls: ['./vote-detail.component.scss', './../../shared/styles/detail.component.scss']
 })
 export class VoteDetailComponent implements OnInit {
 
@@ -25,16 +26,18 @@ export class VoteDetailComponent implements OnInit {
   alreadyVoted$: Observable<boolean>
   @Input() withinDialog: boolean;
 
-  constructor(public dialog: MatDialog, private clipboard: Clipboard,
-                private snackBarService: SnackBarService, private votingService: VotingService) {
-    this.alreadyVoted$ = this.votingService.getHasVoted$();
+  votingService: VotingService;
+
+  constructor(public dialog: MatDialog, private clipboard: Clipboard, private dialogService: DialogService,
+                private snackBarService: SnackBarService) {
   }
 
   ngOnInit(): void {
+    this.votingService = <VotingService>this.data.votingService;
+    this.alreadyVoted$ = this.votingService.getHasVoted$();
     const date = new Date(this.data.artwork.uploadTimestamp);
     this.timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   }
-
 
   copyToClipboard() {
     this.clipboard.copy(window.location.href);
@@ -52,7 +55,7 @@ export class VoteDetailComponent implements OnInit {
   }
 
   showOnMap() {
-    this.dialog.open(MapDialogComponent, {
+    this.dialogService.open(MapDialogComponent, {
       width: '100%',
       maxWidth: '100%',
       data: {latlng: {lat: parseFloat(this.data.artwork.latitude), lng: parseFloat(this.data.artwork.longitude)}} as MapDialogData

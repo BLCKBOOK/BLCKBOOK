@@ -12,7 +12,7 @@
 
 @font-face {
   font-family: "Header Font";
-  src: local("TTTravelsNext-XBd") , url(./assets/fonts/TT-Travels-Extra-Bold.ttf) format("truetype");
+  src: local("TTTravelsNext-XBd"), url(./assets/fonts/TT-Travels-Extra-Bold.ttf) format("truetype");
 }
 
 $fontConfig: (
@@ -262,6 +262,8 @@ input:-webkit-autofill {
 }
 
 .mat-card {
+  max-width: 800px;
+  margin: 0 auto;
   background-color: var(--dark-background);
 }
 
@@ -305,7 +307,7 @@ mat-menu {
 }
 
 a {
- color: #{$primary-darker-color};
+  color: #{$primary-darker-color};
 }
 
 a:active {
@@ -314,4 +316,28 @@ a:active {
 
 .default-left-padding {
   padding-left: 16px;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.mat-card-actions, .mat-dialog-actions {
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: rgba(255, 255, 255, 0.12);
+  text-align: center;
+  display: block !important; //  to overwrite the dialog-actions value
+}
+
+.cdk-overlay-pane.my-dialog {
+  position: relative!important;
+}
+.close.mat-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 5px;
+  line-height: 14px;
+  min-width: auto;
 }

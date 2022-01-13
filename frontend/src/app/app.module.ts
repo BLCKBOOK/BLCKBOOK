@@ -10,7 +10,6 @@ import {NavigationComponent} from './components/navigation/navigation.component'
 import {MatButtonModule} from '@angular/material/button';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MatIconModule} from '@angular/material/icon';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {HomeComponent} from './components/home/home.component';
 import Auth from '@aws-amplify/auth';
@@ -61,6 +60,7 @@ import {faTwitter} from '@fortawesome/free-brands-svg-icons/faTwitter';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {faShareSquare} from '@fortawesome/free-solid-svg-icons/faShareSquare';
 import {faMapPin} from '@fortawesome/free-solid-svg-icons/faMapPin';
+import {faRedo} from '@fortawesome/free-solid-svg-icons/faRedo';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -90,7 +90,6 @@ Auth.configure(awsconfig);
     AppRoutingModule,
     MatButtonModule,
     MatToolbarModule,
-    MatIconModule,
     HttpClientModule,
     FlexLayoutModule,
     TranslateModule.forRoot({
@@ -144,7 +143,8 @@ export class AppModule {
       faMapMarkerAlt,
       faTelegram,
       faTwitter,
-      faMapPin
+      faMapPin,
+      faRedo,
     );
   }
 }

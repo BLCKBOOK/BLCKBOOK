@@ -1,24 +1,24 @@
 <div class="welcome-line">
   <h2> {{('home.welcome' | translate) + ' ' + (username | async)}}</h2>
 </div>
-<div class="button-container" fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayout.md="column" fxLayoutGap="2em">
-  <button routerLink="/upload" class="navigate-button" mat-flat-button fxFlex="1 1 33%">
-    <div>
-      <h2>{{startTime + ' - \n' + endTime}} </h2>
-    </div>
+<div class="button-container" fxLayout="column" fxLayout.gt-sm="row" fxLayoutGap="2em" fxLayoutAlign="space-between">
+  <button routerLink="/upload" class="navigate-button" mat-flat-button>
+    <h4>{{currentPeriod}}</h4>
     <fa-stack class="my-fa-stack">
       <fa-icon [icon]="faImage" stackItemSize="2x"></fa-icon>
     </fa-stack>
     <div>SPOT YOUR TAG THIS WEEK</div>
   </button>
-  <button routerLink="/voting" class="navigate-button" mat-flat-button fxFlex="1 1 33%">
+  <button routerLink="/voting" class="navigate-button" mat-flat-button>
+    <h4>Actual time here </h4>
     <div>
-      <span>Some Voting text</span>
+      <img src="./assets/images/home/thumbs.svg" alt="thumbs" class="thumbs"><br>
+      <div>VOTE FOR THIS WEEK</div>
     </div>
   </button>
-  <button mat-flat-button class="navigate-button" fxFlex="1 1 33%" [disabled]="true">
-    <div>
-      <span>Some Territory Text (not available)</span>
-    </div>
-  </button>
+  <!--  <button mat-flat-button class="navigate-button" [disabled]="true">
+      <div>
+        <div>Some Territory Text (not available)</div>
+      </div>
+    </button>-->
 </div>

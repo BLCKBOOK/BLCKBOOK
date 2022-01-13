@@ -9,7 +9,8 @@ import {MatDialog} from '@angular/material/dialog';
 import {ImageSizeService} from '../services/image-size.service';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../components/confirm-dialog/confirm-dialog.component';
 import {Location} from '@angular/common';
-import { VotableArtwork } from '../../../../backend/src/common/tableDefinitions';
+import {VotableArtwork} from '../../../../backend/src/common/tableDefinitions';
+import {DialogService} from '../services/dialog.service';
 
 @Component({
   selector: 'app-voting',
@@ -24,7 +25,7 @@ export class VotingComponent {
   alreadyVoted$ = new BehaviorSubject<boolean>(false);
   myUploadData: VoteDetailData;
 
-  constructor(public dialog: MatDialog, private votingService: VotingService, private snackBarService: SnackBarService,
+  constructor(public dialog: MatDialog, private votingService: VotingService, private snackBarService: SnackBarService, private dialogService: DialogService,
               private route: ActivatedRoute, private imageSizeService: ImageSizeService, private location: Location) {
     this.$totalVoteAmount = this.votingService.getMaxVoteAmount$();
     this.$votesSelected = this.votingService.getVotesSelected$();
@@ -51,7 +52,7 @@ export class VotingComponent {
             return;
           }
           const detailData = this.getVoteDetailDataOfArtwork(artwork);
-          const dialogRef = this.dialog.open(DetailViewDialogComponent, {
+          const dialogRef = this.dialogService.open(DetailViewDialogComponent, {
             width: '90%',
             maxWidth: '90%',
             maxHeight: '100%',
@@ -71,17 +72,26 @@ export class VotingComponent {
     this.votingService.getMyUpload().subscribe(artwork => {
       this.myUploadData = this.getVoteDetailDataOfArtwork(artwork);
     });
+    this.votingService.getVotedArtworks$().subscribe(artworks => {
+      if (artworks.some(voted => voted.artwork.artworkId === this.myUploadData?.artwork?.artworkId)) {
+        this.myUploadData.voted = true;
+      } else {
+        if (this.myUploadData) {
+          this.myUploadData.voted = false;
+        }
+      }
+    });
   }
 
   submitVote() {
     const votesSpent = this.votingService.getVotedArtworks().length;
     const maxVoteAmount = this.votingService.getMaxVoteAmount();
     if (votesSpent < maxVoteAmount) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
         data: {
           text: 'You only spent ' + votesSpent + ' Votes. The max amount you can spend is ' + maxVoteAmount + '.\n' +
             'You can only vote once per voting-period and can not take back any votes.',
-          header: 'Not all votes spent',
+          header: 'NOT ALL VOTES SPENT',
           action: 'Submit Vote'
         } as ConfirmDialogData
       });
@@ -92,10 +102,10 @@ export class VotingComponent {
         }
       });
     } else {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
         data: {
           text: 'You can only vote once per voting-period and can not take back any votes.',
-          header: 'Voting',
+          header: 'VOTING',
           action: 'Submit Vote'
         } as ConfirmDialogData
       });
@@ -111,12 +121,13 @@ export class VotingComponent {
   private getVoteDetailDataOfArtwork(artwork: VotableArtwork): VoteDetailData {
     const src = this.imageSizeService.getOriginalString(artwork.imageUrls);
     const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
-    const voted = this.votingService.getVotedArtworks().some(voted => voted.artwork.artworkId === artwork.artworkId)
+    const voted = this.votingService.getVotedArtworks().some(voted => voted.artwork.artworkId === artwork.artworkId);
     return {
       src: src,
       srcSet: srcSet,
       voted: voted,
-      artwork: artwork
+      artwork: artwork,
+      votingService: this.votingService
     } as VoteDetailData;
   }
 }

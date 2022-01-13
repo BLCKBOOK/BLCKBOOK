@@ -10,7 +10,8 @@ export interface VoteDetailData {
   artwork: VotableArtwork,
   voted: boolean,
   srcSet: string,
-  src: string
+  src: string,
+  votingService: VotingService
 }
 
 @Component({
@@ -24,9 +25,11 @@ export class DetailViewDialogComponent implements OnInit {
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   faShareSquare = findIconDefinition({prefix: 'fas', iconName: 'share-square'});
   faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
-  alreadyVoted$: Observable<boolean>
+  alreadyVoted$: Observable<boolean>;
+  votingService: VotingService;
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: VoteDetailData, private location: Location, private votingService: VotingService) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: VoteDetailData, private location: Location) {
+    this.votingService = data.votingService;
     this.alreadyVoted$ = this.votingService.getHasVoted$();
   }
 

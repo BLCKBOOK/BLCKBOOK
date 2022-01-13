@@ -15,8 +15,7 @@ export class HomeComponent implements OnInit {
   username: Observable<string>;
   faImage = findIconDefinition({prefix: 'fas', iconName: 'image'});
   faUpload = findIconDefinition({prefix: 'fas', iconName: 'upload'});
-  endTime: string;
-  startTime: string;
+  currentPeriod: string;
 
   constructor(private userService: UserService, private snackBarService: SnackBarService,
               private periodService: PeriodService) {
@@ -24,12 +23,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.periodService.getPeriod().subscribe(period => {
-      const date = new Date(period.startingDate);
-      this.startTime = date.toLocaleDateString();
-      const endDate = new Date(period.endingDate);
-      this.endTime = endDate.toLocaleDateString();
-    });
+    this.periodService.getCurrentPeriodString().subscribe(period => this.currentPeriod = period);
     this.userService.requestUserInfo().subscribe(userInfo => {
       if (!userInfo.walletId) {
         this.snackBarService.openSnackBarWithNavigation('You don\'t have a wallet connected', 'Connect wallet', '/wallet');

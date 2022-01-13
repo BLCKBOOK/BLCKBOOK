@@ -1,8 +1,7 @@
 .welcome-line {
-  padding-left: 2em;
-  padding-top: 2em;
+  padding-left: 16px;
+  padding-top: 16px;
 }
-
 
 .my-fa-stack {
   font-size: 5em;
@@ -12,24 +11,31 @@
   margin: 2em;
 }
 
-@media screen and (max-width: 1280px) {
+@media screen and (max-width: 960px) {
   .navigate-button {
-    min-height: calc((100vh - 8em - 48px - 52px) / 3);
+    min-height: calc((100vh - 8em - 48px - 52px) / 2);
+    height: 100%;
+    max-height: calc((100vh - 8em - 48px - 52px) / 2); ;
   }
 }
 
-@media screen and (min-width: 1280px) {
+@media screen and (min-width: 960px) {
 
   .navigate-button {
-    height: calc(1280px / 3 - 8em);
-    min-height: calc(1280px / 3 - 8em);
-    min-width: calc(1280px / 3 - 8em);
-    width: calc(1280px / 3 - 8em);;
+    height: calc(80vh - 8em);
+    min-height: calc(80vh - 8em);
+    min-width: calc(50vw - 3em);
+    width: calc(50vw - 3em);
   }
 
   .button-container {
-    margin-left: calc((100vw - 1280px) / 2);
-    margin-right: calc((100vw - 1280px) / 2);
+    margin-left: 16px;
+    margin-right: 16px;
   }
 }
 
+.thumbs {
+  height: 106px;
+  width: auto;
+  padding: 17px;
+}

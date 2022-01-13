@@ -63,7 +63,7 @@ export class BeaconService {
       await this.connect();
     }
     try {
-      const result = await this.dAppClient.requestOperation({
+      await this.dAppClient.requestOperation({
         operationDetails: [
           {
             kind: TezosOperationType.TRANSACTION,
@@ -78,8 +78,7 @@ export class BeaconService {
           },
         ],
       });
-      console.log(result);
-      this.snackBarService.openSnackBarWithoutAction('Bid was successfully placed');
+      this.snackBarService.openSnackBarWithoutAction('Bid was successfully placed. Reload after some time to see your bid', 5000);
     } catch (error) {
       if (error instanceof AbortedBeaconError) {
         console.log('User aborted beacon interaction');

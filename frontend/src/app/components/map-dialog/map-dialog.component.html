@@ -1,6 +1,7 @@
-<h1 mat-dialog-title *ngIf="data else: noData">Location</h1>
+<button class="close" mat-button [mat-dialog-close]="true">X</button>
+<h1 mat-dialog-title *ngIf="data else: noData">LOCATION</h1>
 <ng-template #noData>
-  <h1 mat-dialog-title>Add Location Data to your Tag</h1>
+  <h1 mat-dialog-title>ADD LOCATION DATA TO YOUR TAG</h1>
 </ng-template>
 <mat-dialog-content>
   <div style="height: 70vh;"

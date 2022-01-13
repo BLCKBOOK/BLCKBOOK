@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {interval, Observable, ReplaySubject, Subject} from 'rxjs';
 import { Period } from '../../../../backend/src/common/tableDefinitions';
+import {map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -32,5 +33,15 @@ export class PeriodService {
 
   public getPeriod(): Observable<Period> {
     return this.currentPeriod$.pipe();
+  }
+
+  public getCurrentPeriodString(): Observable<string> {
+    return this.currentPeriod$.pipe(map(period => {
+      const date = new Date(period.startingDate);
+      const startTime = date.toLocaleDateString();
+      const endDate = new Date(period.endingDate);
+      const endTime = endDate.toLocaleDateString();
+      return startTime + ' - ' + endTime;
+    }));
   }
 }

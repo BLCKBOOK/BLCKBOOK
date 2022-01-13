@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {TzktAuction} from '../../types/tzkt.auction';
 import {CurrencyService} from '../../services/currency.service';
 
@@ -7,9 +7,10 @@ import {CurrencyService} from '../../services/currency.service';
   templateUrl: './auction-bid.component.html',
   styleUrls: ['./auction-bid.component.scss']
 })
-export class AuctionBidComponent {
+export class AuctionBidComponent implements OnInit {
 
   @Input() bid: TzktAuction;
+  @Input() userWalletId: string;
   bidAmount: string
 
   constructor(private currencyService: CurrencyService) { }

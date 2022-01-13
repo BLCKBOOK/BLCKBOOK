@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {BlockchainService} from '../services/blockchain.service';
 import {ActivatedRoute} from '@angular/router';
 import {SnackBarService} from '../services/snack-bar.service';
@@ -9,6 +9,7 @@ import {
   AuctionDetailData,
   DetailViewAuctionDialogComponent
 } from './detail-view-dialog/detail-view-auction-dialog.component';
+import {DialogService} from '../services/dialog.service';
 
 @Component({
   selector: 'app-auction',
@@ -18,7 +19,7 @@ import {
 export class AuctionComponent {
 
   constructor(public dialog: MatDialog, public auctionService: BlockchainService, private route: ActivatedRoute,
-              private snackBarService: SnackBarService, private location: Location) {
+              private snackBarService: SnackBarService, private location: Location, private dialogService: DialogService) {
     this.route.params.subscribe(params => {
       if (params.id) {
         combineLatest([this.auctionService.getAuction(params.id), this.auctionService.getMintedArtworkForId(params.id)])
@@ -35,7 +36,7 @@ export class AuctionComponent {
               srcSet: masonryItem.srcSet,
               mintedArtwork: masonryItem.mintedArtwork,
             } as AuctionDetailData
-          const dialogRef = this.dialog.open(DetailViewAuctionDialogComponent, {
+          const dialogRef = this.dialogService.open(DetailViewAuctionDialogComponent, {
             width: '90%',
             maxWidth: '90%',
             maxHeight: '100%',
