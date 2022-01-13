@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
-import { AuctionRoutingModule } from './auction-routing.module';
-import { AuctionComponent } from './auction.component';
+import {AuctionRoutingModule} from './auction-routing.module';
+import {AuctionComponent} from './auction.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -16,10 +16,11 @@ import {AuctionDetailComponent} from './auction-detail/auction-detail.component'
 import {MatInputModule} from '@angular/material/input';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import { AuctionBidComponent } from './auction-bid/auction-bid.component';
+import {AuctionBidComponent} from './auction-bid/auction-bid.component';
 import {MatDividerModule} from '@angular/material/divider';
 import {BeaconModule} from '../beacon/beacon.module';
 import {ScrollModule} from '../scroll/scroll.module';
+import {SharedModule} from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,8 @@ import {ScrollModule} from '../scroll/scroll.module';
     MatProgressSpinnerModule,
     MatDividerModule,
     ScrollModule,
+    SharedModule,
   ]
 })
-export class AuctionModule { }
+export class AuctionModule {
+}

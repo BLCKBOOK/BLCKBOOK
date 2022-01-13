@@ -24,6 +24,7 @@ export class BeaconService {
   dAppClient: DAppClient;
 
   constructor(private httpClient: HttpClient, private snackBarService: SnackBarService) {
+    console.log('new beacon service');
     this.dAppClient = new DAppClient(
       {name: 'BLCKBOOK', preferredNetwork: this.network});
     this.dAppClient.setColorMode(ColorMode.DARK).then();

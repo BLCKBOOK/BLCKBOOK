@@ -30,7 +30,7 @@
 <mat-card>
   <mat-card-title>WITHDRAW</mat-card-title>
   <mat-card-content>
-    <mat-spinner *ngIf="calculating"></mat-spinner>
+    <mat-spinner style="margin: 0 auto;" *ngIf="calculating"></mat-spinner>
     <div *ngIf="(currentAmount | async) !== ''">
       <p>
         Your current amount in the money-pool is<br>

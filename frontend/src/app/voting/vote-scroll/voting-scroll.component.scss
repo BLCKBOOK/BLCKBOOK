@@ -72,3 +72,9 @@ ngx-masonry {
 .image-button {
   padding: 0;
 }
+
+@media screen and (max-width: 599px) {
+  ngx-masonry {
+    margin-bottom: 7em;
+  }
+}

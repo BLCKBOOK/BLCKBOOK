@@ -3,3 +3,7 @@
     width: 100%;
   }
 }
+
+.big-image {
+  max-height: calc(100vh - 48px - 2em - 182px - 69px) !important;
+}

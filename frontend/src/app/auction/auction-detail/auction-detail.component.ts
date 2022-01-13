@@ -3,8 +3,6 @@ import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {AuctionDetailData} from '../detail-view-dialog/detail-view-auction-dialog.component';
 import {Clipboard} from '@angular/cdk/clipboard';
 import {SnackBarService} from '../../services/snack-bar.service';
-import {MatDialog} from '@angular/material/dialog';
-import {MapDialogComponent, MapDialogData} from '../../components/map-dialog/map-dialog.component';
 import {ErrorStateMatcher} from '@angular/material/core';
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {isNumeric} from 'rxjs/internal-compatibility';
@@ -15,7 +13,7 @@ import {CurrencyService} from '../../services/currency.service';
 import Dinero from 'dinero.js';
 import {BeaconService} from '../../beacon/beacon.service';
 import {UserService} from '../../services/user.service';
-import {DialogService} from '../../services/dialog.service';
+import {ArtworkData} from '../../shared/artwork-data/artwork-data.component';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -36,8 +34,6 @@ export class AuctionDetailComponent implements OnInit {
 
   timeDisplay: string;
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
-  faShareSquare = findIconDefinition({prefix: 'fas', iconName: 'share-square'});
-  faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
   faRedo = findIconDefinition({prefix: 'fas', iconName: 'redo'});
   auctionOver = false;
   minAuctionBidString: string;
@@ -60,14 +56,20 @@ export class AuctionDetailComponent implements OnInit {
   auctionEndDate: string;
   walletID: string; // wallet Id of logged-in user
 
-  private readonly mutezRegex = '\\d*\\.?\\d?\\d?\\d?\\d?\\d?\\d?$'
+  private readonly mutezRegex = '\\d*\\.?\\d?\\d?\\d?\\d?\\d?\\d?$';
+  artworkData: ArtworkData;
 
-  constructor(public dialog: MatDialog, private clipboard: Clipboard,
-              private snackBarService: SnackBarService, private beaconService: BeaconService, private auctionService: BlockchainService,
-              private currencyService: CurrencyService, private userService: UserService, private dialogService: DialogService) {
+  constructor(private clipboard: Clipboard, private snackBarService: SnackBarService, private beaconService: BeaconService,
+              private auctionService: BlockchainService, private currencyService: CurrencyService, private userService: UserService) {
   }
 
   ngOnInit(): void {
+    this.artworkData = {
+      titel: this.data.mintedArtwork.title,
+      uploader: this.data.mintedArtwork.uploader,
+      longitude: this.data.mintedArtwork.longitude,
+      latitude: this.data.mintedArtwork.latitude,
+    };
     const end_date = new Date(this.data.auctionKey.value.end_timestamp);
     this.timeDisplay = end_date.toLocaleDateString() + ' ' + end_date.toLocaleTimeString();
     this.auctionOver = (new Date().getTime() > end_date.getTime());
@@ -105,25 +107,6 @@ export class AuctionDetailComponent implements OnInit {
       if (info.walletId) {
         this.walletID = info.walletId;
       }
-    });
-  }
-
-
-  copyToClipboard() {
-    this.clipboard.copy(window.location.href);
-    this.snackBarService.openSnackBarWithoutAction('Url copied to clipboard', 2000);
-  }
-
-  showOnMap() {
-    this.dialogService.open(MapDialogComponent, {
-      width: '100%',
-      maxWidth: '100%',
-      data: {
-        latlng: {
-          lat: parseFloat(this.data.mintedArtwork.latitude),
-          lng: parseFloat(this.data.mintedArtwork.longitude)
-        }
-      } as MapDialogData
     });
   }
 

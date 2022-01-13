@@ -15,6 +15,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {ScrollModule} from '../scroll/scroll.module';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {SharedModule} from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
         FlexLayoutModule,
         ScrollModule,
         MatProgressSpinnerModule,
+        SharedModule,
     ],
   providers: [VotingService]
 })

@@ -1,13 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
-import {Clipboard} from '@angular/cdk/clipboard';
-import {SnackBarService} from '../../services/snack-bar.service';
 import {VotingService} from '../voting.service';
 import {Observable} from 'rxjs';
-import {MatDialog} from '@angular/material/dialog';
-import {MapDialogComponent, MapDialogData} from '../../components/map-dialog/map-dialog.component';
-import {DialogService} from '../../services/dialog.service';
+import {ArtworkData} from '../../shared/artwork-data/artwork-data.component';
 
 @Component({
   selector: 'app-vote-detail',
@@ -27,21 +23,22 @@ export class VoteDetailComponent implements OnInit {
   @Input() withinDialog: boolean;
 
   votingService: VotingService;
+  artworkData: ArtworkData;
 
-  constructor(public dialog: MatDialog, private clipboard: Clipboard, private dialogService: DialogService,
-                private snackBarService: SnackBarService) {
+  constructor() {
   }
 
   ngOnInit(): void {
-    this.votingService = <VotingService>this.data.votingService;
+    this.votingService = this.data.votingService;
     this.alreadyVoted$ = this.votingService.getHasVoted$();
     const date = new Date(this.data.artwork.uploadTimestamp);
     this.timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-  }
-
-  copyToClipboard() {
-    this.clipboard.copy(window.location.href);
-    this.snackBarService.openSnackBarWithoutAction('Url copied to clipboard', 2000);
+    this.artworkData = {
+      titel: this.data.artwork.title,
+      uploader: this.data.artwork.uploader,
+      latitude: this.data.artwork.latitude,
+      longitude: this.data.artwork.longitude,
+    }
   }
 
   vote(): void {
@@ -52,13 +49,5 @@ export class VoteDetailComponent implements OnInit {
   unvote(): void {
     this.data.voted = false;
     this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== this.data.artwork.artworkId));
-  }
-
-  showOnMap() {
-    this.dialogService.open(MapDialogComponent, {
-      width: '100%',
-      maxWidth: '100%',
-      data: {latlng: {lat: parseFloat(this.data.artwork.latitude), lng: parseFloat(this.data.artwork.longitude)}} as MapDialogData
-    });
   }
 }

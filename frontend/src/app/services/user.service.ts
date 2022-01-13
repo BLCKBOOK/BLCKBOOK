@@ -99,6 +99,7 @@ export class UserService {
   }
 
   public logOut(): Observable<any> {
+    this.authState.next(AuthState.SignedOut);
     return from(Auth.signOut({global: false})).pipe(catchError(this.handleLogoutError));
   }
 

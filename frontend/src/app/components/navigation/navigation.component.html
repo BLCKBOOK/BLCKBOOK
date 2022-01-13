@@ -71,13 +71,13 @@
   <mat-sidenav-container fxFlexFill>
     <mat-sidenav #sidenav fxLayout="column" [mode]="'push'">
       <div fxLayout="column">
-        <button mat-button class="nav-item" routerLink="/auction">
+        <button mat-button class="nav-item bigger-nav-item" routerLink="/auction">
           {{"navbar.auction" | translate}}
         </button>
-        <button mat-button class="nav-item" routerLink="/gallery">
+        <button mat-button class="nav-item bigger-nav-item" routerLink="/gallery">
           {{"navbar.gallery" | translate}}
         </button>
-        <button mat-button class="nav-item" *ngIf="isAdmin$ | async" routerLink="/admin">
+        <button mat-button class="nav-item bigger-nav-item" *ngIf="isAdmin$ | async" routerLink="/admin">
           {{"navbar.admin" | translate}}
         </button>
       </div>
