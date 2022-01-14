@@ -3,9 +3,9 @@ import awsmobile from "../aws-exports";
 export const environment = {
   production: true,
   urlString: awsmobile.aws_cloud_logic_custom ?  awsmobile.aws_cloud_logic_custom[0].endpoint : "",
-  auctionHouseContractAddress: 'KT1RG8SzC5exEXedFEpFwjisuAcjjf7TTwNB',
-  tokenContractAddress: 'KT1HAtdXKvXqK2He3Xr2xmHQ9cYrxPTL7X9Z',
-  voterMoneyPoolContractAddress: 'KT1XeA6tZYeBCm7aux3SAPswTuRE72R3VUCW',
+  auctionHouseContractAddress: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw',
+  tokenContractAddress: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2',
+  voterMoneyPoolContractAddress: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj',
   tzktAddress: 'https://api.hangzhou2net.tzkt.io/v1/',
   betterCallDevAddress: 'https://api.better-call.dev/v1/account/hangzhou2net/',
   cryptoNet: 'mainnet',

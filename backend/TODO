@@ -10,7 +10,6 @@ x endpoint get votable artwork by id (for sending individual info)
 T endpoint vote for artwork
 x hide info provided from getVotableArtworks
 
-
 image upload Terms and conditions
 signup login Terms and conditions
 blckbook logo
@@ -41,3 +40,9 @@ Register/pw reset Emails aufhübschen
 currentPeriod:
 change all date types to number (endingDate and startingDate) and also send both as number
 uploadTimestamp change datatype to number in the interface
+
+
+MILESTONE:
+x coognito manual account creation
+x deploy to blockbook.vote
+x getCurrentPeriod throws cors error
