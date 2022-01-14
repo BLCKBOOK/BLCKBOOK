@@ -14,7 +14,8 @@ export class AuthInterceptor implements HttpInterceptor {
     return from(Auth.currentSession()).pipe(catchError(() => {
       return of(null);
     }), take(1), flatMap(session => {
-      if (!session || parse(req.url).pathname.startsWith('/artwork') || !session.isValid() || req.url.startsWith(environment.pinataGateway)) {
+      if (!session || parse(req.url).pathname.startsWith('/artwork') || !session.isValid()
+        || req.url.startsWith(environment.pinataGateway) || req.url.startsWith(environment.betterCallDevAddress)) {
         return next.handle(req);
       }
       const token = session.getIdToken().getJwtToken();
