@@ -3,7 +3,10 @@ import { NgModule } from '@angular/core';
 import {BeaconService} from './beacon.service';
 
 
-@NgModule({})
+@NgModule({
+  declarations: [
+  ]
+})
 export class BeaconModule {
   static forRoot() {
     return {

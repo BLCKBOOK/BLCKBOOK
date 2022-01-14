@@ -7,6 +7,7 @@ import {BehaviorSubject, from} from 'rxjs';
 import {BeaconService} from '../beacon/beacon.service';
 import {TaquitoService} from '../taquito/taquito.service';
 import {CurrencyService} from '../services/currency.service';
+import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 
 @Component({
   selector: 'app-wallet',
@@ -22,6 +23,7 @@ export class WalletComponent implements OnInit {
   currentAmount: BehaviorSubject<string> = new BehaviorSubject<string>('');
   calculating = false;
   calculationTriggered = false;
+  faRedo = findIconDefinition({prefix: 'fas', iconName: 'redo'});
 
   walletIdForm = new FormControl('', [Validators.pattern(this.tezRegex)]);
 
@@ -41,7 +43,7 @@ export class WalletComponent implements OnInit {
   }
 
   private updateWalletIdFromServer() {
-    this.userService.requestUserInfo().subscribe(info => {
+    this.userService.getUserInfo().subscribe(info => {
       if (info.walletId) {
         this.walletID = info.walletId;
       }
@@ -58,10 +60,7 @@ export class WalletComponent implements OnInit {
   }
 
   reconnectWallet() {
-    from(this.beaconService.connect()).subscribe(address => {
-      this.setWalletId(address);
-      this.beaconWalletID = address;
-    });
+    this.beaconService.connect();
   }
 
   getErrorMessage(): string {
@@ -74,10 +73,8 @@ export class WalletComponent implements OnInit {
       return;
     }
     if (id.match(this.tezRegex)) {
-      this.beaconService.setWalletID(id).subscribe(message => {
+      this.beaconService.setWalletID(id).subscribe(() => {
         this.updateWalletIdFromServer();
-        this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('wallet.updated-text'));
-        console.log(message);
       });
     } else {
       console.error('tez id does not match regex! ' + id);

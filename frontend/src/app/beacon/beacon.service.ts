@@ -12,6 +12,11 @@ import {HttpClient} from '@angular/common/http';
 import {UpdateUploadedArtworksRequestBody} from '../../../../backend/src/rest/user/setMyWalletId/apiSchema';
 import {environment} from '../../environments/environment';
 import {SnackBarService} from '../services/snack-bar.service';
+import {UserService} from '../services/user.service';
+import {UserInfo} from '../../../../backend/src/common/tableDefinitions';
+import {ConfirmDialogComponent, ConfirmDialogData} from '../components/confirm-dialog/confirm-dialog.component';
+import {DialogService} from '../services/dialog.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -22,12 +27,15 @@ export class BeaconService {
   private readonly setWalletIDURL = '/setMyWalletId';
   private readonly network = environment.cryptoNet as NetworkType;
   dAppClient: DAppClient;
+  userInfo: UserInfo;
 
-  constructor(private httpClient: HttpClient, private snackBarService: SnackBarService) {
-    console.log('new beacon service');
+  constructor(private httpClient: HttpClient, private snackBarService: SnackBarService, private userService: UserService,
+              private dialogService: DialogService, private translateService: TranslateService) {
     this.dAppClient = new DAppClient(
       {name: 'BLCKBOOK', preferredNetwork: this.network});
     this.dAppClient.setColorMode(ColorMode.DARK).then();
+    this.userService.getUserInfo().subscribe(
+      userInfo => this.userInfo = userInfo);
   }
 
   async getActiveAccount(): Promise<AccountInfo | undefined> {
@@ -41,6 +49,38 @@ export class BeaconService {
         type: this.network,
       },
     });
+    console.log(this.userInfo);
+    if (this.userInfo.walletId && this.userInfo.walletId !== activeAccount.address) {
+      const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
+        width: '250px',
+        data: {
+          text: 'In your account you have the wallet "' + this.userInfo.walletId + '" set. \n The currently connected wallet is "' + activeAccount.address + '"\n Do you want to set it as your new wallet?',
+          header: 'Not your Wallet',
+          action: 'Overwrite wallet-id',
+          cancelText: 'No',
+        } as ConfirmDialogData
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.setWalletID(activeAccount.address);
+        }
+      });
+    } else if (!this.userInfo.walletId) {
+      const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
+        width: '250px',
+        data: {
+          text: 'You currently do not have a wallet connected to your user. Do you want to set this wallet as yours? \n The wallet-id is: "' + activeAccount.address + '"',
+          header: 'Set wallet',
+          action: 'Use connected Wallet',
+          cancelText: 'No',
+        } as ConfirmDialogData
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.setWalletID(activeAccount.address);
+        }
+      });
+    }
     return activeAccount.address;
   }
 
@@ -54,6 +94,15 @@ export class BeaconService {
   }
 
   setWalletID(walletId: string): Observable<string> {
+    const postObservable = this.postWalletId(walletId);
+    postObservable.subscribe(() => {
+      this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('wallet.updated-text'));
+      this.userService.requestUserInfo();
+    });
+    return postObservable;
+  }
+
+  private postWalletId(walletId: string): Observable<string> {
     const requestBody: UpdateUploadedArtworksRequestBody = {walletId: walletId};
     return this.httpClient.post(this.userAPIURL + this.setWalletIDURL, requestBody, {responseType: 'text'});
   }
@@ -95,6 +144,27 @@ export class BeaconService {
     if (!activeAccount) {
       await this.connect();
     }
+    if (activeAccount?.address && activeAccount?.address !== this.userInfo.walletId) {
+      const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
+        width: '250px',
+        data: {
+          text: 'In your account you have the wallet "' + activeAccount.address + '" set. \n The currently connected wallet is "' + this.userInfo.walletId + '."\n You can reconnect to use your original wallet',
+          header: 'Not your Wallet',
+          action: 'Use current Wallet',
+          action2: 'Reconnect'
+        } as ConfirmDialogData
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result === 1) {
+          this.actuallyWithdraw();
+        } else if (result === 2) {
+          this.connect();
+        }
+      });
+    }
+  }
+
+  private async actuallyWithdraw() {
     try {
       const result = await this.dAppClient.requestOperation({
         operationDetails: [

@@ -16,9 +16,9 @@ upload.submit	Submit
 upload.delete	Delete
 wallet.header	WALLET OPTIONS
 wallet.no-wallet	You currently don't have a wallet connected<br> In order to upload images and vote you need to connect a wallet first.
-wallet.current	Your current wallet has the id:
+wallet.current	Your current wallet-id:
 wallet.manually	Manually enter a wallet-id
-wallet.reconnect	Reconnect Wallet (Beacon)
+wallet.reconnect	Wallet
 wallet.use-manually	Use entered id
 wallet.connect	Connect Wallet (Beacon)
 wallet.updated-text	Wallet updated

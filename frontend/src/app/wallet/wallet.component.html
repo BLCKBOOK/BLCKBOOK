@@ -16,13 +16,10 @@
     </mat-form-field>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-raised-button (click)="connectWallet()" *ngIf="walletID === ''">
-      {{'wallet.connect' | translate}}
+    <button mat-raised-button (click)="reconnectWallet()" class="wallet-action">
+      <fa-icon [icon]="faRedo"></fa-icon> {{'wallet.reconnect' | translate}}
     </button>
-    <button mat-raised-button *ngIf="walletID !== ''" (click)="reconnectWallet()">
-      {{'wallet.reconnect' | translate}}
-    </button>
-    <button mat-raised-button [disabled]="!walletIdForm.valid || !walletIdForm.value" (click)="useEnteredId()">
+    <button mat-raised-button [disabled]="!walletIdForm.valid || !walletIdForm.value" (click)="useEnteredId()" class="wallet-action">
       {{'wallet.use-manually' | translate}}
     </button>
   </mat-card-actions>
@@ -39,10 +36,10 @@
     </div>
   </mat-card-content>
   <mat-card-actions>
-    <button mat-raised-button (click)="withdraw()" [disabled]="walletID === ''">
+    <button mat-raised-button (click)="withdraw()" [disabled]="walletID === ''" class="wallet-action">
       Withdraw
     </button>
-    <button mat-raised-button [disabled]="calculating || walletID === ''" (click)="calculateVoteMoneyPoolAmount()">
+    <button mat-raised-button [disabled]="calculating || walletID === ''" (click)="calculateVoteMoneyPoolAmount()" class="wallet-action">
       Check Amount
     </button>
   </mat-card-actions>

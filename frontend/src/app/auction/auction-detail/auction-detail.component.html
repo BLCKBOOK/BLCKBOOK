@@ -40,32 +40,30 @@
       </div>
     </ng-template>
     <div *ngIf="!auctionOver && data.auctionKey.value.uploader !== walletID">
-      <form class="bid-form">
-        <mat-form-field>
-          <input
-            type="number"
-            class="form-control"
-            matInput
-            name="Bid"
-            placeholder="Your Bid"
-            [formControl]="bidFormControl" [errorStateMatcher]="bidErrorMatcher"
-            min="{{minAuctionBidString}}">
-          <div matSuffix> ꜩ</div>
-        </mat-form-field>
-        <button class="reconnect-button" mat-flat-button (click)="reconnectWallet()">
-          <fa-icon [icon]="faRedo"></fa-icon>
-          Wallet
-        </button>
-        <mat-error *ngIf="bidFormControl.hasError('min') && !bidFormControl.hasError('required')">
-          You need to bid at least {{minAuctionBidString}}
-        </mat-error>
-        <mat-error *ngIf="bidFormControl.hasError('required')">
-          A bid amount is <strong>required</strong>
-        </mat-error>
-        <mat-error *ngIf="bidFormControl.hasError('pattern')">
-          6 decimal places max
-        </mat-error>
-      </form>
+      <mat-form-field class="bid-form">
+        <input
+          type="number"
+          class="form-control"
+          matInput
+          name="Bid"
+          placeholder="Your Bid"
+          [formControl]="bidFormControl" [errorStateMatcher]="bidErrorMatcher"
+          min="{{minAuctionBidString}}">
+        <div matSuffix> ꜩ</div>
+      </mat-form-field>
+      <button class="reconnect-button" mat-flat-button (click)="reconnectWallet()">
+        <fa-icon [icon]="faRedo"></fa-icon>
+        Wallet
+      </button>
+      <mat-error *ngIf="bidFormControl.hasError('min') && !bidFormControl.hasError('required')">
+        You need to bid at least {{minAuctionBidString}}
+      </mat-error>
+      <mat-error *ngIf="bidFormControl.hasError('required')">
+        A bid amount is <strong>required</strong>
+      </mat-error>
+      <mat-error *ngIf="bidFormControl.hasError('pattern')">
+        6 decimal places max
+      </mat-error>
       <div class="bid-button-container">
         <button mat-raised-button (click)="bid(data.auctionKey.key)"
                 [disabled]="bidFormControl.hasError('min') || bidFormControl.hasError('required')

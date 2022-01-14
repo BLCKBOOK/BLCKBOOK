@@ -33,9 +33,9 @@
   "wallet": {
     "header": "WALLET OPTIONS",
     "no-wallet": "You currently don't have a wallet connected\n In order to upload images and vote you need to connect a wallet first.",
-    "current": "Your current wallet has the id:",
+    "current": "Your current wallet-id:",
     "manually": "Manually enter a wallet-id",
-    "reconnect": "Reconnect Wallet (Beacon)",
+    "reconnect": "Wallet",
     "use-manually": "Use entered id",
     "connect": "Connect Wallet (Beacon)",
     "updated-text": "Wallet updated",

@@ -22,7 +22,7 @@ export class UserService {
 
   constructor(private httpClient: HttpClient, private updateService: UpdateService) {
     this.updateService.getUpdateEvent$().subscribe(() => {
-      this.updateUserInfo();
+      this.internallyUpdate();
     });
     this.user = new ReplaySubject<CognitoUserInterface>(1);
     this.authState = new BehaviorSubject<AuthState>(AuthState.SignedOut);
@@ -43,7 +43,7 @@ export class UserService {
       }
     });
     interval(60000).subscribe(() => {
-      this.updateUserInfo();
+      this.internallyUpdate();
     });
   }
 
@@ -114,13 +114,15 @@ export class UserService {
   }
 
   public requestUserInfo(): Observable<UserInfo> {
-    return this.httpClient.get<UserInfo>(this.userInfoAPIURL + this.getUserInfoURL);
-  }
-
-  private updateUserInfo() {
-    this.requestUserInfo().subscribe(userInfo => {
+    const userInfoObservable = this.httpClient.get<UserInfo>(this.userInfoAPIURL + this.getUserInfoURL);
+    userInfoObservable.subscribe(userInfo => {
       this.userInfo.next(userInfo);
     });
+    return userInfoObservable;
+  }
+
+  private internallyUpdate() {
+    this.requestUserInfo();
   }
 
   getUserInfo(): Observable<UserInfo> {
