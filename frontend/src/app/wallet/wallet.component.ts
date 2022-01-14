@@ -3,7 +3,7 @@ import {UserService} from '../services/user.service';
 import {FormControl, Validators} from '@angular/forms';
 import {SnackBarService} from '../services/snack-bar.service';
 import {TranslateService} from '@ngx-translate/core';
-import {BehaviorSubject, from} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {BeaconService} from '../beacon/beacon.service';
 import {TaquitoService} from '../taquito/taquito.service';
 import {CurrencyService} from '../services/currency.service';
@@ -35,16 +35,9 @@ export class WalletComponent implements OnInit {
     this.updateWalletIdFromServer();
   }
 
-  connectWallet() {
-    from(this.beaconService.getAddress()).subscribe(address => {
-      this.setWalletId(address);
-      this.beaconWalletID = address;
-    });
-  }
-
   private updateWalletIdFromServer() {
     this.userService.getUserInfo().subscribe(info => {
-      if (info.walletId) {
+      if (info && info.walletId) {
         this.walletID = info.walletId;
       }
     });
@@ -59,7 +52,7 @@ export class WalletComponent implements OnInit {
     });
   }
 
-  reconnectWallet() {
+  connectWallet() {
     this.beaconService.connect();
   }
 

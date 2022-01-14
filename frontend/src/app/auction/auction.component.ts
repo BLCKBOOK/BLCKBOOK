@@ -25,7 +25,7 @@ export class AuctionComponent {
         combineLatest([this.auctionService.getAuction(params.id), this.auctionService.getMintedArtworkForId(params.id)])
           .subscribe(([auctionKey, mintedArtwork]) => {
           if (!auctionKey || !mintedArtwork) {
-            this.snackBarService.openSnackBarWithoutAction('Specified auction not found', 3000);
+            this.snackBarService.openSnackBarWithoutAction('Specified auction not found', 5000);
             this.location.replaceState('/auction');
             return;
           }
@@ -47,7 +47,7 @@ export class AuctionComponent {
           });
         }, error => {
           if (error.status === 404) {
-            this.snackBarService.openSnackBarWithoutAction('Specified auction not found', 3000);
+            this.snackBarService.openSnackBarWithoutAction('Specified auction not found', 5000);
             this.location.replaceState('/auction');
           }
         });

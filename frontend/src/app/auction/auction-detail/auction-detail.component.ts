@@ -104,7 +104,7 @@ export class AuctionDetailComponent implements OnInit {
       this.noBidsYet = true;
     }
     this.userService.getUserInfo().subscribe(info => {
-      if (info.walletId) {
+      if (info && info.walletId) {
         this.walletID = info.walletId;
       }
     });

@@ -41,7 +41,7 @@ export class AuctionScrollComponent implements OnInit {
   reachedEnd = false;
   lastIndex: number | undefined = undefined;
   currentlyLoading = false;
-  userInfo: Observable<UserInfo>
+  userInfo: Observable<UserInfo | undefined>
   walletId: string | undefined;
 
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
@@ -56,7 +56,7 @@ export class AuctionScrollComponent implements OnInit {
   ngOnInit() {
     this.userInfo = this.userService.getUserInfo();
     this.userInfo.subscribe(userInfo => {
-      this.walletId = userInfo.walletId;
+      this.walletId = userInfo?.walletId;
     });
     this.initialize();
   }

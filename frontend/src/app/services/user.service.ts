@@ -17,7 +17,7 @@ export class UserService {
   private authState: BehaviorSubject<AuthState>;
   private readonly userInfoAPIURL = environment.urlString + '/user';
   private readonly getUserInfoURL = '/getMyUserInfo';
-  private userInfo: Subject<UserInfo> = new ReplaySubject<UserInfo>(1);
+  private userInfo: Subject<UserInfo | undefined> = new ReplaySubject<UserInfo | undefined>(1);
   private adminSubject: Subject<boolean> = new ReplaySubject<boolean>(1);
 
   constructor(private httpClient: HttpClient, private updateService: UpdateService) {
@@ -66,7 +66,7 @@ export class UserService {
   }
 
   public adminCheckForRouting(): Observable<boolean> {
-    return from(Auth.currentSession()).pipe(catchError(this.handleError), map(session => {
+    return from(Auth.currentSession()).pipe(catchError(this.handleError.bind(this)), map(session => {
       if (session === false || session === true) { // session === true will never happen
         return false;
       }
@@ -86,7 +86,7 @@ export class UserService {
   }
 
   public isAuthenticated(): Observable<boolean> {
-    return from(Auth.currentSession()).pipe(catchError(this.handleError), map(session => {
+    return from(Auth.currentSession()).pipe(catchError(this.handleError.bind(this)), map(session => {
       if (session === false || session === true) { // session === true will never happen
         return false;
       }
@@ -100,7 +100,7 @@ export class UserService {
 
   public logOut(): Observable<any> {
     this.authState.next(AuthState.SignedOut);
-    return from(Auth.signOut({global: false})).pipe(catchError(this.handleLogoutError));
+    return from(Auth.signOut({global: false})).pipe(catchError(this.handleLogoutError).bind(this));
   }
 
   public handleLogoutError(): Observable<any> {
@@ -109,7 +109,12 @@ export class UserService {
   }
 
   public handleError(error: any): Observable<boolean> {
-    console.error(error);
+    if (error === 'No current user') {
+      console.log('we sent it');
+      this.userInfo.next(undefined);
+    } else {
+      console.error(error);
+    }
     return of(false);
   }
 
@@ -125,7 +130,7 @@ export class UserService {
     this.requestUserInfo();
   }
 
-  getUserInfo(): Observable<UserInfo> {
+  getUserInfo(): Observable<UserInfo | undefined> {
     return this.userInfo.pipe();
   }
 }

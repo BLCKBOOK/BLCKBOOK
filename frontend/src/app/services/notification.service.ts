@@ -34,9 +34,14 @@ export class NotificationService {
     // we update the notifications on every update-event. Sadly an update-event also triggers a user-info event.
     // But not every user-info event triggers the update-event -> therefore we sometimes load all notifications.
     this.userService.getUserInfo().subscribe(userInfo => {
-      if (userInfo.unseenNotifications && userInfo.unseenNotifications !== this.unreadNotifications$.getValue()) {
-        this.unreadNotifications$.next(userInfo.unseenNotifications);
-        this.updateAllNotifications();
+      if (userInfo) {
+        if (userInfo.unseenNotifications && userInfo.unseenNotifications !== this.unreadNotifications$.getValue()) {
+          this.unreadNotifications$.next(userInfo.unseenNotifications);
+          this.updateAllNotifications();
+        }
+      } else {
+        this.unreadNotifications$.next(0);
+        this.notifications.next([]);
       }
     });
     this.updateService.getUpdateEvent$().subscribe(() => {

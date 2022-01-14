@@ -27,7 +27,7 @@ export class BeaconService {
   private readonly setWalletIDURL = '/setMyWalletId';
   private readonly network = environment.cryptoNet as NetworkType;
   dAppClient: DAppClient;
-  userInfo: UserInfo;
+  userInfo: UserInfo | undefined;
 
   constructor(private httpClient: HttpClient, private snackBarService: SnackBarService, private userService: UserService,
               private dialogService: DialogService, private translateService: TranslateService) {
@@ -50,7 +50,7 @@ export class BeaconService {
       },
     });
     console.log(this.userInfo);
-    if (this.userInfo.walletId && this.userInfo.walletId !== activeAccount.address) {
+    if (this.userInfo && this.userInfo.walletId && this.userInfo.walletId !== activeAccount.address) {
       const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
         width: '250px',
         data: {
@@ -65,7 +65,7 @@ export class BeaconService {
           this.setWalletID(activeAccount.address);
         }
       });
-    } else if (!this.userInfo.walletId) {
+    } else if (this.userInfo && !this.userInfo.walletId) {
       const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
         width: '250px',
         data: {
@@ -128,7 +128,7 @@ export class BeaconService {
           },
         ],
       });
-      this.snackBarService.openSnackBarWithoutAction('Bid was successfully placed. Reload after some time to see your bid', 5000);
+      this.snackBarService.openSnackBarWithoutAction('Bid was successfully placed. Reload after some time to see your bid', 10000);
     } catch (error) {
       if (error instanceof AbortedBeaconError) {
         console.log('User aborted beacon interaction');
@@ -144,7 +144,7 @@ export class BeaconService {
     if (!activeAccount) {
       await this.connect();
     }
-    if (activeAccount?.address && activeAccount?.address !== this.userInfo.walletId) {
+    if (activeAccount?.address && this.userInfo && activeAccount?.address !== this.userInfo.walletId) {
       const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
         width: '250px',
         data: {
