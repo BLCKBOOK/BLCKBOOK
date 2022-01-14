@@ -41,22 +41,7 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "crypto-js",
-              "stream",
-              "bs58check",
-              "@aws-crypto/sha256-js",
-              "@aws-crypto/sha256-browser",
-              "fast-xml-parser",
-              "@aws-crypto/crc32",
-              "uuid",
-              "@taquito/rpc",
-              "@taquito/utils",
-              "isomorphic-unfetch",
-              "libsodium",
-              "rxjs/internal/operators",
-              "url-parse",
-              "urlencode",
-              "ngx-masonry"
+
             ]
           },
           "configurations": {

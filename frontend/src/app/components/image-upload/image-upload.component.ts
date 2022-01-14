@@ -1,5 +1,4 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import * as exifr from 'exifr';
 import {ImageUploadService} from '../../services/image-upload.service';
 import {AcceptedMimeTypes, ImageUpload, originalImageKey} from '../../types/image.type';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
@@ -17,6 +16,7 @@ import {MapDialogComponent, MapDialogData} from '../map-dialog/map-dialog.compon
 import {LatLng} from 'leaflet';
 import {PeriodService} from '../../services/period.service';
 import {DialogService} from '../../services/dialog.service';
+import exifr from 'exifr';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
