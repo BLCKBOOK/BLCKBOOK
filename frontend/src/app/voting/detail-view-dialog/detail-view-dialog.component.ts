@@ -34,7 +34,7 @@ export class DetailViewDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.location.replaceState('/voting/' + this.data.artwork.artworkId);
+    this.location.go('/voting/' + this.data.artwork.artworkId);
   }
 
   vote(): void {

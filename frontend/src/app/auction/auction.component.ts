@@ -26,7 +26,7 @@ export class AuctionComponent {
           .subscribe(([auctionKey, mintedArtwork]) => {
           if (!auctionKey || !mintedArtwork) {
             this.snackBarService.openSnackBarWithoutAction('Specified auction not found', 5000);
-            this.location.replaceState('/auction');
+            this.location.go('/auction');
             return;
           }
           const masonryItem = this.auctionService.getMasonryItemOfAuction(auctionKey, mintedArtwork);
@@ -43,12 +43,12 @@ export class AuctionComponent {
             data: detailData
           });
           dialogRef.afterClosed().subscribe(() => {
-            this.location.replaceState('/auction');
+            this.location.go('/auction');
           });
         }, error => {
           if (error.status === 404) {
             this.snackBarService.openSnackBarWithoutAction('Specified auction not found', 5000);
-            this.location.replaceState('/auction');
+            this.location.go('/auction');
           }
         });
       }

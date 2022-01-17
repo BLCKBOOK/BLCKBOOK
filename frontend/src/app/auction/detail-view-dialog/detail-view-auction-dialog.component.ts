@@ -21,6 +21,6 @@ export class DetailViewAuctionDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.location.replaceState('/auction/' + this.data.auctionKey.key);
+    this.location.go('/auction/' + this.data.auctionKey.key);
   }
 }

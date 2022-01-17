@@ -48,7 +48,7 @@ export class VotingComponent {
         this.votingService.getVotableArtworkById(params.id).subscribe(artwork => {
           if (!artwork) {
             this.snackBarService.openSnackBarWithoutAction('Specified artwork not found', 3000);
-            this.location.replaceState('/voting');
+            this.location.go('/voting');
             return;
           }
           const detailData = this.getVoteDetailDataOfArtwork(artwork);
@@ -59,12 +59,12 @@ export class VotingComponent {
             data: detailData
           });
           dialogRef.afterClosed().subscribe(() => {
-            this.location.replaceState('/voting');
+            this.location.go('/voting');
           });
         }, error => {
           if (error.status === 404) {
             this.snackBarService.openSnackBarWithoutAction('Specified artwork not found', 3000);
-            this.location.replaceState('/voting');
+            this.location.go('/voting');
           }
         });
       }

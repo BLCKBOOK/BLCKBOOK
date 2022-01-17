@@ -165,7 +165,7 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
       } as VoteDetailData
     });
     dialogRef.afterClosed().subscribe(() => {
-      this.location.replaceState('/voting');
+      this.location.go('/voting');
     });
   }
 

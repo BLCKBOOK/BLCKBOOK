@@ -116,7 +116,7 @@ export class AuctionScrollComponent implements OnInit {
       } as AuctionDetailData
     });
     dialogRef.afterClosed().subscribe(() => {
-      this.location.replaceState('/' + this.scrollType);
+      this.location.go('/' + this.scrollType);
     });
   }
 
