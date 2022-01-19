@@ -72,7 +72,7 @@
         </button>
       </div>
     </div>
-    <div *ngIf="data.auctionKey.value.uploader === walletID">
+    <div *ngIf="data.auctionKey.value.uploader === walletID && !auctionOver">
       <br>You cannot bid on your own upload
     </div>
   </div>

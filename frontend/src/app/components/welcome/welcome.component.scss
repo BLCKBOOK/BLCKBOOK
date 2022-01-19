@@ -16,18 +16,18 @@
 
 @media only screen and (max-width: 800px) {
   .landing-1 {
-    background-image: url("/assets/images/landing/landing1/800w.jpg");
+    --image1: url(/assets/images/landing/background/1_medium.jpg);
   }
 
   .landing-2 {
-    background-image: url("/assets/images/landing/landing2/800w.jpg");
+    --image2: url(/assets/images/landing/background/2_medium.jpg);
   }
 
   .landing-3 {
-    background-image: url("/assets/images/landing/landing3/800w.jpg");
+    --image3: url(/assets/images/landing/background/3_medium.jpg);
   }
   .thumb {
-    width:  20vw;
+    width: 20vw;
     height: auto;
   }
 
@@ -40,18 +40,17 @@
   }
 }
 
-/* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 800px) {
   .landing-1 {
-    background-image: url("/assets/images/landing/landing1/1200w.jpg");
+    --image1: url(/assets/images/landing/background/1_medium.jpg);
   }
 
   .landing-2 {
-    background-image: url("/assets/images/landing/landing2/1200w.jpg");
+    --image2: url(/assets/images/landing/background/2_medium.jpg);
   }
 
   .landing-3 {
-    background-image: url("/assets/images/landing/landing3/1200w.jpg");
+    --image3: url(/assets/images/landing/background/3_medium.jpg);
   }
   .thumb {
     width: 139px;
@@ -68,22 +67,21 @@
   }
 }
 
-/* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 1200px) {
   .inner-wrapper > div > p {
     width: 50vw;
   }
 
   .landing-1 {
-    background-image: url("/assets/images/landing/landing1/2000w.jpg");
+    --image1: url(/assets/images/landing/background/1_large.jpg);
   }
 
   .landing-2 {
-    background-image: url("/assets/images/landing/landing2/2000w.jpg");
+    --image2: url(/assets/images/landing/background/2_large.jpg);
   }
 
   .landing-3 {
-    background-image: url("/assets/images/landing/landing3/2000w.jpg");
+    --image3: url(/assets/images/landing/background/3_large.jpg);
   }
   .thumb {
     width: 139px;
@@ -149,7 +147,7 @@
   right: 4vw;
   height: 10vw;
   width: 10vw;
-  top:0;
+  top: 0;
   -moz-border-radius: 50%;
   -webkit-border-radius: 50%;
   border-radius: 50%;
@@ -168,7 +166,49 @@
   height: 64px;
 }
 
+.landing-1, .landing-2, .landing-3 {
+  background-size: cover;
+  background-color: rgba(0, 0, 0, 255);
+}
+
+.landing-1 {
+  background-image:
+    linear-gradient(to top, transparent 40%, black 80%),
+    linear-gradient(to bottom, transparent 70%, black 90%),
+    linear-gradient(to left, transparent 30%, black 100%),
+    linear-gradient(to right, transparent 50%, black 100%),
+    var(--image1);
+  background-position-x: 0, 0, 0 , 0, center; // image scrolls from center
+  background-position-y: 0, 0, 0, 0, 0;
+}
+
+.landing-2 {
+  background-image:
+    linear-gradient(to top, transparent 95%, black 100%),
+    linear-gradient(to bottom, transparent 70%, black 90%),
+    linear-gradient(to left, transparent 30%, black 100%),
+    linear-gradient(to right, transparent 50%, black 100%),
+    var(--image2);
+  background-position-x: 0, 0, 0 , 0, right; // image moves in from the right
+  background-position-y: 0, 0, 0, 0, 0; // maybe position the girl always visible
+}
+
+.landing-3 {
+  background-image:
+    linear-gradient(to top, transparent 95%, black 100%),
+    linear-gradient(to bottom, transparent 70%, black 90%),
+    linear-gradient(to left, transparent 30%, black 100%),
+    linear-gradient(to right, transparent 50%, black 100%),
+    var(--image3);
+  background-position-x: 0, 0, 0 , 0, right; // image moves in from the right
+  background-position-y: 0, 0, 0, 0, 0;
+}
+
 .welcome-card {
   max-width: unset;
   margin: unset;
+}
+
+.drop-shadow {
+  filter: drop-shadow(2px 4px 6px black);
 }
