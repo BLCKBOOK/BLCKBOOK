@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, NgZone, OnInit} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, NgZone, OnInit, ViewChild} from '@angular/core';
 import {AuthState, FormFieldTypes, onAuthUIStateChange} from '@aws-amplify/ui-components';
 import {Observable} from 'rxjs';
 import {Router} from '@angular/router';
@@ -9,10 +9,12 @@ import {UserService} from '../services/user.service';
   templateUrl: './log-in.component.html',
   styleUrls: ['./log-in.component.scss']
 })
-export class LogInComponent implements OnInit {
+export class LogInComponent implements OnInit, AfterViewInit {
 
   formFields: FormFieldTypes;
   public authState$: Observable<AuthState>;
+  @ViewChild('#username') userNameInput: ElementRef;
+
 
   constructor(private userService: UserService, private ref: ChangeDetectorRef, public router: Router, private ngZone: NgZone) {
     this.authState$ = this.userService.getAuthState();
@@ -43,5 +45,30 @@ export class LogInComponent implements OnInit {
         }
       });
     });
+
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      try {
+        // @ts-ignore
+        let styleContainer: HTMLElement = document.querySelector('body > app-root > app-navigation > nav > mat-sidenav-container > mat-sidenav-content > app-log-in > amplify-auth-container > amplify-authenticator').shadowRoot.querySelector('div > slot > amplify-sign-in').shadowRoot.querySelector('style:nth-child(8)');
+        // @ts-ignore
+        const styleChild: Element = styleContainer.firstChild;
+        // @ts-ignore
+        const newStyleString = styleChild.textContent.replace('[data-autocompleted]{background-color:#e8f0fe !important}', '');
+        styleChild.textContent = newStyleString;
+      } catch (e) {
+        setTimeout(() => {
+          // @ts-ignore
+          let styleContainer: HTMLElement = document.querySelector('body > app-root > app-navigation > nav > mat-sidenav-container > mat-sidenav-content > app-log-in > amplify-auth-container > amplify-authenticator').shadowRoot.querySelector('div > slot > amplify-sign-in').shadowRoot.querySelector('style:nth-child(8)');
+          // @ts-ignore
+          const styleChild: Element = styleContainer.firstChild;
+          // @ts-ignore
+          const newStyleString = styleChild.textContent.replace('[data-autocompleted]{background-color:#e8f0fe !important}', '');
+          styleChild.textContent = newStyleString;
+        }, 150);
+      }
+    }, 150);
   }
 }
