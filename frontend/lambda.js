@@ -21,6 +21,7 @@ const binaryMimeTypes = [
   'image/x-icon',
   'image/svg+xml',
   'font/ttf',
+  'image/webp',
   'application/x-font-ttf'
 ];
 
