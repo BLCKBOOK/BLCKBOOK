@@ -6,12 +6,22 @@
   </div>
   <div class="meta-data-display" fxFlex="1 1" fxLayout.gt-md="column" fxLayout="column">
     <app-artwork-data [data]="artworkData"></app-artwork-data>
-    <div *ngIf="ipfsUri">
+    <div *ngIf="ipfsUri; else: ipfsLoading">
       <a target="_blank" href="{{ipfsUri}}">IPFS</a>
     </div>
-    <div *ngIf="metadataUri">
+    <ng-template #ipfsLoading>
+      <div>
+        <a>IPFS loading</a>
+      </div>
+    </ng-template>
+    <div *ngIf="metadataUri; else: metaDataLoading">
       <a target="_blank" href="{{metadataUri}}">metadata</a>
     </div>
+    <ng-template #metaDataLoading>
+      <div>
+        <a>metadata loading</a>
+      </div>
+    </ng-template>
     <div class="line-container">
       <span>Auction End</span><span class="artwork-data">{{timeDisplay}}</span>
     </div>
