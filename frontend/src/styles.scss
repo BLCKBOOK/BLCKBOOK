@@ -272,6 +272,10 @@ input:-webkit-autofill {
   box-shadow: 0 11px 15px -7px rgb(255 255 255 / 20%), 0px 24px 38px 3px rgb(255 255 255 / 14%), 0px 9px 46px 8px rgb(255 255 255 / 12%);
 }
 
+.mat-dialog-content {
+  margin-top: 24px !important; // so it doesn't hit the cancel-button
+}
+
 .mat-elevation-z4 {
   box-shadow: 0 2px 4px -1px rgb(255 255 255 / 20%), 0px 4px 5px 0px rgb(255 255 255 / 14%), 0px 1px 10px 0px rgb(255 255 255 / 12%);
 }
@@ -337,7 +341,12 @@ a:active {
   position: absolute;
   top: 0;
   right: 0;
-  padding: 5px;
-  line-height: 14px;
+  padding: .4em;
+  line-height: 24px;
   min-width: auto;
+  font-size: 2em;
+}
+
+.mat-dialog-title {
+  margin-right: 14px !important; // so it doesn't hit the cancel-button
 }

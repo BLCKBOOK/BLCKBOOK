@@ -105,7 +105,7 @@ export class AdminComponent implements OnInit {
 
   banUser(artwork: DisplayedArtwork) {
     const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
-      width: '250px',
+      width: '90%',
       data: {
         text: 'This will ban the user with the name "' + artwork.artwork.uploader + '"\n It will also delete the image',
         header: 'CONFIRM BAN',
@@ -154,7 +154,7 @@ export class AdminComponent implements OnInit {
 
   triggerNextPeriod() {
     const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
-      width: '250px',
+      width: '90%',
       data: {
         text: 'This will trigger the next Period and can not be undone. You will need to reload to see the changes',
         header: 'CONFIRM NEXT PERIOD',

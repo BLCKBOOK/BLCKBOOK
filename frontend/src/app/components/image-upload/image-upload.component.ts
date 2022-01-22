@@ -57,7 +57,7 @@ export class ImageUploadComponent implements OnInit {
   imageReference: HTMLImageElement;
 
   acceptTerms = false;
-  private readonly errorDialogSize: string = '80%';
+  private readonly errorDialogSize: string = '90%';
   currentPeriod: string;
 
   constructor(public dialog: MatDialog, private imageUploadService: ImageUploadService, private route: ActivatedRoute,
@@ -248,8 +248,8 @@ export class ImageUploadComponent implements OnInit {
   showOnMap() {
     if (this.longitude && this.latitude) {
       this.dialogService.open(MapDialogComponent, {
-        width: '95%',
-        maxWidth: '95%',
+        width: '90%',
+        maxWidth: '90%',
         data: {latlng: {lat: parseFloat(this.latitude ?? '0'), lng: parseFloat(this.longitude ?? '0')}} as MapDialogData
       });
     }
@@ -268,13 +268,13 @@ export class ImageUploadComponent implements OnInit {
 
   openTermsAndConditions() {
     this.dialogService.open(TermsDialogComponent, {
-      width: '80%'
+      width: '90%'
     });
   }
 
   enlargeImage() {
     this.dialogService.open(ImageDialogComponent, {
-      width: '95%',
+      width: '90%',
       data: {
         url: this.url
       } as ImageDialogData

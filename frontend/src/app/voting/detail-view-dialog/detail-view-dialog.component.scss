@@ -1,11 +1,11 @@
 @media screen and (max-width: 959px) {
   mat-dialog-content {
-    max-height: calc(100vh - 68px - 26px);
+    max-height: calc(100vh - 68px - 26px - 24px);
   }
 }
 
 @media screen and (min-width: 960px) {
   mat-dialog-content {
-    max-height: calc(90vh - 68px - 48px);
+    max-height: calc(90vh - 68px - 48px - 24px);
   }
 }

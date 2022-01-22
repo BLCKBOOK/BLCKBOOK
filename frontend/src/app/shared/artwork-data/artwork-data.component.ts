@@ -33,8 +33,8 @@ export class ArtworkDataComponent {
 
   showOnMap() {
     this.dialogService.open(MapDialogComponent, {
-      width: '100%',
-      maxWidth: '100%',
+      width: '90%',
+      maxWidth: '90%',
       data: {
         latlng: {
           lat: parseFloat(this.data.latitude),

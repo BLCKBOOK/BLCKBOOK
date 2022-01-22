@@ -6,19 +6,19 @@
   </div>
   <div class="meta-data-display" fxFlex="1 1" fxLayout.gt-md="column" fxLayout="column">
     <app-artwork-data [data]="artworkData"></app-artwork-data>
-    <div *ngIf="ipfsUri; else: ipfsLoading">
+    <div class="small-link" *ngIf="ipfsUri; else: ipfsLoading">
       <a target="_blank" href="{{ipfsUri}}">IPFS</a>
     </div>
     <ng-template #ipfsLoading>
-      <div>
+      <div class="small-link">
         <a>IPFS loading</a>
       </div>
     </ng-template>
-    <div *ngIf="metadataUri; else: metaDataLoading">
+    <div class="small-link small-link-bottom" *ngIf="metadataUri; else: metaDataLoading">
       <a target="_blank" href="{{metadataUri}}">metadata</a>
     </div>
     <ng-template #metaDataLoading>
-      <div>
+      <div class="small-link small-link-bottom">
         <a>metadata loading</a>
       </div>
     </ng-template>
@@ -94,6 +94,11 @@
       <span>Auction Ended</span><span>{{auctionEndDate}}</span>
     </div>
     <mat-divider></mat-divider>
+  </div>
+  <div *ngIf="currentBidPending">
+    <div class="line-container">
+      <span>Your bid is pending</span><span>Reload after some time to see it</span>
+    </div>
   </div>
   <div *ngFor="let bid of bidHistory | async">
     <app-auction-bid [userWalletId]="walletID" [bid]="bid"></app-auction-bid>

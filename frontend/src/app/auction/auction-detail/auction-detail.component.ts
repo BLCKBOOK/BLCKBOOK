@@ -55,6 +55,7 @@ export class AuctionDetailComponent implements OnInit {
   auctionStartDate: string;
   auctionEndDate: string;
   walletID: string; // wallet Id of logged-in user
+  currentBidPending: boolean = false;
 
   private readonly mutezRegex = '\\d*\\.?\\d?\\d?\\d?\\d?\\d?\\d?$';
   artworkData: ArtworkData;
@@ -113,7 +114,10 @@ export class AuctionDetailComponent implements OnInit {
   bid(key: string) {
     if (this.bidFormControl.value && isNumeric(this.bidFormControl.value)) {
       const mutezAmount = this.bidFormControl.value as number * 1000000;
-      this.beaconService.bid(key, mutezAmount.toString()); // ToDo: don't ignore the Promise and do something here
+      this.beaconService.bid(key, mutezAmount.toString()).then(successful => {
+        if (successful) {
+          this.currentBidPending = true;
+        }});
     } else {
       this.snackBarService.openSnackBarWithoutAction('Some error in the bid-amount');
     }
