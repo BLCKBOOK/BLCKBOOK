@@ -114,6 +114,8 @@ export class BeaconService {
     const activeAccount = await this.getActiveAccount();
     if (activeAccount) {
       await this.askUserForWalletChange(activeAccount?.address)
+    } else {
+      await this.connect();
     }
     try {
       await this.dAppClient.requestOperation({
