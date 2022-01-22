@@ -13,9 +13,9 @@
 
 @media screen and (max-width: 960px) {
   .navigate-button {
-    min-height: calc((100vh - 8em - 48px - 52px) / 2);
+    min-height: calc((100vh - 8em - var(--navbarheight) - 52px) / 2);
     height: 100%;
-    max-height: calc((100vh - 8em - 48px - 52px) / 2); ;
+    max-height: calc((100vh - 8em - var(--navbarheight) - 52px) / 2); ;
   }
 }
 

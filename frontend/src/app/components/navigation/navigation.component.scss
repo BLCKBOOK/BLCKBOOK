@@ -1,24 +1,29 @@
 .nav-item {
   align-self: center;
+  font-size: large;
+}
+
+.profile-menu-item {
+  font-size: large;
+  height: 3.5em;
+  margin: 0 1em;
 }
 
 .example-spacer {
   flex: 1 1 auto;
 }
 
-$toolbar-height: 48px;
-
 mat-toolbar {
   position: sticky;
   position: -webkit-sticky; /* For macOS/iOS Safari */
   top: 0;
   z-index: 1000; /* Ensure that your app's content doesn't overlap the toolbar */
-  height: $toolbar-height;
+  height: var(--navbarheight);
 }
 
 mat-sidenav {
   position: fixed;
-  top: $toolbar-height;
+  top: var(--navbarheight);
   z-index: 900; /* Ensure that your app's content doesn't overlap the toolbar */
 }
 
@@ -79,10 +84,21 @@ amplify-button > .button {
 }
 
 .logo {
-  font-size: 2em;
+  font-size: x-large;
 }
 
 .bigger-nav-item {
   padding: 2em;
 }
 
+.mobile-nav-button {
+  height: 52px;
+  width: 52px;
+  fa-icon {
+    font-size: x-large;
+  }
+}
+
+.mobile-sign-in {
+  font-size: large;
+}

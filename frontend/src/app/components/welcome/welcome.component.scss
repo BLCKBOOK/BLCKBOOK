@@ -15,17 +15,7 @@
 }
 
 @media only screen and (max-width: 800px) {
-  .landing-1 {
-    --image1: url(/assets/images/landing/background/1_medium.webp);
-  }
 
-  .landing-2 {
-    --image2: url(/assets/images/landing/background/2_medium.webp);
-  }
-
-  .landing-3 {
-    --image3: url(/assets/images/landing/background/3_medium.webp);
-  }
   .thumb {
     width: 15vw;
     height: auto;
@@ -78,17 +68,6 @@
     font: 400 50px/50px Header Font;
   }
 
-  .landing-1 {
-    --image1: url(/assets/images/landing/background/1_medium.webp);
-  }
-
-  .landing-2 {
-    --image2: url(/assets/images/landing/background/2_medium.webp);
-  }
-
-  .landing-3 {
-    --image3: url(/assets/images/landing/background/3_medium.webp);
-  }
   .thumb {
     width: 139px;
     height: 149px;
@@ -109,17 +88,6 @@
     width: 50vw;
   }
 
-  .landing-1 {
-    --image1: url(/assets/images/landing/background/1_medium.webp);
-  }
-
-  .landing-2 {
-    --image2: url(/assets/images/landing/background/2_medium.webp);
-  }
-
-  .landing-3 {
-    --image3: url(/assets/images/landing/background/3_medium.webp);
-  }
   .thumb {
     width: 139px;
     height: 149px;
@@ -208,6 +176,7 @@
   var(--image1);
   background-position-x: 0, 0, 0, 0, center; // image scrolls from center
   background-position-y: 0, 0, 0, 0, 0;
+  --image1: url(/assets/images/landing/background/1_medium.webp);
 }
 
 .landing-2 {
@@ -218,6 +187,7 @@
   var(--image2);
   background-position-x: 0, 0, 0, 0, right; // image moves in from the right
   background-position-y: 0, 0, 0, 0, 0; // maybe position the girl always visible
+  --image2: url(/assets/images/landing/background/2_medium.webp);
 }
 
 .landing-3 {
@@ -228,6 +198,7 @@
   var(--image3);
   background-position-x: 0, 0, 0, 0, right; // image moves in from the right
   background-position-y: 0, 0, 0, 0, 0;
+  --image3: url(/assets/images/landing/background/3_medium.webp);
 }
 
 .welcome-card {

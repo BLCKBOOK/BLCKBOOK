@@ -86,4 +86,8 @@ export class NavigationComponent implements OnInit {
     $event.stopPropagation();
     this.notificationService.setNotificationSeen(notification);
   }
+
+  closeSidnenav() {
+
+  }
 }
