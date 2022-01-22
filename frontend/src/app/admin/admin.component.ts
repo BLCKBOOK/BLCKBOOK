@@ -54,10 +54,8 @@ export class AdminComponent implements OnInit {
     const lastIndex = this.uploadIndexes[this.uploadIndexes.length - 1];
     this.getArtworks(lastIndex).subscribe(artworks => {
       if (!initialLoad && !this.alreadyReachedEnd) {
-        console.log('increased page counter');
         this.pageCounter++;
       }
-      console.log(artworks.lastKey?.uploaderId);
       this.loading = false;
       this.setArtworks(artworks.artworks);
       if (JSON.stringify(artworks.lastKey) === JSON.stringify(lastIndex) || artworks.lastKey === undefined) {
@@ -66,7 +64,6 @@ export class AdminComponent implements OnInit {
       } else {
         this.uploadIndexes.push(artworks.lastKey);
       }
-      console.log(this.uploadIndexes);
     });
   }
 

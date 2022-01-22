@@ -47,7 +47,6 @@ export class NavigationComponent implements OnInit {
     this.userService.logOut().subscribe(() => {
       this.router.navigate(['']);
     }, () => {
-      console.log('logout-error');
       this.router.navigate(['']);
     });
   }
@@ -63,11 +62,9 @@ export class NavigationComponent implements OnInit {
       if ($event.ctrlKey) {
         this.openInNewTab(notification.link);
       } else {
-        console.log('tried to navigate');
         this.router.navigate([notification.link]);
       }
     } else {
-      console.log(notification);
       this.openNotificationDialog(notification);
     }
   }

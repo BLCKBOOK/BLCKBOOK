@@ -5,11 +5,6 @@
 
 .bid-form, .reconnect-button {
   margin-top: .5em;
-  margin-bottom: .5em;
-}
-
-.mat-error {
-  margin-top: -1em;
 }
 
 .mat-form-field {
@@ -21,6 +16,7 @@
 }
 
 .bid-button-container {
+  margin-top: .5em;
   button {
     width: 100%;
   }

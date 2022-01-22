@@ -20,7 +20,6 @@ export class NotificationsDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.data);
     if (!this.data) {
       this.notifications = this.notificationService.getAllNotifications();
     } else {

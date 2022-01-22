@@ -110,7 +110,6 @@ export class BlockchainService {
   public async getMasonryItemsOfUserTokens(offset: number = 0, walletId: string | undefined): Promise<AuctionMasonryItem[]> {
     if (walletId) {
       const tokens = await this.getTokensOfUser(offset, walletId).toPromise();
-      console.log(tokens);
       if (tokens && tokens.total > 0) {
         const retArray = [];
         for (const token of tokens.balances) {

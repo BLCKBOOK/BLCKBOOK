@@ -91,7 +91,6 @@ export class AuctionScrollComponent implements OnInit {
       this.currentlyLoading = true;
       this.getAuctions(this.currentIndex).subscribe(masonryItems => {
         this.currentlyLoading = false;
-        console.log('added more items');
         this.currentIndex += 1;
         if (masonryItems.length === 0) {
           this.reachedEnd = true;

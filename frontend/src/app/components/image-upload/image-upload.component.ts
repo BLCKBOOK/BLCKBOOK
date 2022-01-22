@@ -202,7 +202,6 @@ export class ImageUploadComponent implements OnInit {
         this.imageInput.nativeElement.value = '';*/
       }
     }).catch(error => {
-      console.log(error);
       this.dialog.open(ErrorDialogComponent, {
         width: this.errorDialogSize,
         data: {

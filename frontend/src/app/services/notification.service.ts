@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable, of} from 'rxjs';
+import {BehaviorSubject, Observable, of, Subscription} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 import {HttpClient} from '@angular/common/http';
@@ -33,8 +33,14 @@ export class NotificationService {
   constructor(private httpClient: HttpClient, private userService: UserService, private updateService: UpdateService) {
     // we update the notifications on every update-event. Sadly an update-event also triggers a user-info event.
     // But not every user-info event triggers the update-event -> therefore we sometimes load all notifications.
+    let updateSubscription: Subscription | undefined;
     this.userService.getUserInfo().subscribe(userInfo => {
       if (userInfo) {
+        if (!updateSubscription) {
+          updateSubscription = this.updateService.getUpdateEvent$().subscribe(() => {
+            this.updateAllNotifications();
+          });
+        }
         if (userInfo.unseenNotifications && userInfo.unseenNotifications !== this.unreadNotifications$.getValue()) {
           this.unreadNotifications$.next(userInfo.unseenNotifications);
           this.updateAllNotifications();
@@ -42,10 +48,11 @@ export class NotificationService {
       } else {
         this.unreadNotifications$.next(0);
         this.notifications.next([]);
+        if (updateSubscription) {
+          updateSubscription.unsubscribe();
+          updateSubscription = undefined;
+        }
       }
-    });
-    this.updateService.getUpdateEvent$().subscribe(() => {
-      this.updateAllNotifications();
     });
   }
 

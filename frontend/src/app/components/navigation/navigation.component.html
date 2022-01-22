@@ -1,7 +1,7 @@
 <nav>
   <mat-toolbar fxLayout="row" fxFlexAlign="center">
     <div fxShow="true" fxHide.gt-xs="true">
-      <button mat-icon-button (click)="sidenav.toggle()" class="mobile-nav-button">
+      <button mat-icon-button (click)="sidenav.toggle()" class="nav-icon-button">
         <fa-icon [icon]="faBars"></fa-icon>
       </button>
     </div>
@@ -26,12 +26,12 @@
       {{"navbar.sign-in" | translate}}
     </button>
     <ng-template #profile>
-      <button [ngClass.lt-sm]="'mobile-nav-button'" mat-icon-button class="nav-item" [matMenuTriggerFor]="notificationMenu"
+      <button mat-icon-button class="nav-item nav-icon-button" [matMenuTriggerFor]="notificationMenu"
               matBadge="{{unreadNotifications | async}}" matBadgeColor="warn" matBadgePosition="after"
               matBadgeHidden="{{(unreadNotifications | async) === 0}}">
         <fa-icon [icon]="faBell"></fa-icon>
       </button>
-      <mat-menu [ngClass.lt-sm]="'mobile-nav-button'" #notificationMenu="matMenu" class="notification-menu">
+      <mat-menu #notificationMenu="matMenu" class="notification-menu nav-icon-button">
         <div *ngFor="let notification of (notifications | async)">
           <div class="mat-menu-item notification-menu-item"
                fxLayout="row">
@@ -59,7 +59,7 @@
           <fa-icon [icon]="faEllipsisH"></fa-icon>
         </button>
       </mat-menu>
-      <button [ngClass.lt-sm]="'mobile-nav-button'" mat-icon-button [matMenuTriggerFor]="profileMenu">
+      <button class="nav-icon-button" mat-icon-button [matMenuTriggerFor]="profileMenu">
         <fa-icon [icon]="faUserCircle"></fa-icon>
       </button>
       <mat-menu #profileMenu="matMenu">

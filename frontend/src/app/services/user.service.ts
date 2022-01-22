@@ -110,7 +110,6 @@ export class UserService {
 
   public handleError(error: any): Observable<boolean> {
     if (error === 'No current user') {
-      console.log('we sent it');
       this.userInfo.next(undefined);
     } else {
       console.error(error);
@@ -121,8 +120,11 @@ export class UserService {
   public requestUserInfo(): Observable<UserInfo> {
     const userInfoObservable = this.httpClient.get<UserInfo>(this.userInfoAPIURL + this.getUserInfoURL);
     userInfoObservable.subscribe(userInfo => {
-      this.userInfo.next(userInfo);
-    });
+        this.userInfo.next(userInfo);
+      }, error => {
+        return;
+      }
+    );
     return userInfoObservable;
   }
 

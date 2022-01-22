@@ -6,7 +6,6 @@
 .profile-menu-item {
   font-size: large;
   height: 3.5em;
-  margin: 0 1em;
 }
 
 .example-spacer {
@@ -91,11 +90,11 @@ amplify-button > .button {
   padding: 2em;
 }
 
-.mobile-nav-button {
+.nav-icon-button {
   height: 52px;
   width: 52px;
   fa-icon {
-    font-size: x-large;
+    font-size: large;
   }
 }
 

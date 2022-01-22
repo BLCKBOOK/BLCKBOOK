@@ -111,7 +111,6 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
       this.getArtworks(this.currentIndex + 4))
       .subscribe(artworksArray => {
         this.currentlyLoading = false;
-        console.log(artworksArray);
         const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
         this.currentIndex = this.currentIndex + 5;
         const items: VoteMasonryItem[] = [];
@@ -176,7 +175,6 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
 
   public handleError(error: any): Observable<VotableArtwork[]> {
     if (error?.status === 404) {
-      console.log('reached End');
       this.reachedEnd = true;
       return of([]);
     } else {

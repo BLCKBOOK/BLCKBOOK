@@ -43,7 +43,6 @@ export class VotingComponent {
         return votesSpend === 0 || totalVoteAmount < votesSpend || voted;
       }, startWith(false)));
     this.route.params.subscribe(params => {
-      console.log(params);
       if (params.id) {
         this.votingService.getVotableArtworkById(params.id).subscribe(artwork => {
           if (!artwork) {
