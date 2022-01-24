@@ -12,6 +12,7 @@ import {SnackBarService} from '../services/snack-bar.service';
 import {ImageSizeService} from '../services/image-size.service';
 import {DisplayedArtwork} from '../types/image.type';
 import {DialogService} from '../services/dialog.service';
+import {MapDialogComponent, MapDialogData} from '../components/map-dialog/map-dialog.component';
 
 @Component({
   selector: 'app-admin',
@@ -27,7 +28,8 @@ export class AdminComponent implements OnInit {
 
   faSkull = findIconDefinition({prefix: 'fas', iconName: 'skull'});
   faTrash = findIconDefinition({prefix: 'fas', iconName: 'trash'});
-  displayedColumns = ['image', 'title', 'approved', 'delete', 'ban'];
+  faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
+  displayedColumns = ['image', 'title', 'approved', 'showOnMap', 'delete', 'ban'];
   srcSets: string[] = [];
   private readonly adminImageSizeKey = 'adminImageSize';
 
@@ -84,6 +86,19 @@ export class AdminComponent implements OnInit {
       if (artworks.lastKey) {
         this.uploadIndexes.push(artworks.lastKey);
       }
+    });
+  }
+
+  showOnMap(artwork: DisplayedArtwork) {
+    this.dialogService.open(MapDialogComponent, {
+      width: '90%',
+      maxWidth: '90%',
+      data: {
+        latlng: {
+          lat: parseFloat(artwork.artwork.latitude),
+          lng: parseFloat(artwork.artwork.longitude)
+        }
+      } as MapDialogData
     });
   }
 

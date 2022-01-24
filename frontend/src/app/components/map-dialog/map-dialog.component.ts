@@ -19,7 +19,6 @@ export class MapDialogComponent {
   currentLocation: LatLng;
   provider: OpenStreetMapProvider;
   searchControl: any;
-  map: Map;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: MapDialogData) {
     if (data?.latlng) {
@@ -39,6 +38,10 @@ export class MapDialogComponent {
         zoom: 12,
         center: latLng(52.49159913183949, 13.392532863660682)
       };
+    }
+
+    if (this.data?.latlng && !this.data?.changeable) {
+      return;
     }
 
     this.provider = new OpenStreetMapProvider();
@@ -77,7 +80,9 @@ export class MapDialogComponent {
   }
 
   onMapReady(map: Map) {
-    this.map = map;
+    if (this.data?.latlng && !this.data?.changeable) {
+      return;
+    }
     map.addControl(this.searchControl);
   }
 }
