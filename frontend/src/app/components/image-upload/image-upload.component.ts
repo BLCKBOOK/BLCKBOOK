@@ -153,7 +153,7 @@ export class ImageUploadComponent implements OnInit {
 
   private readImageMetaData(upload: File) {
     exifr.gps(upload).then(gps => {
-      if (gps) {
+      if (gps && !isNaN(gps.latitude) && !isNaN(gps.longitude)) {
         this.latitude = gps.latitude.toString();
         this.longitude = gps.longitude.toString();
         this.image = upload;
@@ -168,7 +168,7 @@ export class ImageUploadComponent implements OnInit {
           maxWidth: '90%'
         });
         dialogRef.afterClosed().subscribe((location: LatLng) => {
-          if (location) {
+          if (location && !isNaN(location.lat) && !isNaN(location.lng)) {
             this.latitude = location.lat.toString();
             this.longitude = location.lng.toString();
             this.image = upload;
