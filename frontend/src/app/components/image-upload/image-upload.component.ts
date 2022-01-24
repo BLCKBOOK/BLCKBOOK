@@ -97,7 +97,7 @@ export class ImageUploadComponent implements OnInit {
     this.resetImageVariables();
     if (upload) {
       if (!(AcceptedMimeTypes.includes(upload.type))) {
-        this.dialog.open(ErrorDialogComponent, {
+        this.dialogService.open(ErrorDialogComponent, {
           width: this.errorDialogSize,
           data: {
             header: this.translateService.instant('upload.error-mime-header'),
@@ -110,7 +110,7 @@ export class ImageUploadComponent implements OnInit {
         this.contentType = upload.type;
       }
       if (upload.size / 1024 / 1024 > 10) {
-        this.dialog.open(ErrorDialogComponent, {
+        this.dialogService.open(ErrorDialogComponent, {
           width: this.errorDialogSize,
           data: {
             header: this.translateService.instant('upload.error-size-header'),
@@ -133,7 +133,7 @@ export class ImageUploadComponent implements OnInit {
 
           const ratio = Math.max(height, width) / Math.min(height, width);
           if (ratio > this.maxRatio) {
-            this.dialog.open(ErrorDialogComponent, {
+            this.dialogService.open(ErrorDialogComponent, {
               width: this.errorDialogSize,
               data: {
                 header: this.translateService.instant('upload.error-ratio-header'),
@@ -156,53 +156,13 @@ export class ImageUploadComponent implements OnInit {
       if (gps && !isNaN(gps.latitude) && !isNaN(gps.longitude)) {
         this.latitude = gps.latitude.toString();
         this.longitude = gps.longitude.toString();
-        this.image = upload;
-        const reader = new FileReader();
-        reader.readAsDataURL(upload); // read file as data url
-        reader.onload = (event) => { // called once readAsDataURL is completed
-          this.url = event.target?.result;
-        };
+        this.readImageFromFile(upload);
       } else {
-        const dialogRef = this.dialogService.open(MapDialogComponent, {
-          width: '90%',
-          maxWidth: '90%'
-        });
-        dialogRef.afterClosed().subscribe((location: LatLng) => {
-          if (location && !isNaN(location.lat) && !isNaN(location.lng)) {
-            this.latitude = location.lat.toString();
-            this.longitude = location.lng.toString();
-            this.image = upload;
-            const reader = new FileReader();
-            reader.readAsDataURL(upload); // read file as data url
-            reader.onload = (event) => { // called once readAsDataURL is completed
-              this.url = event.target?.result;
-            };
-          }
-          else {
-            this.dialog.open(ErrorDialogComponent, {
-              width: this.errorDialogSize,
-              data: {
-                header: this.translateService.instant('upload.error-location-header'),
-                text: this.translateService.instant('upload.error-location-text')
-              } as ErrorDialogData
-            });
-            this.imageInput.nativeElement.value = '';
-          }
-        });
-
-        /*this.latitude = undefined;
-        this.longitude = undefined;
-        this.dialog.open(ErrorDialogComponent, {
-          width: this.errorDialogSize,
-          data: {
-            header: this.translateService.instant('upload.error-location-header'),
-            text: this.translateService.instant('upload.error-location-text')
-          } as ErrorDialogData
-        });
-        this.imageInput.nativeElement.value = '';*/
+        this.chooseLocationFromMap(true, upload);
       }
-    }).catch(error => {
-      this.dialog.open(ErrorDialogComponent, {
+    }).catch((error) => {
+      console.error(error);
+      this.dialogService.open(ErrorDialogComponent, {
         width: this.errorDialogSize,
         data: {
           header: this.translateService.instant('upload.error-location-header'),
@@ -210,6 +170,45 @@ export class ImageUploadComponent implements OnInit {
         } as ErrorDialogData
       });
       this.imageInput.nativeElement.value = '';
+    });
+  }
+
+  readImageFromFile(upload: File) {
+    this.image = upload;
+    const reader = new FileReader();
+    reader.readAsDataURL(upload); // read file as data url
+    reader.onload = (event) => { // called once readAsDataURL is completed
+      this.url = event.target?.result;
+    };
+  }
+
+  chooseLocationFromMap(initialSet = false, upload?: File) {
+    const dialogRef = this.dialogService.open(MapDialogComponent, {
+      width: '90%',
+      maxWidth: '90%',
+      data: (this.latitude && this.longitude) ?
+        {latlng: {lat: parseFloat(this.latitude ?? '0'), lng: parseFloat(this.longitude ?? '0')}, changeable: true} as MapDialogData : undefined
+    });
+    dialogRef.afterClosed().subscribe((location: LatLng) => {
+      if (location && !isNaN(location.lat) && !isNaN(location.lng)) {
+        this.latitude = location.lat.toString();
+        this.longitude = location.lng.toString();
+        if (initialSet && upload) {
+          this.readImageFromFile(upload);
+        }
+      } else {
+        if (initialSet) {
+          this.dialogService.open(ErrorDialogComponent, {
+            width: this.errorDialogSize,
+            data: {
+              header: this.translateService.instant('upload.error-location-header'),
+              text: this.translateService.instant('upload.error-location-text')
+            } as ErrorDialogData
+          });
+          this.imageInput.nativeElement.value = '';
+        }
+
+      }
     });
   }
 
@@ -231,13 +230,25 @@ export class ImageUploadComponent implements OnInit {
           const imageIndex = requestURL.indexOf('?');
           this.url = requestURL.slice(0, imageIndex);
           this.alreadyUploaded = true;
-          this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('upload.success'))
+          this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('upload.success'));
           this.currentlyUploading = false;
         } else {
-          window.alert('upload failed for some reason');
+          this.dialogService.open(ErrorDialogComponent, {
+            width: this.errorDialogSize,
+            data: {
+              header: this.translateService.instant('Upload failed'),
+              text: this.translateService.instant('The Image upload failed, please try again')
+            } as ErrorDialogData
+          });
         }
       }, (error) => {
-        window.alert('upload threw error with reason: ' + error);
+        this.dialogService.open(ErrorDialogComponent, {
+          width: this.errorDialogSize,
+          data: {
+            header: this.translateService.instant('Upload failed'),
+            text: this.translateService.instant(error)
+          } as ErrorDialogData
+        });
       });
     } else {
       window.alert('clicked submit without image');

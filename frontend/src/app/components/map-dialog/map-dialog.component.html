@@ -4,13 +4,13 @@
   <h1 mat-dialog-title>ADD LOCATION DATA TO YOUR TAG</h1>
 </ng-template>
 <mat-dialog-content>
-  <div style="height: 70vh;"
+  <div style="height: 70vh;" class="leaflet-container"
        leaflet
        [leafletLayers]="markers"
-       [leafletOptions]="options" (leafletClick)="mapClick($event)">
+       [leafletOptions]="options" (leafletClick)="mapClick($event)" (leafletMapReady)="onMapReady($event)">
   </div>
 </mat-dialog-content>
 <mat-dialog-actions>
   <button mat-raised-button [mat-dialog-close]="">Close</button>
-  <button mat-raised-button [mat-dialog-close]="currentLocation" *ngIf="!data" [disabled]="markers.length === 0">Use Location</button>
+  <button mat-raised-button [mat-dialog-close]="currentLocation" *ngIf="!data?.latlng || data?.changeable" [disabled]="markers.length === 0">Confirm</button>
 </mat-dialog-actions>

@@ -1,9 +1,11 @@
 import {Component, Inject} from '@angular/core';
-import {icon, LatLng, latLng, Layer, LeafletMouseEvent, marker, tileLayer} from 'leaflet';
+import {icon, LatLng, latLng, Layer, LeafletMouseEvent, Map, MapOptions, marker, tileLayer} from 'leaflet';
 import {MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {GeoSearchControl, OpenStreetMapProvider} from 'leaflet-geosearch';
 
 export interface MapDialogData {
   latlng: LatLng;
+  changeable?: boolean; // default is false
 }
 
 @Component({
@@ -12,11 +14,12 @@ export interface MapDialogData {
   styleUrls: ['./map-dialog.component.scss']
 })
 export class MapDialogComponent {
-
-  options: any;
-
+  options: MapOptions;
   markers: Layer[] = [];
   currentLocation: LatLng;
+  provider: OpenStreetMapProvider;
+  searchControl: any;
+  map: Map;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: MapDialogData) {
     if (data?.latlng) {
@@ -37,10 +40,16 @@ export class MapDialogComponent {
         center: latLng(52.49159913183949, 13.392532863660682)
       };
     }
+
+    this.provider = new OpenStreetMapProvider();
+    this.searchControl = GeoSearchControl({
+      provider: this.provider,
+      showMarker: false
+    });
   }
 
   mapClick($event: LeafletMouseEvent) {
-    if (this.data?.latlng) {
+    if (this.data?.latlng && !this.data?.changeable) {
       return;
     }
     this.markers.pop();
@@ -65,5 +74,10 @@ export class MapDialogComponent {
 
   removeMarker() {
     this.markers.pop();
+  }
+
+  onMapReady(map: Map) {
+    this.map = map;
+    map.addControl(this.searchControl);
   }
 }
