@@ -1,6 +1,6 @@
 <nav>
   <mat-toolbar fxLayout="row" fxFlexAlign="center">
-    <div fxShow="true" fxHide.gt-xs="true">
+    <div fxShow="true" fxHide.gt-sm="true">
       <button mat-icon-button (click)="sidenav.toggle()" class="nav-icon-button">
         <fa-icon [icon]="faBars"></fa-icon>
       </button>
@@ -10,7 +10,7 @@
         <h4>{{'navbar.blckbook' | translate}}</h4>
       </div>
     </button>
-    <div fxShow="true" fxHide.lt-sm="true">
+    <div fxShow="true" fxHide.lt-md="true">
       <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item" routerLink="/upload">
         UPLOAD
       </button>
