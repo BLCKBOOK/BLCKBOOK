@@ -5,12 +5,18 @@
         <fa-icon [icon]="faBars"></fa-icon>
       </button>
     </div>
-    <button mat-button class="nav-item" routerLink="/">
+    <button mat-button class="nav-item" routerLink="/" (click)="sidenav.close()">
       <div class="logo">
         <h4>{{'navbar.blckbook' | translate}}</h4>
       </div>
     </button>
     <div fxShow="true" fxHide.lt-sm="true">
+      <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item" routerLink="/upload">
+        UPLOAD
+      </button>
+      <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item" routerLink="/voting">
+        VOTE
+      </button>
       <button mat-button class="nav-item" routerLink="/auction">
         {{"navbar.auction" | translate}}
       </button>
@@ -22,12 +28,14 @@
       </button>
     </div>
     <span class="example-spacer"></span>
-    <button [ngClass.lt-sm]="'mobile-sign-in'" mat-button *ngIf="(authState$ | async) !== 'signedin'; else: profile"
+    <button [ngClass.lt-sm]="'mobile-sign-in'" mat-button
+            *ngIf="(authState$ | async) !== 'signedin'; else: profileAndNotifications" (click)="sidenav.close()"
             routerLink="/login">
       {{"navbar.sign-in" | translate}}
     </button>
-    <ng-template #profile>
+    <ng-template #profileAndNotifications>
       <button mat-icon-button class="nav-item nav-icon-button" [matMenuTriggerFor]="notificationMenu"
+              (click)="sidenav.close()"
               matBadge="{{unreadNotifications | async}}" matBadgeColor="warn" matBadgePosition="after"
               matBadgeHidden="{{(unreadNotifications | async) === 0}}">
         <fa-icon [icon]="faBell"></fa-icon>
@@ -65,7 +73,7 @@
           <fa-icon [icon]="faEllipsisH"></fa-icon>
         </button>
       </mat-menu>
-      <button class="nav-icon-button" mat-icon-button [matMenuTriggerFor]="profileMenu">
+      <button class="nav-icon-button" mat-icon-button [matMenuTriggerFor]="profileMenu" (click)="sidenav.close()">
         <fa-icon [icon]="faUserCircle"></fa-icon>
       </button>
       <mat-menu #profileMenu="matMenu">
@@ -75,8 +83,14 @@
     </ng-template>
   </mat-toolbar>
   <mat-sidenav-container fxFlexFill>
-    <mat-sidenav #sidenav fxLayout="column" [mode]="'push'">
+    <mat-sidenav #sidenav fxLayout="column" [mode]="'over'">
       <div fxLayout="column">
+        <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item bigger-nav-item" routerLink="/upload" (click)="sidenav.toggle()">
+          UPLOAD
+        </button>
+        <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item bigger-nav-item" routerLink="/voting" (click)="sidenav.toggle()">
+          VOTE
+        </button>
         <button mat-button class="nav-item bigger-nav-item" routerLink="/auction" (click)="sidenav.toggle()">
           {{"navbar.auction" | translate}}
         </button>
