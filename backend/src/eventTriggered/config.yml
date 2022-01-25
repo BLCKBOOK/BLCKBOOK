@@ -58,6 +58,7 @@ triggerNextPeriod:
               - Arn
         method: post
         cors: true
+    - schedule: cron(0 0 ? * WED *)
 
 updateUserstateAfterUpload:
   handler: "src/eventTriggered/updateUserstateAfterUpload.handler"
@@ -108,21 +109,6 @@ initializeUser:
         trigger: PostConfirmation
         existing: true
 
-confirmUser:
-  handler: "src/eventTriggered/confirmUser.handler"
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - cognito-idp:ListUsers
-        - cognito-idp:AdminDeleteUser
-      Resource:
-        - Fn::GetAtt: [ BlckBookUsers, Arn ]
-  events:
-    - cognitoUserPool:
-        pool: ${self:provider.stage}-blckbook-users
-        trigger: PreSignUp
-        existing: true
-
 endAuctions:
   handler: "src/eventTriggered/endAuctions.handler"
   timeout: 180
@@ -149,8 +135,7 @@ endAuctions:
       Resource:
         - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/hangzhouFaucet-ioAJGW"
   events:
-    # TODO increase this timer
-    - schedule: rate(10 minutes) 
+    - schedule: rate(1 hours) 
 
 mintingQueueWorker:
     handler: src/eventTriggered/minter.handler

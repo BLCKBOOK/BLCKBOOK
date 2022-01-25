@@ -96,7 +96,7 @@ async function sendBestArtworksToMint(event) {
       
     await sqsClient.send(new SendMessageBatchCommand({
       Entries:batchEntries,
-      QueueUrl:`https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext.accountId}/${process.env['MINTING_QUEUE_NAME']}`
+      QueueUrl:`https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext? event.requestContext.accountId : event.account}/${process.env['MINTING_QUEUE_NAME']}`
     }))
   }
 }
