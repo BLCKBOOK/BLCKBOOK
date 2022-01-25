@@ -336,8 +336,9 @@ a:active {
 }
 
 .cdk-overlay-pane.my-dialog {
-  position: relative!important;
+  position: relative !important;
 }
+
 .close.mat-button {
   position: absolute;
   top: 0;
@@ -350,4 +351,16 @@ a:active {
 
 .mat-dialog-title {
   margin-right: 14px !important; // so it doesn't hit the cancel-button
+}
+
+@media only screen and (max-width: 960px) {
+  .disjoint-dialog-actions {
+    position: absolute;
+    bottom: 8px;
+    margin: 0 auto;
+    width: 100%;
+    margin-bottom: unset !important;
+    min-height: unset !important;
+    left: 0;
+  }
 }

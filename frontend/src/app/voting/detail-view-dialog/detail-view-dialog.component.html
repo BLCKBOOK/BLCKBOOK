@@ -2,7 +2,7 @@
 <mat-dialog-content>
   <app-vote-detail [data]="data" [withinDialog]="true"></app-vote-detail>
 </mat-dialog-content>
-<mat-dialog-actions>
+<mat-dialog-actions class="disjoint-dialog-actions">
   <button mat-raised-button [mat-dialog-close]="false">Close</button>
   <button mat-raised-button *ngIf="!data.voted" (click)="vote()"
           [disabled]="alreadyVoted$ | async">

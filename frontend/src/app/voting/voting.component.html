@@ -1,4 +1,3 @@
-<app-drop-timer></app-drop-timer>
 <div class="floating-submit">
   <button *ngIf="(alreadyVoted$ | async) === false" mat-icon-button [disabled]="$submitDisabled | async" (click)="submitVote()"> SUBMIT</button>
 </div>
@@ -8,18 +7,21 @@
 <mat-tab-group mat-align-tabs="center" animationDuration="0ms">
   <mat-tab label="All">
     <ng-template matTabContent>
+      <app-drop-timer></app-drop-timer>
       <app-voting-scroll [scrollType]="'voting'">
       </app-voting-scroll>
     </ng-template>
   </mat-tab>
   <mat-tab label="{{(alreadyVoted$ | async) ? 'My Votes' : 'Selected'}}">
     <ng-template matTabContent>
+      <app-drop-timer></app-drop-timer>
       <app-voting-scroll [scrollType]="'voting-selected'">
       </app-voting-scroll>
     </ng-template>
   </mat-tab>
   <mat-tab label="My Upload">
     <ng-template matTabContent>
+      <app-drop-timer></app-drop-timer>
       <div *ngIf="myUploadData; else noUpload" class="my-upload-border">
         <app-vote-detail [withinDialog]="false" [data]="myUploadData">
         </app-vote-detail>

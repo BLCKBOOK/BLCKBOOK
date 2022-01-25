@@ -1,8 +1,6 @@
 @media only screen and (max-width: 800px) {
-
   .thumb {
-    width: 15vw;
-    height: auto;
+    height: 100%;
   }
 
   .okay {
@@ -17,6 +15,14 @@
     h4 {
       font-size: 14px;
     }
+  }
+
+  .step-icon {
+    height: 12.5vw;
+  }
+
+  .bag-circle {
+    top: 0;
   }
 }
 
@@ -34,7 +40,6 @@
     right: 6vw;
     height: 10vw;
     width: 10vw;
-    top: 0;
     -moz-border-radius: 50%;
     -webkit-border-radius: 50%;
     border-radius: 50%;
@@ -65,9 +70,20 @@
     width: 58px;
     height: 60px;
   }
+
+  .step-icon {
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 }
 
 @media only screen and (min-width: 1200px) {
+  .step-icon {
+    height: 155px;
+  }
+
   .inner-wrapper > div > p {
     width: 50vw;
   }
@@ -109,6 +125,12 @@
 
 .inner-wrapper {
   height: 70vh;
+}
+
+.step {
+  flex-grow: 1;
+  height: 250px;
+  max-width: 32%;
 }
 
 .step-text {
