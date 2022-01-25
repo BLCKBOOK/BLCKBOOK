@@ -33,6 +33,9 @@
             <button *ngIf="alreadyUploaded" mat-icon-button (click)="showOnMap()">
               <fa-icon [icon]="faMapMarkerAlt"></fa-icon>
             </button>
+            <button *ngIf="!alreadyUploaded" mat-icon-button (click)="chooseLocationFromMap()">
+              <fa-icon [icon]="faMapMarkerAlt"></fa-icon>
+            </button>
           </div>
         </div>
       </ng-template>
