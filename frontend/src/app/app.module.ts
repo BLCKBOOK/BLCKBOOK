@@ -16,7 +16,7 @@ import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
 import {MatDialogModule} from '@angular/material/dialog';
 import {AuthInterceptor} from './services/AuthInterceptor';
-import {WelcomeComponent} from './components/welcome/welcome.component';
+import {LandingComponent} from './components/landing/landing.component';
 import {AdminAuthGuardService, AuthGuardService, HomeNavigationService} from './services/auth-guard.service';
 import {ImageUploadComponent} from './components/image-upload/image-upload.component';
 import {MatInputModule} from '@angular/material/input';
@@ -62,6 +62,9 @@ import {faShareSquare} from '@fortawesome/free-solid-svg-icons/faShareSquare';
 import {faMapPin} from '@fortawesome/free-solid-svg-icons/faMapPin';
 import {faRedo} from '@fortawesome/free-solid-svg-icons/faRedo';
 import {BeaconModule} from './beacon/beacon.module';
+import { SocialButtonsComponent } from './components/social-buttons/social-buttons.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { TermsComponent } from './components/terms/terms.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -75,7 +78,7 @@ Auth.configure(awsconfig);
     AppComponent,
     NavigationComponent,
     HomeComponent,
-    WelcomeComponent,
+    LandingComponent,
     ImageUploadComponent,
     ConfirmDialogComponent,
     TermsDialogComponent,
@@ -83,6 +86,9 @@ Auth.configure(awsconfig);
     ImageDialogComponent,
     MapDialogComponent,
     NotificationsDialogComponent,
+    SocialButtonsComponent,
+    FooterComponent,
+    TermsComponent,
   ],
   imports: [
     LeafletModule,

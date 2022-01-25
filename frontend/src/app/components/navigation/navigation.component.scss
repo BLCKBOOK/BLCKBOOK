@@ -101,3 +101,13 @@ amplify-button > .button {
 .mobile-sign-in {
   font-size: large;
 }
+
+mat-sidenav-content {
+  min-height: calc(100vh - var(--navbarheight));
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  router-outlet {
+    display: none;
+  }
+}

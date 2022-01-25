@@ -1,0 +1,44 @@
+.footer {
+  bottom: 0;
+  width: 100%;
+  background-color: var(--dark-background-lighter-20);
+  color: white;
+  text-align: center;
+}
+
+.logo {
+  position: absolute;
+  left: 8px;
+  padding-top: 8px;
+  h4 {
+    font-size: x-large;
+    font-family: "Header Font";
+  }
+  h3 {
+    position: absolute;
+    left: 164px;
+    top: 24px;
+  }
+}
+
+.xtz-brand {
+  height: 25px;
+  margin-left: 4px;
+}
+
+.beneath-logo {
+  padding-top: 4em;
+}
+
+app-social-buttons {
+  position: absolute;
+  right: 8px;
+  padding-top: 8px;
+}
+
+.footer-content {
+  position: relative;
+  align-self: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}

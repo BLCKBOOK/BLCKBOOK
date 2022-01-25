@@ -60,13 +60,17 @@ export class LogInComponent implements OnInit, AfterViewInit {
         styleChild.textContent = newStyleString;
       } catch (e) {
         setTimeout(() => {
-          // @ts-ignore
-          let styleContainer: HTMLElement = document.querySelector('body > app-root > app-navigation > nav > mat-sidenav-container > mat-sidenav-content > app-log-in > amplify-auth-container > amplify-authenticator').shadowRoot.querySelector('div > slot > amplify-sign-in').shadowRoot.querySelector('style:nth-child(8)');
-          // @ts-ignore
-          const styleChild: Element = styleContainer.firstChild;
-          // @ts-ignore
-          const newStyleString = styleChild.textContent.replace('[data-autocompleted]{background-color:#e8f0fe !important}', '');
-          styleChild.textContent = newStyleString;
+          try {
+            // @ts-ignore
+            let styleContainer: HTMLElement = document.querySelector('body > app-root > app-navigation > nav > mat-sidenav-container > mat-sidenav-content > app-log-in > amplify-auth-container > amplify-authenticator').shadowRoot.querySelector('div > slot > amplify-sign-in').shadowRoot.querySelector('style:nth-child(8)');
+            // @ts-ignore
+            const styleChild: Element = styleContainer.firstChild;
+            // @ts-ignore
+            const newStyleString = styleChild.textContent.replace('[data-autocompleted]{background-color:#e8f0fe !important}', '');
+            styleChild.textContent = newStyleString;
+          } catch (e) {
+            // ignore. We for some reason could not get the style
+          }
         }, 150);
       }
     }, 150);

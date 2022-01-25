@@ -22,7 +22,8 @@
       </button>
     </div>
     <span class="example-spacer"></span>
-    <button [ngClass.lt-sm]="'mobile-sign-in'" mat-button *ngIf="(authState$ | async) !== 'signedin'; else: profile" routerLink="/login">
+    <button [ngClass.lt-sm]="'mobile-sign-in'" mat-button *ngIf="(authState$ | async) !== 'signedin'; else: profile"
+            routerLink="/login">
       {{"navbar.sign-in" | translate}}
     </button>
     <ng-template #profile>
@@ -35,13 +36,17 @@
         <div *ngFor="let notification of (notifications | async)">
           <div class="mat-menu-item notification-menu-item"
                fxLayout="row">
-            <div fxLayout="column" [ngClass]="notification.link ? 'link-flex' : 'no-link-flex'" (click)="notificationClick(notification, $event)">
-              <h4 class="notification-title" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.title}}</h4>
+            <div fxLayout="column" [ngClass]="notification.link ? 'link-flex' : 'no-link-flex'"
+                 (click)="notificationClick(notification, $event)">
+              <h4 class="notification-title"
+                  [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.title}}</h4>
               <div *ngIf="notification.link else noLink">
-                <div class="notification-text" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
+                <div class="notification-text"
+                     [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
               </div>
               <ng-template #noLink>
-                <div class="notification-text" [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
+                <div class="notification-text"
+                     [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
               </ng-template>
             </div>
             <div *ngIf="!(notification.link)" fxFlex="1 1 40px" class="icon-column">
@@ -55,7 +60,8 @@
         <div *ngIf="(notifications | async)?.length === 0" class="mat-menu-item">
           <span>You currently don't have any notifications</span>
         </div>
-        <button mat-button class="mat-menu-item" fxLayout="row" fxLayoutAlign="space-evenly center" (click)="openNotificationDialog(undefined)">
+        <button mat-button class="mat-menu-item" fxLayout="row" fxLayoutAlign="space-evenly center"
+                (click)="openNotificationDialog(undefined)">
           <fa-icon [icon]="faEllipsisH"></fa-icon>
         </button>
       </mat-menu>
@@ -77,13 +83,16 @@
         <button mat-button class="nav-item bigger-nav-item" routerLink="/gallery" (click)="sidenav.toggle()">
           {{"navbar.gallery" | translate}}
         </button>
-        <button mat-button class="nav-item bigger-nav-item" *ngIf="isAdmin$ | async" routerLink="/admin" (click)="sidenav.toggle()">
+        <button mat-button class="nav-item bigger-nav-item" *ngIf="isAdmin$ | async" routerLink="/admin"
+                (click)="sidenav.toggle()">
           {{"navbar.admin" | translate}}
         </button>
       </div>
     </mat-sidenav>
     <mat-sidenav-content>
       <router-outlet></router-outlet>
+      <app-footer>
+      </app-footer>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </nav>
