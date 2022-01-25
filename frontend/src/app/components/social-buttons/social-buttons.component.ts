@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 
 @Component({
@@ -8,9 +8,12 @@ import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 })
 export class SocialButtonsComponent {
 
+  @Input()
+  showGithub: boolean;
 
   faTelegram = findIconDefinition({prefix: 'fab', iconName: 'telegram'});
   faTwitter = findIconDefinition({prefix: 'fab', iconName: 'twitter'});
+  faGithub = findIconDefinition({prefix: 'fab', iconName: 'github'});
 
   constructor() { }
 

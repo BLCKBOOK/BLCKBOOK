@@ -65,6 +65,7 @@ import {BeaconModule} from './beacon/beacon.module';
 import { SocialButtonsComponent } from './components/social-buttons/social-buttons.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { TermsComponent } from './components/terms/terms.component';
+import {faGithub} from '@fortawesome/free-brands-svg-icons/faGithub';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -153,6 +154,7 @@ export class AppModule {
       faTwitter,
       faMapPin,
       faRedo,
+      faGithub,
     );
   }
 }

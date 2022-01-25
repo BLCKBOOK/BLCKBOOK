@@ -1,18 +1,18 @@
 <div class="footer">
-  <div class="footer-content">
+  <mat-card class="footer-content">
     <div class="logo">
       <h4>BLCKBOOK</h4>
       <h3 class="beta-text">BETA</h3>
     </div>
-    <app-social-buttons></app-social-buttons>
+    <app-social-buttons [showGithub]="true"></app-social-buttons>
     <div class="beneath-logo">
-      <a routerLink="/terms">Terms of Use</a>
+      <a routerLink="/terms"><h3>Terms of Use</h3></a>
       <div>
         Created with
         <a target="_blank" href="https://tezostaquito.io/">Taquito</a>,
         <a target="_blank" href="https://www.walletbeacon.io/">Beacon</a>,
         <a target="_blank" href="https://smartpy.io/">SmartPy</a>,
-        <a target="_blank" href="https://better-call.dev/">BETTER CALL DEV</a>
+        <a target="_blank" href="https://better-call.dev/">BETTER&nbsp;CALL&nbsp;DEV</a>
       </div>
       <div>
         Powered by <a target="_blank" href="https://tzkt.io/">TzKT API</a>
@@ -24,5 +24,5 @@
         </div>
       </div>
     </div>
-  </div>
+  </mat-card>
 </div>
