@@ -17,7 +17,6 @@ export class VoteDetailComponent implements OnInit {
   timeDisplay: string;
   faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
-  faShareSquare = findIconDefinition({prefix: 'fas', iconName: 'share-square'});
   faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
   alreadyVoted$: Observable<boolean>
   @Input() withinDialog: boolean;

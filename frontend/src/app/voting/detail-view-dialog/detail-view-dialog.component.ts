@@ -21,9 +21,7 @@ export interface VoteDetailData {
 })
 export class DetailViewDialogComponent implements OnInit {
 
-  faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
-  faShareSquare = findIconDefinition({prefix: 'fas', iconName: 'share-square'});
   faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
   alreadyVoted$: Observable<boolean>;
   votingService: VotingService;
@@ -35,15 +33,5 @@ export class DetailViewDialogComponent implements OnInit {
 
   ngOnInit() {
     this.location.go('/voting/' + this.data.artwork.artworkId);
-  }
-
-  vote(): void {
-    this.data.voted = true;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().concat(this.votingService.getMasonryItemOfArtwork(this.data.artwork, true)));
-  }
-
-  unvote(): void {
-    this.data.voted = false;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== this.data.artwork.artworkId));
   }
 }
