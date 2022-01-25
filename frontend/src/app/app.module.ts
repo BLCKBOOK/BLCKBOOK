@@ -67,6 +67,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { TermsComponent } from './components/terms/terms.component';
 import {faGithub} from '@fortawesome/free-brands-svg-icons/faGithub';
 import {SharedModule} from './shared/shared.module';
+import { FAQComponent } from './components/faq/faq.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -91,6 +92,7 @@ Auth.configure(awsconfig);
     SocialButtonsComponent,
     FooterComponent,
     TermsComponent,
+    FAQComponent,
   ],
   imports: [
     LeafletModule,

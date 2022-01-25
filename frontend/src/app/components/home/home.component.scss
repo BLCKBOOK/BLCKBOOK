@@ -1,10 +1,10 @@
 .welcome-line {
-  padding-left: 16px;
-  padding-top: 16px;
-  margin-left: 16px;
   h2 {
     font-size: x-large !important;
   }
+  max-width: 800px;
+  margin: 16px auto;
+  padding: 0 16px;
 }
 
 .my-fa-stack {
@@ -42,4 +42,52 @@
   height: 106px;
   width: auto;
   padding: 17px;
+}
+
+mat-card-content {
+  text-align: center;
+}
+
+.action-text {
+  text-align: center;
+  font-size: large;
+}
+
+button {
+  margin-top: 8px;
+}
+
+.upload-card {
+  background-image: linear-gradient(to top, transparent 80%, black 100%),
+  linear-gradient(to bottom, transparent 70%, black 90%),
+  linear-gradient(to left, transparent 30%, black 100%),
+  linear-gradient(to right, transparent 50%, black 100%),
+  var(--image1);
+  --image1: url(/assets/images/landing/background/1_medium.webp);
+  background-position-x: 0, 0, 0, 0, right; // image moves in from the right
+  background-position-y: 0, 0, 0, 0, 0; // maybe position the girl always visible
+}
+
+.vote-card {
+  background-image: linear-gradient(to top, transparent 80%, black 100%),
+  linear-gradient(to bottom, transparent 70%, black 90%),
+  linear-gradient(to left, transparent 30%, black 100%),
+  linear-gradient(to right, transparent 50%, black 100%),
+  var(--image2);
+  --image2: url(/assets/images/landing/background/2_medium.webp);
+  background-position-x: 0, 0, 0, 0, right; // image moves in from the right
+  background-position-y: 0, 0, 0, 0, 0; // maybe position the girl always visible
+}
+
+.home-card {
+  background-size: cover;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  mat-card-content {
+    display: flex;
+    height: 150px;
+    flex-direction: column;
+    justify-content: center;
+  }
 }

@@ -5,6 +5,7 @@ import {SnackBarService} from '../../services/snack-bar.service';
 import {PeriodService} from '../../services/period.service';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
+import { UserInfo } from '../../../../../backend/src/common/tableDefinitions';
 
 @Component({
   selector: 'app-home',
@@ -15,11 +16,19 @@ export class HomeComponent implements OnInit {
   username: Observable<string>;
   faImage = findIconDefinition({prefix: 'fas', iconName: 'image'});
   faUpload = findIconDefinition({prefix: 'fas', iconName: 'upload'});
+  userInfo: Observable<UserInfo | undefined>;
   currentPeriod: string;
+  hasVoted: Observable<boolean>;
+  hasUploaded: Observable<boolean>;
 
   constructor(private userService: UserService, private snackBarService: SnackBarService,
               private periodService: PeriodService) {
-    this.username = this.userService.getUserName$().pipe(map(name => name ?? 'unknown'));
+    this.userInfo = this.userService.getUserInfo();
+    this.username = this.userInfo.pipe(map(user => user?.username ?? 'unknown'));
+    this.hasVoted = this.userInfo.pipe(map(userInfo =>
+      !!(userInfo?.hasVoted)));
+    this.hasUploaded = this.userInfo.pipe(map(userInfo =>
+      !!(userInfo?.uploadsDuringThisPeriod)));
   }
 
   ngOnInit(): void {

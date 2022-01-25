@@ -265,6 +265,7 @@ input:-webkit-autofill {
   max-width: 800px;
   margin: 0 auto;
   background-color: var(--dark-background);
+  min-height: 200px;
 }
 
 .mat-dialog-container {
@@ -306,8 +307,8 @@ mat-menu {
 }
 
 .mat-card-title {
-  font: 400 14px / 26px Header Font;
-  font-size: 32px;
+  font: 400 14px / 24px Header Font;
+  font-size: 26px;
 }
 
 a {

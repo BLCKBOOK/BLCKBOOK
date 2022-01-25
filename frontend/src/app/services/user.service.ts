@@ -94,10 +94,6 @@ export class UserService {
     }));
   }
 
-  public getUserName$(): Observable<string | undefined> {
-    return this.user.pipe(map(user => user.username));
-  }
-
   public logOut(): Observable<any> {
     this.authState.next(AuthState.SignedOut);
     return from(Auth.signOut({global: false})).pipe(catchError(this.handleLogoutError).bind(this));
@@ -121,7 +117,7 @@ export class UserService {
     const userInfoObservable = this.httpClient.get<UserInfo>(this.userInfoAPIURL + this.getUserInfoURL);
     userInfoObservable.subscribe(userInfo => {
         this.userInfo.next(userInfo);
-      }, error => {
+      }, () => {
         return;
       }
     );

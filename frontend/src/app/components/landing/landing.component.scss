@@ -1,19 +1,3 @@
-.faq-heading-padding {
-  padding-left: 16px;
-}
-
-.faq-accordion {
-  mat-expansion-panel {
-    mat-expansion-panel-header {
-      mat-panel-title {
-        font-size: 1.5em;
-      }
-    }
-  }
-
-  margin-bottom: 16px;
-}
-
 @media only screen and (max-width: 800px) {
 
   .thumb {
@@ -123,13 +107,8 @@
   }
 }
 
-
 .inner-wrapper {
   height: 70vh;
-}
-
-.mat-expansion-panel {
-  background: black;
 }
 
 .step-text {
@@ -138,7 +117,6 @@
     text-align: center;
   }
 }
-
 
 .first-text > p {
   max-width: 400px;
@@ -151,20 +129,14 @@
   right: 3em;
 }
 
-
 .step-icon {
   position: relative;
-}
-
-.mat-expansion-panel-header {
-  height: 64px;
 }
 
 .landing-1, .landing-2, .landing-3 {
   background-size: cover;
   -webkit-background-size: cover;
   -moz-background-size: cover;
-  background-size: cover;
   -o-background-size: cover;
 }
 
@@ -199,6 +171,17 @@
   background-position-x: 0, 0, 0, 0, right; // image moves in from the right
   background-position-y: 0, 0, 0, 0, 0;
   --image3: url(/assets/images/landing/background/3_medium.webp);
+}
+
+app-faq {
+  mat-card {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: black;
+    .faq-heading-padding {
+      padding-left: 16px;
+    }
+  }
 }
 
 .welcome-card {
