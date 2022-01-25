@@ -1,9 +1,11 @@
-<mat-form-field class="default-left-padding" appearance="fill" *ngIf="(authState$ | async) === 'signedin'">
-  <mat-label>Show</mat-label>
-  <mat-select [(value)]="scrollType">
-    <mat-option value="gallery">All</mat-option>
-    <mat-option value="my-gallery">My Collection</mat-option>
-  </mat-select>
-</mat-form-field>
+<mat-card>
+  <mat-form-field class="default-left-padding" appearance="fill" *ngIf="(authState$ | async) === 'signedin'">
+    <mat-label>Show</mat-label>
+    <mat-select [(value)]="scrollType">
+      <mat-option value="gallery">All</mat-option>
+      <mat-option value="my-gallery">My Collection</mat-option>
+    </mat-select>
+  </mat-form-field>
+</mat-card>
 <app-auction-scroll *ngIf="scrollType === 'gallery'" [scrollType]="'gallery'"></app-auction-scroll>
 <app-auction-scroll *ngIf="scrollType === 'my-gallery'" [scrollType]="'my-gallery'"></app-auction-scroll>

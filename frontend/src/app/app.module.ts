@@ -66,6 +66,7 @@ import { SocialButtonsComponent } from './components/social-buttons/social-butto
 import { FooterComponent } from './components/footer/footer.component';
 import { TermsComponent } from './components/terms/terms.component';
 import {faGithub} from '@fortawesome/free-brands-svg-icons/faGithub';
+import {SharedModule} from './shared/shared.module';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -124,6 +125,7 @@ Auth.configure(awsconfig);
     MatListModule,
     MatExpansionModule,
     BeaconModule.forRoot(),
+    SharedModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},

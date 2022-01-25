@@ -1,0 +1,27 @@
+.countdown-wrapper {
+  background-image: linear-gradient(to bottom, var(--dark-background-lighter-5) 40%, var(--dark-background-lighter-20) 80%);
+  width: 100%;
+  font-size: x-large;
+  margin: 0 auto;
+  display: block;
+  padding: 12px;
+  text-align: center;
+}
+
+.units-countdown-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.individual-unit-container {
+  padding: 0 8px;
+  countdown {
+    font-size: xx-large;
+  }
+}
+
+.unit-label {
+  font-size: medium;
+}

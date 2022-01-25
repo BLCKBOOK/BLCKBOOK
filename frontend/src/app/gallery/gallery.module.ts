@@ -5,6 +5,8 @@ import {GalleryRoutingModule} from './gallery-routing.module';
 import {GalleryComponent} from './gallery.component';
 import {AuctionModule} from '../auction/auction.module';
 import {MatSelectModule} from '@angular/material/select';
+import {SharedModule} from '../shared/shared.module';
+import {MatCardModule} from '@angular/material/card';
 
 
 @NgModule({
@@ -15,7 +17,9 @@ import {MatSelectModule} from '@angular/material/select';
     CommonModule,
     GalleryRoutingModule,
     AuctionModule,
-    MatSelectModule
+    MatSelectModule,
+    SharedModule,
+    MatCardModule
   ]
 })
 export class GalleryModule {
