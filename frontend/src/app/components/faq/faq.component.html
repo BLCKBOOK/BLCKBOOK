@@ -1,4 +1,4 @@
-<mat-card class="welcome-card">
+<mat-card [ngClass]="landingMaxWidth ? 'landing-width' : ''">
   <mat-card-title class="faq-heading-padding">FAQ</mat-card-title>
   <mat-accordion displayMode="flat" [multi]="true" class="faq-accordion">
     <mat-expansion-panel hideToggle>

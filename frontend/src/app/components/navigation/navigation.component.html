@@ -28,7 +28,7 @@
       </button>
     </div>
     <span class="example-spacer"></span>
-    <button [ngClass.lt-sm]="'mobile-sign-in'" mat-button
+    <button [ngClass.lt-md]="'mobile-sign-in'" mat-button
             *ngIf="(authState$ | async) !== 'signedin'; else: profileAndNotifications" (click)="sidenav.close()"
             routerLink="/login">
       {{"navbar.sign-in" | translate}}

@@ -5,7 +5,8 @@
   text-align: center;
   mat-card {
     background-image: linear-gradient(to top, black 40%, var(--dark-background-lighter-20) 80%);
-    max-width: 100vw;
+    max-width: unset;
+    border-radius: 0px;
   }
   padding-top: 2em;
 }

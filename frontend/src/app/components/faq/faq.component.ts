@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
 
 @Component({
   selector: 'app-faq',
@@ -6,6 +6,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./faq.component.scss']
 })
 export class FAQComponent {
+
+  @Input()
+  landingMaxWidth: boolean | undefined;
 
   constructor() { }
 
