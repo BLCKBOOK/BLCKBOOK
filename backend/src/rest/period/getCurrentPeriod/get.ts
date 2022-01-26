@@ -16,8 +16,6 @@ const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 let returnObject: getCurrentPeriodResponseBody;
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
-  const userId = event.requestContext.authorizer.claims['sub'];
-
   const updateUserCommand = new GetItemCommand({
     TableName: process.env['PERIOD_TABLE_NAME'],
     Key: marshall({ periodId: 'current' }),
@@ -31,6 +29,5 @@ const handler = middy(baseHandler)
   .use(httpErrorHandler())
   .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
   .use(RequestLogger())
-  .use(AuthMiddleware(['User', 'Admin']))
 
 module.exports = { handler }

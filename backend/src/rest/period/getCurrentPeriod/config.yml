@@ -9,12 +9,5 @@ getCurrentPeriod:
   events:
     - http:
         path: period/getCurrentPeriod
-        authorizer: 
-          name: BlckBookUsersAuthorizer
-          type: COGNITO_USER_POOLS
-          arn:
-            Fn::GetAtt:
-              - BlckBookUsers
-              - Arn
         method: get
         cors: true
