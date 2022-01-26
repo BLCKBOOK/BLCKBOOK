@@ -16,8 +16,7 @@ export class UpdateService {
     this.updateEvent.next(false);
     this.periodService.getPeriod().pipe(skip(1)).subscribe(period => {
       console.log(period);
-      console.error('this should not happen');
-      window.alert('period changed... wtf');
+      console.error('Period changed. Did it really?');
       this.snackBarService.openSnackBarWithoutAction('The current voting and uploading cycle passed', 10000);
       this.updateEvent.next(true);
       this.changedPeriod.next();
