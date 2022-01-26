@@ -2,6 +2,28 @@ import { Component, OnInit } from '@angular/core';
 import {CountdownConfig} from 'ngx-countdown';
 import {PeriodService} from '../../services/period.service';
 
+const CountdownTimeUnits: Array<[string, number, number]> = [
+  ['D', 1000 * 60 * 60 * 24, 365], // days
+  ['H', 1000 * 60 * 60, 24], // hours
+  ['m', 1000 * 60, 60], // minutes
+  ['s', 1000, 60], // seconds
+];
+
+const format = ({ date, formatStr }:{date:any,formatStr:any}) => {
+  let duration = Number(date || 0);
+
+  return CountdownTimeUnits.reduce((current, [name, unit, wrap]) => {
+    if (current.indexOf(name) !== -1) {
+      const v = Math.floor(duration / unit) % wrap;
+      duration -= v * unit;
+      return current.replace(new RegExp(`${name}+`, 'g'), (match: string) => {
+        return v.toString().padStart(match.length, '0');
+      });
+    }
+    return current;
+  }, formatStr);
+}
+
 @Component({
   selector: 'app-drop-timer',
   templateUrl: './drop-timer.component.html',
@@ -19,22 +41,25 @@ export class DropTimerComponent implements OnInit {
 
   ngOnInit(): void {
     this.periodService.getPeriod().subscribe(period => {
-      const endTime = period.endingDate + (new Date().getTimezoneOffset() * 60 * 1000)
       this.secondsConfig = {
-        stopTime: endTime,
-        format: "ss"
+        stopTime: period.endingDate,
+        format: "ss",
+        formatDate: format
       };
       this.minutesConfig = {
-        stopTime: endTime,
-        formatDate: ({date}) => `${(Math.floor(date/(1000*60))%60)}`
+        stopTime: period.endingDate,
+        format: "mm",
+        formatDate: format 
       };
       this.hoursConfig = {
-        stopTime: endTime,
-        formatDate: ({date}) => `${(Math.floor(date/(1000*60*60))%24)}`
+        stopTime: period.endingDate,
+        format: "HH",
+        formatDate: format
       };
       this.daysConfig = {
-        stopTime: endTime,
-        formatDate: ({date}) => `${Math.floor(date/86400000)%365}`
+        stopTime: period.endingDate,
+        format: "DD",
+        formatDate: format 
       };
     });
   }
