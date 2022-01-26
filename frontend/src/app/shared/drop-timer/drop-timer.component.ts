@@ -19,23 +19,22 @@ export class DropTimerComponent implements OnInit {
 
   ngOnInit(): void {
     this.periodService.getPeriod().subscribe(period => {
-      const now = new Date();
-      let endingDate = period.endingDate;
+      const endTime = period.endingDate + (new Date().getTimezoneOffset() * 60 * 1000)
       this.secondsConfig = {
-        stopTime: endingDate,
-        format: 'ss'
+        stopTime: endTime,
+        format: "ss"
       };
       this.minutesConfig = {
-        stopTime: endingDate,
-        format: 'mm'
+        stopTime: endTime,
+        formatDate: ({date}) => `${(Math.floor(date/(1000*60))%60)}`
       };
       this.hoursConfig = {
-        stopTime: endingDate,
-        formatDate: ({date}) => `${(Math.floor(date/(1000*60*60))%24) - 1}`
+        stopTime: endTime,
+        formatDate: ({date}) => `${(Math.floor(date/(1000*60*60))%24)}`
       };
       this.daysConfig = {
-        stopTime: endingDate,
-        formatDate: ({date}) => `${Math.floor(date/86400000)}`
+        stopTime: endTime,
+        formatDate: ({date}) => `${Math.floor(date/86400000)%365}`
       };
     });
   }
