@@ -21,7 +21,6 @@ export class DropTimerComponent implements OnInit {
     this.periodService.getPeriod().subscribe(period => {
       const now = new Date();
       let endingDate = period.endingDate;
-      //endingDate = endingDate + (now.getTimezoneOffset() * 60000)
       this.secondsConfig = {
         stopTime: endingDate,
         format: 'ss'
@@ -32,7 +31,7 @@ export class DropTimerComponent implements OnInit {
       };
       this.hoursConfig = {
         stopTime: endingDate,
-        formatDate: ({date}) => `${Math.floor(date/(1000*60*60))%24}`
+        formatDate: ({date}) => `${(Math.floor(date/(1000*60*60))%24) - 1}`
       };
       this.daysConfig = {
         stopTime: endingDate,
