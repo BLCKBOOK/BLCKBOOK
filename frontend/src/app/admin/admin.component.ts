@@ -34,7 +34,7 @@ export class AdminComponent implements OnInit {
   private readonly adminImageSizeKey = 'adminImageSize';
 
   @ViewChild('table') table: MatTable<any>;
-  onlyUnchecked = false;
+  onlyUnchecked = true;
   imageHeight: number;
   pageCounter = 0;
   alreadyReachedEnd = false;
