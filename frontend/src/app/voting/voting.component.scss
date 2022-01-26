@@ -6,12 +6,10 @@
 ::ng-deep .mat-tab-header {
   z-index: 999;
   width: 100%;
+  position: fixed !important;
+  overflow-scrolling: touch;
   background-color: var(--dark-background);
   left: 0;
-  top: 0;
-  z-index: 1000; 
-  position: sticky;
-  position: -webkit-sticky; /* macOS/iOS Safari */   
 }
 
 .floating-submit {
