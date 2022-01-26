@@ -57,7 +57,8 @@
         </ng-template>
       </div>
     </ng-template>
-    <div *ngIf="auctionOver; else auctionOngoing" class="line-container">
+    <div *ngIf="auctionOver; else auctionOngoing" fxLayout="column" fxLayout.xs="column" fxLayout.gt-xs="row" fxLayoutGap=".25em"
+         fxLayoutAlign="space-between">
       <span>Owner</span>
       <div *ngIf="currentOwner; else ownerLoading">
         <span *ngIf="walletID !== currentOwner; else: owner"
