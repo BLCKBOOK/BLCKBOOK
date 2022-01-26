@@ -127,6 +127,11 @@ export class BlockchainService {
     const actualOffset = offset * this.loadLimit;
     const size = this.loadLimit;
     const params = new HttpParams().set('contract', environment.tokenContractAddress).set('size', size).set('offset', actualOffset).set('hide_empty', true);
-    return this.httpClient.get<TokenResponse>(environment.betterCallDevAddress + walletId + '/token_balances', {params: params});
+    return this.httpClient.get<TokenResponse>(environment.betterCallDevAddress + 'account/' + environment.betterCallDevNetwork + '/' + walletId + '/token_balances', {params: params});
+  }
+
+  public getTokenHolder(id: string): Observable<Object> {
+    const params = new HttpParams().set('token_id', id);
+    return this.httpClient.get<Object>(environment.betterCallDevAddress + 'contract/' + environment.betterCallDevNetwork + '/' + environment.tokenContractAddress + '/tokens/holders', {params});
   }
 }

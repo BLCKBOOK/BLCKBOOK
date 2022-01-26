@@ -14,7 +14,10 @@ export class UpdateService {
   constructor(private periodService: PeriodService, private snackBarService: SnackBarService) {
     // ToDo: find out how I want to do this. Can I update the frontend when the period changes?
     this.updateEvent.next(false);
-    this.periodService.getPeriod().pipe(skip(1)).subscribe(() => {
+    this.periodService.getPeriod().pipe(skip(1)).subscribe(period => {
+      console.log(period);
+      console.error('this should not happen');
+      window.alert('period changed... wtf');
       this.snackBarService.openSnackBarWithoutAction('The current voting and uploading cycle passed', 10000);
       this.updateEvent.next(true);
       this.changedPeriod.next();

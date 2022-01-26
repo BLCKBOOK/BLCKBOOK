@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {UserService} from '../../services/user.service';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {SnackBarService} from '../../services/snack-bar.service';
-import {PeriodService} from '../../services/period.service';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import { UserInfo } from '../../../../../backend/src/common/tableDefinitions';
@@ -17,12 +16,10 @@ export class HomeComponent implements OnInit {
   faImage = findIconDefinition({prefix: 'fas', iconName: 'image'});
   faUpload = findIconDefinition({prefix: 'fas', iconName: 'upload'});
   userInfo: Observable<UserInfo | undefined>;
-  currentPeriod: string;
   hasVoted: Observable<boolean>;
   hasUploaded: Observable<boolean>;
 
-  constructor(private userService: UserService, private snackBarService: SnackBarService,
-              private periodService: PeriodService) {
+  constructor(private userService: UserService, private snackBarService: SnackBarService) {
     this.userInfo = this.userService.getUserInfo();
     this.username = this.userInfo.pipe(map(user => user?.username ?? 'unknown'));
     this.hasVoted = this.userInfo.pipe(map(userInfo =>
@@ -32,7 +29,6 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.periodService.getCurrentPeriodString().subscribe(period => this.currentPeriod = period);
     this.userService.requestUserInfo().subscribe(userInfo => {
       if (!userInfo.walletId) {
         this.snackBarService.openSnackBarWithNavigation('You don\'t have a wallet connected', 'Connect wallet', '/wallet');
