@@ -43,6 +43,15 @@ uploadTimestamp change datatype to number in the interface
 
 
 MILESTONE:
-x coognito manual account creation
-x deploy to blockbook.vote
-x getCurrentPeriod throws cors error
+x reactivate signup
+x gzip build
+x timed period trigger
+x set current perion to public
+x fix wrong endingdate in new period
+s3 deployment
+enable cloudfront distributions
+change domain to point to s3
+cors error when calling my current upload
+tutorial for wallet creation and connection with site
+set cors headers for all pages
+what happens when you mint with invalid walletId

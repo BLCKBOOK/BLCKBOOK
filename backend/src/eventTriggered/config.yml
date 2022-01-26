@@ -58,7 +58,7 @@ triggerNextPeriod:
               - Arn
         method: post
         cors: true
-    - schedule: cron(0 0 ? * WED *)
+    - schedule: cron(${self:custom.period_cron})
 
 updateUserstateAfterUpload:
   handler: "src/eventTriggered/updateUserstateAfterUpload.handler"
@@ -135,7 +135,7 @@ endAuctions:
       Resource:
         - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/hangzhouFaucet-ioAJGW"
   events:
-    - schedule: rate(1 hours) 
+    - schedule: rate(1 hour)
 
 mintingQueueWorker:
     handler: src/eventTriggered/minter.handler

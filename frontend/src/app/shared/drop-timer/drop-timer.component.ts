@@ -7,6 +7,7 @@ import {PeriodService} from '../../services/period.service';
   templateUrl: './drop-timer.component.html',
   styleUrls: ['./drop-timer.component.scss']
 })
+
 export class DropTimerComponent implements OnInit {
 
   secondsConfig: CountdownConfig;
@@ -18,23 +19,25 @@ export class DropTimerComponent implements OnInit {
 
   ngOnInit(): void {
     this.periodService.getPeriod().subscribe(period => {
+      const now = new Date();
+      let endingDate = period.endingDate;
+      //endingDate = endingDate + (now.getTimezoneOffset() * 60000)
       this.secondsConfig = {
-        stopTime: period.endingDate,
+        stopTime: endingDate,
         format: 'ss'
       };
       this.minutesConfig = {
-        stopTime: period.endingDate,
+        stopTime: endingDate,
         format: 'mm'
       };
       this.hoursConfig = {
-        stopTime: period.endingDate,
-        format: 'hh'
+        stopTime: endingDate,
+        formatDate: ({date}) => `${Math.floor(date/(1000*60*60))%24}`
       };
       this.daysConfig = {
-        stopTime: period.endingDate,
-        format: 'dd'
+        stopTime: endingDate,
+        formatDate: ({date}) => `${Math.floor(date/86400000)}`
       };
-
     });
   }
 

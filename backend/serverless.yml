@@ -27,6 +27,7 @@ custom:
   best_percentile: 10
   periodDuration: 604800000 # in ms
   frontend_host_name: "*" # TODO change this to our domain as soon an we can move it 
+  period_cron: "0 0 ? * WED *"
   max_uploads_per_period: 1
   amplify:
     - filename: ../frontend/src/aws-exports.ts
@@ -60,6 +61,7 @@ provider:
     PERIOD_DURATION: ${self:custom.periodDuration}
     BEST_PERCENTILE: ${self:custom.best_percentile}
     MINTING_QUEUE_NAME: ${self:custom.minting_queue_name}
+    PERIOD_CRON: ${self:custom.period_cron}
     AUCTION_LENGTH: 4320 #minutes
     USER_POOL_ID:
       Ref: BlckBookUsers

@@ -1,5 +1,6 @@
 import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { SQSClient, SendMessageBatchCommand, SendMessageBatchRequestEntry } from "@aws-sdk/client-sqs";
+import awsCronParser from "aws-cron-parser";
 
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
@@ -21,9 +22,9 @@ async function createNewPeriod() {
     Key: marshall({ periodId: 'current' }),
   })
   const oldPeriod = await (await DDBclient.send(getPeriodCommand)).Item
-  const now = Number(new Date())
+  const now = Number(new Date());
   const oldPeriodUUID = uuid();
-
+  
   // if a current period exists copy it to another entry in the period table
   if (oldPeriod) {
     oldPeriod.periodId.S = oldPeriodUUID;
@@ -36,11 +37,11 @@ async function createNewPeriod() {
     await DDBclient.send(updateCommand)
   }
   // create a new period
-  console.log(Number(now))
-  console.log(Number(process.env['PERIOD_DURATION']))
-  console.log(Number(now) + Number(process.env['PERIOD_DURATION']))
-
-  const newEndingDate = Number(now) + Number(process.env['PERIOD_DURATION'])
+  if(!process.env["PERIOD_CRON"]) throw new Error("PERIOD_CRON is not defined")
+  const nextOccurenceCronString = process.env["PERIOD_CRON"];
+  const cron = awsCronParser.parse(nextOccurenceCronString)
+  const newEndingDate = Number(awsCronParser.next(cron, new Date()))
+  
   let createNewPeriodCommand = new PutItemCommand({
     TableName: process.env['PERIOD_TABLE_NAME'],
     Item: marshall({ periodId: 'current', startingDate: now, endingDate: newEndingDate })
