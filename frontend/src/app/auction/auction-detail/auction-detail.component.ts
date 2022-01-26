@@ -42,6 +42,7 @@ export class AuctionDetailComponent implements OnInit {
   auctionEnded: boolean;
   readonly bidStepThreshold = '100000';
   noBidsYet: boolean = false;
+  currentOwner: string;
 
   bidFormControl = new FormControl('', [Validators.required]);
 
@@ -61,7 +62,7 @@ export class AuctionDetailComponent implements OnInit {
   artworkData: ArtworkData;
 
   constructor(private clipboard: Clipboard, private snackBarService: SnackBarService, private beaconService: BeaconService,
-              private auctionService: BlockchainService, private currencyService: CurrencyService, private userService: UserService) {
+              private blockchainService: BlockchainService, private currencyService: CurrencyService, private userService: UserService) {
   }
 
   ngOnInit(): void {
@@ -81,7 +82,7 @@ export class AuctionDetailComponent implements OnInit {
     this.bidFormControl.addValidators(Validators.min(parseFloat(this.minAuctionBidString)));
     this.bidFormControl.addValidators(Validators.pattern(this.mutezRegex));
     this.bidFormControl.setValue(this.minAuctionBidString);
-    this.auctionService.getHistoricalKeysOfAuction(this.data.auctionKey.key).subscribe(res => {
+    this.blockchainService.getHistoricalKeysOfAuction(this.data.auctionKey.key).subscribe(res => {
       this.auctionEndKey = res.find(historicalKey => historicalKey.action === 'remove_key');
       if (this.auctionEndKey) {
         const end_date = new Date(this.auctionEndKey.timestamp);
@@ -95,9 +96,9 @@ export class AuctionDetailComponent implements OnInit {
       const updates = res.filter(historicalKey => historicalKey.action === 'update_key').reverse();
       this.bidHistory.next(updates.map(historicalKey => historicalKey.value));
     });
-    this.auctionService.getArtworkMetadata(this.data.auctionKey.key).subscribe(metadata => {
+    this.blockchainService.getArtworkMetadata(this.data.auctionKey.key).subscribe(metadata => {
       this.metadataUri = metadata;
-      this.auctionService.getArtifactUriFromMetadataAddress(metadata).subscribe(artifact => {
+      this.blockchainService.getArtifactUriFromMetadataAddress(metadata).subscribe(artifact => {
         this.ipfsUri = artifact;
       });
     });
@@ -109,6 +110,11 @@ export class AuctionDetailComponent implements OnInit {
         this.walletID = info.walletId;
       }
     });
+    if (this.auctionOver) {
+      this.blockchainService.getTokenHolder(this.data.auctionKey.key).subscribe(holderList => {
+        this.currentOwner = Object.keys(holderList)[0];
+      });
+    }
   }
 
   bid(key: string) {

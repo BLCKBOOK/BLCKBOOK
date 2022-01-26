@@ -30,9 +30,15 @@
     <div *ngIf="noBidsYet; else: weGotBids">
       <div class="line-container">
         <span>Highest Bid</span>
+        <div *ngIf="auctionOver">
+          <span class="artwork-data">No Bids</span>
+        </div>
       </div>
       <div class="line-container">
         <span>Highest Bidder</span>
+        <div *ngIf="auctionOver">
+          <span class="artwork-data">No Bids</span>
+        </div>
       </div>
     </div>
     <ng-template #weGotBids>
@@ -51,42 +57,58 @@
         </ng-template>
       </div>
     </ng-template>
-    <div *ngIf="!auctionOver && data.auctionKey.value.uploader !== walletID">
-      <mat-form-field class="bid-form">
-        <input
-          type="number"
-          class="form-control"
-          matInput
-          name="Bid"
-          placeholder="Your Bid"
-          [formControl]="bidFormControl" [errorStateMatcher]="bidErrorMatcher"
-          min="{{minAuctionBidString}}">
-        <div matSuffix> ꜩ</div>
-      </mat-form-field>
-      <button class="reconnect-button" mat-raised-button (click)="reconnectWallet()">
-        <fa-icon [icon]="faRedo"></fa-icon>
-        Wallet
-      </button>
-      <mat-error *ngIf="bidFormControl.hasError('min') && !bidFormControl.hasError('required')">
-        You need to bid at least {{minAuctionBidString}}
-      </mat-error>
-      <mat-error *ngIf="bidFormControl.hasError('required')">
-        A bid amount is <strong>required</strong>
-      </mat-error>
-      <mat-error *ngIf="bidFormControl.hasError('pattern')">
-        6 decimal places max
-      </mat-error>
-      <div class="bid-button-container">
-        <button mat-raised-button (click)="bid(data.auctionKey.key)"
-                [disabled]="bidFormControl.hasError('min') || bidFormControl.hasError('required')
-                || bidFormControl.hasError('pattern')">
-          Place Bid
-        </button>
+    <div *ngIf="auctionOver; else auctionOngoing" class="line-container">
+      <span>Owner</span>
+      <div *ngIf="currentOwner; else ownerLoading">
+        <span *ngIf="walletID !== currentOwner; else: owner"
+              class="artwork-data">{{currentOwner}}
+        </span>
+        <ng-template #owner>
+          <span class="artwork-data ellipsis-overflow">You ({{currentOwner}})</span>
+        </ng-template>
       </div>
+      <ng-template #ownerLoading>
+        <span class="artwork-data">Owner loading</span>
+      </ng-template>
     </div>
-    <div *ngIf="data.auctionKey.value.uploader === walletID && !auctionOver">
-      <br>You cannot bid on your own upload
-    </div>
+    <ng-template #auctionOngoing>
+      <div *ngIf="data.auctionKey.value.uploader !== walletID">
+        <mat-form-field class="bid-form">
+          <input
+            type="number"
+            class="form-control"
+            matInput
+            name="Bid"
+            placeholder="Your Bid"
+            [formControl]="bidFormControl" [errorStateMatcher]="bidErrorMatcher"
+            min="{{minAuctionBidString}}">
+          <div matSuffix> ꜩ</div>
+        </mat-form-field>
+        <button class="reconnect-button" mat-raised-button (click)="reconnectWallet()">
+          <fa-icon [icon]="faRedo"></fa-icon>
+          Wallet
+        </button>
+        <mat-error *ngIf="bidFormControl.hasError('min') && !bidFormControl.hasError('required')">
+          You need to bid at least {{minAuctionBidString}}
+        </mat-error>
+        <mat-error *ngIf="bidFormControl.hasError('required')">
+          A bid amount is <strong>required</strong>
+        </mat-error>
+        <mat-error *ngIf="bidFormControl.hasError('pattern')">
+          6 decimal places max
+        </mat-error>
+        <div class="bid-button-container">
+          <button mat-raised-button (click)="bid(data.auctionKey.key)"
+                  [disabled]="bidFormControl.hasError('min') || bidFormControl.hasError('required')
+                || bidFormControl.hasError('pattern')">
+            Place Bid
+          </button>
+        </div>
+      </div>
+      <div *ngIf="data.auctionKey.value.uploader === walletID">
+        <br>You cannot bid on your own upload
+      </div>
+    </ng-template>
   </div>
 </div>
 <div class="recent-bids-container">
