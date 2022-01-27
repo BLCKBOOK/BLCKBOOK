@@ -3,7 +3,7 @@ import {UserService} from '../../services/user.service';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {first, map} from 'rxjs/operators';
 import { UserInfo } from '../../../../../backend/src/common/tableDefinitions';
 
 @Component({
@@ -29,8 +29,8 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userService.requestUserInfo().subscribe(userInfo => {
-      if (!userInfo.walletId) {
+    this.userService.getUserInfo().pipe(first()).subscribe(userInfo => {
+      if ((userInfo && !userInfo.walletId)) {
         this.snackBarService.openSnackBarWithNavigation('You don\'t have a wallet connected', 'Connect wallet', '/wallet');
       }
     });

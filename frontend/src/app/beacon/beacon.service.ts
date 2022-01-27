@@ -137,6 +137,7 @@ export class BeaconService {
       return true;
     } catch (error) {
       if (error instanceof AbortedBeaconError) {
+        console.log(error);
         console.log('User aborted beacon interaction');
       } else { // ToDo: maybe do a better error managing. (All error cases from the contract maybe)
         this.snackBarService.openSnackBarWithoutAction('There was an unknown error with the bid-transaction, please try again!', 5000);
@@ -148,14 +149,12 @@ export class BeaconService {
 
   async withdraw() {
     const activeAccount = await this.getActiveAccount();
-    if (!activeAccount) {
-      await this.connect();
-    }
-    if (activeAccount?.address && this.userInfo && activeAccount?.address !== this.userInfo.walletId) {
+    let activeAccountAddress = activeAccount ? activeAccount.address : await this.connect();
+    if (activeAccountAddress && activeAccountAddress !== this.userInfo?.walletId) {
       const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
         width: '90%',
         data: {
-          text: 'In your account you have the wallet "' + activeAccount.address + '" set. \n The currently connected wallet is "' + this.userInfo.walletId + '."\n You can reconnect to use your original wallet',
+          text: 'In your account you have the wallet "' + activeAccountAddress + '" set. \n The currently connected wallet is "' + this.userInfo?.walletId + '."\n You can reconnect to use your original wallet',
           header: 'NOT YOUR WALLET',
           action: 'Use current Wallet',
           action2: 'Reconnect'
@@ -168,6 +167,8 @@ export class BeaconService {
           this.connect();
         }
       });
+    } else {
+      this.actuallyWithdraw()
     }
   }
 
