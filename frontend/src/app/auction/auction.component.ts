@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {BlockchainService} from '../services/blockchain.service';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {SnackBarService} from '../services/snack-bar.service';
 import {MatDialog} from '@angular/material/dialog';
 import {Location} from '@angular/common';
@@ -19,7 +19,8 @@ import {DialogService} from '../services/dialog.service';
 export class AuctionComponent {
 
   constructor(public dialog: MatDialog, public auctionService: BlockchainService, private route: ActivatedRoute,
-              private snackBarService: SnackBarService, private location: Location, private dialogService: DialogService) {
+              private snackBarService: SnackBarService, private location: Location, private dialogService: DialogService,
+              private router: Router) {
     this.route.params.subscribe(params => {
       if (params.id) {
         combineLatest([this.auctionService.getAuction(params.id), this.auctionService.getMintedArtworkForId(params.id)])
@@ -43,7 +44,13 @@ export class AuctionComponent {
             data: detailData
           });
           dialogRef.afterClosed().subscribe(() => {
-            this.location.go('/auction');
+            const end_date = new Date(detailData.auctionKey.value.end_timestamp);
+            const auctionOver = (new Date().getTime() > end_date.getTime());
+            if (auctionOver) {
+              this.router.navigate(['gallery'])
+            } else {
+              this.location.go('/auction');
+            }
           });
         }, error => {
           if (error.status === 404) {
