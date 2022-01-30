@@ -1,1 +1,48 @@
-{"navbar":{"blckbook":"BLCKBOOK","auction":"AUCTION","gallery":"GALLERY","sign-in":"SIGN IN","sign-up":"SIGN UP"},"home":{"welcome":"WELCOME,"}}
+{
+  "navbar": {
+    "blckbook": "BLCKBOOK",
+    "auction": "AUCTION",
+    "gallery": "GALLERY",
+    "admin": "ADMIN",
+    "sign-in": "SIGN IN",
+    "sign-up": "SIGN UP",
+    "wallet": "WALLET",
+    "logout": "LOGOUT"
+  },
+  "home": {
+    "welcome": "WELCOME,"
+  },
+  "upload": {
+    "header": "SPOT YOUR TAG",
+    "longitude": "LONGITUDE",
+    "latitude": "LATITUDE",
+    "name": "PROPOSED NAME (OPTIONAL)",
+    "submit": "Submit",
+    "delete": "Delete",
+    "error-mime-header": "Not a valid image-type!",
+    "error-mime-text": "An upload of this type of file is not allowed",
+    "error-location-header": "No Location data",
+    "error-location-text": "You must pick a location where the image was taken",
+    "error-size-header": "Image too big",
+    "error-size-text": "The image must be smaller than 10mb",
+    "error-ratio-header": "Invalid Aspect-Ratio",
+    "error-ratio-text": "You can only upload images with a aspect-rations of 16/9 to 9/16",
+    "success": "Image uploaded",
+    "timestamp": "Timestamp"
+  },
+  "wallet": {
+    "header": "WALLET OPTIONS",
+    "no-wallet": "You currently don't have a wallet connected\n In order to upload images and vote you need to connect a wallet first.",
+    "current": "Your current wallet-id:",
+    "manually": "Manually enter a wallet-id",
+    "reconnect": "Wallet",
+    "use-manually": "Use entered id",
+    "connect": "Connect Wallet (Beacon)",
+    "updated-text": "Wallet updated",
+    "same-text": "This wallet ID is already being used"
+  },
+  "terms": {
+    "header": "Terms and Conditions",
+    "text": "this is some text... \n with line breaks  \n multiple of them... woooow"
+  }
+}

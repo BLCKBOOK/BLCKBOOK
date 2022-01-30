@@ -1,3 +1,93 @@
 .welcome-line {
-  padding: 2em;
+  h2 {
+    font-size: x-large !important;
+  }
+  max-width: 800px;
+  margin: 16px auto;
+  padding: 0 16px;
+}
+
+.my-fa-stack {
+  font-size: 5em;
+}
+
+.button-container {
+  margin: 2em;
+}
+
+@media screen and (max-width: 960px) {
+  .navigate-button {
+    min-height: calc((100vh - 8em - var(--navbarheight) - 52px) / 2);
+    height: 100%;
+    max-height: calc((100vh - 8em - var(--navbarheight) - 52px) / 2); ;
+  }
+}
+
+@media screen and (min-width: 960px) {
+
+  .navigate-button {
+    height: calc(80vh - 8em);
+    min-height: calc(80vh - 8em);
+    min-width: calc(50vw - 3em);
+    width: calc(50vw - 3em);
+  }
+
+  .button-container {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+}
+
+.thumbs {
+  height: 106px;
+  width: auto;
+  padding: 17px;
+}
+
+mat-card-content {
+  text-align: center;
+}
+
+.action-text {
+  text-align: center;
+  font-size: large;
+}
+
+button {
+  margin-top: 8px;
+}
+
+.upload-card {
+  background-image: linear-gradient(to top, transparent 80%, black 100%),
+  linear-gradient(to bottom, transparent 70%, black 90%),
+  linear-gradient(to left, transparent 30%, black 100%),
+  linear-gradient(to right, transparent 50%, black 100%),
+  var(--image1);
+  --image1: url(/assets/images/landing/background/1_medium.webp);
+  background-position-x: 0, 0, 0, 0, right; // image moves in from the right
+  background-position-y: 0, 0, 0, 0, 0; // maybe position the girl always visible
+}
+
+.vote-card {
+  background-image: linear-gradient(to top, transparent 80%, black 100%),
+  linear-gradient(to bottom, transparent 70%, black 90%),
+  linear-gradient(to left, transparent 30%, black 100%),
+  linear-gradient(to right, transparent 50%, black 100%),
+  var(--image2);
+  --image2: url(/assets/images/landing/background/2_medium.webp);
+  background-position-x: 0, 0, 0, 0, right; // image moves in from the right
+  background-position-y: 0, 0, 0, 0, 0; // maybe position the girl always visible
+}
+
+.home-card {
+  background-size: cover;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  mat-card-content {
+    display: flex;
+    height: 150px;
+    flex-direction: column;
+    justify-content: center;
+  }
 }

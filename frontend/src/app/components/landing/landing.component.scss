@@ -1,0 +1,217 @@
+@media only screen and (max-width: 800px) {
+  .thumb {
+    height: 100%;
+  }
+
+  .okay {
+    display: none;
+  }
+
+  .clap {
+    display: none;
+  }
+
+  .step-text {
+    h4 {
+      font-size: 14px;
+    }
+  }
+
+  .step-icon {
+    height: 12.5vw;
+  }
+
+  .bag-circle {
+    top: 0;
+  }
+}
+
+@media only screen and (max-width: 1200px) {
+  .step-image, .dark-example {
+    width: 30vw;
+  }
+
+  .bag {
+    height: 8vw;
+  }
+
+  .bag-circle {
+    position: absolute;
+    right: 6vw;
+    height: 10vw;
+    width: 10vw;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    background: hsl(21deg 51% 71%);
+  }
+}
+
+@media only screen and (min-width: 800px) {
+
+  p, h4 {
+    font: 400 18px/24px Body Font;
+  }
+
+  mat-card-title {
+    font: 400 50px/50px Header Font;
+  }
+
+  .thumb {
+    width: 139px;
+    height: 149px;
+  }
+
+  .okay {
+    width: 72px;
+  }
+
+  .clap {
+    width: 58px;
+    height: 60px;
+  }
+
+  .step-icon {
+    height: 155px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  .step-icon {
+    height: 155px;
+  }
+
+  .inner-wrapper > div > p {
+    width: 50vw;
+  }
+
+  .thumb {
+    width: 139px;
+    height: 149px;
+  }
+
+  .okay {
+    width: 72px;
+  }
+
+  .clap {
+    width: 58px;
+    height: 60px;
+  }
+
+  .step-image, .dark-example {
+    width: 400px;
+  }
+
+  .bag {
+    height: 96px;
+  }
+
+  .bag-circle {
+    position: absolute;
+    right: 72px;
+    height: 120px;
+    width: 120px;
+    top: 0;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    background: hsl(21deg 51% 71%);
+  }
+}
+
+.inner-wrapper {
+  height: 70vh;
+}
+
+.step {
+  flex-grow: 1;
+  height: 250px;
+  max-width: 32%;
+}
+
+.step-text {
+  h4 {
+    padding-top: .5em;
+    text-align: center;
+  }
+}
+
+.first-text > p {
+  max-width: 400px;
+}
+
+.xtz-logo {
+  height: 2em;
+  position: absolute;
+  bottom: 3em;
+  right: 3em;
+}
+
+.step-icon {
+  position: relative;
+}
+
+.landing-1, .landing-2, .landing-3 {
+  background-size: cover;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+}
+
+.landing-1 {
+  background-image: linear-gradient(to top, transparent 40%, black 80%),
+  linear-gradient(to bottom, transparent 70%, black 90%),
+  linear-gradient(to left, transparent 30%, black 100%),
+  linear-gradient(to right, transparent 50%, black 100%),
+  var(--image1);
+  background-position-x: 0, 0, 0, 0, center; // image scrolls from center
+  background-position-y: 0, 0, 0, 0, 0;
+  --image1: url(/assets/images/landing/background/1_medium.webp);
+}
+
+.landing-2 {
+  background-image: linear-gradient(to top, transparent 95%, black 100%),
+  linear-gradient(to bottom, transparent 70%, black 90%),
+  linear-gradient(to left, transparent 30%, black 100%),
+  linear-gradient(to right, transparent 50%, black 100%),
+  var(--image2);
+  background-position-x: 0, 0, 0, 0, right; // image moves in from the right
+  background-position-y: 0, 0, 0, 0, 0; // maybe position the girl always visible
+  --image2: url(/assets/images/landing/background/2_medium.webp);
+}
+
+.landing-3 {
+  background-image: linear-gradient(to top, transparent 95%, black 100%),
+  linear-gradient(to bottom, transparent 70%, black 90%),
+  linear-gradient(to left, transparent 30%, black 100%),
+  linear-gradient(to right, transparent 50%, black 100%),
+  var(--image3);
+  background-position-x: 0, 0, 0, 0, right; // image moves in from the right
+  background-position-y: 0, 0, 0, 0, 0;
+  --image3: url(/assets/images/landing/background/3_medium.webp);
+}
+
+app-faq {
+  mat-card {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: black;
+    .faq-heading-padding {
+      padding-left: 16px;
+    }
+  }
+}
+
+.welcome-card {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: black;
+}
+
+.drop-shadow {
+  filter: drop-shadow(2px 4px 6px black);
+}

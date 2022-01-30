@@ -1,4 +1,53 @@
+<app-drop-timer></app-drop-timer>
 <div class="welcome-line">
-  <app-bob-text [text]="('home.welcome' | translate) + ' ' + username"></app-bob-text>
+  <h2> {{('home.welcome' | translate) + ' ' + (username | async)}}</h2>
 </div>
-<div></div>
+<mat-card class="mat-card-margin home-card upload-card">
+  <mat-card-title>UPLOAD</mat-card-title>
+  <mat-card-content>
+    <div>
+      <div *ngIf="hasUploaded | async; else: notUploaded">
+        <div class="action-text">
+          You already spotted your tag this cycle.<br>
+        </div>
+        <button mat-raised-button routerLink="/upload">
+          CHECK TAG
+        </button>
+      </div>
+      <ng-template #notUploaded>
+        <div class="action-text">
+          You did not spot your tag this cycle.<br>
+          Upload your tag now to get the chance to have it minted and earn some TEZ!<br>
+        </div>
+        <button mat-raised-button routerLink="/upload">
+          SPOT YOUR TAG
+        </button>
+      </ng-template>
+    </div>
+  </mat-card-content>
+</mat-card>
+<mat-card class="mat-card-margin vote-card home-card">
+  <mat-card-title>VOTING</mat-card-title>
+  <mat-card-content>
+    <div>
+      <div *ngIf="hasVoted | async else: notVoted">
+        <div class="action-text">
+          You already voted on the community's tags this cycle. <br>
+        </div>
+        <button mat-raised-button routerLink="/voting">
+          SHOW VOTES
+        </button>
+      </div>
+      <ng-template #notVoted>
+        <div class="action-text">
+          You did not vote on the community's tags this cycle. <br>
+          Vote now to get the chance to earn some TEZ! <br>
+        </div>
+        <button mat-raised-button routerLink="/voting">
+          VOTE NOW
+        </button>
+      </ng-template>
+    </div>
+  </mat-card-content>
+</mat-card>
+<app-faq></app-faq>

@@ -1,0 +1,183 @@
+triggerNextPeriod:
+  handler: src/eventTriggered/nextPeriod.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:Scan
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:BatchWriteItem 
+      Resource:
+        - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:DeleteItem
+        - dynamodb:PutItem
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:BatchWriteItem
+      Resource:
+        - Fn::GetAtt: [ votePagesTable, Arn ]
+        - !Sub '${votePagesTable.Arn}/index/*'
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ periodTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
+      Resource:
+        - Fn::GetAtt: [ archive, Arn ]
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+      Resource:
+        - Fn::GetAtt: [ MintingQueue, Arn ]                                                    
+  events:
+    - http:
+        path: admin/triggerNextPeriod
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: post
+        cors: true
+    - schedule: cron(${self:custom.period_cron})
+
+updateUserstateAfterUpload:
+  handler: "src/eventTriggered/updateUserstateAfterUpload.handler"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource:
+        - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    - Effect: Allow
+      Action:
+        - s3:DeleteObject
+        - s3:Put*
+      Resource: 
+        - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+  events:
+    - s3:
+        bucket: ${self:custom.artwork_upload_s3_bucket_name}
+        event: s3:ObjectCreated:*
+        rules:
+          - prefix: artwork/
+        existing: true
+
+initializeUser:
+  handler: "src/eventTriggered/createNewUserInfoObject.handler"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - cognito-idp:AdminAddUserToGroup
+        - cognito-idp:AdminGetUser
+      Resource:
+        - Fn::GetAtt: [ BlckBookUsers, Arn ]
+  events:
+    - cognitoUserPool:
+        pool: ${self:provider.stage}-blckbook-users
+        trigger: PostConfirmation
+        existing: true
+
+endAuctions:
+  handler: "src/eventTriggered/endAuctions.handler"
+  timeout: 180
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+      - dynamodb:PutItem
+      Resource:
+      - Fn::GetAtt: [ notificationTable, Arn ]
+    - Effect: Allow
+      Action:
+      - dynamodb:UpdateItem
+      Resource:
+      - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ mintedArtworks, Arn ]
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+      Resource:
+        - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/hangzhouFaucet-ioAJGW"
+  events:
+    - schedule: rate(1 hour)
+
+mintingQueueWorker:
+    handler: src/eventTriggered/minter.handler
+    timeout: 180
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/hangzhouFaucet-ioAJGW"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:pinataAccessKey-ZJzp7t"
+      - Effect: Allow
+        Action:
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource:
+        - Fn::GetAtt: [ notificationTable, Arn ]
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource:
+        - Fn::GetAtt: [ mintedArtworks, Arn ]
+      
+      - Effect: Allow
+        Action:
+        - dynamodb:GetItem
+        Resource:
+        - Fn::GetAtt: [ votePagesTable, Arn ]
+      - Effect: Allow
+        Action:
+        - s3:GetObject
+        Resource:
+        - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt:
+              - MintingQueue
+              - Arn

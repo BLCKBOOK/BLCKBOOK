@@ -1,0 +1,20 @@
+setMyWalletId:
+  handler: src/rest/user/setMyWalletId/post.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+  events:
+    - http:
+        path: user/setMyWalletId
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: post
+        cors: true

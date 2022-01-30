@@ -1,0 +1,46 @@
+<mat-card>
+  <mat-card-title>{{'wallet.header' | translate}}</mat-card-title>
+  <mat-card-content>
+    <p *ngIf="walletID !== ''; else: noWallet">
+      {{'wallet.current' | translate}}<br>
+      <span>{{walletID}}</span>
+    </p>
+    <ng-template #noWallet>
+      <div class="my-translated-paragraph"> {{'wallet.no-wallet' | translate}}</div>
+    </ng-template>
+    <br>
+    <mat-form-field appearance="fill">
+      <mat-label>{{'wallet.manually' | translate}}</mat-label>
+      <input matInput placeholder="tz1cXmJsvDEUGk7DPkU6rL1xYpiFBNyH7YoP" [formControl]="walletIdForm">
+      <mat-error *ngIf="walletIdForm.invalid">{{getErrorMessage()}}</mat-error>
+    </mat-form-field>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button (click)="connectWallet()" class="wallet-action">
+      <fa-icon [icon]="faRedo"></fa-icon> {{'wallet.reconnect' | translate}}
+    </button>
+    <button mat-raised-button [disabled]="!walletIdForm.valid || !walletIdForm.value" (click)="useEnteredId()" class="wallet-action">
+      {{'wallet.use-manually' | translate}}
+    </button>
+  </mat-card-actions>
+</mat-card>
+<mat-card>
+  <mat-card-title>WITHDRAW MONEY</mat-card-title>
+  <mat-card-content>
+    <mat-spinner style="margin: 0 auto;" *ngIf="calculating"></mat-spinner>
+    <div *ngIf="(currentAmount | async) !== ''">
+      <p>
+        Your current amount in the money-pool is<br>
+        <span>{{currentAmount | async}}</span><span class="tezos-symbol">ꜩ</span>
+      </p>
+    </div>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button (click)="withdraw()" [disabled]="walletID === ''" class="wallet-action">
+      Withdraw
+    </button>
+    <button mat-raised-button [disabled]="calculating || walletID === ''" (click)="calculateVoteMoneyPoolAmount()" class="wallet-action">
+      Check Amount
+    </button>
+  </mat-card-actions>
+</mat-card>

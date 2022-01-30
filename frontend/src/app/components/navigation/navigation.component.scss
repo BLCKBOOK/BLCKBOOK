@@ -1,7 +1,120 @@
 .nav-item {
-  padding-right: 1em;
+  align-self: center;
+  font-size: large;
+}
+
+.profile-menu-item {
+  font-size: large;
+  height: 3.5em;
 }
 
 .example-spacer {
   flex: 1 1 auto;
 }
+
+mat-toolbar {
+  position: sticky;
+  position: -webkit-sticky; /* For macOS/iOS Safari */
+  top: 0;
+  z-index: 1000; /* Ensure that your app's content doesn't overlap the toolbar */
+  height: var(--navbarheight);
+}
+
+mat-sidenav {
+  position: fixed;
+  top: var(--navbarheight);
+  z-index: 900; /* Ensure that your app's content doesn't overlap the toolbar */
+}
+
+::ng-deep .mat-badge-content {
+  right: -2px !important;
+  top: -2px !important;
+}
+
+amplify-button > .button {
+  text-align: end !important;
+}
+
+.notification-menu-item {
+  height: 100%;
+  max-height: 200px;
+  cursor: default;
+  line-height: unset;
+  white-space: inherit;
+}
+
+.icon-column {
+  align-self: center;
+}
+
+.notification-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* number of lines to show */
+  -webkit-box-orient: vertical;
+  margin-bottom: .5em;
+}
+
+.notification-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-flex {
+  width: 100%;
+  cursor: pointer;
+}
+
+.no-link-flex {
+  flex: 1 1 calc(100% - 40px);
+  min-width: calc(100% - 40px);
+  cursor: pointer;
+}
+
+::ng-deep .mat-menu-panel.notification-menu {
+  max-width: 600px;
+  width: 80vw;
+}
+
+.seen-notification {
+  color: var(--light-disabled-text);
+}
+
+.logo {
+  font-size: x-large;
+}
+
+.bigger-nav-item {
+  padding: 2em;
+  width: 100%;
+}
+
+.nav-icon-button {
+  height: 52px;
+  width: 52px;
+  fa-icon {
+    font-size: large;
+  }
+}
+
+.mobile-sign-in {
+  font-size: large;
+}
+
+mat-sidenav-content {
+  min-height: calc(100vh - var(--navbarheight));
+  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  router-outlet {
+    display: none;
+  }
+}
+
+/*
+.mat-drawer-content {
+  display: unset;
+}
+*/

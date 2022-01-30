@@ -1,0 +1,52 @@
+.upload-button {
+  padding: 2em;
+  width: 100%;
+  height: 15em;
+  min-height: 220px;
+}
+
+#fileInput {
+  visibility: hidden;
+}
+
+.meta-data-display {
+  color: white;
+}
+
+.meta-input {
+  width: 100%;
+}
+
+.my-fa-stack {
+  font-size: 5em;
+}
+
+.terms-button {
+  text-decoration: underline;
+  padding: 4px 4px 0;
+}
+
+.terms-box {
+  display: flex;
+  align-items: center;
+}
+
+.terms-distance {
+  padding-left: 8px;
+  padding-top: 4px;
+}
+
+.big-image {
+  width: fit-content;
+  max-height: 60vh;
+  max-width: 100%;
+}
+
+.upload-image-container {
+  display: flex;
+  justify-content: center;
+}
+
+.image-action-buttons-container {
+  width: 200px;
+}

@@ -1,0 +1,26 @@
+adminBanUser:
+  handler: src/rest/user/admin/banUser/post.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - cognito-idp:AdminDisableUser
+      Resource:
+        - Fn::GetAtt: [ BlckBookUsers, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+  events:
+    - http:
+        path: user/admin/banUser
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: post
+        cors: true

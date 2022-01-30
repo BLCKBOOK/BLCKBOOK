@@ -1,0 +1,21 @@
+getMyProposition:
+  handler: src/rest/vote/getMyProposition/get.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource:
+        - Fn::GetAtt: [ votePagesTable, Arn ]
+        - !Sub '${votePagesTable.Arn}/index/*'
+  events:
+    - http:
+        path: vote/getMyProposition
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: get
+        cors: true

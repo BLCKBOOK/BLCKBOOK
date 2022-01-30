@@ -2,6 +2,26 @@ Selection	en
 navbar.blckbook	BLCKBOOK
 navbar.auction	AUCTION
 navbar.gallery	GALLERY
+navbar.admin	ADMIN
 navbar.sign-in	SIGN IN
 navbar.sign-up	SIGN UP
+navbar.wallet	WALLET
+navbar.logout	LOGOUT
 home.welcome	WELCOME,
+upload.header	SPOT YOUR TAG
+upload.longitude	LONGITUDE
+upload.latitude	LATITUDE
+upload.name	PROPOSED NAME (OPTIONAL)
+upload.submit	Submit
+upload.delete	Delete
+wallet.header	WALLET OPTIONS
+wallet.no-wallet	You currently don't have a wallet connected<br> In order to upload images and vote you need to connect a wallet first.
+wallet.current	Your current wallet-id:
+wallet.manually	Manually enter a wallet-id
+wallet.reconnect	Wallet
+wallet.use-manually	Use entered id
+wallet.connect	Connect Wallet (Beacon)
+wallet.updated-text	Wallet updated
+wallet.same-text	This wallet ID is already being used
+terms.header	Terms and Conditions
+terms.text	this is some text... <br> with line breaks  <br> multiple of them... woooow

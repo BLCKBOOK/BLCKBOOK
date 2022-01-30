@@ -1,0 +1,33 @@
+deleteMyCurrentUpload:
+  handler: src/rest/artwork/deleteMyCurrentUpload/delete.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DeleteItem
+        - dynamodb:GetItem
+        - dynamodb:Query
+      Resource:
+        - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - s3:DeleteObject
+      Resource:
+        - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+  events:
+    - http:
+        path: artwork/deleteMyCurrentUpload
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: delete
+        cors: true

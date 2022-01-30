@@ -1,0 +1,40 @@
+initArtworkUpload:
+  handler: "src/rest/artwork/initArtworkUpload/post.handler"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:PutObjectAcl
+      Resource:
+        - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+      Resource:
+        - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ periodTable, Arn ]
+  events:
+    - http:
+        path: artwork/initArtworkUpload
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: post
+        cors: true

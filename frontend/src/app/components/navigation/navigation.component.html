@@ -1,23 +1,113 @@
 <nav>
-  <mat-toolbar>
-    <button mat-button class="nav-item" routerLink="/home">
-      <app-bob-text [text]="'navbar.blckbook' | translate">
-      </app-bob-text>
+  <mat-toolbar fxLayout="row" fxFlexAlign="center">
+    <div fxShow="true" fxHide.gt-sm="true">
+      <button mat-icon-button (click)="sidenav.toggle()" class="nav-icon-button">
+        <fa-icon [icon]="faBars"></fa-icon>
+      </button>
+    </div>
+    <button mat-button class="nav-item" routerLink="/" (click)="sidenav.close()">
+      <div class="logo">
+        <h4>{{'navbar.blckbook' | translate}}</h4>
+      </div>
     </button>
-    <button mat-button class="nav-item" routerLink="/auction" class="nav-item">
-      {{"navbar.auction" | translate}}
-    </button>
-    <button mat-button class="nav-item" routerLink="/gallery" class="nav-item">
-      {{"navbar.gallery" | translate}}
-    </button>
+    <div fxShow="true" fxHide.lt-md="true">
+      <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item" routerLink="/upload">
+        UPLOAD
+      </button>
+      <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item" routerLink="/voting">
+        VOTE
+      </button>
+      <button mat-button class="nav-item" routerLink="/auction">
+        {{"navbar.auction" | translate}}
+      </button>
+      <button mat-button class="nav-item" routerLink="/gallery">
+        {{"navbar.gallery" | translate}}
+      </button>
+      <button *ngIf="(isAdmin$ | async)" mat-button class="nav-item" routerLink="/admin">
+        {{"navbar.admin" | translate}}
+      </button>
+    </div>
     <span class="example-spacer"></span>
-    <button mat-button>
+    <button [ngClass.lt-md]="'mobile-sign-in'" mat-button
+            *ngIf="(authState$ | async) !== 'signedin'; else: profileAndNotifications" (click)="sidenav.close()"
+            routerLink="/login">
       {{"navbar.sign-in" | translate}}
     </button>
-    <button mat-button>
-      {{"navbar.sign-up" | translate}}
-    </button>
+    <ng-template #profileAndNotifications>
+      <button mat-icon-button class="nav-item nav-icon-button" [matMenuTriggerFor]="notificationMenu"
+              (click)="sidenav.close()"
+              matBadge="{{unreadNotifications | async}}" matBadgeColor="warn" matBadgePosition="after"
+              matBadgeHidden="{{(unreadNotifications | async) === 0}}">
+        <fa-icon [icon]="faBell"></fa-icon>
+      </button>
+      <mat-menu #notificationMenu="matMenu" class="notification-menu nav-icon-button">
+        <div *ngFor="let notification of (notifications | async)">
+          <div class="mat-menu-item notification-menu-item"
+               fxLayout="row">
+            <div fxLayout="column" [ngClass]="notification.link ? 'link-flex' : 'no-link-flex'"
+                 (click)="notificationClick(notification, $event)">
+              <h4 class="notification-title"
+                  [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.title}}</h4>
+              <div *ngIf="notification.link else noLink">
+                <div class="notification-text"
+                     [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
+              </div>
+              <ng-template #noLink>
+                <div class="notification-text"
+                     [ngClass]="notification.seen ? 'seen-notification': ''">{{notification.body}}</div>
+              </ng-template>
+            </div>
+            <div *ngIf="!(notification.link)" fxFlex="1 1 40px" class="icon-column">
+              <button mat-icon-button *ngIf="!notification.seen" (click)="markNotificationAsSeen(notification, $event)">
+                <fa-icon [icon]="faCheck"></fa-icon>
+              </button>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+        </div>
+        <div *ngIf="(notifications | async)?.length === 0" class="mat-menu-item">
+          <span>You currently don't have any notifications</span>
+        </div>
+        <button mat-button class="mat-menu-item" fxLayout="row" fxLayoutAlign="space-evenly center"
+                (click)="openNotificationDialog(undefined)">
+          <fa-icon [icon]="faEllipsisH"></fa-icon>
+        </button>
+      </mat-menu>
+      <button class="nav-icon-button" mat-icon-button [matMenuTriggerFor]="profileMenu" (click)="sidenav.close()">
+        <fa-icon [icon]="faUserCircle"></fa-icon>
+      </button>
+      <mat-menu #profileMenu="matMenu">
+        <button mat-menu-item class="profile-menu-item" routerLink="/wallet">{{'navbar.wallet' | translate}}</button>
+        <button mat-menu-item class="profile-menu-item" (click)="logOut()">{{'navbar.logout' | translate}}</button>
+      </mat-menu>
+    </ng-template>
   </mat-toolbar>
+  <mat-sidenav-container fxFlexFill>
+    <mat-sidenav #sidenav fxLayout="column" [mode]="'over'">
+      <div fxLayout="column">
+        <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item bigger-nav-item" routerLink="/upload" (click)="sidenav.toggle()">
+          UPLOAD
+        </button>
+        <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item bigger-nav-item" routerLink="/voting" (click)="sidenav.toggle()">
+          VOTE
+        </button>
+        <button mat-button class="nav-item bigger-nav-item" routerLink="/auction" (click)="sidenav.toggle()">
+          {{"navbar.auction" | translate}}
+        </button>
+        <button mat-button class="nav-item bigger-nav-item" routerLink="/gallery" (click)="sidenav.toggle()">
+          {{"navbar.gallery" | translate}}
+        </button>
+        <button mat-button class="nav-item bigger-nav-item" *ngIf="isAdmin$ | async" routerLink="/admin"
+                (click)="sidenav.toggle()">
+          {{"navbar.admin" | translate}}
+        </button>
+      </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+      <app-footer>
+      </app-footer>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </nav>
-<!-- The routed views render in the <router-outlet>-->
-<router-outlet></router-outlet>
+

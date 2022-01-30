@@ -1,0 +1,34 @@
+.notification-text {
+  margin-bottom: .5em;
+}
+
+.notification-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-menu-item {
+  height: 100%;
+  max-height: 200px;
+  cursor: default;
+  line-height: unset;
+  white-space: inherit;
+}
+
+.icon-column {
+  align-self: center;
+}
+
+.seen-notification {
+  color: var(--light-disabled-text);
+}
+
+.link {
+  flex: 1 1 100%;
+  cursor: pointer;
+}
+
+.no-link {
+  flex: 1 1 calc(100px - 40px);
+}

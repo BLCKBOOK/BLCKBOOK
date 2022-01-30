@@ -1,0 +1,13 @@
+getMintedArtworkByTokenId:
+  handler: src/rest/mints/getMintedArtworkByTokenId/get.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ mintedArtworks, Arn ]
+  events:
+    - http:
+        path: mints/getMintedArtworkByTokenId/{tokenId}
+        method: get
+        cors: true

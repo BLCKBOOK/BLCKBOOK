@@ -1,0 +1,20 @@
+getMyUserInfo:
+  handler: src/rest/user/getMyUserInfo/get.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+  events:
+    - http:
+        path: user/getMyUserInfo
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: get
+        cors: true

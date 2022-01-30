@@ -1,0 +1,40 @@
+.recent-bids-container {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.bid-form, .reconnect-button {
+  margin-top: .5em;
+}
+
+.mat-form-field {
+  width: calc(100% - 100px);
+}
+
+.reconnect-button {
+  margin-left: .5em;
+}
+
+.bid-button-container {
+  margin-top: .5em;
+  button {
+    width: 100%;
+  }
+}
+
+.small-link {
+  margin-top: 0.5em;
+}
+
+.small-link-bottom {
+  margin-bottom: 0.5em;
+}
+
+.button-container {
+  text-align: center;
+  button {
+    margin: .5em .25em;
+    width: 100%;
+    max-width: 140px;
+  }
+}

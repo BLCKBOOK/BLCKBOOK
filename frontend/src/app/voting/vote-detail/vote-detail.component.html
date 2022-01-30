@@ -1,0 +1,27 @@
+<div fxLayout="row" fxLayout.xs="column" fxLayout.sm="column" fxLayoutGap="2em" class="container"
+     fxLayoutAlign="space-evenly">
+  <div fxFlex="1 1 50%" fxFlex.gt-sm="10 1 fit-content" class="image-container">
+    <img [src]="data.src" [srcset]="data.srcSet" class="big-image"
+         [sizes]="'(min-width: 960px) calc(50vw - 88px), calc(100vw-44px)'" alt="'Image'">
+  </div>
+  <div class="meta-data-display" fxFlex="1 1" fxLayout="column">
+    <app-artwork-data [data]="artworkData"></app-artwork-data>
+    <div class="vote-button-container" *ngIf="!withinDialog">
+      <button mat-raised-button *ngIf="!data.voted" (click)="vote()"
+              [disabled]="alreadyVoted$ | async">
+        Select for Vote
+        <fa-stack>
+          <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
+        </fa-stack>
+      </button>
+      <button mat-raised-button *ngIf="data.voted" (click)="unvote()"
+              [disabled]="alreadyVoted$ | async">
+        Deselect
+        <fa-stack>
+          <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
+          <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>
+        </fa-stack>
+      </button>
+    </div>
+  </div>
+</div>

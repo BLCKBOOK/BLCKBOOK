@@ -9,10 +9,10 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs10.x
+  runtime: nodejs14.x
   memorySize: 192
   timeout: 10
-  stage: production
+  stage: dev
   region: eu-west-1
 
 package:

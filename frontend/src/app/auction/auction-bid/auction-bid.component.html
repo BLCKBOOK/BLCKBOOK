@@ -1,0 +1,9 @@
+<div fxLayout.xs="column" fxLayout.gt-xs="row" fxLayoutGap=".25em" fxLayoutAlign="space-between">
+  <span *ngIf="userWalletId !== this.bid.bidder; else: highestBidder">{{this.bid.bidder}}</span>
+  <ng-template #highestBidder>
+    <span class="ellipsis-overflow">You ({{this.bid.bidder}})</span>
+  </ng-template>
+  <div>
+    bid <span class="amount"> {{this.bidAmount}}</span><span class="tezos-symbol">ꜩ</span>
+  </div>
+</div>

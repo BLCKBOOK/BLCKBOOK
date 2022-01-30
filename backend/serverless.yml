@@ -3,64 +3,115 @@ app: blckbook
 service: backend
 
 plugins:
+  - serverless-plugin-common-excludes
   - aws-amplify-serverless-plugin
+  - serverless-plugin-typescript
+  - serverless-iam-roles-per-function
+  - serverless-plugin-include-dependencies
+  - serverless-lift
+package:
+  individually: true
 
 custom:
+  notification_table_name: 'notifications-${self:provider.stage}'
   user_info_table_name: 'user-info-${self:provider.stage}'
   uploaded_artworks_table_name: 'uploaded-artworks-${self:provider.stage}'
-  uploaded_artworks_admin_view_table_name: 'uploaded-artworks-Amdin-View-${self:provider.stage}'
+  vote_pages_table_name: 'votes-pages-${self:provider.stage}'
+  artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks' 
+  archive_table_name: 'archive-${self:provider.stage}'
+  blckbook_user_pool: ${self:provider.stage}-blckbook-users
+  minted_artworks_table_name: ${self:provider.stage}-minted-artworks
+  period_table_name: period-table-dev
+  minting_queue_name: 'MintingQueue.fifo'
+  max_votes_per_user: 5
+  best_percentile: 10
+  periodDuration: 604800000 # in ms
+  frontend_host_name: "*" # TODO change this to our domain as soon an we can move it 
+  period_cron: "0 0 ? * WED *"
+  max_uploads_per_period: 1
   amplify:
     - filename: ../frontend/src/aws-exports.ts
       type: typescript
       appClient: BlckBookUsersClient
       s3bucket: disabled
+  includeDependencies:
+    enableCaching: true
 
 provider:
   name: aws
   runtime: nodejs14.x
   lambdaHashingVersion: '20201221'
   region: 'eu-west-1'
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        - Fn::GetAtt: [ BlckBookUsers, Arn ]
   environment:
-    USER_INFO_TABLE: ${self:custom.user_info_table_name}
-    UPLOADED_ARTWORKS_TABLE: ${self:custom.uploaded_artworks_table_name}
-    UPLOADED_ARTWORKS_ADMIN_VIEW_TABLE: ${self:custom.uploaded_artworks_admin_view_table_name}
+    FA2_CONTRACT_ADDRESS: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
+    AUCTION_HOUSE_CONTRACT_ADDRESS:  'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
+    VOTER_MONEY_POOL_CONTRACT_ADDRESS: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
+    TEZOS_RPC_CLIENT_INTERFACE: 'https://hangzhounet.api.tez.ie'
+    USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
+    UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
+    FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
+    MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
+    MAX_VOTES_PER_PERIOD: ${self:custom.max_votes_per_user}
+    VOTE_PAGES_TABLE_NAME: ${self:custom.vote_pages_table_name}
+    ARTWORK_UPLOAD_S3_BUCKET_NAME:  ${self:custom.artwork_upload_s3_bucket_name}
+    PERIOD_TABLE_NAME: ${self:custom.period_table_name}
+    NOTIFICATION_TABLE_NAME: ${self:custom.notification_table_name}
+    ARCHIVE_TABLE_NAME: ${self:custom.archive_table_name}
+    MINTED_ARTWORKS_TABLE_NAME: ${self:custom.minted_artworks_table_name}
+    PERIOD_DURATION: ${self:custom.periodDuration}
+    BEST_PERCENTILE: ${self:custom.best_percentile}
+    MINTING_QUEUE_NAME: ${self:custom.minting_queue_name}
+    PERIOD_CRON: ${self:custom.period_cron}
+    AUCTION_LENGTH: 4320 #minutes
+    USER_POOL_ID:
+      Ref: BlckBookUsers
+    STAGE:  ${self:provider.stage}
 
 functions:
-  initializeUser:
-    handler: lambdas/createNewUserObject.handler
-    events:
-      - cognitoUserPool:
-          pool: ${self:provider.stage}-blckbook-users
-          trigger: PostConfirmation
-          existing: true
-  api:
-    handler: lambdas/user.handler
-    events:
-      - http:
-          path: /users
-          method: ANY
-
+  - ${file(./src/eventTriggered/config.yml)}
+  - ${file(./src/rest/artwork/getCurrentUpload/config.yml)}
+  - ${file(./src/rest/artwork/initArtworkUpload/config.yml)}
+  - ${file(./src/rest/artwork/admin/getUploadedArtworks/config.yml)}
+  - ${file(./src/rest/artwork/admin/getUncheckedUploadedArtworks/config.yml)}
+  - ${file(./src/rest/artwork/admin/updateUploadedArtwork/config.yml)}
+  - ${file(./src/rest/artwork/admin/rejectUploadedArtwork/config.yml)}
+  - ${file(./src/rest/artwork/deleteMyCurrentUpload/config.yml)}
+  - ${file(./src/rest/user/admin/banUser/config.yml)}
+  - ${file(./src/rest/user/setMyWalletId/config.yml)}
+  - ${file(./src/rest/user/getMyUserInfo/config.yml)}
+  - ${file(./src/rest/vote/getVotePage/config.yml)}
+  - ${file(./src/rest/vote/voteForArtworks/config.yml)}
+  - ${file(./src/rest/vote/getVotableArtworkById/config.yml)}
+  - ${file(./src/rest/vote/getMyVotes/config.yml)}
+  - ${file(./src/rest/vote/getMyProposition/config.yml)}
+  - ${file(./src/rest/notifications/config.yml)}
+  - ${file(./src/rest/period/getCurrentPeriod/config.yml)}
+  - ${file(./src/rest/mints/getMintedArtworkByTokenId/config.yml)}
+  
 resources:
   Resources:
     BlckBookUsers:
       Type: AWS::Cognito::UserPool
       Properties:
-        UserPoolName: ${self:provider.stage}-blckbook-users
-        UsernameAttributes:
-          - email
+        UserPoolName: ${self:custom.blckbook_user_pool}
         AutoVerifiedAttributes:
           - email
+        AliasAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: "verified_email"
+              Priority: 1
+        
+        Schema:
+          - AttributeDataType: "String"
+            Name: "email"
+            Required: true
+            Mutable: false
+
     BlckBookUsersClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
@@ -68,9 +119,44 @@ resources:
         UserPoolId: 
           Ref: BlckBookUsers
         ExplicitAuthFlows:
-          - ALLOW_USER_PASSWORD_AUTH
-          - ALLOW_REFRESH_TOKEN_AUTH
+          - ADMIN_NO_SRP_AUTH
+        SupportedIdentityProviders:
+          - COGNITO
         GenerateSecret: false
+    
+    BlckBookUserPoolGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        UserPoolId: 
+          Ref: BlckBookUsers
+        GroupName: 'User'
+        Description: 'Base role for verified users on BLCKBOOK'
+        Precedence: 1
+    
+    BlckBookAdminPoolGroup:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties:
+        UserPoolId: 
+          Ref: BlckBookUsers
+        GroupName: 'Admin'
+        Description: 'Base role for admins on BLCKBOOK'
+        Precedence: 0
+
+    BlckBookIdentityPool:
+      Type: AWS::Cognito::IdentityPool
+      Properties:
+        AllowUnauthenticatedIdentities: true
+         
+    UploadedArtworksBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.artwork_upload_s3_bucket_name}
+        AccessControl: Private
+        CorsConfiguration:
+            CorsRules:
+            -   AllowedHeaders: ["*"]
+                AllowedMethods: ["GET","PUT"]
+                AllowedOrigins: ["*"]
     
     userInfoTable:
       Type: AWS::DynamoDB::Table
@@ -89,25 +175,114 @@ resources:
       Properties:
         BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions:
-          - AttributeName: artworkId
-            AttributeType: S
+          - AttributeName: uploaderId
+            AttributeType: "S"
+          - AttributeName: uploadTimestamp
+            AttributeType: "N"
         KeySchema:
-          - AttributeName: artworkId
+          - AttributeName: uploaderId
             KeyType: HASH
+          - AttributeName: uploadTimestamp
+            KeyType: "RANGE"
         TableName: ${self:custom.uploaded_artworks_table_name}
     
-    uploadedArtworkAdminViewTable:
+    periodTable:
       Type: AWS::DynamoDB::Table
       Properties:
         BillingMode: PAY_PER_REQUEST 
         AttributeDefinitions:
           - AttributeName: periodId
-            AttributeType: S
-          - AttributeName: uploadDate
-            AttributeType: S
+            AttributeType: "S"
         KeySchema:
           - AttributeName: periodId
             KeyType: HASH
-          - AttributeName: uploadDate
+        TableName: ${self:custom.period_table_name}
+    
+    notificationTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: "S"
+          - AttributeName: timestamp
+            AttributeType: "N"
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: timestamp
             KeyType: RANGE
-        TableName: ${self:custom.uploaded_artworks_admin_view_table_name}
+        TableName: ${self:custom.notification_table_name}
+    
+    votePagesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: artworkId
+            AttributeType: S
+          - AttributeName: pageNumber
+            AttributeType: N
+          - AttributeName: uploaderId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: artworkId
+            KeyType: HASH
+        TableName: ${self:custom.vote_pages_table_name}
+        GlobalSecondaryIndexes:
+          - IndexName: PageIndex           
+            KeySchema:
+              - AttributeName: pageNumber
+                KeyType: HASH
+              - AttributeName: artworkId
+                KeyType: RANGE
+            Projection:
+              ProjectionType: 'ALL'
+          - IndexName: uploaderIndex           
+            KeySchema:
+              - AttributeName: uploaderId
+                KeyType: HASH
+            Projection:
+              ProjectionType: 'ALL'
+
+    archive:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: artworkId
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: artworkId
+            KeyType: HASH
+        TableName: ${self:custom.archive_table_name}
+  
+    mintedArtworks:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: tokenId
+            AttributeType: "N"
+        KeySchema:
+          - AttributeName: tokenId
+            KeyType: HASH
+        TableName: ${self:custom.minted_artworks_table_name}
+
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    
+    MintingQueue:
+      Type: 'AWS::SQS::Queue'
+      Properties:
+        VisibilityTimeout: 180
+        QueueName: ${self:custom.minting_queue_name}
+        ContentBasedDeduplication: true
+        FifoQueue: true

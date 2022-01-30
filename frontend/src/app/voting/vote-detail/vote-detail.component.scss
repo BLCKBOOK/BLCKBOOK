@@ -1,0 +1,10 @@
+.vote-button-container {
+  align-self: center;
+  button {
+    width: 160px;
+  }
+}
+
+.big-image {
+  max-height: calc(100vh - var(--navbarheight) - 2em - 182px - 69px) !important;
+}

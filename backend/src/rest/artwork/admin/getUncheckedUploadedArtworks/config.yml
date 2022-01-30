@@ -1,0 +1,20 @@
+adminGetUncheckedUploadedArtworks:
+  handler: src/rest/artwork/admin/getUncheckedUploadedArtworks/get.handler
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+      Resource:
+        - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+  events:
+    - http:
+        path: artwork/admin/getUncheckedUploadedArtworks
+        authorizer: 
+          name: BlckBookUsersAuthorizer
+          type: COGNITO_USER_POOLS
+          arn:
+            Fn::GetAtt:
+              - BlckBookUsers
+              - Arn
+        method: get
+        cors: true

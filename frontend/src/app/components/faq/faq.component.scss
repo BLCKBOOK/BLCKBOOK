@@ -1,0 +1,22 @@
+.faq-accordion {
+  mat-expansion-panel {
+    mat-expansion-panel-header {
+      mat-panel-title {
+        font-size: 1.5em;
+      }
+    }
+  }
+  margin-bottom: 16px;
+}
+
+.mat-expansion-panel-header {
+  height: 64px;
+}
+
+.mat-expansion-panel {
+  background: black;
+}
+
+.landing-width {
+  max-width: 1200px;
+}

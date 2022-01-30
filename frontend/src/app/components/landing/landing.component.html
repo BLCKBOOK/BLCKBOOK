@@ -1,0 +1,79 @@
+<app-drop-timer></app-drop-timer>
+<mat-card class="page-wrapper landing-1 welcome-card">
+  <div class="inner-wrapper" fxLayout="column" fxLayoutAlign="center">
+    <mat-card-title>FIND GRAFFITI.<br>
+      MINT NFTS.<br>
+      EARN CRYPTO.
+    </mat-card-title>
+    <div class="first-text">
+      <p>BLCKBOOK is an interactive game that let’s you create streetart NFTs while conquering your city and earn
+        crypto.
+        Launching soon.</p>
+    </div>
+    <app-social-buttons></app-social-buttons>
+  </div>
+  <img src="./assets/images/tezos-xtz-logo.svg" alt="xtz" class="xtz-logo">
+</mat-card>
+<mat-card class="page-wrapper landing-2 welcome-card">
+  <div class="inner-wrapper" fxLayout="column" fxLayoutAlign="center">
+    <mat-card-title>UNLIMITED CREATIVITY.<br>
+      CONQUER THE STREETS.
+    </mat-card-title>
+    <div>
+      <p>We believe graffiti is the last real art. Undomesticated, wild and full of potential. BLCKBOOK is as much of a
+        loveletter to the community of streetart and graffiti as it is a game. There is an unlimited amount of
+        creativity
+        around you. All you need to is to open your eyes</p>
+      <p> BLCKBOOK is a community-based platform. The community decides on which Graffiti gets minted by voting every
+        week. </p>
+    </div>
+  </div>
+</mat-card>
+<mat-card class="page-wrapper landing-3 welcome-card">
+  <div class="inner-wrapper" fxLayout="column" fxLayoutAlign="center">
+    <mat-card-title>HOW IT WORKS</mat-card-title>
+    <div>
+      <p>To succeed in BLCKBOOK, all it takes is for you to see amazing Graffiti and take a photo of it. Every week, the
+        best
+        Graffiti get auctioned and the finders get to keep the lion’s share. No time to be outside? No problem, just
+        vote
+        on
+        the coolest graffiti and earn crypto that way.
+      </p>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <div class="step" fxLayout="column">
+        <div class="step-icon">
+          <img src="./assets/images/landing/landing-example.webp" alt="Example Tag" class="step-image drop-shadow">
+        </div>
+        <div class="step-text">
+          <h4>YOU SPOT A GRAFFITI IN THE CITY AND TAKE A PHOTO</h4>
+        </div>
+      </div>
+      <div class="step" fxLayout="column">
+        <div class="step-icon vote-icons" fxLayout="row" fxLayoutAlign="center">
+          <img src="./assets/images/landing/thumb.webp" alt="Thumb" class="thumb drop-shadow">
+          <div fxLayout="column center">
+            <img src="./assets/images/landing/okay.webp" alt="Okay" class="okay drop-shadow">
+            <img src="./assets/images/landing/clap.webp" alt="Clap" class="clap drop-shadow">
+          </div>
+        </div>
+        <div class="step-text">
+          <h4>YOU GET COMMUNITY VOTES ON YOUR GRAFFITI</h4>
+        </div>
+      </div>
+      <div class="step" fxLayout="column">
+        <div class="step-icon">
+          <img src="./assets/images/landing/dark-resize.webp" alt="Dark Example Tag" class="dark-example drop-shadow">
+          <div class="bag-circle" fxLayout="row" fxLayoutAlign="center center">
+            <img src="./assets/images/landing/bag.webp" alt="Bag" class="bag drop-shadow">
+          </div>
+        </div>
+        <div class="step-text">
+          <h4>YOUR GRAFFITI GETS MINTED AND AUCTIONED, YOU EARN CRYPTO</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-card>
+<app-faq [landingMaxWidth]="true"></app-faq>

@@ -1,0 +1,57 @@
+- When freshly registering and logging in the admin field is not displayed
+
+save voted artworks to archive on trigger
+reset voted artworks when triggering vote switch
+notifications
+
+x endpoint get my voted artworks
+x endpoint get my current voted artwork
+x endpoint get votable artwork by id (for sending individual info)
+T endpoint vote for artwork
+x hide info provided from getVotableArtworks
+
+image upload Terms and conditions
+signup login Terms and conditions
+blckbook logo
+landing page before login
+impressum
+create currentPeriod on deploy
+notifications
+
+domain registrieren
+endpoint getcurrentPeriod
+reset service data on logout
+resizing: image resizing is done independent from metadata rotaion info
+Select location from gmaps
+upload: persuade axel that it is not good to require metadata in immages for upload.
+buy fonts
+upload: refactor page for better UX 
+remember accepting the Terms and conditions
+save period information in local storage. (this is necessary to reduce load on a single dynamodb partition.)
+
+upload: file drag and drop
+home screen: display if you already uploaded an artwork
+save selected artworks in database
+upload: on mobile remove image enlarge dialog
+Email already exists error message
+voting icon
+Register/pw reset Emails aufhübschen
+
+currentPeriod:
+change all date types to number (endingDate and startingDate) and also send both as number
+uploadTimestamp change datatype to number in the interface
+
+
+MILESTONE:
+x reactivate signup
+x gzip build
+x timed period trigger
+x set current perion to public
+x fix wrong endingdate in new period
+s3 deployment
+enable cloudfront distributions
+change domain to point to s3
+cors error when calling my current upload
+tutorial for wallet creation and connection with site
+set cors headers for all pages
+what happens when you mint with invalid walletId

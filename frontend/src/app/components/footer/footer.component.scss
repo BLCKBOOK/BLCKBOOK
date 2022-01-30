@@ -1,0 +1,49 @@
+.footer {
+  bottom: 0;
+  width: 100%;
+  color: white;
+  text-align: center;
+  mat-card {
+    background-image: linear-gradient(to top, black 40%, var(--dark-background-lighter-20) 80%);
+    max-width: unset;
+    border-radius: 0px;
+  }
+  padding-top: 2em;
+}
+
+.logo {
+  position: relative;
+  padding-top: 100px;
+  h4 {
+    font-size: x-large;
+    font-family: "Header Font";
+  }
+  h3 {
+    position: relative;
+    top: -15px;
+  }
+  margin-bottom: 6px;
+}
+
+.xtz-brand {
+  height: 25px;
+  margin-left: 4px;
+}
+
+.beneath-logo {
+  padding-top: 25px;
+}
+
+app-social-buttons {
+}
+
+.footer-content {
+  position: relative;
+  align-self: center;
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+a {
+  margin: .5em 0;
+}
