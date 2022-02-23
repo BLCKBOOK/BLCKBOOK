@@ -3,6 +3,10 @@ app-voting-scroll, .my-upload-border {
   margin-right: 10px;
 }
 
+.my-upload-border {
+  margin-top: 10px;
+}
+
 ::ng-deep .mat-tab-header {
   z-index: 999;
   width: 100%;
