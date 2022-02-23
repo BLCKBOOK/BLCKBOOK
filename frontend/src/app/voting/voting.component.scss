@@ -1,4 +1,4 @@
-::ng-deep .mat-tab-group {
+app-voting-scroll, .my-upload-border {
   margin-left: 10px;
   margin-right: 10px;
 }
@@ -80,10 +80,6 @@ $height-stuff: 48px;
   ::ng-deep .mat-ink-bar {
     bottom: 46px !important;
   }
-}
-
-.my-upload-border {
-  margin: 1em;
 }
 
 .no-upload-text {
