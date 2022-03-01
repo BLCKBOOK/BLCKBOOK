@@ -1,4 +1,4 @@
-<mat-form-field class="default-left-padding gallery-form-field" appearance="fill" *ngIf="(authState$ | async) === 'signedin'">
+<mat-form-field class="default-left-padding gallery-form-field" appearance="fill" *ngIf="authenticator.route === 'authenticated'">
   <mat-label>Show</mat-label>
   <mat-select [(value)]="scrollType">
     <mat-option value="gallery">All</mat-option>

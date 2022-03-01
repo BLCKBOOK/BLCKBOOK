@@ -68,6 +68,7 @@ import { TermsComponent } from './components/terms/terms.component';
 import {faGithub} from '@fortawesome/free-brands-svg-icons/faGithub';
 import {SharedModule} from './shared/shared.module';
 import { FAQComponent } from './components/faq/faq.component';
+import {AmplifyAuthenticatorModule} from '@aws-amplify/ui-angular';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -128,6 +129,7 @@ Auth.configure(awsconfig);
     MatExpansionModule,
     BeaconModule.forRoot(),
     SharedModule,
+    AmplifyAuthenticatorModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},

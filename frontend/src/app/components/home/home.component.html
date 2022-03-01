@@ -1,7 +1,9 @@
-<app-drop-timer></app-drop-timer>
-<div class="welcome-line">
-  <h2> {{('home.welcome' | translate) + ' ' + (username | async)}}</h2>
-</div>
+<app-drop-timer xmlns="http://www.w3.org/1999/html"></app-drop-timer>
+<ng-container *ngIf="!!authenticator.user">
+  <div class="welcome-line">
+    <h2> {{('home.welcome' | translate) + ' ' + authenticator.user.username }}</h2>
+  </div>
+</ng-container>
 <mat-card class="mat-card-margin home-card upload-card">
   <mat-card-title>UPLOAD</mat-card-title>
   <mat-card-content>

@@ -5,6 +5,7 @@ import {SnackBarService} from '../../services/snack-bar.service';
 import {Observable} from 'rxjs';
 import {first, map} from 'rxjs/operators';
 import { UserInfo } from '../../../../../backend/src/common/tableDefinitions';
+import {AuthenticatorService} from '@aws-amplify/ui-angular';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +20,7 @@ export class HomeComponent implements OnInit {
   hasVoted: Observable<boolean>;
   hasUploaded: Observable<boolean>;
 
-  constructor(private userService: UserService, private snackBarService: SnackBarService) {
+  constructor(private userService: UserService, private snackBarService: SnackBarService, public authenticator: AuthenticatorService) {
     this.userInfo = this.userService.getUserInfo();
     this.username = this.userInfo.pipe(map(user => user?.username ?? 'unknown'));
     this.hasVoted = this.userInfo.pipe(map(userInfo =>

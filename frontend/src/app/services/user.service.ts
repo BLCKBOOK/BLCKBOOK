@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
-import {AuthState, CognitoUserInterface, onAuthUIStateChange} from '@aws-amplify/ui-components';
-import {BehaviorSubject, from, interval, Observable, of, ReplaySubject, Subject} from 'rxjs';
+import {from, interval, Observable, of, ReplaySubject, Subject} from 'rxjs';
 import Auth from '@aws-amplify/auth';
 import {catchError, map} from 'rxjs/operators';
 import {UserInfo} from '../../../../backend/src/common/tableDefinitions';
@@ -12,9 +11,6 @@ import {UpdateService} from './update.service';
   providedIn: 'root'
 })
 export class UserService {
-
-  private user: Subject<CognitoUserInterface>;
-  private authState: BehaviorSubject<AuthState>;
   private readonly userInfoAPIURL = environment.urlString + '/user';
   private readonly getUserInfoURL = '/getMyUserInfo';
   private userInfo: Subject<UserInfo | undefined> = new ReplaySubject<UserInfo | undefined>(1);
@@ -24,34 +20,15 @@ export class UserService {
     this.updateService.getUpdateEvent$().subscribe(() => {
       this.internallyUpdate();
     });
-    this.user = new ReplaySubject<CognitoUserInterface>(1);
-    this.authState = new BehaviorSubject<AuthState>(AuthState.SignedOut);
-    Auth.currentAuthenticatedUser().then(user => {
-      this.user.next(user);
-      this.authState.next(AuthState.SignedIn);
+    Auth.currentAuthenticatedUser().then(() => {
       this.updateIsAdmin();
     }).catch(reason => console.log(reason));
-    onAuthUIStateChange((authState: AuthState, authData: any) => {
-      if (this.authState.getValue() !== authState) { // this sometimes gets triggered twice with the same state
-        this.authState.next(authState);
-        this.user.next(authData as CognitoUserInterface);
-        this.updateIsAdmin();
-        if (this.authState.getValue() === AuthState.SignedIn) {
-          console.log('triggered update after log-in');
-          this.updateService.triggerUpdateEvent();
-        }
-      }
-    });
     interval(60000).subscribe(() => {
       this.internallyUpdate();
     });
   }
 
-  public getAuthState(): Observable<AuthState> {
-    return this.authState.pipe();
-  }
-
-  private updateIsAdmin() {
+  public updateIsAdmin() {
     from(Auth.currentSession()).subscribe(session => {
       if (session.isValid()) {
         const decodedToken = session.getIdToken().decodePayload();
@@ -95,13 +72,7 @@ export class UserService {
   }
 
   public logOut(): Observable<any> {
-    this.authState.next(AuthState.SignedOut);
-    return from(Auth.signOut({global: false})).pipe(catchError(this.handleLogoutError).bind(this));
-  }
-
-  public handleLogoutError(): Observable<any> {
-    this.authState.next(AuthState.SignedOut);
-    return of(undefined);
+    return from(Auth.signOut({global: false}));
   }
 
   public handleError(error: any): Observable<boolean> {

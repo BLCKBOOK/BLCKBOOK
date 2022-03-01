@@ -1,7 +1,5 @@
 import {Component} from '@angular/core';
-import {Observable} from 'rxjs';
-import {AuthState} from '@aws-amplify/ui-components';
-import {UserService} from '../services/user.service';
+import {AuthenticatorService} from '@aws-amplify/ui-angular';
 
 @Component({
   selector: 'app-gallery',
@@ -11,9 +9,7 @@ import {UserService} from '../services/user.service';
 export class GalleryComponent {
 
   scrollType: 'gallery' | 'my-gallery' = 'gallery';
-  public authState$: Observable<AuthState>;
 
-  constructor(private userService: UserService) {
-    this.authState$ = this.userService.getAuthState();
+  constructor(public authenticator: AuthenticatorService) {
   }
 }

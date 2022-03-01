@@ -1,3 +1,5 @@
+<amplify-authenticator style="visibility: hidden; position: absolute; z-index: -100">
+</amplify-authenticator>
 <nav>
   <mat-toolbar fxLayout="row" fxFlexAlign="center">
     <div fxShow="true" fxHide.gt-sm="true">
@@ -11,10 +13,10 @@
       </div>
     </button>
     <div fxShow="true" fxHide.lt-md="true">
-      <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item" routerLink="/upload">
+      <button *ngIf="authenticator.route === 'authenticated'" mat-button class="nav-item" routerLink="/upload">
         UPLOAD
       </button>
-      <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item" routerLink="/voting">
+      <button *ngIf="authenticator.route === 'authenticated'" mat-button class="nav-item" routerLink="/voting">
         VOTE
       </button>
       <button mat-button class="nav-item" routerLink="/auction">
@@ -23,13 +25,13 @@
       <button mat-button class="nav-item" routerLink="/gallery">
         {{"navbar.gallery" | translate}}
       </button>
-      <button *ngIf="(isAdmin$ | async)" mat-button class="nav-item" routerLink="/admin">
+      <button *ngIf="(isAdmin$ | async) && authenticator.route === 'authenticated'" mat-button class="nav-item" routerLink="/admin">
         {{"navbar.admin" | translate}}
       </button>
     </div>
     <span class="example-spacer"></span>
     <button [ngClass.lt-md]="'mobile-sign-in'" mat-button
-            *ngIf="(authState$ | async) !== 'signedin'; else: profileAndNotifications" (click)="sidenav.close()"
+            *ngIf="authenticator.route !== 'authenticated'; else: profileAndNotifications" (click)="sidenav.close()"
             routerLink="/login">
       {{"navbar.sign-in" | translate}}
     </button>
@@ -84,11 +86,11 @@
   </mat-toolbar>
   <mat-sidenav-container fxFlexFill>
     <mat-sidenav #sidenav fxLayout="column" [mode]="'over'">
-      <div fxLayout="column">
-        <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item bigger-nav-item" routerLink="/upload" (click)="sidenav.toggle()">
+      <div fxLayout="column" >
+        <button *ngIf="authenticator.route === 'authenticated'" mat-button class="nav-item bigger-nav-item" routerLink="/upload" (click)="sidenav.toggle()">
           UPLOAD
         </button>
-        <button *ngIf="(authState$ | async) === 'signedin'" mat-button class="nav-item bigger-nav-item" routerLink="/voting" (click)="sidenav.toggle()">
+        <button *ngIf="authenticator.route === 'authenticated'" mat-button class="nav-item bigger-nav-item" routerLink="/voting" (click)="sidenav.toggle()">
           VOTE
         </button>
         <button mat-button class="nav-item bigger-nav-item" routerLink="/auction" (click)="sidenav.toggle()">
@@ -97,7 +99,7 @@
         <button mat-button class="nav-item bigger-nav-item" routerLink="/gallery" (click)="sidenav.toggle()">
           {{"navbar.gallery" | translate}}
         </button>
-        <button mat-button class="nav-item bigger-nav-item" *ngIf="isAdmin$ | async" routerLink="/admin"
+        <button mat-button class="nav-item bigger-nav-item" *ngIf="(isAdmin$ | async) && authenticator.route === 'authenticated'" routerLink="/admin"
                 (click)="sidenav.toggle()">
           {{"navbar.admin" | translate}}
         </button>
