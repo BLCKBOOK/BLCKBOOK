@@ -111,12 +111,13 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
       this.getArtworks(this.currentIndex + 4))
       .subscribe(artworksArray => {
         this.currentlyLoading = false;
-        const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
+        const artworks: VotableArtwork[] = [];
+        artworks.push(...artworksArray[0], ...artworksArray[1], ...artworksArray[2], ...artworksArray[3], ...artworksArray[4]);
         this.currentIndex = this.currentIndex + 5;
         const items: VoteMasonryItem[] = [];
-        artworks.forEach(artwork => {
+        for (const artwork of artworks) {
           items.push(this.votingService.getMasonryItemOfArtwork(artwork));
-        });
+        }
         this.masonryItems.push(...items);
       });
   }

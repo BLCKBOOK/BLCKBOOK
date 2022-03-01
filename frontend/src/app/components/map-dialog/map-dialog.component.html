@@ -4,7 +4,7 @@
   <h1 mat-dialog-title>ADD LOCATION DATA TO YOUR TAG</h1>
 </ng-template>
 <mat-dialog-content>
-  <div style="height: 70vh;" class="leaflet-container"
+  <div style="height: 80vh;" class="leaflet-container"
        leaflet
        [leafletLayers]="markers"
        [leafletOptions]="options" (leafletClick)="mapClick($event)" (leafletMapReady)="onMapReady($event)">
