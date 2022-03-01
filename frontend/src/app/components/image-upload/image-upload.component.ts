@@ -122,15 +122,14 @@ export class ImageUploadComponent implements OnInit {
       }
 
       const reader = new FileReader();
-      const image = new Image();
+
       reader.onload = (e: any) => {
-        image.src = e.target.result;
+        const image = new Image();
         image.onload = rs => {
           // @ts-ignore
           const height = rs.currentTarget['height'];
           // @ts-ignore
           const width = rs.currentTarget['width'];
-
           const ratio = Math.max(height, width) / Math.min(height, width);
           if (ratio > this.maxRatio) {
             this.dialogService.open(ErrorDialogComponent, {
@@ -143,11 +142,16 @@ export class ImageUploadComponent implements OnInit {
             this.imageInput.nativeElement.value = '';
             return false;
           }
-          this.readImageMetaData(upload); // very weird calling this from here... but I guess that's how it's gonna be
           return true;
         };
+        image.onerror = (error) => { // sometimes this is thrown for whatever reason.
+          this.showUploadError(error);
+          this.deleteImage();
+        }
+        image.src = e.target.result;
       };
       reader.readAsDataURL(upload);
+      this.readImageMetaData(upload); // very weird calling this from here... but I guess that's how it's gonna be
     }
   }
 
@@ -170,6 +174,17 @@ export class ImageUploadComponent implements OnInit {
         } as ErrorDialogData
       });
       this.imageInput.nativeElement.value = '';
+    });
+  }
+
+  private showUploadError(error: any) {
+    console.error(error);
+    this.dialogService.open(ErrorDialogComponent, {
+      width: this.errorDialogSize,
+      data: {
+        header: 'Image Upload Error',
+        text: 'Please try formatting and re-uploading or try another Image'
+      } as ErrorDialogData
     });
   }
 
