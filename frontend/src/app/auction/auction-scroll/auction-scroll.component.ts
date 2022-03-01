@@ -144,7 +144,7 @@ export class AuctionScrollComponent implements OnInit {
       return of([]);
     } else {
       console.error(error);
-      throw error;
+      return of([]);
     }
   }
 
