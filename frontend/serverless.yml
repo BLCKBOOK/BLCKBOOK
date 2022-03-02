@@ -22,6 +22,7 @@ package:
    - firebug-lite/**
    - e2e/**
    - coverage/**
+   - .angular/**
    - '!node_modules/aws-serverless-express/**'
    - '!node_modules/@vendia/**'
    - '!node_modules/binary-case/**'
