@@ -27,7 +27,7 @@ export class PeriodService {
       console.log('could not get period data. Probably because user is not logged in');
       return of(undefined);
     })).subscribe(period => {
-      if (period && this.currentPeriod === undefined || this.currentPeriod?.endingDate !== period?.endingDate) {
+      if (period && (this.currentPeriod === undefined || this.currentPeriod?.endingDate !== period?.endingDate)) {
         this.currentPeriod$.next(period);
         this.currentPeriod = <Period>period;
       }
@@ -46,8 +46,7 @@ export class PeriodService {
         const endDate = new Date(period.endingDate);
         const endTime = endDate.toLocaleDateString();
         return startTime + ' - ' + endTime;
-      }
-      else {
+      } else {
         return '';
       }
     }));

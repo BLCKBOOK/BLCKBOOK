@@ -20,8 +20,9 @@ export class UserService {
     this.updateService.getUpdateEvent$().subscribe(() => {
       this.internallyUpdate();
     });
-    Auth.currentAuthenticatedUser().then(() => {
+    Auth.currentAuthenticatedUser().then(user => {
       this.updateIsAdmin();
+      this.userInfo.next(user);
     }).catch(reason => console.log(reason));
     interval(60000).subscribe(() => {
       this.internallyUpdate();

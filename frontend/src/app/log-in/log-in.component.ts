@@ -17,6 +17,7 @@ export class LogInComponent {
     if (this.authenticator.route === 'authenticated') {
       this.router.navigate(['home']);
       this.userService.updateIsAdmin();
+      this.userService.requestUserInfo();
     }
   }
 }

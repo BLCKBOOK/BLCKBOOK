@@ -5,7 +5,6 @@ import {Clipboard} from '@angular/cdk/clipboard';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {ErrorStateMatcher} from '@angular/material/core';
 import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
-import {isNumeric} from 'rxjs/internal-compatibility';
 import {BlockchainService} from '../../services/blockchain.service';
 import {BehaviorSubject} from 'rxjs';
 import {TzktAuction, TzKtAuctionHistoricalKey} from '../../types/tzkt.auction';
@@ -118,7 +117,7 @@ export class AuctionDetailComponent implements OnInit {
   }
 
   bid(key: string) {
-    if (this.bidFormControl.value && isNumeric(this.bidFormControl.value)) {
+    if (this.bidFormControl.value && this.isNumeric(this.bidFormControl.value)) {
       const mutezAmount = this.bidFormControl.value as number * 1000000;
       this.beaconService.bid(key, mutezAmount.toString()).then(successful => {
         if (successful) {
@@ -131,5 +130,11 @@ export class AuctionDetailComponent implements OnInit {
 
   reconnectWallet() {
     this.beaconService.connect();
+  }
+
+  isNumeric(str: any): boolean {
+    if (typeof str != "string") return false // we only process strings!
+    return !isNaN(Number(str)) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+      !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
   }
 }

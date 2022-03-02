@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
-import {from, Observable, of} from 'rxjs';
+import {flatMap, from, Observable, of, take} from 'rxjs';
 import parse from 'url-parse';
 import Auth from '@aws-amplify/auth';
-import {flatMap, take} from 'rxjs/internal/operators';
 import {catchError} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 

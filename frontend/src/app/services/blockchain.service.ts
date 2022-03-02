@@ -69,16 +69,20 @@ export class BlockchainService {
     return result;
   }
 
-  async getMintedArtworkForId(auctionId: number): Promise<MintedArtwork> {
+  async getMintedArtworkForId(auctionId: number): Promise<MintedArtwork | undefined> {
     return this.httpClient.get<MintedArtwork>(this.mintedArtworkByTokenIDURL + auctionId).toPromise();
   }
 
   public async getMasonryItemsOfPastAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
     const liveAuctions = await this.getPastAuctions(offset).toPromise();
     const retValue = [];
-    for (const auction of liveAuctions) {
-      const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
-      retValue.push(this.getMasonryItemOfAuction(auction, mintedArtwork));
+    if (liveAuctions) {
+      for (const auction of liveAuctions) {
+        const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
+        if (mintedArtwork) {
+          retValue.push(this.getMasonryItemOfAuction(auction, mintedArtwork));
+        }
+      }
     }
     return retValue;
   }
@@ -86,9 +90,13 @@ export class BlockchainService {
   public async getMasonryItemsOfLiveAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
     const liveAuctions = await this.getLiveAuctions(offset).toPromise();
     const retValue = [];
-    for (const auction of liveAuctions) {
-      const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
-      retValue.push(this.getMasonryItemOfAuction(auction, mintedArtwork));
+    if (liveAuctions) {
+      for (const auction of liveAuctions) {
+        const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
+        if (mintedArtwork) {
+          retValue.push(this.getMasonryItemOfAuction(auction, mintedArtwork));
+        }
+      }
     }
     return retValue;
   }
@@ -115,7 +123,9 @@ export class BlockchainService {
         for (const token of tokens.balances) {
           const artwork = await this.getMintedArtworkForId(token.token_id);
           const auction = await this.getAuction(token.token_id).toPromise();
-          retArray.push(this.getMasonryItemOfAuction(auction, artwork));
+          if (artwork && auction) {
+            retArray.push(this.getMasonryItemOfAuction(auction, artwork));
+          }
         }
         return retArray;
       }
