@@ -6,7 +6,7 @@ import {UploadedArtworkIndex, VotableArtwork} from '../../../../../backend/src/c
 import {VotingService} from '../voting.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
-import {Observable, of, zip} from 'rxjs';
+import {Observable, of, take, zip} from 'rxjs';
 import {catchError, map, takeUntil} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {UpdateService} from '../../services/update.service';
@@ -53,6 +53,11 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.masonry.reloadItems();
     this.masonry.layout();
+    if (this.scrollType === 'voting-selected') {
+      this.masonry.layoutComplete.pipe(take(1)).subscribe(() => {
+        this.onResize(); // this fixes a rendering issue on firefox
+      });
+    }
   }
 
   ngOnInit() {
