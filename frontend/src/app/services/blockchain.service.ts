@@ -49,7 +49,7 @@ export class BlockchainService {
       // @ts-ignore access the token-metadata
       const byteString = metadata.value.token_info[''];
       const ipfsAddress = this.hexStringToString(byteString);
-      return environment.pinataGateway + ipfsAddress.substring(7); // second part gets the hash
+      return environment.pinataGateway + ipfsAddress;
     }));
   }
 

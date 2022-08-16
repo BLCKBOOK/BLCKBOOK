@@ -13,6 +13,6 @@ export const environment = {
   betterCallDevAddress: 'https://api.better-call.dev/v1/', //ToDo: change to TzKt as BCD-API will become private
   betterCallDevNetwork: 'ghostnet', //ToDo: change to TzKt as BCD-API will become private
   cryptoNet: 'ghostnet', // ToDo: change all of these to mainnet
-  pinataGateway: 'https://blckbook.mypinata.cloud/',
+  pinataGateway: 'https://blckbook.mypinata.cloud/ipfs/',
   taquitoRPC: 'https://hangzhounet.api.tez.ie',
 };
