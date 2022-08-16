@@ -35,14 +35,6 @@ export class HomeComponent implements OnInit {
         this.snackBarService.openSnackBarWithNavigation('You don\'t have a wallet connected', 'Connect wallet', '/wallet');
       }
     });
-
-    /*    if (navigator && navigator.geolocation) {
-          this.logger.log('location');
-          navigator.geolocation.getCurrentPosition(this.successCallback, this.errorCallback);
-        } else {
-          window.alert('no location');
-          this.logger.log('no location');
-        }*/
   }
 
 }

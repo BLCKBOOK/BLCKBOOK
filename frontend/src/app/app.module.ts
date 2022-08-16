@@ -12,7 +12,6 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {HomeComponent} from './components/home/home.component';
-import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
 import {MatDialogModule} from '@angular/material/dialog';
 import {AuthInterceptor} from './services/AuthInterceptor';
@@ -68,14 +67,15 @@ import { TermsComponent } from './components/terms/terms.component';
 import {faGithub} from '@fortawesome/free-brands-svg-icons/faGithub';
 import {SharedModule} from './shared/shared.module';
 import { FAQComponent } from './components/faq/faq.component';
-import {AmplifyAuthenticatorModule} from '@aws-amplify/ui-angular';
+import {AmplifyAuthenticatorModule, AuthenticatorService} from '@aws-amplify/ui-angular';
+import {Amplify} from 'aws-amplify';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   return new TranslateHttpLoader(http, 'assets/translations.', '.json');
 }
 
-Auth.configure(awsconfig);
+Amplify.configure(awsconfig);
 
 @NgModule({
   declarations: [
@@ -133,7 +133,7 @@ Auth.configure(awsconfig);
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
-    [AuthGuardService, AdminAuthGuardService, MatSnackBar, HomeNavigationService]
+    [AuthGuardService, AdminAuthGuardService, MatSnackBar, HomeNavigationService, AuthenticatorService]
   ],
   bootstrap: [AppComponent],
 })

@@ -34,11 +34,8 @@ export class NavigationComponent {
   }
 
   logOut() {
-    this.userService.logOut().subscribe(() => {
-      this.router.navigate(['']);
-    }, () => {
-      this.router.navigate(['']);
-    });
+    this.userService.logOut();
+    this.router.navigate(['']);
   }
 
   openInNewTab(namedRoute: string) {

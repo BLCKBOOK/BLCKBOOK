@@ -1,11 +1,10 @@
 import {Injectable} from '@angular/core';
-import {from, interval, Observable, of, ReplaySubject, Subject} from 'rxjs';
-import Auth from '@aws-amplify/auth';
-import {catchError, map} from 'rxjs/operators';
+import {Observable, of, ReplaySubject, Subject} from 'rxjs';
 import {UserInfo} from '../../../../backend/src/common/tableDefinitions';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {UpdateService} from './update.service';
+import {AuthenticatorService} from '@aws-amplify/ui-angular';
 
 @Injectable({
   providedIn: 'root'
@@ -16,64 +15,48 @@ export class UserService {
   private userInfo: Subject<UserInfo | undefined> = new ReplaySubject<UserInfo | undefined>(1);
   private adminSubject: Subject<boolean> = new ReplaySubject<boolean>(1);
 
-  constructor(private httpClient: HttpClient, private updateService: UpdateService) {
+  constructor(private httpClient: HttpClient, private updateService: UpdateService, public authenticator: AuthenticatorService) {
     this.updateService.getUpdateEvent$().subscribe(() => {
       this.internallyUpdate();
     });
-    Auth.currentAuthenticatedUser().then(user => {
-      this.updateIsAdmin();
-      this.userInfo.next(user);
-    }).catch(reason => console.log(reason));
-    interval(60000).subscribe(() => {
-      this.internallyUpdate();
-    });
+    const user = this.authenticator.user;
+    if (user) {
+      this.requestUserInfo();
+    }
   }
 
   public updateIsAdmin() {
-    from(Auth.currentSession()).subscribe(session => {
-      if (session.isValid()) {
-        const decodedToken = session.getIdToken().decodePayload();
-        const groups: string[] = decodedToken['cognito:groups'];
-        if (groups.includes('Admin')) {
-          this.adminSubject.next(true);
-          return;
-        }
+    const decodedToken = this.authenticator.user?.getSignInUserSession()?.getIdToken().decodePayload();
+    if (decodedToken) {
+      const groups: string[] = decodedToken['cognito:groups'];
+      if (groups.includes('Admin')) {
+        this.adminSubject.next(true);
+        return;
       }
-      this.adminSubject.next(false);
-    }, () => this.adminSubject.next(false));
+    }
   }
 
-  public adminCheckForRouting(): Observable<boolean> {
-    return from(Auth.currentSession()).pipe(catchError(this.handleError.bind(this)), map(session => {
-      if (session === false || session === true) { // session === true will never happen
-        return false;
+  public adminCheckForRouting(): boolean {
+    const decodedToken = this.authenticator.user?.getSignInUserSession()?.getIdToken().decodePayload();
+    if (decodedToken) {
+      const groups: string[] = decodedToken['cognito:groups'];
+      if (groups.includes('Admin')) {
+        return true;
       }
-      if (session.isValid()) {
-        const decodedToken = session.getIdToken().decodePayload();
-        const groups: string[] = decodedToken['cognito:groups'];
-        if (groups.includes('Admin')) {
-          return true;
-        }
-      }
-      return false;
-    }));
+    }
+    return false;
   }
 
   public isAdmin(): Observable<boolean> {
     return this.adminSubject.pipe();
   }
 
-  public isAuthenticated(): Observable<boolean> {
-    return from(Auth.currentSession()).pipe(catchError(this.handleError.bind(this)), map(session => {
-      if (session === false || session === true) { // session === true will never happen
-        return false;
-      }
-      return session.isValid();
-    }));
+  public isAuthenticated(): boolean {
+    return !!this.authenticator.user
   }
 
-  public logOut(): Observable<any> {
-    return from(Auth.signOut({global: false}));
+  public logOut(): void {
+    return this.authenticator.signOut({global: false});
   }
 
   public handleError(error: any): Observable<boolean> {
@@ -97,7 +80,9 @@ export class UserService {
   }
 
   private internallyUpdate() {
-    this.requestUserInfo();
+    if (this.authenticator.user) { // we can not get it otherwise - throws 401
+      this.requestUserInfo();
+    }
   }
 
   getUserInfo(): Observable<UserInfo | undefined> {
