@@ -14,5 +14,5 @@ export const environment = {
   betterCallDevNetwork: 'ghostnet',
   cryptoNet: 'ghostnet',
   pinataGateway: 'https://blckbook.mypinata.cloud/ipfs/',
-  taquitoRPC: 'https://hangzhounet.api.tez.ie',
+  taquitoRPC: 'https://rpc.ghostnet.teztnets.xyz',
 };
