@@ -21,16 +21,16 @@ export class HomeComponent implements OnInit {
   hasUploaded: Observable<boolean>;
 
   constructor(private userService: UserService, private snackBarService: SnackBarService, public authenticator: AuthenticatorService) {
+  }
+
+  ngOnInit(): void {
     this.userInfo = this.userService.getUserInfo();
     this.username = this.userInfo.pipe(map(user => user?.username ?? 'unknown'));
     this.hasVoted = this.userInfo.pipe(map(userInfo =>
       !!(userInfo?.hasVoted)));
     this.hasUploaded = this.userInfo.pipe(map(userInfo =>
       !!(userInfo?.uploadsDuringThisPeriod)));
-  }
-
-  ngOnInit(): void {
-    this.userService.getUserInfo().pipe(first()).subscribe(userInfo => {
+    this.userInfo.pipe(first()).subscribe(userInfo => {
       if ((userInfo && !userInfo.walletId)) {
         this.snackBarService.openSnackBarWithNavigation('You don\'t have a wallet connected', 'Connect wallet', '/wallet');
       }

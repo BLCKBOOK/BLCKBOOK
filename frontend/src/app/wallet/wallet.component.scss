@@ -2,6 +2,20 @@ mat-form-field {
   width: 100%;
 }
 
+.container {
+  margin-bottom: 1em;
+}
+
+.line-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.user-data {
+  color: var(--primary-color);
+}
+
+
 .my-translated-paragraph {
   white-space: pre-wrap;
 }

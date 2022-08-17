@@ -6,7 +6,7 @@
     "admin": "ADMIN",
     "sign-in": "SIGN IN",
     "sign-up": "SIGN UP",
-    "wallet": "WALLET",
+    "user": "USER",
     "logout": "LOGOUT"
   },
   "home": {
