@@ -42,17 +42,19 @@ export class WalletComponent implements OnInit {
     this.userService.requestUserInfo().subscribe(info => {
       if (info && info.walletId) {
         this.walletID = info.walletId;
-        this.updateIsUserRegistered();
+        this.updateIsUserRegistered(this.walletID);
       }
     });
   }
 
-  private updateIsUserRegistered() {
+  private updateIsUserRegistered(address: string | undefined) {
     this.isRegisteredLoading = true;
-    this.blockchainService.userIsRegistered(this.walletID).subscribe(registered => {
-      this.isRegistered$.next(registered);
-      this.isRegisteredLoading = false;
-    });
+    if (address !== undefined) {
+      this.blockchainService.userIsRegistered(address).subscribe(registered => {
+        this.isRegistered$.next(registered);
+        this.isRegisteredLoading = false;
+      });
+    }
   }
 
   calculateVoteMoneyPoolAmount() {
@@ -67,9 +69,7 @@ export class WalletComponent implements OnInit {
   connectWallet() {
     from(this.beaconService.connect()).subscribe(address => {
       if (this.walletID !== address) {
-        console.log(address);
-        console.log('it happened here');
-        this.updateIsUserRegistered();
+        this.updateIsUserRegistered(address);
       }
     });
   }

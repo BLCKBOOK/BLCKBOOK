@@ -149,7 +149,6 @@ export class BlockchainService {
 
   public userIsRegistered(userWallet: string): Observable<boolean> {
     return this.httpClient.get<Object>(environment.tzktAddress + 'contracts/' + environment.bankContractAddress + '/bigmaps/withdrawls/keys/' + userWallet).pipe(map(response => {
-      console.log(!!response);
       return !!response;
     }));
   }
