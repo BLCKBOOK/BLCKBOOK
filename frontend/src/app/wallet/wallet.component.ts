@@ -3,11 +3,12 @@ import {UserService} from '../services/user.service';
 import {FormControl, Validators} from '@angular/forms';
 import {SnackBarService} from '../services/snack-bar.service';
 import {TranslateService} from '@ngx-translate/core';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, from, ReplaySubject} from 'rxjs';
 import {BeaconService} from '../beacon/beacon.service';
 import {TaquitoService} from '../taquito/taquito.service';
 import {CurrencyService} from '../services/currency.service';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
+import {BlockchainService} from '../services/blockchain.service';
 
 @Component({
   selector: 'app-wallet',
@@ -23,12 +24,14 @@ export class WalletComponent implements OnInit {
   currentAmount: BehaviorSubject<string> = new BehaviorSubject<string>('');
   calculating = false;
   calculationTriggered = false;
+  isRegisteredLoading = true;
+  isRegistered$ = new ReplaySubject<boolean>();
   faRedo = findIconDefinition({prefix: 'fas', iconName: 'redo'});
 
   walletIdForm = new FormControl('', [Validators.pattern(this.tezRegex)]);
 
   constructor(private beaconService: BeaconService, private userService: UserService, private snackBarService: SnackBarService, private translateService: TranslateService,
-              private taquitoService: TaquitoService, private currencyService: CurrencyService) {
+              private taquitoService: TaquitoService, private currencyService: CurrencyService, private blockchainService: BlockchainService) {
   }
 
   ngOnInit() {
@@ -36,10 +39,19 @@ export class WalletComponent implements OnInit {
   }
 
   private updateWalletIdFromServer() {
-    this.userService.getUserInfo().subscribe(info => {
+    this.userService.requestUserInfo().subscribe(info => {
       if (info && info.walletId) {
         this.walletID = info.walletId;
+        this.updateIsUserRegistered();
       }
+    });
+  }
+
+  private updateIsUserRegistered() {
+    this.isRegisteredLoading = true;
+    this.blockchainService.userIsRegistered(this.walletID).subscribe(registered => {
+      this.isRegistered$.next(registered);
+      this.isRegisteredLoading = false;
     });
   }
 
@@ -53,7 +65,13 @@ export class WalletComponent implements OnInit {
   }
 
   connectWallet() {
-    this.beaconService.connect();
+    from(this.beaconService.connect()).subscribe(address => {
+      if (this.walletID !== address) {
+        console.log(address);
+        console.log('it happened here');
+        this.updateIsUserRegistered();
+      }
+    });
   }
 
   getErrorMessage(): string {

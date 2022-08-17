@@ -146,4 +146,11 @@ export class BlockchainService {
     const params = new HttpParams().set('token_id', id);
     return this.httpClient.get<Object>(environment.betterCallDevAddress + 'contract/' + environment.betterCallDevNetwork + '/' + environment.tokenContractAddress + '/tokens/holders', {params});
   }
+
+  public userIsRegistered(userWallet: string): Observable<boolean> {
+    return this.httpClient.get<Object>(environment.tzktAddress + 'contracts/' + environment.bankContractAddress + '/bigmaps/withdrawls/keys/' + userWallet).pipe(map(response => {
+      console.log(!!response);
+      return !!response;
+    }));
+  }
 }

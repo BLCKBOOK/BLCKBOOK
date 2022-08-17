@@ -44,3 +44,15 @@
     </button>
   </mat-card-actions>
 </mat-card>
+<mat-card>
+  <mat-card-title>$PRAY Banking</mat-card-title>
+  <mat-card-content>
+    <mat-spinner style="margin: 0 auto;" *ngIf="isRegisteredLoading; else: registeredLoaded"></mat-spinner>
+    <ng-template #registeredLoaded>
+      <div *ngIf="(isRegistered$ | async); else: notRegistered" class="my-translated-paragraph"> {{'bank.registered' | translate}}</div>
+      <ng-template #notRegistered>
+        <div class="my-translated-paragraph"> {{'bank.not-registered' | translate}}</div>
+      </ng-template>
+    </ng-template>
+  </mat-card-content>
+</mat-card>

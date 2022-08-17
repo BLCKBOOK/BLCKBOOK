@@ -7,7 +7,7 @@ import {
   NetworkType,
   TezosOperationType
 } from '@airgap/beacon-sdk';
-import {Observable} from 'rxjs';
+import {firstValueFrom, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {UpdateUploadedArtworksRequestBody} from '../../../../backend/src/rest/user/setMyWalletId/apiSchema';
 import {environment} from '../../environments/environment';
@@ -43,7 +43,7 @@ export class BeaconService {
     return await this.dAppClient.getActiveAccount();
   }
 
-  async connect(): Promise<string> {
+  async connect(): Promise<string | undefined> {
     const activeAccount = await this.dAppClient.requestPermissions({
       network: {
         type: this.network,
@@ -52,7 +52,8 @@ export class BeaconService {
     return await this.askUserForWalletChange(activeAccount.address);
   }
 
-  private async askUserForWalletChange(activeAccount: string): Promise<string> {
+  private async askUserForWalletChange(activeAccount: string): Promise<string | undefined> {
+    console.log(this.userInfo);
     if (this.userInfo && this.userInfo.walletId && this.userInfo.walletId !== activeAccount) {
       const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
         width: '90%',
@@ -63,11 +64,12 @@ export class BeaconService {
           cancelText: 'No',
         } as ConfirmDialogData
       });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.setWalletID(activeAccount);
-        }
-      });
+      const result = await firstValueFrom(dialogRef.afterClosed());
+      if (result) {
+        await firstValueFrom(this.setWalletID(activeAccount));
+      } else {
+        activeAccount = this.userInfo.walletId;
+      }
     } else if (this.userInfo && !this.userInfo.walletId) {
       const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
         width: '90%',
@@ -78,16 +80,15 @@ export class BeaconService {
           cancelText: 'No',
         } as ConfirmDialogData
       });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.setWalletID(activeAccount);
-        }
-      });
+      const result = await firstValueFrom(dialogRef.afterClosed());
+      if (result) {
+        await firstValueFrom(this.setWalletID(activeAccount));
+      }
     }
     return activeAccount;
   }
 
-  async getAddress(): Promise<string> {
+  async getAddress(): Promise<string | undefined> {
     let activeAccount = await this.getActiveAccount();
     if (activeAccount) {
       return activeAccount.address;
@@ -113,7 +114,7 @@ export class BeaconService {
   async bid(auctionId: string, amountInMutez: string): Promise<boolean> {
     const activeAccount = await this.getActiveAccount();
     if (activeAccount) {
-      await this.askUserForWalletChange(activeAccount?.address)
+      await this.askUserForWalletChange(activeAccount?.address);
     } else {
       await this.connect();
     }
@@ -168,7 +169,7 @@ export class BeaconService {
         }
       });
     } else {
-      this.actuallyWithdraw()
+      await this.actuallyWithdraw();
     }
   }
 
