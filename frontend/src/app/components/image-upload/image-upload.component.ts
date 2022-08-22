@@ -66,7 +66,7 @@ export class ImageUploadComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.periodService.getCurrentPeriodString().subscribe(period => this.currentPeriod = period);
+    this.periodService.getCurrentDeadlineString().subscribe(period => this.currentPeriod = period);
     const upload: UploadedArtwork = this.route.snapshot.data['uploadedImage'];
     if (upload) {
       this.alreadyUploaded = true;

@@ -1,54 +1,49 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {environment} from '../../environments/environment';
-import {interval, Observable, of, ReplaySubject, Subject} from 'rxjs';
-import {Period} from '../../../../backend/src/common/tableDefinitions';
-import {catchError, map} from 'rxjs/operators';
+import {interval, Observable, ReplaySubject, Subject} from 'rxjs';
+import {BlockchainService} from './blockchain.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PeriodService {
 
-  private readonly periodAPIURL = environment.urlString + '/period';
-  private readonly getCurrentPeriodURL = '/getCurrentPeriod';
-  private currentPeriod$: Subject<Period> = new ReplaySubject<Period>(1);
-  private currentPeriod: Period;
+  private currentDeadline$: Subject<number> = new ReplaySubject<number>(1);
+  private periodEnded$: Subject<void> = new Subject<void>();
+  private currentDeadline: number;
+  private deadlineHasPassed = false;
 
-  constructor(private httpClient: HttpClient) {
-    this.updatePeriod();
-    interval(60000).subscribe(() => {
-      this.updatePeriod();
+  constructor(private httpClient: HttpClient, private blockchainService: BlockchainService) {
+    this.updateDeadline();
+    interval(6000).subscribe(() => {
+      this.updateDeadline();
     });
   }
 
-  private updatePeriod() {
-    this.httpClient.get<Period>(this.periodAPIURL + this.getCurrentPeriodURL).pipe(catchError(() => {
-      console.log('could not get period data. Probably because user is not logged in');
-      return of(undefined);
-    })).subscribe(period => {
-      if (period && (this.currentPeriod === undefined || this.currentPeriod?.endingDate !== period?.endingDate)) {
-        this.currentPeriod$.next(period);
-        this.currentPeriod = <Period>period;
+  private updateDeadline() {
+    this.blockchainService.getVotingPeriodEndMS().subscribe(deadline => {
+      if (!this.deadlineHasPassed && this.currentDeadline == deadline && deadline < Date.now()) {
+        this.deadlineHasPassed = true;
+        this.periodEnded$.next();
+      }
+      if (this.currentDeadline !== deadline) {
+        console.log('the deadline changed!');
+        this.currentDeadline$.next(deadline);
+        this.currentDeadline = deadline;
+        this.deadlineHasPassed = false;
       }
     });
   }
 
-  public getPeriod(): Observable<Period> {
-    return this.currentPeriod$.pipe();
+  public getPeriodEnded$(): Observable<void> {
+    return this.periodEnded$.pipe()
   }
 
-  public getCurrentPeriodString(): Observable<string> {
-    return this.currentPeriod$.pipe(map(period => {
-      if (period) {
-        const date = new Date(period.startingDate);
-        const startTime = date.toLocaleDateString();
-        const endDate = new Date(period.endingDate);
-        const endTime = endDate.toLocaleDateString();
-        return startTime + ' - ' + endTime;
-      } else {
-        return '';
-      }
-    }));
+  public getDeadline(): Observable<Number> {
+    return this.currentDeadline$.pipe();
+  }
+
+  public getCurrentDeadlineString(): Observable<string> {
+    return this.blockchainService.getVotingPeriodEnd();
   }
 }

@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {CountdownConfig} from 'ngx-countdown';
-import {PeriodService} from '../../services/period.service';
+import {BlockchainService} from '../../services/blockchain.service';
+import {UpdateService} from '../../services/update.service';
+import {skip} from 'rxjs/operators';
 
 const CountdownTimeUnits: Array<[string, number, number]> = [
   ['D', 1000 * 60 * 60 * 24, 365], // days
@@ -9,7 +11,7 @@ const CountdownTimeUnits: Array<[string, number, number]> = [
   ['s', 1000, 60], // seconds
 ];
 
-const format = ({ date, formatStr }:{date:any,formatStr:any}) => {
+const format = ({date, formatStr}: { date: any, formatStr: any }) => {
   let duration = Number(date || 0);
 
   return CountdownTimeUnits.reduce((current, [name, unit, wrap]) => {
@@ -22,7 +24,7 @@ const format = ({ date, formatStr }:{date:any,formatStr:any}) => {
     }
     return current;
   }, formatStr);
-}
+};
 
 @Component({
   selector: 'app-drop-timer',
@@ -36,31 +38,45 @@ export class DropTimerComponent implements OnInit {
   minutesConfig: CountdownConfig;
   hoursConfig: CountdownConfig;
   daysConfig: CountdownConfig;
+  deadlineHasPassed: boolean;
 
-  constructor(private periodService: PeriodService) { }
+  constructor(private updateService: UpdateService, private blockchainService: BlockchainService) {
+  }
 
   ngOnInit(): void {
-    this.periodService.getPeriod().subscribe(period => {
-      this.secondsConfig = {
-        stopTime: period.endingDate,
-        format: "ss",
-        formatDate: format
-      };
-      this.minutesConfig = {
-        stopTime: period.endingDate,
-        format: "mm",
-        formatDate: format 
-      };
-      this.hoursConfig = {
-        stopTime: period.endingDate,
-        format: "HH",
-        formatDate: format
-      };
-      this.daysConfig = {
-        stopTime: period.endingDate,
-        format: "DD",
-        formatDate: format 
-      };
+    this.updateService.getUpdateEvent$().subscribe(() =>
+      this.updateTimer());
+    this.updateService.getPeriodEnded$().pipe(skip(1)).subscribe(() =>
+      this.updateTimer());
+  }
+
+  private updateTimer() {
+    this.blockchainService.getVotingPeriodEndMS().subscribe(deadline => {
+      if (deadline > Date.now()) {
+        this.deadlineHasPassed = false;
+        this.secondsConfig = {
+          stopTime: deadline,
+          format: 'ss',
+          formatDate: format
+        };
+        this.minutesConfig = {
+          stopTime: deadline,
+          format: 'mm',
+          formatDate: format
+        };
+        this.hoursConfig = {
+          stopTime: deadline,
+          format: 'HH',
+          formatDate: format
+        };
+        this.daysConfig = {
+          stopTime: deadline,
+          format: 'DD',
+          formatDate: format
+        };
+      } else {
+        this.deadlineHasPassed = true;
+      }
     });
   }
 

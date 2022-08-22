@@ -152,4 +152,27 @@ export class BlockchainService {
       return !!response;
     }));
   }
+
+  public getVotingPeriodPassed(): Observable<boolean> {
+    const params = new HttpParams().set('path', 'deadline');
+    return this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params}).pipe(map(deadline => {
+      return Date.parse(deadline) < Date.now();
+    }));
+  }
+
+  public getVotingPeriodEnd(): Observable<string> {
+    const params = new HttpParams().set('path', 'deadline');
+    return this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params}).pipe(map(deadline => {
+      const end_date = new Date(deadline);
+      return end_date.toLocaleDateString() + ' ' + end_date.toLocaleTimeString();
+    }));
+  }
+
+  public getVotingPeriodEndMS(): Observable<number> {
+    const params = new HttpParams().set('path', 'deadline');
+    return this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params}).pipe(map(deadline => {
+      return Date.parse(deadline);
+    }));
+  }
+
 }
