@@ -44,7 +44,7 @@ export class VotingService {
       if (info && info.walletId) {
         this.walletID = info.walletId;
         this.blockchainService.getAmountOfVotesLeft(this.walletID).subscribe(votesLeft => {
-          if (votesLeft < 5) {
+          if (votesLeft === 0) {
             this.alreadyVoted.next(true);
           } else {
             this.alreadyVoted.next(false);
@@ -55,33 +55,34 @@ export class VotingService {
             this.myUpload.next(upload);
           }
         })
+        this.getMyVotes$().subscribe(votes => {
+          const items: VoteMasonryItem[] = [];
+          votes.forEach(artwork => {
+            const title = artwork.title;
+            const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
+            const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
+            const voted = true;
+            const item = {
+              title: title,
+              srcSet: srcSet,
+              img: url,
+              voted: voted,
+              artwork: artwork
+            } as VoteMasonryItem;
+            items.push(item);
+          });
+          this.votedArtworks.next(items);
+          this.alreadyVoted.next(true);
+        }, error => {
+          if (error.status === 404) {
+            this.votedArtworks.next([]);
+            this.alreadyVoted.next(false);
+          }
+        })
+      } else {
+        console.error('no user-data so not able to vote')
       }
     });
-
-    this.getMyVotes$().subscribe(votes => {
-      const items: VoteMasonryItem[] = [];
-      votes.forEach(artwork => {
-        const title = artwork.title;
-        const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
-        const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
-        const voted = true;
-        const item = {
-          title: title,
-          srcSet: srcSet,
-          img: url,
-          voted: voted,
-          artwork: artwork
-        } as VoteMasonryItem;
-        items.push(item);
-      });
-      this.votedArtworks.next(items);
-      this.alreadyVoted.next(true);
-    }, error => {
-      if (error.status === 404) {
-        this.votedArtworks.next([]);
-        this.alreadyVoted.next(false);
-      }
-    })
   }
 
   public getMasonryItemOfArtwork(artwork: VotableArtwork, voted?: boolean) {
@@ -132,7 +133,7 @@ export class VotingService {
   }
 
   private getMyVotes$(): Observable<VotableArtwork[]> {
-    return this.httpClient.get<VotableArtwork[]>(this.voteAPIURL + this.getMyVotesURL);
+    return from(this.blockchainService.getMyVotes(this.walletID));
   }
 
   public voteForArtworks() {

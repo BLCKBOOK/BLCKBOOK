@@ -8,7 +8,7 @@ import {
   TzktStorageStringKey,
   TzktVotableArtwork,
   TzktVoteArtworkDataKey,
-  TzktVotesEntryKey,
+  TzktVotesEntryKey, TzktVotesRegisterEntryKey,
 } from '../types/tzkt.auction';
 import {AuctionMasonryItem} from '../auction/auction-scroll/auction-scroll.component';
 import {ImageSizeService} from './image-size.service';
@@ -165,7 +165,7 @@ export class BlockchainService {
     let found = false;
     let offset = 0;
     let uploadedArtwork = undefined;
-    while(!found) {
+    while (!found) {
       // 1. this.getVotableArtworksVoteInfo -> get artwork_ids
       const votableArtworkInfo = await firstValueFrom(this.getVotableArtworksVoteInfo(offset));
       if (votableArtworkInfo.length === 0) {
@@ -175,7 +175,7 @@ export class BlockchainService {
       const artworkInfos = await Promise.all(votableArtworkInfo.map(async artworkInfo => {
         return await this.getArtworkFromArtworkId(artworkInfo.value.artwork_id);
       }));
-      uploadedArtwork = artworkInfos.find(info => info.value.uploader === userWallet)
+      uploadedArtwork = artworkInfos.find(info => info.value.uploader === userWallet);
       if (uploadedArtwork) {
         found = true;
         break;
@@ -184,8 +184,7 @@ export class BlockchainService {
     }
     if (uploadedArtwork) {
       return this.getVotableArtworkById(uploadedArtwork.key);
-    }
-    else return undefined;
+    } else return undefined;
   }
 
   public async getVotableArtworkById(artwork_id: string): Promise<VotableArtwork> {
@@ -298,8 +297,21 @@ export class BlockchainService {
   /**
    * Calculate the VoteableArtworks from the List of who voted for them (by wallet_id
    */
-  public getMyVotes(wallet_id: string) {
+  public async getMyVotes(wallet_id: string): Promise<VotableArtwork[]> {
+    /*
+      ToDo: maybe make this to handle bigger values and use the all_artworks entry for that
+    let params = new HttpParams().set('path', 'all_artworks');
+    const all_artworks = parseInt(await firstValueFrom(this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params})));
+    */
+    const params = new HttpParams().set('path', 'admissions_this_period');
+    const admissions_this_period = parseInt(await firstValueFrom(this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params})));
+    const values = await firstValueFrom(this.httpClient.get<TzktVotesRegisterEntryKey[]>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/bigmaps/vote_register/keys'
+      + `?limit=${admissions_this_period}&offset=${0}`));
 
+    // filter out the entries that contain the wallet_id in its values
+    let artworkIds = values.filter(value => value.value.includes(wallet_id)).map(value => value.key);
+    // then get the artworks via the artworkIds
+    return Promise.all(artworkIds.map(id => this.getVotableArtworkById(id)));
   }
 
 

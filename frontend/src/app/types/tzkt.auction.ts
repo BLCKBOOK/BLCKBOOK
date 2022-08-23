@@ -84,3 +84,7 @@ export interface TzKtAuctionHistoricalKey {
   timestamp: string,
   value: TzktAuction,
 }
+
+export interface TzktVotesRegisterEntryKey extends TzktKey {
+  value: string[];
+}
