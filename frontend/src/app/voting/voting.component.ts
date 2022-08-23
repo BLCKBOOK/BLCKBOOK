@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {VotingService} from './voting.service';
-import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
+import {BehaviorSubject, combineLatest, from, Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 import {SnackBarService} from '../services/snack-bar.service';
 import {ActivatedRoute} from '@angular/router';
@@ -44,7 +44,7 @@ export class VotingComponent {
       }, startWith(false)));
     this.route.params.subscribe(params => {
       if (params.id) {
-        this.votingService.getVotableArtworkById(params.id).subscribe(artwork => {
+        from(this.votingService.getVotableArtworkById(params.id)).subscribe(artwork => {
           if (!artwork) {
             this.snackBarService.openSnackBarWithoutAction('Specified artwork not found', 3000);
             this.location.go('/voting');

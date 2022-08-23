@@ -6,11 +6,12 @@ import {UploadedArtworkIndex, VotableArtwork} from '../../../../../backend/src/c
 import {VotingService} from '../voting.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
-import {Observable, of, take, zip} from 'rxjs';
-import {catchError, map, takeUntil} from 'rxjs/operators';
+import {from, Observable, take} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {UpdateService} from '../../services/update.service';
 import {DialogService} from '../../services/dialog.service';
+import {BlockchainService} from '../../services/blockchain.service';
 
 export interface VoteMasonryItem {
   title: string,
@@ -46,7 +47,7 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
   public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService,
-              private location: Location, private updateService: UpdateService, private dialogService: DialogService) {
+              private location: Location, private updateService: UpdateService, private dialogService: DialogService, private blockchainService: BlockchainService) {
     this.alreadyVoted$ = this.votingService.getHasVoted$();
   }
 
@@ -109,16 +110,13 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
     }
 
     this.currentlyLoading = true;
-    zip(this.getArtworks(this.currentIndex),
-      this.getArtworks(this.currentIndex + 1),
-      this.getArtworks(this.currentIndex + 2),
-      this.getArtworks(this.currentIndex + 3),
-      this.getArtworks(this.currentIndex + 4))
-      .subscribe(artworksArray => {
+    from(this.getArtworks(this.currentIndex))
+      .subscribe(artworks => {
         this.currentlyLoading = false;
-        const artworks: VotableArtwork[] = [];
-        artworks.push(...artworksArray[0], ...artworksArray[1], ...artworksArray[2], ...artworksArray[3], ...artworksArray[4]);
-        this.currentIndex = this.currentIndex + 5;
+        if (artworks.length === 0) {
+          this.reachedEnd = true;
+        }
+        this.currentIndex = this.currentIndex + 1;
         const items: VoteMasonryItem[] = [];
         for (const artwork of artworks) {
           items.push(this.votingService.getMasonryItemOfArtwork(artwork));
@@ -174,19 +172,8 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private getArtworks(index: number): Observable<VotableArtwork[]> {
-    return this.votingService.getVotableArtworks$(index).pipe(catchError(this.handleError.bind(this)), map(array => array));
-  }
-
-
-  public handleError(error: any): Observable<VotableArtwork[]> {
-    if (error?.status === 404) {
-      this.reachedEnd = true;
-      return of([]);
-    } else {
-      console.error(error);
-      throw error;
-    }
+  private getArtworks(index: number): Promise<VotableArtwork[]> {
+    return this.blockchainService.getVotableArtworks(index);
   }
 
   onResize() {

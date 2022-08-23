@@ -1,11 +1,19 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {TzKtAuctionHistoricalKey, TzktAuctionKey} from '../types/tzkt.auction';
+import {combineLatest, firstValueFrom, Observable} from 'rxjs';
+import {
+  TzKtAuctionHistoricalKey,
+  TzktAuctionKey,
+  TzktLedgerKey,
+  TzktStorageStringKey,
+  TzktVotableArtwork,
+  TzktVoteArtworkDataKey,
+  TzktVotesEntryKey,
+} from '../types/tzkt.auction';
 import {AuctionMasonryItem} from '../auction/auction-scroll/auction-scroll.component';
 import {ImageSizeService} from './image-size.service';
 import {environment} from '../../environments/environment';
-import {MintedArtwork} from '../../../../backend/src/common/tableDefinitions';
+import {MintedArtwork, VotableArtwork} from '../../../../backend/src/common/tableDefinitions';
 import {CurrencyService} from './currency.service';
 import {map} from 'rxjs/operators';
 import {TokenResponse} from '../types/token.type';
@@ -88,7 +96,7 @@ export class BlockchainService {
   }
 
   public async getMasonryItemsOfLiveAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
-    const liveAuctions = await this.getLiveAuctions(offset).toPromise();
+    const liveAuctions = await firstValueFrom(this.getLiveAuctions(offset));
     const retValue = [];
     if (liveAuctions) {
       for (const auction of liveAuctions) {
@@ -151,6 +159,158 @@ export class BlockchainService {
     return this.httpClient.get<Object>(environment.tzktAddress + 'contracts/' + environment.bankContractAddress + '/bigmaps/withdrawls/keys/' + userWallet).pipe(map(response => {
       return !!response;
     }));
+  }
+
+  public async getUserUpload(userWallet: string): Promise<VotableArtwork | undefined> {
+    let found = false;
+    let offset = 0;
+    let uploadedArtwork = undefined;
+    while(!found) {
+      // 1. this.getVotableArtworksVoteInfo -> get artwork_ids
+      const votableArtworkInfo = await firstValueFrom(this.getVotableArtworksVoteInfo(offset));
+      if (votableArtworkInfo.length === 0) {
+        break;
+      }
+      // 2. getArtworkFromArtworkId -> use Ids to get metadata IPFS-Hash
+      const artworkInfos = await Promise.all(votableArtworkInfo.map(async artworkInfo => {
+        return await this.getArtworkFromArtworkId(artworkInfo.value.artwork_id);
+      }));
+      uploadedArtwork = artworkInfos.find(info => info.value.uploader === userWallet)
+      if (uploadedArtwork) {
+        found = true;
+        break;
+      }
+      offset++;
+    }
+    if (uploadedArtwork) {
+      return this.getVotableArtworkById(uploadedArtwork.key);
+    }
+    else return undefined;
+  }
+
+  public async getVotableArtworkById(artwork_id: string): Promise<VotableArtwork> {
+    const artworkInfo = await this.getArtworkFromArtworkId(artwork_id);
+    const metaDataIpfsAddress = this.getIPFSAddressOfTzktArtworkDataKey(artworkInfo);
+    const metaDataObject = await firstValueFrom(this.httpClient.get<TzktVotableArtwork>(metaDataIpfsAddress));
+    return {
+      artworkId: artwork_id,
+      uploaderId: artworkInfo.value.uploader,
+      imageUrls: {originalImageKey: environment.pinataGateway + metaDataObject.thumbnailUri.substring(7)},
+      uploader: artworkInfo.value.uploader,
+      uploadTimestamp: 212,
+      // not needed in Frontend geoHash: 'no',
+      // @ts-ignore
+      longitude: metaDataObject.attributes.find(attribute => attribute.name === 'longitude').value,
+      // @ts-ignore
+      latitude: metaDataObject.attributes.find(attribute => attribute.name === 'latitude').value,
+      contentType: metaDataObject.formats[0].mimeType,
+      title: metaDataObject.name === '' ? undefined : metaDataObject.name,
+      // not needed in Frontend: votes: ['a'],
+      // not needed in Frontend: voteCount: 0,
+      pageNumber: 'a',
+    } as unknown as VotableArtwork;
+  }
+
+  private getIPFSAddressOfTzktArtworkDataKey(key: TzktVoteArtworkDataKey): string {
+    const byteString = key.value.artwork_info[''];
+    const ipfsAddress = this.hexStringToString(byteString);
+    return environment.pinataGateway + ipfsAddress;
+  }
+
+  public async getVotableArtworks(offset: number = 0): Promise<VotableArtwork[]> {
+    // 1. this.getVotableArtworksVoteInfo -> get artwork_ids
+    const votableArtworkInfo = await firstValueFrom(this.getVotableArtworksVoteInfo(offset));
+    // 2. getArtworkFromArtworkId -> use Ids to get metadata IPFS-Hash
+    const artworkInfos = await Promise.all(votableArtworkInfo.map(async artworkInfo => {
+      return await this.getArtworkFromArtworkId(artworkInfo.value.artwork_id);
+    }));
+    // 3. calculate actual IPFS-Addresses
+    const metaDataIpfsAddresses = artworkInfos.map(artwork => {
+      return this.getIPFSAddressOfTzktArtworkDataKey(artwork);
+    });
+    // 4. get the actual meta-data from the calculated addresses
+    const metaDataObjects = await Promise.all(metaDataIpfsAddresses.map(async metaDataIpfsAddress => {
+      return await firstValueFrom(this.httpClient.get<TzktVotableArtwork>(metaDataIpfsAddress));
+    }));
+
+    // 5. form the VotableArtwork object for the UI
+    return metaDataObjects.map((metaData, index) => {
+      return {
+        artworkId: votableArtworkInfo[index].value.artwork_id,
+        uploaderId: artworkInfos[index].value.uploader,
+        imageUrls: {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)},
+        uploader: artworkInfos[index].value.uploader,
+        uploadTimestamp: 212,
+        // not needed in Frontend geoHash: 'no',
+        // @ts-ignore
+        longitude: metaData.attributes.find(attribute => attribute.name === 'longitude').value,
+        // @ts-ignore
+        latitude: metaData.attributes.find(attribute => attribute.name === 'latitude').value,
+        contentType: metaData.formats[0].mimeType,
+        title: metaData.name === '' ? undefined : metaData.name,
+        // not needed in Frontend: votes: ['a'],
+        // not needed in Frontend: voteCount: 0,
+        pageNumber: 'a',
+      } as unknown as VotableArtwork;
+
+      // this is the type the backend provides (ToDo: change the type throughout the entire FE!)
+      /*export interface VotableArtwork {
+        artworkId: string, // will be
+        uploaderId: string,
+        imageUrls: { [Key: string]: string }
+        uploader: string
+        uploadTimestamp: number
+        geoHash: string
+        longitude: string
+        latitude: string
+        contentType: string
+        title?: string
+        artist?: string
+        votes: [string]
+        voteCount: number
+      }*/
+    });
+  }
+
+  public getAmountOfVotesLeft(userWallet: string): Observable<number> {
+    const params = new HttpParams().set('path', 'withdraw_period');
+    return combineLatest([this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.bankContractAddress + '/storage', {params}),
+      this.httpClient.get<TzktStorageStringKey>(environment.tzktAddress + 'contracts/' + environment.bankContractAddress + '/bigmaps/withdrawls/keys/' + userWallet),
+      this.get$PRAYAmountInLedger(userWallet)]
+    ).pipe(map(([withdraw_period, withdraw_entry, ledgerAmount]) => {
+      if (parseInt(withdraw_entry.value) < parseInt(withdraw_period)) {
+        return 5;
+      } else {
+        return parseInt(ledgerAmount);
+      }
+    }));
+  }
+
+  /**
+   * need to find a function to caculate the ledger-key which is Pair<address, tokenId>
+   * where tokenId is always 0
+   * @param userWallet
+   */
+  public get$PRAYAmountInLedger(userWallet: string): Observable<string> {
+    return this.httpClient.get<TzktLedgerKey>(environment.tzktAddress + 'contracts/' + environment.sprayContractAddress + '/bigmaps/ledger/keys/' + `{"nat":"0","address":"${userWallet}"}`).pipe(map(key => key ? key.value : '0'));
+  }
+
+  /**
+   * Calculate the VoteableArtworks from the List of who voted for them (by wallet_id
+   */
+  public getMyVotes(wallet_id: string) {
+
+  }
+
+
+  public getVotableArtworksVoteInfo(offset: number = 0): Observable<TzktVotesEntryKey[]> {
+    const actualOffset = offset * this.loadLimit;
+    return this.httpClient.get<TzktVotesEntryKey[]>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/bigmaps/votes/keys'
+      + `?limit=${this.loadLimit}&offset=${actualOffset}`);
+  }
+
+  public async getArtworkFromArtworkId(artwork_id: string): Promise<TzktVoteArtworkDataKey> {
+    return firstValueFrom(this.httpClient.get<TzktVoteArtworkDataKey>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/bigmaps/artwork_data/keys/' + artwork_id));
   }
 
   public getVotingPeriodPassed(): Observable<boolean> {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, ReplaySubject, Subject} from 'rxjs';
+import {BehaviorSubject, from, Observable, ReplaySubject, Subject} from 'rxjs';
 import {VoteMasonryItem} from './vote-scroll/voting-scroll.component';
 import {map} from 'rxjs/operators';
 import { VotableArtwork } from '../../../../backend/src/common/tableDefinitions';
@@ -8,6 +8,8 @@ import {environment} from '../../environments/environment';
 import {ImageSizeService} from '../services/image-size.service';
 import {SnackBarService} from '../services/snack-bar.service';
 import {UpdateService} from '../services/update.service';
+import {BlockchainService} from '../services/blockchain.service';
+import {UserService} from '../services/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,8 +26,10 @@ export class VotingService {
   private readonly maxVoteAmount: BehaviorSubject<number> = new BehaviorSubject<number>(5);
   private readonly alreadyVoted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private myUpload: Subject<VotableArtwork> = new ReplaySubject<VotableArtwork>(1);
+  private walletID: string;
 
-  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService, private updateService: UpdateService) {
+  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService,
+              private updateService: UpdateService, private blockchainService: BlockchainService, private userService: UserService) {
     this.updateService.getUpdateEvent$().subscribe(() => {
       this.initialize();
     });
@@ -33,12 +37,27 @@ export class VotingService {
 
   private initialize() {
     this.updateVotingStatus();
-    this.httpClient.get<VotableArtwork>(this.voteAPIURL + this.getMyUploadURL).subscribe(upload => {
-      this.myUpload.next(upload);
-    });
   }
 
   public updateVotingStatus() {
+    this.userService.requestUserInfo().subscribe(info => {
+      if (info && info.walletId) {
+        this.walletID = info.walletId;
+        this.blockchainService.getAmountOfVotesLeft(this.walletID).subscribe(votesLeft => {
+          if (votesLeft < 5) {
+            this.alreadyVoted.next(true);
+          } else {
+            this.alreadyVoted.next(false);
+          }
+        })
+        from(this.blockchainService.getUserUpload(this.walletID)).subscribe(upload => {
+          if (upload) {
+            this.myUpload.next(upload);
+          }
+        })
+      }
+    });
+
     this.getMyVotes$().subscribe(votes => {
       const items: VoteMasonryItem[] = [];
       votes.forEach(artwork => {
@@ -135,7 +154,7 @@ export class VotingService {
     return this.myUpload.pipe();
   }
 
-  public getVotableArtworkById(id: string): Observable<VotableArtwork> {
-    return this.httpClient.get<VotableArtwork>(this.voteAPIURL + this.getArtworkByIdURL + '/' + id);
+  public async getVotableArtworkById(artwork_id: string): Promise<VotableArtwork> {
+    return await this.blockchainService.getVotableArtworkById(artwork_id);
   }
 }
