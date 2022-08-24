@@ -230,7 +230,7 @@ body {
   --amplify-colors-brand-primary-90: #{$primary-color};
   --amplify-colors-brand-primary-100: #{$primary-color};
   --amplify-colors-font-interactive: #{$dark-text};
-  --amplify-components-button-color: white;
+  --amplify-components-button-color: #{$light-text};
   --amplify-components-tabs-item-active-border-color: #{$primary-color};
   --amplify-components-tabs-item-active-color: #{$primary-color};
   --amplify-components-tabs-item-color: #{$primary-color};
@@ -240,7 +240,9 @@ body {
   --amplify-components-alert-error-background-color: var(--warn-color);
   --amplify-components-button-link-color: #{$primary-color};
   --amplify-components-field-label-color: #{$primary-darker-color};
-  --amplify-components-heading-color: white;
+  --amplify-components-heading-color: #{$light-text};
+  --amplify-components-authenticator-state-inactive-background-color: black;
+  --amplify-components-authenticator-router-background-color: #{$dark-bg-lighter-10};
 }
 
 html, body {

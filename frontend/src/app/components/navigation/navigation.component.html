@@ -1,4 +1,4 @@
-<amplify-authenticator style="visibility: hidden; position: absolute; z-index: -100">
+<amplify-authenticator style="visibility: hidden; position: absolute; z-index: -100" [signUpAttributes]="['email',]">
 </amplify-authenticator>
 <nav>
   <mat-toolbar fxLayout="row" fxFlexAlign="center">
@@ -25,7 +25,8 @@
       <button mat-button class="nav-item" routerLink="/gallery">
         {{"navbar.gallery" | translate}}
       </button>
-      <button *ngIf="(isAdmin$ | async) && authenticator.route === 'authenticated'" mat-button class="nav-item" routerLink="/admin">
+      <button *ngIf="(isAdmin$ | async) && authenticator.route === 'authenticated'" mat-button class="nav-item"
+              routerLink="/admin">
         {{"navbar.admin" | translate}}
       </button>
     </div>
@@ -86,11 +87,13 @@
   </mat-toolbar>
   <mat-sidenav-container fxFlexFill>
     <mat-sidenav #sidenav fxLayout="column" [mode]="'over'">
-      <div fxLayout="column" >
-        <button *ngIf="authenticator.route === 'authenticated'" mat-button class="nav-item bigger-nav-item" routerLink="/upload" (click)="sidenav.toggle()">
+      <div fxLayout="column">
+        <button *ngIf="authenticator.route === 'authenticated'" mat-button class="nav-item bigger-nav-item"
+                routerLink="/upload" (click)="sidenav.toggle()">
           UPLOAD
         </button>
-        <button *ngIf="authenticator.route === 'authenticated'" mat-button class="nav-item bigger-nav-item" routerLink="/voting" (click)="sidenav.toggle()">
+        <button *ngIf="authenticator.route === 'authenticated'" mat-button class="nav-item bigger-nav-item"
+                routerLink="/voting" (click)="sidenav.toggle()">
           VOTE
         </button>
         <button mat-button class="nav-item bigger-nav-item" routerLink="/auction" (click)="sidenav.toggle()">
@@ -99,7 +102,8 @@
         <button mat-button class="nav-item bigger-nav-item" routerLink="/gallery" (click)="sidenav.toggle()">
           {{"navbar.gallery" | translate}}
         </button>
-        <button mat-button class="nav-item bigger-nav-item" *ngIf="(isAdmin$ | async) && authenticator.route === 'authenticated'" routerLink="/admin"
+        <button mat-button class="nav-item bigger-nav-item"
+                *ngIf="(isAdmin$ | async) && authenticator.route === 'authenticated'" routerLink="/admin"
                 (click)="sidenav.toggle()">
           {{"navbar.admin" | translate}}
         </button>
