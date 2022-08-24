@@ -1,10 +1,31 @@
 .vote-button-container {
-  align-self: center;
+  margin-top: .5em;
   button {
-    width: 160px;
+    width: 100%;
   }
 }
 
 .big-image {
   max-height: calc(100vh - var(--navbarheight) - 2em - 182px - 69px) !important;
+}
+
+.reconnect-button {
+  margin-top: .5em;
+}
+
+.small-link {
+  margin-top: 0.5em;
+}
+
+.small-link-bottom {
+  margin-bottom: 0.5em;
+}
+
+.button-container {
+  text-align: center;
+  button {
+    margin: .5em .25em;
+    width: 100%;
+    max-width: 140px;
+  }
 }

@@ -4,6 +4,7 @@ import {VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component
 import {VotingService} from '../voting.service';
 import {Observable} from 'rxjs';
 import {ArtworkData} from '../../shared/artwork-data/artwork-data.component';
+import {BeaconService} from '../../beacon/beacon.service';
 
 @Component({
   selector: 'app-vote-detail',
@@ -18,13 +19,17 @@ export class VoteDetailComponent implements OnInit {
   faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
+  faRedo = findIconDefinition({prefix: 'fas', iconName: 'redo'});
   alreadyVoted$: Observable<boolean>
   @Input() withinDialog: boolean;
 
   votingService: VotingService;
   artworkData: ArtworkData;
+  ipfsUri: any = 'testUri';
+  metadataUri: any = 'metadataTest'
 
-  constructor() {
+
+  constructor(private beaconService: BeaconService) {
   }
 
   ngOnInit(): void {
@@ -48,5 +53,9 @@ export class VoteDetailComponent implements OnInit {
   unvote(): void {
     this.data.voted = false;
     this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== this.data.artwork.artworkId));
+  }
+
+  reconnectWallet() {
+    this.beaconService.connect();
   }
 }
