@@ -4,7 +4,7 @@ import {AuctionDetailData} from '../detail-view-dialog/detail-view-auction-dialo
 import {Clipboard} from '@angular/cdk/clipboard';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {ErrorStateMatcher} from '@angular/material/core';
-import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
+import {UntypedFormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {BlockchainService} from '../../services/blockchain.service';
 import {BehaviorSubject} from 'rxjs';
 import {TzktAuction, TzKtAuctionHistoricalKey} from '../../types/tzkt.auction';
@@ -16,7 +16,7 @@ import {ArtworkData} from '../../shared/artwork-data/artwork-data.component';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+  isErrorState(control: UntypedFormControl | null, form: FormGroupDirective | NgForm | null): boolean {
     const isSubmitted = form && form.submitted;
     return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
   }
@@ -43,7 +43,7 @@ export class AuctionDetailComponent implements OnInit {
   noBidsYet: boolean = false;
   currentOwner: string;
 
-  bidFormControl = new FormControl('', [Validators.required]);
+  bidFormControl = new UntypedFormControl('', [Validators.required]);
 
   bidErrorMatcher = new MyErrorStateMatcher();
 

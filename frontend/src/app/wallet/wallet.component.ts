@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {UserService} from '../services/user.service';
-import {FormControl, Validators} from '@angular/forms';
+import {UntypedFormControl, Validators} from '@angular/forms';
 import {SnackBarService} from '../services/snack-bar.service';
 import {TranslateService} from '@ngx-translate/core';
 import {BehaviorSubject, from, Observable, ReplaySubject} from 'rxjs';
@@ -32,7 +32,7 @@ export class WalletComponent implements OnInit {
   isRegistered$ = new ReplaySubject<boolean>();
   faRedo = findIconDefinition({prefix: 'fas', iconName: 'redo'});
 
-  walletIdForm = new FormControl('', [Validators.pattern(this.tezRegex)]);
+  walletIdForm = new UntypedFormControl('', [Validators.pattern(this.tezRegex)]);
 
   constructor(private beaconService: BeaconService, private userService: UserService, private snackBarService: SnackBarService, private translateService: TranslateService,
               private taquitoService: TaquitoService, private currencyService: CurrencyService, private blockchainService: BlockchainService) {
