@@ -3,7 +3,6 @@ import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/com
 import {Observable} from 'rxjs';
 import {environment} from '../../environments/environment';
 import {AuthenticatorService} from '@aws-amplify/ui-angular';
-import {Router} from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -15,7 +14,6 @@ export class AuthInterceptor implements HttpInterceptor {
     const session = this.authenticator.user?.getSignInUserSession();
     if (!session || req.url.includes('amazonaws.com/artwork') || !session.isValid()
       || req.url.startsWith(environment.pinataGateway) || req.url.startsWith(environment.betterCallDevAddress)) {
-      console.log('we are here');
       return next.handle(req);
     }
     const token = session.getIdToken().getJwtToken();

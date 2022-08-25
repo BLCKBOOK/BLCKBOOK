@@ -5,6 +5,7 @@ import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {UpdateService} from './update.service';
 import {AuthenticatorService} from '@aws-amplify/ui-angular';
+import {map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,6 @@ export class UserService {
   private readonly userInfoAPIURL = environment.urlString + '/user';
   private readonly getUserInfoURL = '/getMyUserInfo';
   private userInfo: Subject<UserInfo | undefined> = new ReplaySubject<UserInfo | undefined>(1);
-  private adminSubject: Subject<boolean> = new ReplaySubject<boolean>(1);
 
   constructor(private httpClient: HttpClient, private updateService: UpdateService, public authenticator: AuthenticatorService) {
     this.updateService.getUpdateEvent$().subscribe(() => {
@@ -22,17 +22,6 @@ export class UserService {
     const user = this.authenticator.user;
     if (user) {
       this.requestUserInfo();
-    }
-  }
-
-  public updateIsAdmin() {
-    const decodedToken = this.authenticator.user?.getSignInUserSession()?.getIdToken().decodePayload();
-    if (decodedToken) {
-      const groups: string[] = decodedToken['cognito:groups'];
-      if (groups.includes('Admin')) {
-        this.adminSubject.next(true);
-        return;
-      }
     }
   }
 
@@ -48,7 +37,16 @@ export class UserService {
   }
 
   public isAdmin(): Observable<boolean> {
-    return this.adminSubject.pipe();
+    return this.userInfo.pipe(map(() => {
+      const decodedToken = this.authenticator.user?.getSignInUserSession()?.getIdToken().decodePayload();
+      if (decodedToken) {
+        const groups: string[] = decodedToken['cognito:groups'];
+        if (groups.includes('Admin')) {
+          return true;
+        }
+      }
+      return false;
+    }))
   }
 
   public isAuthenticated(): boolean {
@@ -73,6 +71,7 @@ export class UserService {
     userInfoObservable.subscribe(userInfo => {
         this.userInfo.next(userInfo);
       }, () => {
+        this.userInfo.next(undefined);
         return;
       }
     );

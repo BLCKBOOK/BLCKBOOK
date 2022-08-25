@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {UserService} from '../../services/user.service';
 import {Observable} from 'rxjs';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
@@ -15,7 +15,7 @@ import {AuthenticatorService} from '@aws-amplify/ui-angular';
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.scss']
 })
-export class NavigationComponent {
+export class NavigationComponent implements OnInit {
 
   faBars = findIconDefinition({prefix: 'fas', iconName: 'bars'});
   faBell = findIconDefinition({prefix: 'fas', iconName: 'bell'});
@@ -31,6 +31,10 @@ export class NavigationComponent {
     this.isAdmin$ = this.userService.isAdmin();
     this.unreadNotifications = this.notificationService.getUnreadNotificationsNumber();
     this.notifications = this.notificationService.getAFewNotifications(5);
+  }
+
+  ngOnInit() {
+    this.userService.requestUserInfo().subscribe(() => console.log('error'));
   }
 
   logOut() {

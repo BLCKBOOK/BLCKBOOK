@@ -34,6 +34,12 @@ export class AdminService {
     if (index) {
       encodingString = '?lastKey=' + (urlencode(JSON.stringify(index)));
     }
+    // ToDo: check this out!
+ /*   const test = encodeURIComponent(JSON.stringify(index));
+    console.log(test);
+    console.log(encodingString);
+    const test2 = encodeURI(JSON.stringify(index));
+    console.log(test2);*/
     const finalUrl = this.artworkAdminURL + this.getArtworksURL + encodingString;
     return this.httpClient.get<GetUploadedArtworksResponseBody>(finalUrl);
   }
