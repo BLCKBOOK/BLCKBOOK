@@ -34,9 +34,17 @@ export interface TzktVotesEntryKey extends TzktKey {
 
 export interface TzktVotesEntry {
   artwork_id: string,
-  next: Object,
-  previous: Object,
+  next: VotingIndex | VotingEnd,
+  previous: VotingIndex | VotingEnd,
   vote_amount: string,
+}
+
+export interface VotingIndex {
+  index: string
+}
+
+export interface VotingEnd {
+  end: {}
 }
 
 export interface TzktVoteArtworkData {

@@ -15,7 +15,7 @@ export class PeriodService {
 
   constructor(private httpClient: HttpClient, private blockchainService: BlockchainService) {
     this.updateDeadline();
-    interval(6000).subscribe(() => {
+    interval(60000).subscribe(() => {
       this.updateDeadline();
     });
   }
@@ -27,7 +27,6 @@ export class PeriodService {
         this.periodEnded$.next();
       }
       if (this.currentDeadline !== deadline) {
-        console.log('the deadline changed!');
         this.currentDeadline$.next(deadline);
         this.currentDeadline = deadline;
         this.deadlineHasPassed = false;

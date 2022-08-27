@@ -1,13 +1,13 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { VotableArtwork } from '../../../../../backend/src/common/tableDefinitions';
 import {Location} from '@angular/common';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {Observable} from 'rxjs';
 import {VotingService} from '../voting.service';
+import {VoteBlockchainItem} from '../vote-scroll/voting-scroll.component';
 
 export interface VoteDetailData {
-  artwork: VotableArtwork,
+  artwork: VoteBlockchainItem,
   voted: boolean,
   srcSet: string,
   src: string,

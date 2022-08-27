@@ -15,4 +15,5 @@ export const environment = {
   cryptoNet: 'ghostnet', // ToDo: change all of these to mainnet
   pinataGateway: 'https://blckbook.mypinata.cloud/ipfs/',
   taquitoRPC: 'https://rpc.ghostnet.teztnets.xyz',
+  maxVoteAmount: 5,
 };

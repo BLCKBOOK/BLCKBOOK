@@ -19,6 +19,7 @@ export const environment = {
   cryptoNet: 'ghostnet',
   pinataGateway: 'https://blckbook.mypinata.cloud/ipfs/',
   taquitoRPC: 'https://rpc.ghostnet.teztnets.xyz',
+  maxVoteAmount: 5,
 };
 
 /*

@@ -2,9 +2,13 @@ import {Component, Input, OnInit} from '@angular/core';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
 import {VotingService} from '../voting.service';
-import {Observable} from 'rxjs';
+import {from, Observable} from 'rxjs';
 import {ArtworkData} from '../../shared/artwork-data/artwork-data.component';
-import {BeaconService} from '../../beacon/beacon.service';
+import {TaquitoService} from '../../taquito/taquito.service';
+import {BlockchainService} from '../../services/blockchain.service';
+import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
+import {environment} from '../../../environments/environment';
+import {DialogService} from '../../services/dialog.service';
 
 @Component({
   selector: 'app-vote-detail',
@@ -20,16 +24,17 @@ export class VoteDetailComponent implements OnInit {
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
   faRedo = findIconDefinition({prefix: 'fas', iconName: 'redo'});
-  alreadyVoted$: Observable<boolean>
+  alreadyVoted$: Observable<boolean>;
   @Input() withinDialog: boolean;
 
   votingService: VotingService;
   artworkData: ArtworkData;
-  ipfsUri: any = 'testUri';
-  metadataUri: any = 'metadataTest'
+  ipfsUri: string;
+  metadataUri: string;
 
 
-  constructor(private beaconService: BeaconService) {
+  constructor(private TaquitoService: TaquitoService, private taquitoService: TaquitoService, private blockchainService: BlockchainService,
+              private dialogService: DialogService) {
   }
 
   ngOnInit(): void {
@@ -37,25 +42,39 @@ export class VoteDetailComponent implements OnInit {
     this.alreadyVoted$ = this.votingService.getHasVoted$();
     const date = new Date(this.data.artwork.uploadTimestamp);
     this.timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    this.ipfsUri = this.data.artwork.artifactIPFSLink;
+    this.metadataUri = this.data.artwork.metadataIPFSLink;
     this.artworkData = {
       titel: this.data.artwork.title,
       uploader: this.data.artwork.uploader,
       latitude: this.data.artwork.latitude,
       longitude: this.data.artwork.longitude,
-    }
+    };
   }
 
   vote(): void {
-    this.data.voted = true;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().concat(this.votingService.getMasonryItemOfArtwork(this.data.artwork, true)));
-  }
+    /*this.data.voted = true;*/
+    const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
+      data: {
+        text: `You can only vote ${environment.maxVoteAmount} times per voting-period and can not take back any votes.`,
+        header: 'VOTING',
+        action: 'Submit Vote'
+      } as ConfirmDialogData
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        from(this.blockchainService.calculateVotingParams(parseInt(this.data.artwork.artworkId), this.data.artwork.index)).subscribe(params => {
+          this.taquitoService.vote(params).then(() => {
+            this.data.voted = true;
+            // TODO reload my votes here - so we can display them right away. or at least show a message.}
 
-  unvote(): void {
-    this.data.voted = false;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== this.data.artwork.artworkId));
+          });
+        });
+      }
+    });
   }
 
   reconnectWallet() {
-    this.beaconService.connect();
+    this.TaquitoService.connect();
   }
 }

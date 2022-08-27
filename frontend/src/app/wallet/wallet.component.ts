@@ -4,7 +4,6 @@ import {UntypedFormControl, Validators} from '@angular/forms';
 import {SnackBarService} from '../services/snack-bar.service';
 import {TranslateService} from '@ngx-translate/core';
 import {BehaviorSubject, from, Observable, ReplaySubject} from 'rxjs';
-import {BeaconService} from '../beacon/beacon.service';
 import {TaquitoService} from '../taquito/taquito.service';
 import {CurrencyService} from '../services/currency.service';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
@@ -21,8 +20,8 @@ export class WalletComponent implements OnInit {
   walletID: string = '';
   beaconWalletID: string = '';
   username: Observable<string>;
-  hasUploaded: Observable<string>
-  email: Observable<string>
+  hasUploaded: Observable<string>;
+  email: Observable<string>;
 
   private readonly tezRegex = '(tz1|tz2|tz3|KT1)[0-9a-zA-Z]{33}$';
   currentAmount: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -34,8 +33,8 @@ export class WalletComponent implements OnInit {
 
   walletIdForm = new UntypedFormControl('', [Validators.pattern(this.tezRegex)]);
 
-  constructor(private beaconService: BeaconService, private userService: UserService, private snackBarService: SnackBarService, private translateService: TranslateService,
-              private taquitoService: TaquitoService, private currencyService: CurrencyService, private blockchainService: BlockchainService) {
+  constructor(private taquitoService: TaquitoService, private userService: UserService, private snackBarService: SnackBarService, private translateService: TranslateService,
+              private currencyService: CurrencyService, private blockchainService: BlockchainService) {
   }
 
   ngOnInit() {
@@ -74,7 +73,7 @@ export class WalletComponent implements OnInit {
   }
 
   connectWallet() {
-    from(this.beaconService.connect()).subscribe(address => {
+    from(this.taquitoService.connect()).subscribe(address => {
       if (this.walletID !== address) {
         this.updateIsUserRegistered(address);
       }
@@ -91,7 +90,7 @@ export class WalletComponent implements OnInit {
       return;
     }
     if (id.match(this.tezRegex)) {
-      this.beaconService.setWalletID(id).subscribe(() => {
+      this.taquitoService.setWalletID(id).subscribe(() => {
         this.updateWalletIdFromServer();
       });
     } else {
@@ -106,6 +105,6 @@ export class WalletComponent implements OnInit {
   }
 
   withdraw() {
-    this.beaconService.withdraw();
+    this.taquitoService.withdraw();
   }
 }

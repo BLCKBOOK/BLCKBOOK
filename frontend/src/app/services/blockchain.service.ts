@@ -2,6 +2,8 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {combineLatest, firstValueFrom, Observable} from 'rxjs';
 import {
+  VotingEnd,
+  VotingIndex,
   TzKtAuctionHistoricalKey,
   TzktAuctionKey,
   TzktLedgerKey,
@@ -13,10 +15,19 @@ import {
 import {AuctionMasonryItem} from '../auction/auction-scroll/auction-scroll.component';
 import {ImageSizeService} from './image-size.service';
 import {environment} from '../../environments/environment';
-import {MintedArtwork, VotableArtwork} from '../../../../backend/src/common/tableDefinitions';
+import {MintedArtwork} from '../../../../backend/src/common/tableDefinitions';
 import {CurrencyService} from './currency.service';
 import {map} from 'rxjs/operators';
 import {TokenResponse} from '../types/token.type';
+import {VoteBlockchainItem} from '../voting/vote-scroll/voting-scroll.component';
+
+export interface VoteParams {
+  amount: number
+  artwork_id: number,
+  index: number,
+  next: number,
+  previous: number,
+}
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +37,7 @@ export class BlockchainService {
   private readonly mintedArtworkByTokenIDURL = environment.urlString + '/mints/getMintedArtworkByTokenId/';
   //
   private readonly loadLimit = 15;
+  private readonly maxAmountOfVotes = 5;
 
   constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private currencyService: CurrencyService) {
   }
@@ -72,17 +84,17 @@ export class BlockchainService {
   hexStringToString(byteString: string) {
     let result = '';
     for (let i = 0; i < byteString.length; i += 2) {
-      result += String.fromCharCode(parseInt(byteString.substr(i, 2), 16));
+      result += String.fromCharCode(parseInt(byteString.substring(i, i + 2), 16));
     }
     return result;
   }
 
   async getMintedArtworkForId(auctionId: number): Promise<MintedArtwork | undefined> {
-    return this.httpClient.get<MintedArtwork>(this.mintedArtworkByTokenIDURL + auctionId).toPromise();
+    return firstValueFrom(this.httpClient.get<MintedArtwork>(this.mintedArtworkByTokenIDURL + auctionId));
   }
 
   public async getMasonryItemsOfPastAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
-    const liveAuctions = await this.getPastAuctions(offset).toPromise();
+    const liveAuctions = await firstValueFrom(this.getPastAuctions(offset));
     const retValue = [];
     if (liveAuctions) {
       for (const auction of liveAuctions) {
@@ -125,12 +137,12 @@ export class BlockchainService {
 
   public async getMasonryItemsOfUserTokens(offset: number = 0, walletId: string | undefined): Promise<AuctionMasonryItem[]> {
     if (walletId) {
-      const tokens = await this.getTokensOfUser(offset, walletId).toPromise();
+      const tokens = await firstValueFrom(this.getTokensOfUser(offset, walletId));
       if (tokens && tokens.total > 0) {
         const retArray = [];
         for (const token of tokens.balances) {
           const artwork = await this.getMintedArtworkForId(token.token_id);
-          const auction = await this.getAuction(token.token_id).toPromise();
+          const auction = await firstValueFrom(this.getAuction(token.token_id));
           if (artwork && auction) {
             retArray.push(this.getMasonryItemOfAuction(auction, artwork));
           }
@@ -161,7 +173,7 @@ export class BlockchainService {
     }));
   }
 
-  public async getUserUpload(userWallet: string): Promise<VotableArtwork | undefined> {
+  public async getUserUpload(userWallet: string): Promise<VoteBlockchainItem | undefined> {
     let found = false;
     let offset = 0;
     let uploadedArtwork = undefined;
@@ -183,11 +195,11 @@ export class BlockchainService {
       offset++;
     }
     if (uploadedArtwork) {
-      return this.getVotableArtworkById(uploadedArtwork.key);
+      return this.getVotableArtworkById(uploadedArtwork.key, offset);
     } else return undefined;
   }
 
-  public async getVotableArtworkById(artwork_id: string): Promise<VotableArtwork> {
+  public async getVotableArtworkById(artwork_id: string, index: number): Promise<VoteBlockchainItem> {
     const artworkInfo = await this.getArtworkFromArtworkId(artwork_id);
     const metaDataIpfsAddress = this.getIPFSAddressOfTzktArtworkDataKey(artworkInfo);
     const metaDataObject = await firstValueFrom(this.httpClient.get<TzktVotableArtwork>(metaDataIpfsAddress));
@@ -196,27 +208,82 @@ export class BlockchainService {
       uploaderId: artworkInfo.value.uploader,
       imageUrls: {originalImageKey: environment.pinataGateway + metaDataObject.thumbnailUri.substring(7)},
       uploader: artworkInfo.value.uploader,
-      uploadTimestamp: 212,
-      // not needed in Frontend geoHash: 'no',
-      // @ts-ignore
-      longitude: metaDataObject.attributes.find(attribute => attribute.name === 'longitude').value,
-      // @ts-ignore
-      latitude: metaDataObject.attributes.find(attribute => attribute.name === 'latitude').value,
+      uploadTimestamp: metaDataObject.date,
+      artifactIPFSLink: environment.pinataGateway + metaDataObject.artifactUri.substring(7),
+      metadataIPFSLink: metaDataIpfsAddress,
+      longitude: metaDataObject.attributes.find(attribute => attribute.name === 'longitude')?.value ?? 'unknown',
+      latitude: metaDataObject.attributes.find(attribute => attribute.name === 'latitude')?.value ?? 'unknown',
       contentType: metaDataObject.formats[0].mimeType,
       title: metaDataObject.name === '' ? undefined : metaDataObject.name,
-      // not needed in Frontend: votes: ['a'],
-      // not needed in Frontend: voteCount: 0,
-      pageNumber: 'a',
-    } as unknown as VotableArtwork;
+      index,
+    } as VoteBlockchainItem;
+  }
+
+  public async calculateVotingParams(artwork_id: number, index: number, amount: number = 1): Promise<VoteParams> {
+    console.log(artwork_id, index);
+    const data = await firstValueFrom(this.httpClient.get<TzktVotesEntryKey>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + `/bigmaps/votes/keys/${index}`));
+    const startEntry = data.value;
+
+    const params = new HttpParams().set('path', 'highest_vote_index');
+    const highestVoteIndex = parseInt(await firstValueFrom(this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + `/storage`, {params})));
+
+    if (!(startEntry.artwork_id === artwork_id.toString())) {
+      console.error('wrong artwork_id - should never happen');
+    }
+
+    const currentVoteAmount = parseInt(startEntry.vote_amount) + amount;
+    let previous = this.calculateIndex(startEntry.previous);
+    let next = this.calculateIndex(startEntry.next);
+    console.log(next);
+    console.log(previous);
+    while (previous != -1) {
+      let previousResponse = await firstValueFrom(this.httpClient.get<TzktVotesEntryKey>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + `/bigmaps/votes/keys/${previous}`));
+      const previousEntry = previousResponse.value;
+      if (parseInt(previousEntry.vote_amount) >= currentVoteAmount) {
+        next = this.calculateIndex(previousEntry.next);
+        break;
+      } else {
+        previous = this.calculateIndex(previousEntry.previous);
+      }
+    }
+    if (previous === -1 && index != highestVoteIndex) { // this means we replaced the formerly highest as the new highest
+      next = highestVoteIndex;
+    }
+
+    if (next === index) { // we can not point to ourselves
+      next = this.calculateIndex(startEntry.next);
+    }
+
+    return {
+      amount,
+      artwork_id,
+      index,
+      next,
+      previous
+    } as VoteParams;
+  }
+
+  private calculateIndex(value: VotingIndex | VotingEnd): number {
+    // @ts-ignore
+    if (value['index'] != undefined) {
+      // @ts-ignore
+      return parseInt(value['index']);
+    } else {
+      return -1;
+    }
   }
 
   private getIPFSAddressOfTzktArtworkDataKey(key: TzktVoteArtworkDataKey): string {
     const byteString = key.value.artwork_info[''];
+    return this.getIPFSAddressOfHash(byteString);
+  }
+
+  private getIPFSAddressOfHash(byteString: string) {
     const ipfsAddress = this.hexStringToString(byteString);
     return environment.pinataGateway + ipfsAddress;
   }
 
-  public async getVotableArtworks(offset: number = 0): Promise<VotableArtwork[]> {
+  public async getVotableArtworks(offset: number = 0): Promise<VoteBlockchainItem[]> {
     // 1. this.getVotableArtworksVoteInfo -> get artwork_ids
     const votableArtworkInfo = await firstValueFrom(this.getVotableArtworksVoteInfo(offset));
     // 2. getArtworkFromArtworkId -> use Ids to get metadata IPFS-Hash
@@ -239,35 +306,15 @@ export class BlockchainService {
         uploaderId: artworkInfos[index].value.uploader,
         imageUrls: {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)},
         uploader: artworkInfos[index].value.uploader,
-        uploadTimestamp: 212,
-        // not needed in Frontend geoHash: 'no',
-        // @ts-ignore
-        longitude: metaData.attributes.find(attribute => attribute.name === 'longitude').value,
-        // @ts-ignore
-        latitude: metaData.attributes.find(attribute => attribute.name === 'latitude').value,
+        artifactIPFSLink: environment.pinataGateway + metaData.artifactUri.substring(7),
+        metadataIPFSLink: metaDataIpfsAddresses[index],
+        uploadTimestamp: metaData.date,
+        longitude: metaData.attributes.find(attribute => attribute.name === 'longitude')?.value ?? 'unknown',
+        latitude: metaData.attributes.find(attribute => attribute.name === 'latitude')?.value ?? 'unknown',
         contentType: metaData.formats[0].mimeType,
         title: metaData.name === '' ? undefined : metaData.name,
-        // not needed in Frontend: votes: ['a'],
-        // not needed in Frontend: voteCount: 0,
-        pageNumber: 'a',
-      } as unknown as VotableArtwork;
-
-      // this is the type the backend provides (ToDo: change the type throughout the entire FE!)
-      /*export interface VotableArtwork {
-        artworkId: string, // will be
-        uploaderId: string,
-        imageUrls: { [Key: string]: string }
-        uploader: string
-        uploadTimestamp: number
-        geoHash: string
-        longitude: string
-        latitude: string
-        contentType: string
-        title?: string
-        artist?: string
-        votes: [string]
-        voteCount: number
-      }*/
+        index: index + (offset * this.loadLimit),
+      } as VoteBlockchainItem;
     });
   }
 
@@ -278,7 +325,7 @@ export class BlockchainService {
       this.get$PRAYAmountInLedger(userWallet)]
     ).pipe(map(([withdraw_period, withdraw_entry, ledgerAmount]) => {
       if (parseInt(withdraw_entry.value) < parseInt(withdraw_period)) {
-        return 5;
+        return this.maxAmountOfVotes;
       } else {
         return parseInt(ledgerAmount);
       }
@@ -286,7 +333,7 @@ export class BlockchainService {
   }
 
   /**
-   * need to find a function to caculate the ledger-key which is Pair<address, tokenId>
+   * need to find a function to calculate the ledger-key which is Pair<address, tokenId>
    * where tokenId is always 0
    * @param userWallet
    */
@@ -297,7 +344,7 @@ export class BlockchainService {
   /**
    * Calculate the VoteableArtworks from the List of who voted for them (by wallet_id
    */
-  public async getMyVotes(wallet_id: string): Promise<VotableArtwork[]> {
+  public async getMyVotes(wallet_id: string): Promise<VoteBlockchainItem[]> {
     /*
       ToDo: maybe make this to handle bigger values and use the all_artworks entry for that
     let params = new HttpParams().set('path', 'all_artworks');
@@ -309,9 +356,9 @@ export class BlockchainService {
       + `?limit=${admissions_this_period}&offset=${0}`));
 
     // filter out the entries that contain the wallet_id in its values
-    let artworkIds = values.filter(value => value.value.includes(wallet_id)).map(value => value.key);
+    let artworkIds = values.filter(value => value.value.includes(wallet_id));
     // then get the artworks via the artworkIds
-    return Promise.all(artworkIds.map(id => this.getVotableArtworkById(id)));
+    return Promise.all(artworkIds.map(value => this.getVotableArtworkById(value.key, values.indexOf(value))));
   }
 
 

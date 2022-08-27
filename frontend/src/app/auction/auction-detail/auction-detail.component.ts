@@ -10,9 +10,9 @@ import {BehaviorSubject} from 'rxjs';
 import {TzktAuction, TzKtAuctionHistoricalKey} from '../../types/tzkt.auction';
 import {CurrencyService} from '../../services/currency.service';
 import Dinero from 'dinero.js';
-import {BeaconService} from '../../beacon/beacon.service';
 import {UserService} from '../../services/user.service';
 import {ArtworkData} from '../../shared/artwork-data/artwork-data.component';
+import {TaquitoService} from '../../taquito/taquito.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -60,7 +60,7 @@ export class AuctionDetailComponent implements OnInit {
   private readonly mutezRegex = '\\d*\\.?\\d?\\d?\\d?\\d?\\d?\\d?$';
   artworkData: ArtworkData;
 
-  constructor(private clipboard: Clipboard, private snackBarService: SnackBarService, private beaconService: BeaconService,
+  constructor(private clipboard: Clipboard, private snackBarService: SnackBarService, private taquitoService: TaquitoService,
               private blockchainService: BlockchainService, private currencyService: CurrencyService, private userService: UserService) {
   }
 
@@ -119,7 +119,7 @@ export class AuctionDetailComponent implements OnInit {
   bid(key: string) {
     if (this.bidFormControl.value && this.isNumeric(this.bidFormControl.value)) {
       const mutezAmount = this.bidFormControl.value as number * 1000000;
-      this.beaconService.bid(key, mutezAmount.toString()).then(successful => {
+      this.taquitoService.bid(key, mutezAmount.toString()).then(successful => {
         if (successful) {
           this.currentBidPending = true;
         }});
@@ -129,7 +129,7 @@ export class AuctionDetailComponent implements OnInit {
   }
 
   reconnectWallet() {
-    this.beaconService.connect();
+    this.taquitoService.connect();
   }
 
   isNumeric(str: any): boolean {

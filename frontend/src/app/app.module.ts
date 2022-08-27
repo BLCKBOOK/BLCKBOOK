@@ -60,7 +60,6 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {faShareSquare} from '@fortawesome/free-solid-svg-icons';
 import {faMapPin} from '@fortawesome/free-solid-svg-icons';
 import {faRedo} from '@fortawesome/free-solid-svg-icons';
-import {BeaconModule} from './beacon/beacon.module';
 import { SocialButtonsComponent } from './components/social-buttons/social-buttons.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { TermsComponent } from './components/terms/terms.component';
@@ -69,6 +68,7 @@ import {SharedModule} from './shared/shared.module';
 import { FAQComponent } from './components/faq/faq.component';
 import {AmplifyAuthenticatorModule, AuthenticatorService} from '@aws-amplify/ui-angular';
 import {Amplify} from 'aws-amplify';
+import {TaquitoModule} from './taquito/taquito.module';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -127,8 +127,8 @@ Amplify.configure(awsconfig);
     MatProgressSpinnerModule,
     MatListModule,
     MatExpansionModule,
-    BeaconModule.forRoot(),
     SharedModule,
+    TaquitoModule.forRoot(),
     AmplifyAuthenticatorModule,
   ],
   providers: [

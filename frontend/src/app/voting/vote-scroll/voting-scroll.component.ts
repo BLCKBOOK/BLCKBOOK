@@ -2,7 +2,7 @@ import {AfterViewInit, Component, Input, OnInit, ViewChild} from '@angular/core'
 import {NgxMasonryComponent, NgxMasonryOptions} from 'ngx-masonry';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {ImageSizeService} from '../../services/image-size.service';
-import {UploadedArtworkIndex, VotableArtwork} from '../../../../../backend/src/common/tableDefinitions';
+import {UploadedArtworkIndex} from '../../../../../backend/src/common/tableDefinitions';
 import {VotingService} from '../voting.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
@@ -12,13 +12,30 @@ import {Location} from '@angular/common';
 import {UpdateService} from '../../services/update.service';
 import {DialogService} from '../../services/dialog.service';
 import {BlockchainService} from '../../services/blockchain.service';
+import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
+import {environment} from '../../../environments/environment';
 
 export interface VoteMasonryItem {
   title: string,
   img: string,
   voted: boolean,
   srcSet: string,
-  artwork: VotableArtwork
+  artwork: VoteBlockchainItem
+}
+
+export interface VoteBlockchainItem {
+  uploadTimestamp: number;
+  artworkId: string,
+  uploaderId: string,
+  imageUrls: { [Key: string]: string },
+  uploader: string,
+  longitude: string,
+  latitude: string,
+  contentType: string,
+  title?: string,
+  metadataIPFSLink: string,
+  artifactIPFSLink: string,
+  index: number,
 }
 
 export type ScrollType = 'voting' | 'voting-selected';
@@ -144,13 +161,18 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
     }*/
 
   vote(item: VoteMasonryItem): void {
-    item.voted = true;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().concat(item));
-  }
-
-  unvote(item: VoteMasonryItem): void {
-    item.voted = false;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== item.artwork.artworkId));
+    const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
+      data: {
+        text: `You can only vote ${environment.maxVoteAmount} times per voting-period and can not take back any votes.`,
+        header: 'VOTING',
+        action: 'Submit Vote'
+      } as ConfirmDialogData
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.votingService.setVoted(this.votingService.getVotedArtworks().concat(item), item);
+      }
+    });
   }
 
   imageClick(item: VoteMasonryItem) {
@@ -172,7 +194,7 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private getArtworks(index: number): Promise<VotableArtwork[]> {
+  private getArtworks(index: number): Promise<VoteBlockchainItem[]> {
     return this.blockchainService.getVotableArtworks(index);
   }
 

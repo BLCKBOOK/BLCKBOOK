@@ -14,12 +14,6 @@
           <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
         </fa-stack>
       </button>
-      <button mat-icon-button class="vote-button" *ngIf="item.voted" (click)="unvote(item)" [disabled]="alreadyVoted$ | async">
-        <fa-stack>
-          <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
-          <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>
-        </fa-stack>
-      </button>
     </div>
   </div>
 </ngx-masonry>
