@@ -1,7 +1,6 @@
 import {Component} from '@angular/core';
 import {VotingService} from './voting.service';
-import {BehaviorSubject, combineLatest, from, Observable} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
+import {from, Observable} from 'rxjs';
 import {SnackBarService} from '../services/snack-bar.service';
 import {ActivatedRoute} from '@angular/router';
 import {DetailViewDialogComponent, VoteDetailData} from './detail-view-dialog/detail-view-dialog.component';
@@ -19,28 +18,13 @@ import {VoteBlockchainItem} from './vote-scroll/voting-scroll.component';
 export class VotingComponent {
 
   $totalVoteAmount: Observable<number>;
-  $votesSelected: Observable<number>;
-  $submitDisabled: Observable<boolean>;
-  alreadyVoted$ = new BehaviorSubject<boolean>(false);
+  $votesSpent: Observable<number>;
   myUploadData: VoteDetailData;
 
   constructor(public dialog: MatDialog, private votingService: VotingService, private snackBarService: SnackBarService, private dialogService: DialogService,
               private route: ActivatedRoute, private imageSizeService: ImageSizeService, private location: Location) {
     this.$totalVoteAmount = this.votingService.getMaxVoteAmount$();
-    this.$votesSelected = this.votingService.getVotesSelected$();
-    this.votingService.getHasVoted$().subscribe(voted => {
-      if (this.alreadyVoted$.getValue() && !voted) {
-        this.alreadyVoted$.next(false);
-      }
-    });
-    this.$submitDisabled = combineLatest([this.$totalVoteAmount, this.$votesSelected, this.votingService.getHasVoted$()])
-      .pipe(map(([totalVoteAmount, votesSpend, voted]) => {
-        if (voted) {
-          this.alreadyVoted$.next(true);
-          this.snackBarService.openSnackBar('You already voted this period', 'Got it');
-        }
-        return votesSpend === 0 || totalVoteAmount < votesSpend || voted;
-      }, startWith(false)));
+    this.$votesSpent = this.votingService.getVotesSpentAmount$();
     this.route.params.subscribe(params => {
       if (params.id) {
         from(this.votingService.getVotableArtworkByArtworkId(params.id)).subscribe(artwork => {

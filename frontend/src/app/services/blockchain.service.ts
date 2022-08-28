@@ -220,7 +220,6 @@ export class BlockchainService {
   }
 
   public async calculateVotingParams(artwork_id: number, index: number, amount: number = 1): Promise<VoteParams> {
-    console.log(artwork_id, index);
     const data = await firstValueFrom(this.httpClient.get<TzktVotesEntryKey>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + `/bigmaps/votes/keys/${index}`));
     const startEntry = data.value;
 
@@ -234,8 +233,6 @@ export class BlockchainService {
     const currentVoteAmount = parseInt(startEntry.vote_amount) + amount;
     let previous = this.calculateIndex(startEntry.previous);
     let next = this.calculateIndex(startEntry.next);
-    console.log(next);
-    console.log(previous);
     while (previous != -1) {
       let previousResponse = await firstValueFrom(this.httpClient.get<TzktVotesEntryKey>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + `/bigmaps/votes/keys/${previous}`));
       const previousEntry = previousResponse.value;
@@ -324,6 +321,9 @@ export class BlockchainService {
       this.httpClient.get<TzktStorageStringKey>(environment.tzktAddress + 'contracts/' + environment.bankContractAddress + '/bigmaps/withdrawls/keys/' + userWallet),
       this.get$PRAYAmountInLedger(userWallet)]
     ).pipe(map(([withdraw_period, withdraw_entry, ledgerAmount]) => {
+      if (!withdraw_period || !withdraw_entry || !ledgerAmount) {
+        return environment.maxVoteAmount; // maybe not registered
+      }
       if (parseInt(withdraw_entry.value) < parseInt(withdraw_period)) {
         return this.maxAmountOfVotes;
       } else {

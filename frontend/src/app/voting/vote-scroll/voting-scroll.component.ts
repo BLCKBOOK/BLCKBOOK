@@ -14,6 +14,7 @@ import {DialogService} from '../../services/dialog.service';
 import {BlockchainService} from '../../services/blockchain.service';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
 import {environment} from '../../../environments/environment';
+import {LoadingDialogComponent, LoadingDialogData} from '../../components/loading-dialog/loading-dialog.component';
 
 export interface VoteMasonryItem {
   title: string,
@@ -48,7 +49,7 @@ export type ScrollType = 'voting' | 'voting-selected';
 export class VotingScrollComponent implements OnInit, AfterViewInit {
 
   currentIndex = 0;
-  alreadyVoted$: Observable<boolean>;
+  allVotesSpent$: Observable<boolean>;
   @Input() scrollType: ScrollType = 'voting';
   @Input() items: VoteMasonryItem[];
 
@@ -60,12 +61,21 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
   faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   currentlyLoading = false;
+  votedOnAnArtworkMultipleTimes = false;
 
   public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService,
               private location: Location, private updateService: UpdateService, private dialogService: DialogService, private blockchainService: BlockchainService) {
-    this.alreadyVoted$ = this.votingService.getHasVoted$();
+    this.allVotesSpent$ = this.votingService.getAllVotesSpent$();
+    this.votingService.getVotesSpentAmount$().subscribe(amount => {
+      if (amount > this.masonryItems.length) {
+        this.votedOnAnArtworkMultipleTimes = true;
+        console.log('spent more votes than');
+      } else {
+        this.votedOnAnArtworkMultipleTimes = false;
+      }
+    })
   }
 
   ngAfterViewInit() {
@@ -162,6 +172,7 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
 
   vote(item: VoteMasonryItem): void {
     const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
+      width: '90%',
       data: {
         text: `You can only vote ${environment.maxVoteAmount} times per voting-period and can not take back any votes.`,
         header: 'VOTING',
@@ -170,7 +181,14 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.votingService.setVoted(this.votingService.getVotedArtworks().concat(item), item);
+        const dialogRef2 = this.dialogService.open(LoadingDialogComponent, {
+          width: '90%',
+          data: {
+            text: `Vote is being processed`,
+            header: 'VOTING',
+          } as LoadingDialogData
+        });
+        this.votingService.voteArtwork(item).then(() => dialogRef2.close());
       }
     });
   }

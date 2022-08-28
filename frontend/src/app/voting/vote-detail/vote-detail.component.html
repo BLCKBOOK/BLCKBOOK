@@ -32,16 +32,12 @@
       </button>
     </div>
     <div class="vote-button-container" *ngIf="!withinDialog">
-      <button mat-raised-button *ngIf="!data.voted; else alreadyVoted" (click)="vote()"
-              [disabled]="alreadyVoted$ | async">
+      <button mat-raised-button (click)="vote()" [disabled]="alreadyVoted$ | async">
         Vote
         <fa-stack>
           <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
         </fa-stack>
       </button>
-      <ng-template #alreadyVoted>
-        You already voted this period
-      </ng-template>
     </div>
   </div>
 </div>

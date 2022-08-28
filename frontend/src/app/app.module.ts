@@ -69,6 +69,7 @@ import { FAQComponent } from './components/faq/faq.component';
 import {AmplifyAuthenticatorModule, AuthenticatorService} from '@aws-amplify/ui-angular';
 import {Amplify} from 'aws-amplify';
 import {TaquitoModule} from './taquito/taquito.module';
+import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -94,6 +95,7 @@ Amplify.configure(awsconfig);
     FooterComponent,
     TermsComponent,
     FAQComponent,
+    LoadingDialogComponent,
   ],
   imports: [
     LeafletModule,

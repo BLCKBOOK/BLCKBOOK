@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, firstValueFrom, from, Observable, ReplaySubject, Subject} from 'rxjs';
+import {BehaviorSubject, combineLatest, firstValueFrom, from, Observable, ReplaySubject, Subject} from 'rxjs';
 import {VoteBlockchainItem, VoteMasonryItem} from './vote-scroll/voting-scroll.component';
-import {map} from 'rxjs/operators';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {ImageSizeService} from '../services/image-size.service';
 import {SnackBarService} from '../services/snack-bar.service';
 import {UpdateService} from '../services/update.service';
-import {BlockchainService} from '../services/blockchain.service';
+import {BlockchainService, VoteParams} from '../services/blockchain.service';
 import {UserService} from '../services/user.service';
 import {TaquitoService} from '../taquito/taquito.service';
+import {map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +17,10 @@ import {TaquitoService} from '../taquito/taquito.service';
 export class VotingService {
   private votedArtworks: BehaviorSubject<VoteMasonryItem[]> = new BehaviorSubject<VoteMasonryItem[]>([]);
   private readonly maxVoteAmount: BehaviorSubject<number> = new BehaviorSubject<number>(environment.maxVoteAmount);
-  private readonly alreadyVoted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private readonly allVotesSpent: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private myUpload: Subject<VoteBlockchainItem> = new ReplaySubject<VoteBlockchainItem>(1);
+  private votesSpent$: Subject<number> = new ReplaySubject<number>(1);
+  private registered$: Subject<boolean> = new ReplaySubject<boolean>(1);
   private walletID: string;
 
   constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService,
@@ -37,12 +39,19 @@ export class VotingService {
     this.userService.requestUserInfo().subscribe(info => {
       if (info && info.walletId) {
         this.walletID = info.walletId;
+        this.blockchainService.userIsRegistered(info.walletId).subscribe(registered => {
+          if (!registered) {
+            this.snackBarService.openSnackBarWithNavigation('You are not registered to vote yet', 'register', '/wallet');
+          }
+          this.registered$.next(registered);
+        })
         this.blockchainService.getAmountOfVotesLeft(this.walletID).subscribe(votesLeft => {
           if (votesLeft === 0) {
-            this.alreadyVoted.next(true);
+            this.allVotesSpent.next(true);
           } else {
-            this.alreadyVoted.next(false);
+            this.allVotesSpent.next(false);
           }
+          this.votesSpent$.next(this.maxVoteAmount.getValue() - votesLeft);
         })
         from(this.blockchainService.getUserUpload(this.walletID)).subscribe(upload => {
           if (upload) {
@@ -87,8 +96,10 @@ export class VotingService {
     } as VoteMasonryItem;
   }
 
-  public getHasVoted$(): Observable<boolean> {
-    return this.alreadyVoted.pipe();
+  public getAllVotesSpent$(): Observable<boolean> {
+    return combineLatest([this.allVotesSpent.pipe(), this.registered$.pipe()]).pipe(map(([allVotesSpent, registered]) => {
+      return allVotesSpent || !registered;
+    }));
   }
 
   public getMaxVoteAmount$(): Observable<number> {
@@ -99,14 +110,46 @@ export class VotingService {
     return this.maxVoteAmount.getValue();
   }
 
-  public getVotesSelected$(): Observable<number> {
-    return this.votedArtworks.pipe(map(artworks => artworks.length));
+  public getVotesSpentAmount$(): Observable<number> {
+    return this.votesSpent$.pipe();
   }
 
-  setVoted(selection: VoteMasonryItem[], newItem: VoteMasonryItem) {
-    from(this.blockchainService.calculateVotingParams(parseInt(newItem.artwork.artworkId), newItem.artwork.index)).subscribe(params => {
-      this.taquitoService.vote(params).then(() => newItem.voted = true);
-    });
+  async voteArtwork(newItem: VoteMasonryItem): Promise<void> {
+    const params = await this.blockchainService.calculateVotingParams(parseInt(newItem.artwork.artworkId), newItem.artwork.index);
+    const success = await this.vote(params);
+    if (success) {
+      newItem.voted = success;
+    }
+  }
+
+  async vote(params: VoteParams): Promise<boolean> {
+    const voteAmount = this.getVotedArtworks().length;
+    const successful = await this.taquitoService.vote(params);
+    if (successful) {
+      this.snackBarService.openSnackBarWithoutAction('Vote was successful', 10000);
+      let newVoteAmount;
+      const walletId = (await firstValueFrom(this.userService.getUserInfo()))?.walletId
+      let newVotes = [];
+      if (walletId) {
+        do {
+          newVotes = await this.blockchainService.getMyVotes(this.walletID);
+          newVoteAmount = newVotes.length;
+          if (newVoteAmount < voteAmount) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        } while (newVoteAmount < voteAmount)
+        this.votedArtworks.next(newVotes.map(artwork => this.getMasonryItemOfArtwork(artwork, true)));
+        const votesLeft = await firstValueFrom(this.blockchainService.getAmountOfVotesLeft(walletId))
+        if (votesLeft === 0) {
+          this.allVotesSpent.next(true);
+        }
+        this.votesSpent$.next(this.maxVoteAmount.getValue() - votesLeft);
+      }
+
+    } else {
+      this.snackBarService.openSnackBarWithoutAction('Vote was not cast');
+    }
+    return successful;
   }
 
   getVotedArtworks$(): Observable<VoteMasonryItem[]> {
