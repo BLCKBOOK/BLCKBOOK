@@ -28,7 +28,7 @@ export class DetailViewDialogComponent implements OnInit {
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: VoteDetailData, private location: Location) {
     this.votingService = data.votingService;
-    this.alreadyVoted$ = this.votingService.getHasVoted$();
+    this.alreadyVoted$ = this.votingService.getAllVotesSpent$();
   }
 
   ngOnInit() {

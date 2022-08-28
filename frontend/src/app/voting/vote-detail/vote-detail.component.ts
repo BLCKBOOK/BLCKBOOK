@@ -9,6 +9,7 @@ import {BlockchainService} from '../../services/blockchain.service';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
 import {environment} from '../../../environments/environment';
 import {DialogService} from '../../services/dialog.service';
+import {LoadingDialogComponent, LoadingDialogData} from '../../components/loading-dialog/loading-dialog.component';
 
 @Component({
   selector: 'app-vote-detail',
@@ -39,7 +40,7 @@ export class VoteDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.votingService = this.data.votingService;
-    this.alreadyVoted$ = this.votingService.getHasVoted$();
+    this.alreadyVoted$ = this.votingService.getAllVotesSpent$();
     const date = new Date(this.data.artwork.uploadTimestamp);
     this.timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     this.ipfsUri = this.data.artwork.artifactIPFSLink;
@@ -63,11 +64,19 @@ export class VoteDetailComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        const dialogRef2 = this.dialogService.open(LoadingDialogComponent, {
+          width: '90%',
+          data: {
+            text: `Vote is being processed`,
+            header: 'VOTING',
+          } as LoadingDialogData
+        });
         from(this.blockchainService.calculateVotingParams(parseInt(this.data.artwork.artworkId), this.data.artwork.index)).subscribe(params => {
-          this.taquitoService.vote(params).then(() => {
-            this.data.voted = true;
-            // TODO reload my votes here - so we can display them right away. or at least show a message.}
-
+          this.votingService.vote(params).then(success => {
+            if (success) {
+              this.data.voted = true;
+            }
+            dialogRef2.close();
           });
         });
       }

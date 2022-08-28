@@ -77,7 +77,7 @@ export class TaquitoService {
         new_previous
       };
       const call = await contract.methodsObject.vote(voteObject).send();
-      const hash: any | undefined = await call.confirmation(2);
+      const hash: any | undefined = await call.confirmation(1);
       console.log(`Operation injected: https://ghost.tzstats.com/${hash}`);
       return true;
     } catch (e) {
