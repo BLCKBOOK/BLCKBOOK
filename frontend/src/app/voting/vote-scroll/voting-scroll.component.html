@@ -9,7 +9,7 @@
     <div class="vote-footer">
       <span>{{item.title}}</span>
       <span class="example-spacer"></span>
-      <button mat-icon-button class="vote-button" (click)="vote(item)" [disabled]="allVotesSpent$ | async">
+      <button mat-icon-button class="vote-button" (click)="vote(item)" [disabled]="canNotVote$ | async">
         <fa-stack>
           <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
         </fa-stack>

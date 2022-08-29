@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable, of, ReplaySubject, Subject} from 'rxjs';
+import {asyncScheduler, Observable, ReplaySubject, scheduled, Subject, Subscription} from 'rxjs';
 import {UserInfo} from '../../../../backend/src/common/tableDefinitions';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../../environments/environment';
@@ -14,15 +14,12 @@ export class UserService {
   private readonly userInfoAPIURL = environment.urlString + '/user';
   private readonly getUserInfoURL = '/getMyUserInfo';
   private userInfo: Subject<UserInfo | undefined> = new ReplaySubject<UserInfo | undefined>(1);
+  private userInfoRequestSubscription: Subscription;
 
   constructor(private httpClient: HttpClient, private updateService: UpdateService, public authenticator: AuthenticatorService) {
     this.updateService.getUpdateEvent$().subscribe(() => {
       this.internallyUpdate();
     });
-    const user = this.authenticator.user;
-    if (user) {
-      this.requestUserInfo();
-    }
   }
 
   public adminCheckForRouting(): boolean {
@@ -46,11 +43,11 @@ export class UserService {
         }
       }
       return false;
-    }))
+    }));
   }
 
   public isAuthenticated(): boolean {
-    return !!this.authenticator.user
+    return !!this.authenticator.user;
   }
 
   public logOut(): void {
@@ -63,19 +60,26 @@ export class UserService {
     } else {
       console.error(error);
     }
-    return of(false);
+    return scheduled([false], asyncScheduler);
   }
 
-  public requestUserInfo(): Observable<UserInfo> {
+  public requestUserInfo(): Observable<void> {
+    if (!this.authenticator.user) {
+      console.log('was not authenticated so did not request it');
+      return scheduled([], asyncScheduler);
+    }
+    if (this.userInfoRequestSubscription && !this.userInfoRequestSubscription.closed) {
+      console.log('will not request User-Info twice');
+      return scheduled([], asyncScheduler);
+    }
     const userInfoObservable = this.httpClient.get<UserInfo>(this.userInfoAPIURL + this.getUserInfoURL);
-    userInfoObservable.subscribe(userInfo => {
+    this.userInfoRequestSubscription = userInfoObservable.subscribe(userInfo => {
         this.userInfo.next(userInfo);
       }, () => {
         this.userInfo.next(undefined);
-        return;
       }
     );
-    return userInfoObservable;
+    return userInfoObservable.pipe(map(() => void 0));
   }
 
   private internallyUpdate() {

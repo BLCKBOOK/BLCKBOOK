@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {VotingService} from './voting.service';
 import {from, Observable} from 'rxjs';
 import {SnackBarService} from '../services/snack-bar.service';
@@ -9,20 +9,25 @@ import {ImageSizeService} from '../services/image-size.service';
 import {Location} from '@angular/common';
 import {DialogService} from '../services/dialog.service';
 import {VoteBlockchainItem} from './vote-scroll/voting-scroll.component';
+import {UserService} from '../services/user.service';
 
 @Component({
   selector: 'app-voting',
   templateUrl: './voting.component.html',
   styleUrls: ['./voting.component.scss']
 })
-export class VotingComponent {
+export class VotingComponent implements OnInit {
 
   $totalVoteAmount: Observable<number>;
   $votesSpent: Observable<number>;
   myUploadData: VoteDetailData;
 
   constructor(public dialog: MatDialog, private votingService: VotingService, private snackBarService: SnackBarService, private dialogService: DialogService,
-              private route: ActivatedRoute, private imageSizeService: ImageSizeService, private location: Location) {
+              private route: ActivatedRoute, private imageSizeService: ImageSizeService, private location: Location, private userService: UserService) {
+  }
+
+  ngOnInit() {
+    this.userService.requestUserInfo();
     this.$totalVoteAmount = this.votingService.getMaxVoteAmount$();
     this.$votesSpent = this.votingService.getVotesSpentAmount$();
     this.route.params.subscribe(params => {

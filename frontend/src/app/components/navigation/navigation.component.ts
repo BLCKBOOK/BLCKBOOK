@@ -28,13 +28,12 @@ export class NavigationComponent implements OnInit {
 
   constructor(private userService: UserService, private ref: ChangeDetectorRef, private router: Router, public authenticator: AuthenticatorService,
               private notificationService: NotificationService, private dialog: MatDialog, private dialogService: DialogService) {
-    this.isAdmin$ = this.userService.isAdmin();
-    this.unreadNotifications = this.notificationService.getUnreadNotificationsNumber();
-    this.notifications = this.notificationService.getAFewNotifications(5);
   }
 
   ngOnInit() {
-    this.userService.requestUserInfo().subscribe(() => console.log('error'));
+    this.isAdmin$ = this.userService.isAdmin();
+    this.unreadNotifications = this.notificationService.getUnreadNotificationsNumber();
+    this.notifications = this.notificationService.getAFewNotifications(5);
   }
 
   logOut() {

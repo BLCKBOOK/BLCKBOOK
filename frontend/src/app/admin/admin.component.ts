@@ -13,6 +13,7 @@ import {ImageSizeService} from '../services/image-size.service';
 import {DisplayedArtwork} from '../types/image.type';
 import {DialogService} from '../services/dialog.service';
 import {MapDialogComponent, MapDialogData} from '../components/map-dialog/map-dialog.component';
+import {UserService} from '../services/user.service';
 
 @Component({
   selector: 'app-admin',
@@ -39,13 +40,15 @@ export class AdminComponent implements OnInit {
   pageCounter = 0;
   alreadyReachedEnd = false;
 
-  constructor(private adminService: AdminService, public dialog: MatDialog, private snackBarService: SnackBarService, private imageSizeService: ImageSizeService, private dialogService: DialogService) {
+  constructor(private adminService: AdminService, public dialog: MatDialog, private snackBarService: SnackBarService,
+              private imageSizeService: ImageSizeService, private dialogService: DialogService, private userService: UserService) {
     const savedImageSize = localStorage.getItem(this.adminImageSizeKey);
     this.imageHeight = savedImageSize ? Number(savedImageSize) : 200;
   }
 
   ngOnInit() {
     this.getNextArtworks(true);
+    this.userService.requestUserInfo();
   }
 
   getNextArtworks(initialLoad = false) {

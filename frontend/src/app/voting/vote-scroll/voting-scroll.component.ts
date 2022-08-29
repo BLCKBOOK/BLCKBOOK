@@ -49,7 +49,7 @@ export type ScrollType = 'voting' | 'voting-selected';
 export class VotingScrollComponent implements OnInit, AfterViewInit {
 
   currentIndex = 0;
-  allVotesSpent$: Observable<boolean>;
+  canNotVote$: Observable<boolean>;
   @Input() scrollType: ScrollType = 'voting';
   @Input() items: VoteMasonryItem[];
 
@@ -67,15 +67,6 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService,
               private location: Location, private updateService: UpdateService, private dialogService: DialogService, private blockchainService: BlockchainService) {
-    this.allVotesSpent$ = this.votingService.getAllVotesSpent$();
-    this.votingService.getVotesSpentAmount$().subscribe(amount => {
-      if (amount > this.masonryItems.length) {
-        this.votedOnAnArtworkMultipleTimes = true;
-        console.log('spent more votes than');
-      } else {
-        this.votedOnAnArtworkMultipleTimes = false;
-      }
-    })
   }
 
   ngAfterViewInit() {
@@ -113,6 +104,11 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
         // after the order of items has changed
       });
     }
+    this.canNotVote$ = this.votingService.getCanNotVote();
+    this.votingService.getVotesSpentAmount$().subscribe(amount => {
+      this.votedOnAnArtworkMultipleTimes =
+        amount > this.masonryItems.length && this.masonryItems.length > 0 && this.scrollType === 'voting-selected';
+    })
   }
 
   public myOptions: NgxMasonryOptions = {

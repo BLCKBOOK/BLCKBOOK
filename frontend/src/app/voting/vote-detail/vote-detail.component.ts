@@ -25,7 +25,7 @@ export class VoteDetailComponent implements OnInit {
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   faMapPin = findIconDefinition({prefix: 'fas', iconName: 'map-pin'});
   faRedo = findIconDefinition({prefix: 'fas', iconName: 'redo'});
-  alreadyVoted$: Observable<boolean>;
+  canNotVote$: Observable<boolean>;
   @Input() withinDialog: boolean;
 
   votingService: VotingService;
@@ -40,7 +40,7 @@ export class VoteDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.votingService = this.data.votingService;
-    this.alreadyVoted$ = this.votingService.getAllVotesSpent$();
+    this.canNotVote$ = this.votingService.getCanNotVote();
     const date = new Date(this.data.artwork.uploadTimestamp);
     this.timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     this.ipfsUri = this.data.artwork.artifactIPFSLink;

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject, combineLatest, firstValueFrom, from, Observable, ReplaySubject, Subject} from 'rxjs';
 import {VoteBlockchainItem, VoteMasonryItem} from './vote-scroll/voting-scroll.component';
 import {HttpClient, HttpParams} from '@angular/common/http';
@@ -9,7 +9,7 @@ import {UpdateService} from '../services/update.service';
 import {BlockchainService, VoteParams} from '../services/blockchain.service';
 import {UserService} from '../services/user.service';
 import {TaquitoService} from '../taquito/taquito.service';
-import {map} from 'rxjs/operators';
+import {map, skip} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +22,7 @@ export class VotingService {
   private votesSpent$: Subject<number> = new ReplaySubject<number>(1);
   private registered$: Subject<boolean> = new ReplaySubject<boolean>(1);
   private walletID: string;
+  private deadlineHasPassed: Subject<boolean> = new ReplaySubject<boolean>(1);
 
   constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService,
               private updateService: UpdateService, private blockchainService: BlockchainService, private userService: UserService,
@@ -29,14 +30,28 @@ export class VotingService {
     this.updateService.getUpdateEvent$().subscribe(() => {
       this.initialize();
     });
+    this.updateService.getPeriodEnded$().pipe(skip(1)).subscribe(() => {
+      this.updateDeadlineHasPassed();
+    });
   }
 
   private initialize() {
     this.updateVotingStatus();
   }
 
+  private updateDeadlineHasPassed() {
+    this.blockchainService.getVotingPeriodEndMS().subscribe(deadline => {
+      if (deadline > Date.now()) {
+        this.deadlineHasPassed.next(false);
+      } else {
+        this.deadlineHasPassed.next(true);
+      }
+    });
+  }
+
   public updateVotingStatus() {
-    this.userService.requestUserInfo().subscribe(info => {
+    this.userService.getUserInfo().subscribe(info => {
+      this.updateDeadlineHasPassed();
       if (info && info.walletId) {
         this.walletID = info.walletId;
         this.blockchainService.userIsRegistered(info.walletId).subscribe(registered => {
@@ -44,7 +59,7 @@ export class VotingService {
             this.snackBarService.openSnackBarWithNavigation('You are not registered to vote yet', 'register', '/wallet');
           }
           this.registered$.next(registered);
-        })
+        });
         this.blockchainService.getAmountOfVotesLeft(this.walletID).subscribe(votesLeft => {
           if (votesLeft === 0) {
             this.allVotesSpent.next(true);
@@ -52,12 +67,12 @@ export class VotingService {
             this.allVotesSpent.next(false);
           }
           this.votesSpent$.next(this.maxVoteAmount.getValue() - votesLeft);
-        })
+        });
         from(this.blockchainService.getUserUpload(this.walletID)).subscribe(upload => {
           if (upload) {
             this.myUpload.next(upload);
           }
-        })
+        });
         this.getMyVotes$().subscribe(votes => {
           const items: VoteMasonryItem[] = [];
           votes.forEach(artwork => {
@@ -75,9 +90,7 @@ export class VotingService {
             items.push(item);
           });
           this.votedArtworks.next(items);
-        })
-      } else {
-        console.error('no user-data so not able to vote')
+        });
       }
     });
   }
@@ -96,9 +109,9 @@ export class VotingService {
     } as VoteMasonryItem;
   }
 
-  public getAllVotesSpent$(): Observable<boolean> {
-    return combineLatest([this.allVotesSpent.pipe(), this.registered$.pipe()]).pipe(map(([allVotesSpent, registered]) => {
-      return allVotesSpent || !registered;
+  public getCanNotVote(): Observable<boolean> {
+    return combineLatest([this.allVotesSpent.pipe(), this.registered$.pipe(), this.deadlineHasPassed]).pipe(map(([allVotesSpent, registered, deadlinePassed]) => {
+      return allVotesSpent || !registered || deadlinePassed;
     }));
   }
 
@@ -128,7 +141,7 @@ export class VotingService {
     if (successful) {
       this.snackBarService.openSnackBarWithoutAction('Vote was successful', 10000);
       let newVoteAmount;
-      const walletId = (await firstValueFrom(this.userService.getUserInfo()))?.walletId
+      const walletId = (await firstValueFrom(this.userService.getUserInfo()))?.walletId;
       let newVotes = [];
       if (walletId) {
         do {
@@ -137,9 +150,9 @@ export class VotingService {
           if (newVoteAmount < voteAmount) {
             await new Promise(resolve => setTimeout(resolve, 1000));
           }
-        } while (newVoteAmount < voteAmount)
+        } while (newVoteAmount < voteAmount);
         this.votedArtworks.next(newVotes.map(artwork => this.getMasonryItemOfArtwork(artwork, true)));
-        const votesLeft = await firstValueFrom(this.blockchainService.getAmountOfVotesLeft(walletId))
+        const votesLeft = await firstValueFrom(this.blockchainService.getAmountOfVotesLeft(walletId));
         if (votesLeft === 0) {
           this.allVotesSpent.next(true);
         }
