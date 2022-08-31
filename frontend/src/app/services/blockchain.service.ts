@@ -195,7 +195,7 @@ export class BlockchainService {
       offset++;
     }
     if (uploadedArtwork) {
-      return this.getVotableArtworkById(uploadedArtwork.key, offset);
+      return this.getVotableArtworkById(uploadedArtwork.key, offset * this.loadLimit);
     } else return undefined;
   }
 
@@ -324,9 +324,9 @@ export class BlockchainService {
       if (!withdraw_period || !withdraw_entry || !ledgerAmount) {
         return environment.maxVoteAmount; // maybe not registered
       }
-      if (parseInt(withdraw_entry.value) < parseInt(withdraw_period)) {
+      if (parseInt(withdraw_entry.value) < parseInt(withdraw_period)) { // user has not withdrawn this period
         return this.maxAmountOfVotes;
-      } else {
+      } else { // this will return the $PRAY tokens left for the user
         return parseInt(ledgerAmount);
       }
     }));
@@ -358,7 +358,11 @@ export class BlockchainService {
     // filter out the entries that contain the wallet_id in its values
     let artworkIds = values.filter(value => value.value.includes(wallet_id));
     // then get the artworks via the artworkIds
-    return Promise.all(artworkIds.map(value => this.getVotableArtworkById(value.key, values.indexOf(value))));
+    let myVotes: VoteBlockchainItem[] = [];
+    while (artworkIds.length) {
+      myVotes.push(...await Promise.all(artworkIds.splice(0, environment.maxConcurrency).map(value => this.getVotableArtworkById(value.key, values.indexOf(value)))));
+    }
+    return myVotes
   }
 
 

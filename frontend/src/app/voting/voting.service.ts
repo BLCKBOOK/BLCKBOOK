@@ -60,20 +60,26 @@ export class VotingService {
           }
           this.registered$.next(registered);
         });
-        this.blockchainService.getAmountOfVotesLeft(this.walletID).subscribe(votesLeft => {
-          if (votesLeft === 0) {
-            this.allVotesSpent.next(true);
-          } else {
-            this.allVotesSpent.next(false);
-          }
-          this.votesSpent$.next(this.maxVoteAmount.getValue() - votesLeft);
-        });
         from(this.blockchainService.getUserUpload(this.walletID)).subscribe(upload => {
           if (upload) {
             this.myUpload.next(upload);
           }
         });
         this.getMyVotes$().subscribe(votes => {
+          this.blockchainService.getAmountOfVotesLeft(this.walletID).subscribe(votesLeft => {
+            if (votesLeft === 0) {
+              this.allVotesSpent.next(true);
+            } else {
+              this.allVotesSpent.next(false);
+            }
+            if (this.maxVoteAmount.getValue() >= votesLeft) {
+              this.votesSpent$.next(this.maxVoteAmount.getValue() - votesLeft);
+            } else {
+              console.error('the user has somehow more $PRAY than should be here');
+              this.votesSpent$.next(votes.length);
+              this.maxVoteAmount.next(votesLeft + votes.length);
+            }
+          });
           const items: VoteMasonryItem[] = [];
           votes.forEach(artwork => {
             const title = artwork.title;
@@ -187,6 +193,8 @@ export class VotingService {
     params = new HttpParams().set('path', 'all_artworks');
     const all_artworks = parseInt(await firstValueFrom(this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params})));
     const index = parseInt(artwork_id) - (all_artworks - admissions_this_period);
+    console.log(index);
+    console.log(artwork_id);
     return await this.blockchainService.getVotableArtworkById(artwork_id, index);
   }
 }
