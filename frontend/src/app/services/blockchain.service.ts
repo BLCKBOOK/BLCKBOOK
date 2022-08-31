@@ -216,11 +216,21 @@ export class BlockchainService {
       contentType: metaDataObject.formats[0].mimeType,
       title: metaDataObject.name === '' ? undefined : metaDataObject.name,
       index,
+      active: index >= 0,
     } as VoteBlockchainItem;
   }
 
+  /**
+   * Return the Votes-Big-Map Key for an INDEX (NOT THE ARTWORK_ID!)
+   * @param index the index of the current votes (not the artwork_id!)
+   * @private could be public but is only needed here
+   */
+  private async getVotesDataForArtwork(index: number): Promise<TzktVotesEntryKey> {
+    return await firstValueFrom(this.httpClient.get<TzktVotesEntryKey>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + `/bigmaps/votes/keys/${index}`));
+  }
+
   public async calculateVotingParams(artwork_id: number, index: number, amount: number = 1): Promise<VoteParams> {
-    const data = await firstValueFrom(this.httpClient.get<TzktVotesEntryKey>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + `/bigmaps/votes/keys/${index}`));
+    const data = await this.getVotesDataForArtwork(index);
     const startEntry = data.value;
 
     const params = new HttpParams().set('path', 'highest_vote_index');
@@ -234,7 +244,7 @@ export class BlockchainService {
     let previous = this.calculateIndex(startEntry.previous);
     let next = this.calculateIndex(startEntry.next);
     while (previous != -1) {
-      let previousResponse = await firstValueFrom(this.httpClient.get<TzktVotesEntryKey>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + `/bigmaps/votes/keys/${previous}`));
+      let previousResponse = await this.getVotesDataForArtwork(previous);
       const previousEntry = previousResponse.value;
       if (parseInt(previousEntry.vote_amount) >= currentVoteAmount) {
         next = this.calculateIndex(previousEntry.next);
@@ -311,6 +321,7 @@ export class BlockchainService {
         contentType: metaData.formats[0].mimeType,
         title: metaData.name === '' ? undefined : metaData.name,
         index: index + (offset * this.loadLimit),
+        active: votableArtworkInfo[index].active,
       } as VoteBlockchainItem;
     });
   }

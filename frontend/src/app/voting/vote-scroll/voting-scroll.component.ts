@@ -37,6 +37,7 @@ export interface VoteBlockchainItem {
   metadataIPFSLink: string,
   artifactIPFSLink: string,
   index: number,
+  active: boolean,
 }
 
 export type ScrollType = 'voting' | 'voting-selected';

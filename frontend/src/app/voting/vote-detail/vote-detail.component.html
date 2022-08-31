@@ -32,12 +32,15 @@
       </button>
     </div>
     <div class="vote-button-container" *ngIf="!withinDialog">
-      <button mat-raised-button (click)="vote()" [disabled]="canNotVote$ | async">
+      <button mat-raised-button (click)="vote()" [disabled]="(canNotVote$ | async) || !data.artwork.active">
         Vote
         <fa-stack>
           <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
         </fa-stack>
       </button>
+    </div>
+    <div class="meta-data-display past-voting-cycle" *ngIf="!data.artwork.active">
+      This is an item of a past voting-cycle
     </div>
   </div>
 </div>

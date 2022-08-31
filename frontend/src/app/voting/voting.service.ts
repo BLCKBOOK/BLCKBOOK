@@ -148,13 +148,13 @@ export class VotingService {
       this.snackBarService.openSnackBarWithoutAction('Vote was successful', 10000);
       let newVoteAmount;
       const walletId = (await firstValueFrom(this.userService.getUserInfo()))?.walletId;
-      let newVotes = [];
+      let newVotes: VoteBlockchainItem[] = [];
       if (walletId) {
         do {
           newVotes = await this.blockchainService.getMyVotes(this.walletID);
           newVoteAmount = newVotes.length;
           if (newVoteAmount < voteAmount) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 500));
           }
         } while (newVoteAmount < voteAmount);
         this.votedArtworks.next(newVotes.map(artwork => this.getMasonryItemOfArtwork(artwork, true)));
@@ -162,7 +162,12 @@ export class VotingService {
         if (votesLeft === 0) {
           this.allVotesSpent.next(true);
         }
-        this.votesSpent$.next(this.maxVoteAmount.getValue() - votesLeft);
+        if (votesLeft > this.maxVoteAmount.getValue()) {
+          console.error('the user somehow got more $PRAY than should be allowed');
+          this.votesSpent$.next(newVotes.length);
+        } else {
+          this.votesSpent$.next(this.maxVoteAmount.getValue() - votesLeft);
+        }
       }
 
     } else {
@@ -192,9 +197,7 @@ export class VotingService {
     const admissions_this_period = parseInt(await firstValueFrom(this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params})));
     params = new HttpParams().set('path', 'all_artworks');
     const all_artworks = parseInt(await firstValueFrom(this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params})));
-    const index = parseInt(artwork_id) - (all_artworks - admissions_this_period);
-    console.log(index);
-    console.log(artwork_id);
+    const index = parseInt(artwork_id) - (all_artworks - admissions_this_period); // can be negative
     return await this.blockchainService.getVotableArtworkById(artwork_id, index);
   }
 }
