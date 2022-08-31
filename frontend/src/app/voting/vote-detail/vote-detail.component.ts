@@ -46,7 +46,7 @@ export class VoteDetailComponent implements OnInit {
     this.ipfsUri = this.data.artwork.artifactIPFSLink;
     this.metadataUri = this.data.artwork.metadataIPFSLink;
     this.artworkData = {
-      titel: this.data.artwork.title,
+      title: this.data.artwork.title,
       uploader: this.data.artwork.uploader,
       latitude: this.data.artwork.latitude,
       longitude: this.data.artwork.longitude,

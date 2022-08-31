@@ -66,10 +66,10 @@ export class AuctionDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.artworkData = {
-      titel: this.data.mintedArtwork.title,
-      uploader: this.data.mintedArtwork.uploader,
-      longitude: this.data.mintedArtwork.longitude,
-      latitude: this.data.mintedArtwork.latitude,
+      title: this.data.title,
+      uploader: this.data.uploader,
+      longitude: this.data.longitude,
+      latitude: this.data.latitude,
     };
     const end_date = new Date(this.data.auctionKey.value.end_timestamp);
     this.timeDisplay = end_date.toLocaleDateString() + ' ' + end_date.toLocaleTimeString();

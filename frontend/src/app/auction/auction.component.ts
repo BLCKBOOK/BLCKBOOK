@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {SnackBarService} from '../services/snack-bar.service';
 import {MatDialog} from '@angular/material/dialog';
 import {Location} from '@angular/common';
-import {combineLatest} from 'rxjs';
+import {from} from 'rxjs';
 import {
   AuctionDetailData,
   DetailViewAuctionDialogComponent
@@ -19,7 +19,7 @@ import {UserService} from '../services/user.service';
 })
 export class AuctionComponent implements OnInit {
 
-  constructor(public dialog: MatDialog, public auctionService: BlockchainService, private route: ActivatedRoute,
+  constructor(public dialog: MatDialog, public blockchainService: BlockchainService, private route: ActivatedRoute,
               private snackBarService: SnackBarService, private location: Location, private dialogService: DialogService,
               private router: Router, private userService: UserService) {
   }
@@ -28,19 +28,21 @@ export class AuctionComponent implements OnInit {
     this.userService.requestUserInfo();
     this.route.params.subscribe(params => {
       if (params.id) {
-        combineLatest([this.auctionService.getAuction(params.id), this.auctionService.getMintedArtworkForId(params.id)])
-          .subscribe(([auctionKey, mintedArtwork]) => {
-            if (!auctionKey || !mintedArtwork) {
+        from(this.blockchainService.getMasonryItemOfAuctionById(params.id))
+          .subscribe(masonryItem => {
+            if (!masonryItem) {
               this.snackBarService.openSnackBarWithoutAction('Specified auction not found', 5000);
               this.location.go('/auction');
               return;
             }
-            const masonryItem = this.auctionService.getMasonryItemOfAuction(auctionKey, mintedArtwork);
             const detailData = {
               src: masonryItem.img,
               auctionKey: masonryItem.auctionKey,
               srcSet: masonryItem.srcSet,
-              mintedArtwork: masonryItem.mintedArtwork,
+              title: masonryItem.title,
+              longitude: masonryItem.longitude,
+              latitude: masonryItem.latitude,
+              uploader: masonryItem.uploader
             } as AuctionDetailData
             const dialogRef = this.dialogService.open(DetailViewAuctionDialogComponent, {
               width: '90%',

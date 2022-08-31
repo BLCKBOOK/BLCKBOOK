@@ -3,7 +3,7 @@
 <nav>
   <mat-toolbar fxLayout="row" fxFlexAlign="center">
     <div fxShow="true" fxHide.gt-sm="true">
-      <button mat-icon-button (click)="sidenav.toggle()" class="nav-icon-button">
+      <button mat-icon-button (click)="sidenav.toggle()" class="nav-icon-button" aria-label="menu">
         <fa-icon [icon]="faBars"></fa-icon>
       </button>
     </div>
@@ -38,7 +38,7 @@
     </button>
     <ng-template #profileAndNotifications>
       <button mat-icon-button class="nav-item nav-icon-button" [matMenuTriggerFor]="notificationMenu"
-              (click)="sidenav.close()"
+              (click)="sidenav.close()" aria-label="notifications"
               matBadge="{{unreadNotifications | async}}" matBadgeColor="warn" matBadgePosition="after"
               matBadgeHidden="{{(unreadNotifications | async) === 0}}">
         <fa-icon [icon]="faBell"></fa-icon>
@@ -76,7 +76,7 @@
           <fa-icon [icon]="faEllipsisH"></fa-icon>
         </button>
       </mat-menu>
-      <button class="nav-icon-button" mat-icon-button [matMenuTriggerFor]="profileMenu" (click)="sidenav.close()">
+      <button class="nav-icon-button" mat-icon-button [matMenuTriggerFor]="profileMenu" (click)="sidenav.close()" aria-label="user-settings">
         <fa-icon [icon]="faUserCircle"></fa-icon>
       </button>
       <mat-menu #profileMenu="matMenu">

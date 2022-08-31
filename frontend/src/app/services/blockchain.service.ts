@@ -10,7 +10,7 @@ import {
   TzktStorageStringKey,
   TzktVotableArtwork,
   TzktVoteArtworkDataKey,
-  TzktVotesEntryKey, TzktVotesRegisterEntryKey,
+  TzktVotesEntryKey, TzktVotesRegisterEntryKey, TzktTokenMetaDataEntryKey,
 } from '../types/tzkt.auction';
 import {AuctionMasonryItem} from '../auction/auction-scroll/auction-scroll.component';
 import {ImageSizeService} from './image-size.service';
@@ -60,8 +60,31 @@ export class BlockchainService {
       + `?limit=${this.loadLimit}&offset=${actualOffset}&active=${active}`);
   }
 
-  public getAuction(id: number): Observable<TzktAuctionKey> {
-    return this.httpClient.get<TzktAuctionKey>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys/' + id);
+  public async getMasonryItemOfAuctionById(id: number): Promise<AuctionMasonryItem> {
+    // get the auction from the auction-contract
+    const auction = await firstValueFrom(this.httpClient.get<TzktAuctionKey>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys/' + id));
+    // get the token-metaData (they have the same key)
+    const tokenMetaDataKey = await this.getTokenMetaDataBigMapKey(parseInt(auction.key));
+    // calculate the ipfs-address
+    const metaDataIpfsAddress = this.getIPFSAddressOfTzktMetaDataKey(tokenMetaDataKey);
+    // get the actual meta-data
+    const metaData = await firstValueFrom(this.httpClient.get<TzktVotableArtwork>(metaDataIpfsAddress));
+
+    // form the Object for the UI
+    const imageUrls = {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)};
+    const url = this.imageSizeService.get1000WImage(imageUrls);
+    const srcSet = this.imageSizeService.calculateSrcSetString(imageUrls);
+    return {
+      title: metaData.name === '' ? undefined : metaData.name,
+      img: url,
+      srcSet: srcSet,
+      auctionKey: auction,
+      tezBidAmount: this.currencyService.getTezAmountFromMutez(auction.value.bid_amount),
+      uploader: auction.value.uploader,
+      longitude: metaData.attributes.find(attribute => attribute.name === 'longitude')?.value ?? 'unknown',
+      latitude: metaData.attributes.find(attribute => attribute.name === 'latitude')?.value ?? 'unknown',
+      metaDataIpfsLink: metaDataIpfsAddress,
+    } as AuctionMasonryItem;
   }
 
   getArtworkMetadata(id: string): Observable<string> {
@@ -90,66 +113,91 @@ export class BlockchainService {
   }
 
   async getMintedArtworkForId(auctionId: number): Promise<MintedArtwork | undefined> {
+    // ToDo do blockchain and pinata call here
     return firstValueFrom(this.httpClient.get<MintedArtwork>(this.mintedArtworkByTokenIDURL + auctionId));
   }
 
   public async getMasonryItemsOfPastAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
-    const liveAuctions = await firstValueFrom(this.getPastAuctions(offset));
-    const retValue = [];
-    if (liveAuctions) {
-      for (const auction of liveAuctions) {
-        const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
-        if (mintedArtwork) {
-          retValue.push(this.getMasonryItemOfAuction(auction, mintedArtwork));
-        }
-      }
+    const pastAuctions = await firstValueFrom(this.getPastAuctions(offset));
+    if (pastAuctions) {
+      return this.getMasonryItemsOfAuctionKeys(pastAuctions);
     }
-    return retValue;
+    return [];
+  }
+
+  /**
+   * returns the token_metadata key of the given id of the FA2 Contract
+   */
+  public getTokenMetaDataBigMapKey(id: number): Promise<TzktTokenMetaDataEntryKey> {
+    return firstValueFrom(this.httpClient.get<TzktTokenMetaDataEntryKey>(environment.tzktAddress + 'contracts/' + environment.tokenContractAddress + '/bigmaps/token_metadata/keys/' + id));
+  }
+
+  private async getMasonryItemsOfAuctionKeys(auctions: TzktAuctionKey[]): Promise<AuctionMasonryItem[]> {
+    // first get the token_metadata from the FA2 contract
+    const tokenMetaDataKeys = await Promise.all(auctions.map(auction => this.getTokenMetaDataBigMapKey(parseInt(auction.key))));
+
+    // then convert them to ipfs addresses
+    const metaDataIpfsAddresses = tokenMetaDataKeys.map(auction => {
+      return this.getIPFSAddressOfTzktMetaDataKey(auction);
+    });
+    // get the actual meta-data from the calculated addresses
+    const metaDataObjects = await Promise.all(metaDataIpfsAddresses.map(async metaDataIpfsAddress => {
+      return await firstValueFrom(this.httpClient.get<TzktVotableArtwork>(metaDataIpfsAddress));
+    }));
+
+    // return AuctionMasonryItems for the UI
+    return metaDataObjects.map((metaData, index) => {
+      const imageUrls = {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)};
+      const url = this.imageSizeService.get1000WImage(imageUrls);
+      const srcSet = this.imageSizeService.calculateSrcSetString(imageUrls);
+      return {
+        title: metaData.name === '' ? undefined : metaData.name,
+        img: url,
+        srcSet: srcSet,
+        auctionKey: auctions[index],
+        tezBidAmount: this.currencyService.getTezAmountFromMutez(auctions[index].value.bid_amount),
+        uploader: auctions[index].value.uploader,
+        longitude: metaData.attributes.find(attribute => attribute.name === 'longitude')?.value ?? 'unknown',
+        latitude: metaData.attributes.find(attribute => attribute.name === 'latitude')?.value ?? 'unknown',
+        metaDataIpfsLink: metaDataIpfsAddresses[index],
+      } as AuctionMasonryItem;
+    });
   }
 
   public async getMasonryItemsOfLiveAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
     const liveAuctions = await firstValueFrom(this.getLiveAuctions(offset));
-    const retValue = [];
     if (liveAuctions) {
-      for (const auction of liveAuctions) {
-        const mintedArtwork = await this.getMintedArtworkForId(parseInt(auction.key));
-        if (mintedArtwork) {
-          retValue.push(this.getMasonryItemOfAuction(auction, mintedArtwork));
-        }
-      }
+      return await this.getMasonryItemsOfAuctionKeys(liveAuctions);
     }
-    return retValue;
-  }
-
-  public getMasonryItemOfAuction(auctionKey: TzktAuctionKey, mintedArtwork: MintedArtwork): AuctionMasonryItem {
-    const title = mintedArtwork.title;
-    const url = this.imageSizeService.get1000WImage(mintedArtwork.imageUrls);
-    const srcSet = this.imageSizeService.calculateSrcSetString(mintedArtwork.imageUrls);
-    return {
-      title,
-      srcSet: srcSet,
-      img: url,
-      auctionKey: auctionKey,
-      mintedArtwork,
-      tezBidAmount: this.currencyService.getTezAmountFromMutez(auctionKey.value.bid_amount),
-    } as AuctionMasonryItem;
+    return [];
   }
 
   public async getMasonryItemsOfUserTokens(offset: number = 0, walletId: string | undefined): Promise<AuctionMasonryItem[]> {
-    if (walletId) {
-      const tokens = await firstValueFrom(this.getTokensOfUser(offset, walletId));
-      if (tokens && tokens.total > 0) {
-        const retArray = [];
-        for (const token of tokens.balances) {
-          const artwork = await this.getMintedArtworkForId(token.token_id);
-          const auction = await firstValueFrom(this.getAuction(token.token_id));
-          if (artwork && auction) {
-            retArray.push(this.getMasonryItemOfAuction(auction, artwork));
-          }
-        }
-        return retArray;
-      }
-    }
+    /**
+     * TODO rework this with the Tzkt API (used better-call-dev before)
+     */
+    // Maybe do this by crawling the ledger. Can I unpack the keys? -> must also check the auction if it is it inactive!
+    // MUST NOT display an active auction in the gallery!
+    // Or do it by crawling the finished auctions and look for the wallet-id as the last bidder (now the owner)
+    //
+
+    /**
+     * if (walletId) {
+     *       const tokens = await firstValueFrom(this.getTokensOfUser(offset, walletId));
+     *       if (tokens && tokens.total > 0) {
+     *         const retArray = [];
+     *         for (const token of tokens.balances) {
+     *           const artwork = await this.getMintedArtworkForId(token.token_id);
+     *           const auction = await firstValueFrom(this.getAuction(token.token_id));
+     *           if (artwork && auction) {
+     *             retArray.push(this.getMasonryItemOfAuction(auction, artwork));
+     *           }
+     *         }
+     *         return retArray;
+     *       }
+     *     }
+     */
+
     return [];
   }
 
@@ -280,6 +328,11 @@ export class BlockchainService {
     }
   }
 
+  private getIPFSAddressOfTzktMetaDataKey(key: TzktTokenMetaDataEntryKey): string {
+    const byteString = key.value.token_info[''];
+    return this.getIPFSAddressOfHash(byteString);
+  }
+
   private getIPFSAddressOfTzktArtworkDataKey(key: TzktVoteArtworkDataKey): string {
     const byteString = key.value.artwork_info[''];
     return this.getIPFSAddressOfHash(byteString);
@@ -373,7 +426,7 @@ export class BlockchainService {
     while (artworkIds.length) {
       myVotes.push(...await Promise.all(artworkIds.splice(0, environment.maxConcurrency).map(value => this.getVotableArtworkById(value.key, values.indexOf(value)))));
     }
-    return myVotes
+    return myVotes;
   }
 
 

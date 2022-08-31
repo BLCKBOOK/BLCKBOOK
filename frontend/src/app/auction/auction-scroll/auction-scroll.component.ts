@@ -2,7 +2,7 @@ import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgxMasonryComponent, NgxMasonryOptions} from 'ngx-masonry';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {ImageSizeService} from '../../services/image-size.service';
-import {MintedArtwork, UserInfo} from '../../../../../backend/src/common/tableDefinitions';
+import {UserInfo} from '../../../../../backend/src/common/tableDefinitions';
 import {MatDialog} from '@angular/material/dialog';
 import {
   AuctionDetailData,
@@ -21,8 +21,11 @@ export interface AuctionMasonryItem {
   img: string,
   srcSet: string,
   auctionKey: TzktAuctionKey,
-  mintedArtwork: MintedArtwork,
   tezBidAmount: string,
+  longitude: string,
+  latitude: string,
+  uploader: string,
+  metaDataIpfsLink: string,
 }
 
 @Component({
@@ -111,7 +114,10 @@ export class AuctionScrollComponent implements OnInit {
         src: item.img,
         auctionKey: item.auctionKey,
         srcSet: item.srcSet,
-        mintedArtwork: item.mintedArtwork,
+        title: item.title,
+        uploader: item.uploader,
+        longitude: item.longitude,
+        latitude: item.latitude,
       } as AuctionDetailData
     });
     dialogRef.afterClosed().subscribe(() => {
