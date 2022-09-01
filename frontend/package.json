@@ -14,9 +14,8 @@
     "lint": "ng lint",
     "analyze": "webpack-bundle-analyzer dist/blckbook-ui/stats.json",
     "explore": "ng build --source-map && source-map-explorer dist/**/*.js",
-    "build:server:serverless": "webpack --config webpack.server.config.js --progress",
-    "deploy:prod": "ng build --configuration production --output-hashing=all && npm run build:server:serverless && serverless deploy --stage prod",
-    "deploy:dev": "ng build --configuration devDeployment --output-hashing=all && npm run build:server:serverless && serverless deploy --stage dev"
+    "deploy:prod": "ng build --configuration production --output-hashing=all && serverless deploy --stage prod",
+    "deploy:dev": "ng build --configuration devDeployment --output-hashing=all && serverless deploy --stage dev"
   },
   "private": true,
   "dependencies": {
@@ -58,6 +57,7 @@
     "path": "^0.12.7",
     "rxjs": "^7.5.6",
     "serverless-api-compression": "^1.0.1",
+    "serverless-finch": "^4.0.0",
     "urlencode": "^1.1.0",
     "zone.js": "~0.11.8"
   },
@@ -87,13 +87,12 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~4.0.1",
     "karma-jasmine-html-reporter": "~1.7.0",
-    "serverless-apigw-binary": "^0.4.4",
     "source-map-explorer": "^2.5.2",
     "ts-loader": "^9.2.7",
     "typescript": "~4.7.4",
     "webpack": "^5.74.0",
     "webpack-bundle-analyzer": "^4.6.1",
     "webpack-cli": "^4.10.0",
-    "serverless": "^1.66.0"
+    "serverless": "^3.22.0"
   }
 }
