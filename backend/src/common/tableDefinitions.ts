@@ -1,5 +1,3 @@
-import { bool } from "aws-sdk/clients/signer";
-
 export interface UserInfoIndex {
   userId: string,
 }
