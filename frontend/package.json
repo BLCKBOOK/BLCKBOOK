@@ -14,8 +14,8 @@
     "lint": "ng lint",
     "analyze": "webpack-bundle-analyzer dist/blckbook-ui/stats.json",
     "explore": "ng build --source-map && source-map-explorer dist/**/*.js",
-    "deploy:prod": "ng build --configuration production --output-hashing=all && serverless client deploy --stage prod",
-    "deploy:dev": "ng build --configuration devDeployment --output-hashing=all && serverless client deploy --stage dev"
+    "deploy:prod": "ng build --configuration=production --output-hashing=all && serverless deploy --stage prod",
+    "deploy:dev": "ng build --configuration=development --output-hashing=all && serverless deploy --stage dev"
   },
   "private": true,
   "dependencies": {

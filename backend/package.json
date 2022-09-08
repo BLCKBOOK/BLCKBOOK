@@ -1,7 +1,11 @@
 {
-  "name": "dynamodb-backend",
+  "name": "blckbook-backend",
   "version": "1.0.0",
   "description": "",
+  "scripts": {
+    "deploy:prod":"serverless deploy --stage prod",
+    "deploy:dev":"serverless deploy --stage dev"
+  },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.31.0",
     "@aws-sdk/client-dynamodb": "^3.30.0",

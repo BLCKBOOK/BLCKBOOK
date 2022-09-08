@@ -3,7 +3,6 @@ org: simonschiebler
 app: blckbook
 service: frontend
 
-
 provider:
   name: aws
   runtime: nodejs14.x

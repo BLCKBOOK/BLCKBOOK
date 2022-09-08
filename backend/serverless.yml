@@ -13,24 +13,39 @@ package:
   individually: true
 
 custom:
-  notification_table_name: 'notifications-${self:provider.stage}'
-  user_info_table_name: 'user-info-${self:provider.stage}'
-  uploaded_artworks_table_name: 'uploaded-artworks-${self:provider.stage}'
-  vote_pages_table_name: 'votes-pages-${self:provider.stage}'
-  artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks' 
-  archive_table_name: 'archive-${self:provider.stage}'
-  blckbook_user_pool: ${self:provider.stage}-blckbook-users
-  minted_artworks_table_name: ${self:provider.stage}-minted-artworks
-  period_table_name: period-table-dev
-  minting_queue_name: 'MintingQueue.fifo'
+  tezos_rpc_client_interface: 
+    dev: 'https://hangzhounet.api.tez.ie'
+    prod: 'https://hangzhounet.api.tez.ie'
+  voter_money_pool_contract_address: 
+    dev: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
+    prod: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
+  auction_house_contract_address: 
+    dev: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
+    prod: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
+  fa2_contract_address: 
+    dev: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
+    prod: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
+  
+  notification_table_name: 'notifications-${opt:stage, self:provider.stage}'
+  user_info_table_name: 'user-info-${opt:stage, self:provider.stage}'
+  uploaded_artworks_table_name: 'uploaded-artworks-${opt:stage, self:provider.stage}'
+  vote_pages_table_name: 'votes-pages-${opt:stage, self:provider.stage}'
+  artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks-${opt:stage, self:provider.stage}' 
+  archive_table_name: 'archive-${opt:stage, self:provider.stage}'
+  blckbook_user_pool: ${opt:stage, self:provider.stage}-blckbook-users
+  minted_artworks_table_name: minted-artworks-${opt:stage, self:provider.stage}
+  period_table_name: period-table-dev-${opt:stage, self:provider.stage}
+  minting_queue_name: 'MintingQueue-${opt:stage, self:provider.stage}.fifo'
   max_votes_per_user: 5
   best_percentile: 10
   periodDuration: 604800000 # in ms
-  frontend_host_name: "*" # TODO change this to our domain as soon an we can move it 
+  frontend_host_name: 
+    dev: "https://dev.blckbook.vote"
+    prod: "https://blckbook.vote"
   period_cron: "0 0 ? * WED *"
   max_uploads_per_period: 1
   amplify:
-    - filename: ../frontend/src/aws-exports.ts
+    - filename: ../frontend/src/aws-exports-${opt:stage, self:provider.stage}.ts
       type: typescript
       appClient: BlckBookUsersClient
       s3bucket: disabled
@@ -47,9 +62,10 @@ provider:
     AUCTION_HOUSE_CONTRACT_ADDRESS:  'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
     VOTER_MONEY_POOL_CONTRACT_ADDRESS: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
     TEZOS_RPC_CLIENT_INTERFACE: 'https://hangzhounet.api.tez.ie'
+
     USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
     UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
-    FRONTEND_HOST_NAME: ${self:custom.frontend_host_name}
+    FRONTEND_HOST_NAME: ${self:custom.frontend_host_name.${opt:stage, self:provider.stage}}
     MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
     MAX_VOTES_PER_PERIOD: ${self:custom.max_votes_per_user}
     VOTE_PAGES_TABLE_NAME: ${self:custom.vote_pages_table_name}
@@ -65,7 +81,7 @@ provider:
     AUCTION_LENGTH: 4320 #minutes
     USER_POOL_ID:
       Ref: BlckBookUsers
-    STAGE:  ${self:provider.stage}
+    STAGE:  ${opt:stage, self:provider.stage}
 
 functions:
   - ${file(./src/eventTriggered/config.yml)}
@@ -115,7 +131,7 @@ resources:
     BlckBookUsersClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
-        ClientName: ${self:provider.stage}-blckbook-users-client
+        ClientName: ${opt:stage, self:provider.stage}-blckbook-users-client
         UserPoolId: 
           Ref: BlckBookUsers
         ExplicitAuthFlows:
