@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {TzktAuction} from '../../types/tzkt.auction';
+import {TzktTypes} from '../../types/tzkt.types';
 import {CurrencyService} from '../../services/currency.service';
 
 @Component({
@@ -9,7 +9,7 @@ import {CurrencyService} from '../../services/currency.service';
 })
 export class AuctionBidComponent implements OnInit {
 
-  @Input() bid: TzktAuction;
+  @Input() bid: TzktTypes;
   @Input() userWalletId: string;
   bidAmount: string
 

@@ -13,7 +13,7 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const session = this.authenticator.user?.getSignInUserSession();
     if (!session || req.url.includes('amazonaws.com/artwork') || !session.isValid()
-      || req.url.startsWith(environment.pinataGateway) || req.url.startsWith(environment.betterCallDevAddress)) {
+      || req.url.startsWith(environment.pinataGateway)) {
       return next.handle(req);
     }
     const token = session.getIdToken().getJwtToken();

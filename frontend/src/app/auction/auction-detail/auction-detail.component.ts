@@ -7,7 +7,7 @@ import {ErrorStateMatcher} from '@angular/material/core';
 import {UntypedFormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {BlockchainService} from '../../services/blockchain.service';
 import {BehaviorSubject} from 'rxjs';
-import {TzktAuction, TzKtAuctionHistoricalKey} from '../../types/tzkt.auction';
+import {TzktTypes, TzKtAuctionHistoricalKey} from '../../types/tzkt.types';
 import {CurrencyService} from '../../services/currency.service';
 import Dinero from 'dinero.js';
 import {UserService} from '../../services/user.service';
@@ -49,7 +49,7 @@ export class AuctionDetailComponent implements OnInit {
 
   auctionStartKey: TzKtAuctionHistoricalKey | undefined;
   auctionEndKey: TzKtAuctionHistoricalKey | undefined;
-  bidHistory: BehaviorSubject<TzktAuction[]> = new BehaviorSubject<TzktAuction[]>([]);
+  bidHistory: BehaviorSubject<TzktTypes[]> = new BehaviorSubject<TzktTypes[]>([]);
   ipfsUri: string;
   metadataUri: string;
   auctionStartDate: string;
@@ -111,7 +111,10 @@ export class AuctionDetailComponent implements OnInit {
     });
     if (this.auctionOver) {
       this.blockchainService.getTokenHolder(this.data.auctionKey.key).subscribe(holderList => {
-        this.currentOwner = Object.keys(holderList)[0];
+        if (holderList.length !== 1) {
+          console.error('we somehow have multiple token owners at the same time');
+        }
+        this.currentOwner = holderList[0].key.address;
       });
     }
   }
@@ -122,7 +125,8 @@ export class AuctionDetailComponent implements OnInit {
       this.taquitoService.bid(key, mutezAmount.toString()).then(successful => {
         if (successful) {
           this.currentBidPending = true;
-        }});
+        }
+      });
     } else {
       this.snackBarService.openSnackBarWithoutAction('Some error in the bid-amount');
     }
@@ -133,8 +137,8 @@ export class AuctionDetailComponent implements OnInit {
   }
 
   isNumeric(str: any): boolean {
-    if (typeof str != "string") return false // we only process strings!
+    if (typeof str != 'string') return false; // we only process strings!
     return !isNaN(Number(str)) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
-      !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+      !isNaN(parseFloat(str)); // ...and ensure strings of whitespace fail
   }
 }

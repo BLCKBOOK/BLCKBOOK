@@ -11,7 +11,7 @@ import {
 import {from, Observable, of} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {Location} from '@angular/common';
-import {TzktAuctionKey} from '../../types/tzkt.auction';
+import {TzktAuctionKey} from '../../types/tzkt.types';
 import {BlockchainService} from '../../services/blockchain.service';
 import {UserService} from '../../services/user.service';
 import {DialogService} from '../../services/dialog.service';
@@ -37,14 +37,14 @@ export class AuctionScrollComponent implements OnInit {
 
   currentIndex = 0;
   @Input() items: AuctionMasonryItem[];
-  @Input() scrollType: 'auction' | 'gallery' | 'my-gallery'
+  @Input() scrollType: 'auction' | 'gallery' | 'my-gallery';
 
   @ViewChild('masonry') masonry: NgxMasonryComponent;
   masonryItems: AuctionMasonryItem[] = [];
   reachedEnd = false;
   lastIndex: number | undefined = undefined;
   currentlyLoading = false;
-  userInfo: Observable<UserInfo | undefined>
+  userInfo: Observable<UserInfo | undefined>;
   walletId: string | undefined;
 
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
@@ -58,10 +58,21 @@ export class AuctionScrollComponent implements OnInit {
 
   ngOnInit() {
     this.userInfo = this.userService.getUserInfo();
-    this.userInfo.subscribe(userInfo => {
-      this.walletId = userInfo?.walletId;
-    });
-    this.initialize();
+    if (this.scrollType === 'auction' || this.scrollType === 'gallery') {
+      this.userInfo.subscribe(userInfo => {
+        this.walletId = userInfo?.walletId;
+      });
+      this.initialize(); // only initialize after we have the walletId!
+    } else if (this.scrollType === 'my-gallery') {
+      this.currentIndex = 0;
+      this.reachedEnd = false;
+      this.lastIndex = undefined;
+      this.masonryItems = [];
+      this.userInfo.subscribe(userInfo => {
+        this.walletId = userInfo?.walletId;
+        this.addMoreItems();
+      });
+    }
   }
 
   private initialize() {

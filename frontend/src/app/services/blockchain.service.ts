@@ -11,14 +11,12 @@ import {
   TzktVotableArtwork,
   TzktVoteArtworkDataKey,
   TzktVotesEntryKey, TzktVotesRegisterEntryKey, TzktTokenMetaDataEntryKey,
-} from '../types/tzkt.auction';
+} from '../types/tzkt.types';
 import {AuctionMasonryItem} from '../auction/auction-scroll/auction-scroll.component';
 import {ImageSizeService} from './image-size.service';
 import {environment} from '../../environments/environment';
-import {MintedArtwork} from '../../../../backend/src/common/tableDefinitions';
 import {CurrencyService} from './currency.service';
 import {map} from 'rxjs/operators';
-import {TokenResponse} from '../types/token.type';
 import {VoteBlockchainItem} from '../voting/vote-scroll/voting-scroll.component';
 
 export interface VoteParams {
@@ -33,9 +31,6 @@ export interface VoteParams {
   providedIn: 'root'
 })
 export class BlockchainService {
-
-  private readonly mintedArtworkByTokenIDURL = environment.urlString + '/mints/getMintedArtworkByTokenId/';
-  //
   private readonly loadLimit = 15;
   private readonly maxAmountOfVotes = 5;
 
@@ -58,6 +53,11 @@ export class BlockchainService {
     const actualOffset = offset * this.loadLimit;
     return this.httpClient.get<TzktAuctionKey[]>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys'
       + `?limit=${this.loadLimit}&offset=${actualOffset}&active=${active}`);
+  }
+
+  private getAuction(key: string): Observable<TzktAuctionKey> {
+    return this.httpClient.get<TzktAuctionKey>(environment.tzktAddress + 'contracts/' + environment.auctionHouseContractAddress + '/bigmaps/auctions/keys/'
+      + key);
   }
 
   public async getMasonryItemOfAuctionById(id: number): Promise<AuctionMasonryItem> {
@@ -110,11 +110,6 @@ export class BlockchainService {
       result += String.fromCharCode(parseInt(byteString.substring(i, i + 2), 16));
     }
     return result;
-  }
-
-  async getMintedArtworkForId(auctionId: number): Promise<MintedArtwork | undefined> {
-    // ToDo do blockchain and pinata call here
-    return firstValueFrom(this.httpClient.get<MintedArtwork>(this.mintedArtworkByTokenIDURL + auctionId));
   }
 
   public async getMasonryItemsOfPastAuctions(offset: number = 0): Promise<AuctionMasonryItem[]> {
@@ -173,46 +168,32 @@ export class BlockchainService {
   }
 
   public async getMasonryItemsOfUserTokens(offset: number = 0, walletId: string | undefined): Promise<AuctionMasonryItem[]> {
-    /**
-     * TODO rework this with the Tzkt API (used better-call-dev before)
-     */
     // Maybe do this by crawling the ledger. Can I unpack the keys? -> must also check the auction if it is it inactive!
     // MUST NOT display an active auction in the gallery!
     // Or do it by crawling the finished auctions and look for the wallet-id as the last bidder (now the owner)
     //
-
-    /**
-     * if (walletId) {
-     *       const tokens = await firstValueFrom(this.getTokensOfUser(offset, walletId));
-     *       if (tokens && tokens.total > 0) {
-     *         const retArray = [];
-     *         for (const token of tokens.balances) {
-     *           const artwork = await this.getMintedArtworkForId(token.token_id);
-     *           const auction = await firstValueFrom(this.getAuction(token.token_id));
-     *           if (artwork && auction) {
-     *             retArray.push(this.getMasonryItemOfAuction(auction, artwork));
-     *           }
-     *         }
-     *         return retArray;
-     *       }
-     *     }
-     */
-
+    if (walletId) {
+      const tokens = await firstValueFrom(this.getTokensOfUser(offset, walletId));
+      if (tokens && tokens.length > 0) {
+        const auctionArray = [];
+        for (const token of tokens) {
+          const auctionKey = await firstValueFrom(this.getAuction(token.key.nat));
+          auctionArray.push(auctionKey);
+        }
+        return this.getMasonryItemsOfAuctionKeys(auctionArray);
+      }
+    }
     return [];
   }
 
-  public getTokensOfUser(offset: number = 0, walletId: string): Observable<TokenResponse> {
-    // TODO: Fix this to use TzKT as BCD-API will become non-public soon
+  public getTokensOfUser(offset: number = 0, walletId: string): Observable<TzktLedgerKey[]> {
     const actualOffset = offset * this.loadLimit;
-    const size = this.loadLimit;
-    const params = new HttpParams().set('contract', environment.tokenContractAddress).set('size', size).set('offset', actualOffset).set('hide_empty', true);
-    return this.httpClient.get<TokenResponse>(environment.betterCallDevAddress + 'account/' + environment.betterCallDevNetwork + '/' + walletId + '/token_balances', {params: params});
+    const params = new HttpParams().set('key.address.eq', walletId).set('limit', this.loadLimit).set('offset', actualOffset);
+    return this.httpClient.get<TzktLedgerKey[]>(environment.tzktAddress + 'contracts/' + environment.tokenContractAddress + `/bigmaps/ledger/keys`, {params});
   }
 
-  public getTokenHolder(id: string): Observable<Object> {
-    // TODO: Fix this to use TzKT as BCD-API will become non-public soon
-    const params = new HttpParams().set('token_id', id);
-    return this.httpClient.get<Object>(environment.betterCallDevAddress + 'contract/' + environment.betterCallDevNetwork + '/' + environment.tokenContractAddress + '/tokens/holders', {params});
+  public getTokenHolder(id: string): Observable<TzktLedgerKey[]> {
+    return this.httpClient.get<TzktLedgerKey[]>(environment.tzktAddress + 'contracts/' + environment.tokenContractAddress + `/bigmaps/ledger/keys?value.eq=1&key.nat.eq=${id}`);
   }
 
   public userIsRegistered(userWallet: string): Observable<boolean> {
@@ -406,7 +387,7 @@ export class BlockchainService {
   }
 
   /**
-   * Calculate the VoteableArtworks from the List of who voted for them (by wallet_id
+   * Calculate the vote-able Artworks from the List of who voted for them (by wallet_id
    */
   public async getMyVotes(wallet_id: string): Promise<VoteBlockchainItem[]> {
     /*

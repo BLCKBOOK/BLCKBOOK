@@ -1,14 +1,14 @@
-export interface TzktBigMapKey {
+export interface TzktBigMapKey<Type> {
   active: boolean,
   firstLevel: number,
   hash: string,
   id: number,
-  key: string
+  key: Type,
   lastLevel: number,
   updates: number,
 }
 
-export interface TzktAuction {
+export interface TzktTypes {
   bid_amount: string,
   bidder: string,
   end_timestamp: string,
@@ -16,24 +16,29 @@ export interface TzktAuction {
   voter_amount: string,
 }
 
-export interface TzktStorageStringKey extends TzktBigMapKey {
+export interface TzktStorageStringKey extends TzktBigMapKey<string> {
   value: string,
 }
 
-export interface TzktAuctionKey extends TzktBigMapKey {
-  value: TzktAuction,
+export interface TzktAuctionKey extends TzktBigMapKey<string> {
+  value: TzktTypes,
 }
 
-export interface TzktLedgerKey extends TzktBigMapKey {
+export interface TzktArtworkLedgerKey {
+  address: string,
+  nat: string,
+}
+
+export interface TzktLedgerKey extends TzktBigMapKey<TzktArtworkLedgerKey> {
   value: string,
 }
 
-export interface TzktVotesEntryKey extends TzktBigMapKey {
+export interface TzktVotesEntryKey extends TzktBigMapKey<string> {
   value: TzktVotesEntry,
 }
 
-export interface TzktTokenMetaDataEntryKey extends TzktBigMapKey {
-  value: TokenMetaDataEntry
+export interface TzktTokenMetaDataEntryKey extends TzktBigMapKey<string> {
+  value: TokenMetaDataEntry;
 }
 
 export interface TokenMetaDataEntry {
@@ -49,25 +54,25 @@ export interface TzktVotesEntry {
 }
 
 export interface VotingIndex {
-  index: string
+  index: string;
 }
 
 export interface VotingEnd {
-  end: {}
+  end: {};
 }
 
 export interface TokenInfo {
-  "": string,
+  '': string,
   decimals: string
 }
 
 export interface TzktVoteArtworkData {
-  artwork_info: TokenInfo
-  uploader: string
+  artwork_info: TokenInfo;
+  uploader: string;
 }
 
-export interface TzktVoteArtworkDataKey extends TzktBigMapKey {
-  value: TzktVoteArtworkData
+export interface TzktVoteArtworkDataKey extends TzktBigMapKey<string> {
+  value: TzktVoteArtworkData;
 }
 
 export interface TzktVotableArtwork {
@@ -101,9 +106,9 @@ export interface TzKtAuctionHistoricalKey {
   id: number,
   level: number,
   timestamp: string,
-  value: TzktAuction,
+  value: TzktTypes,
 }
 
-export interface TzktVotesRegisterEntryKey extends TzktBigMapKey {
+export interface TzktVotesRegisterEntryKey extends TzktBigMapKey<string> {
   value: string[];
 }

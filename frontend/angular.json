@@ -95,14 +95,17 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "fronted:build"
+            "browserTarget": "fronted:build",
+            "proxyConfig": "src/proxy.dev.conf.js"
           },
           "configurations": {
             "production": {
-              "browserTarget": "blckbook-ui:build:production"
+              "browserTarget": "blckbook-ui:build:production",
+              "proxyConfig": "src/proxy.prod.conf.js"
             },
             "development": {
-              "browserTarget": "blckbook-ui:build:development"
+              "browserTarget": "blckbook-ui:build:development",
+              "proxyConfig": "src/proxy.dev.conf.js"
             }
           },
           "defaultConfiguration": "development"
@@ -148,6 +151,7 @@
   "cli": {
     "schematicCollections": [
       "@angular-eslint/schematics"
-    ]
+    ],
+    "analytics": false
   }
 }

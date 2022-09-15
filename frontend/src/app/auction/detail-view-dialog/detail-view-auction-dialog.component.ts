@@ -1,7 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {Location} from '@angular/common';
-import {TzktAuctionKey} from '../../types/tzkt.auction';
+import {TzktAuctionKey} from '../../types/tzkt.types';
 
 export interface AuctionDetailData {
   auctionKey: TzktAuctionKey,
