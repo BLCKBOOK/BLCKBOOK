@@ -20,3 +20,13 @@ custom:
     distributionFolder: dist/blckbook-ui
     indexDocument: index.html
     errorDocument: index.html
+    objectHeaders:
+      "**/*.js":
+        - name: "Content-Type"
+          value: "application/javascript"
+      "**/*.css":
+        - name: "Content-Type"
+          value: "text/css"
+      "**/*.json":
+        - name: "Content-Type"
+          value: "application/json"
