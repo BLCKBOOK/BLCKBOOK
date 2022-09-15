@@ -116,6 +116,18 @@
               "extractLicenses": true,
               "sourceMap": false
             },
+            "local-development": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.local.dev.ts"
+                },
+                {
+                  "replace": "src/aws-exports.ts",
+                  "with": "src/aws-exports-dev.ts"
+                }
+              ]
+            },
             "development": {
               "fileReplacements": [
                 {
@@ -130,7 +142,7 @@
               "outputHashing": "all"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local-development"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -140,15 +152,17 @@
           },
           "configurations": {
             "production": {
-              "browserTarget": "blckbook-ui:build:production",
-              "proxyConfig": "src/proxy.prod.conf.js"
+              "browserTarget": "blckbook-ui:build:production"
             },
             "development": {
-              "browserTarget": "blckbook-ui:build:development",
-              "proxyConfig": "src/proxy.dev.conf.js"
+              "browserTarget": "blckbook-ui:build:development"
+            },
+            "local-development": {
+              "browserTarget": "blckbook-ui:build:local-development",
+              "proxyConfig": "src/proxy.conf.js"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local-development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
