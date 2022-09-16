@@ -43,14 +43,19 @@ function createTokenMetadata(artwork: VotableArtwork, minterAddress: string, upl
                 mimeType: artwork.contentType,
             }
         ],
-        attributes: [{
-            name: 'longitude',
-            value: artwork.longitude
-        },
-        {
-            name: 'latitude',
-            'value': artwork.latitude
-        },
+        attributes: [
+            {
+                name: 'longitude',
+                value: artwork.longitude
+            },
+            {
+                name: 'latitude',
+                'value': artwork.latitude
+            },
+            {
+                name: 'imageUrls',
+                value: artwork.imageUrls
+            }
         ]
     };
 }
