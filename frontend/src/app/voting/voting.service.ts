@@ -56,7 +56,7 @@ export class VotingService {
         this.walletID = info.walletId;
         this.blockchainService.userIsRegistered(info.walletId).subscribe(registered => {
           if (!registered) {
-            this.snackBarService.openSnackBarWithNavigation('You are not registered to vote yet', 'register', '/wallet');
+            this.snackBarService.openSnackBarWithNavigation('You are not registered to vote yet', 'Register', '/wallet');
           }
           this.registered$.next(registered);
         });

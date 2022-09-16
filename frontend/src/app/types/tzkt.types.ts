@@ -93,7 +93,7 @@ export interface TzktVotableArtwork {
 
 export interface TzipAttribute {
   name: string,
-  value: string
+  value: any
 }
 
 export interface TzipFormat {

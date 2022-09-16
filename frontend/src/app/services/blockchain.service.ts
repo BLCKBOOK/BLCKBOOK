@@ -71,7 +71,7 @@ export class BlockchainService {
     const metaData = await firstValueFrom(this.httpClient.get<TzktVotableArtwork>(metaDataIpfsAddress));
 
     // form the Object for the UI
-    const imageUrls = {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)};
+    const imageUrls = metaData.attributes.find(attribute => attribute.name === 'imageUrls')?.value ?? {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)};
     const url = this.imageSizeService.get1000WImage(imageUrls);
     const srcSet = this.imageSizeService.calculateSrcSetString(imageUrls);
     return {
@@ -142,7 +142,7 @@ export class BlockchainService {
 
     // return AuctionMasonryItems for the UI
     return metaDataObjects.map((metaData, index) => {
-      const imageUrls = {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)};
+      const imageUrls = metaData.attributes.find(attribute => attribute.name === 'imageUrls')?.value ?? {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)};
       const url = this.imageSizeService.get1000WImage(imageUrls);
       const srcSet = this.imageSizeService.calculateSrcSetString(imageUrls);
       return {
@@ -231,19 +231,20 @@ export class BlockchainService {
   public async getVotableArtworkById(artwork_id: string, index: number): Promise<VoteBlockchainItem> {
     const artworkInfo = await this.getArtworkFromArtworkId(artwork_id);
     const metaDataIpfsAddress = this.getIPFSAddressOfTzktArtworkDataKey(artworkInfo);
-    const metaDataObject = await firstValueFrom(this.httpClient.get<TzktVotableArtwork>(metaDataIpfsAddress));
+    const metaData = await firstValueFrom(this.httpClient.get<TzktVotableArtwork>(metaDataIpfsAddress));
     return {
       artworkId: artwork_id,
       uploaderId: artworkInfo.value.uploader,
-      imageUrls: {originalImageKey: environment.pinataGateway + metaDataObject.thumbnailUri.substring(7)},
+      imageUrls: metaData.attributes.find(attribute => attribute.name === 'imageUrls')?.value ??
+        {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)},
       uploader: artworkInfo.value.uploader,
-      uploadTimestamp: metaDataObject.date,
-      artifactIPFSLink: environment.pinataGateway + metaDataObject.artifactUri.substring(7),
+      uploadTimestamp: metaData.date,
+      artifactIPFSLink: environment.pinataGateway + metaData.artifactUri.substring(7),
       metadataIPFSLink: metaDataIpfsAddress,
-      longitude: metaDataObject.attributes.find(attribute => attribute.name === 'longitude')?.value ?? 'unknown',
-      latitude: metaDataObject.attributes.find(attribute => attribute.name === 'latitude')?.value ?? 'unknown',
-      contentType: metaDataObject.formats[0].mimeType,
-      title: metaDataObject.name === '' ? undefined : metaDataObject.name,
+      longitude: metaData.attributes.find(attribute => attribute.name === 'longitude')?.value ?? 'unknown',
+      latitude: metaData.attributes.find(attribute => attribute.name === 'latitude')?.value ?? 'unknown',
+      contentType: metaData.formats[0].mimeType,
+      title: metaData.name === '' ? undefined : metaData.name,
       index,
       active: index >= 0,
     } as VoteBlockchainItem;
@@ -345,7 +346,8 @@ export class BlockchainService {
       return {
         artworkId: votableArtworkInfo[index].value.artwork_id,
         uploaderId: artworkInfos[index].value.uploader,
-        imageUrls: {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)},
+        imageUrls: metaData.attributes.find(attribute => attribute.name === 'imageUrls')?.value ??
+          {originalImageKey: environment.pinataGateway + metaData.thumbnailUri.substring(7)},
         uploader: artworkInfos[index].value.uploader,
         artifactIPFSLink: environment.pinataGateway + metaData.artifactUri.substring(7),
         metadataIPFSLink: metaDataIpfsAddresses[index],
