@@ -16,6 +16,7 @@ import { createNotification } from "../../common/actions/createNotification";
 import { TheVoteContract } from '../../common/contracts/the_vote_contract';
 import { TzktArtworkInfoBigMapKey, TzktVotesRegisterBigMapKey } from './types';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import fetch from "node-fetch";
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
@@ -24,9 +25,9 @@ const sqsClient = new SQSClient({ region: process.env['AWS_REGION'] });
 async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContract): Promise<boolean> {
     const maxConcurrency = 64;
     const tzktAddress = process.env['TZKT_ADDRESS']
-    const fa2ContractAddress = process.env['FA2_CONTRACT_ADDRESS']
-
     if (!tzktAddress) throw new Error(`TZKT_ADDRESS env variable not set`)
+    
+    const fa2ContractAddress = process.env['FA2_CONTRACT_ADDRESS']
     if (!fa2ContractAddress) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
 
     if (!(await vote.deadlinePassed())) {
@@ -120,14 +121,19 @@ const baseHandler = async (event, context) => {
     console.log(JSON.stringify(event))
 
     const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
-    const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
-
     if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
+    
+    const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
     if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
 
-    const tezos = new TezosToolkit(rpc);
-    const vote = new TheVoteContract(tezos, theVoteAddress)
+    const awsAccountId = context.invokedFunctionArn.split(':')[4]
 
+    const tezos = new TezosToolkit(rpc);
+    // TODO 
+    // setUser(tezos, admin)
+    const vote = new TheVoteContract(tezos, theVoteAddress)
+    await vote.ready
+    
     // loop over mints and create notifications
     if (!await mintAndBuildNotifications(tezos, vote)) throw new Error("Too many artworks. Retrying")
 
@@ -149,7 +155,7 @@ const baseHandler = async (event, context) => {
         for await (const artworkToAdmission of artworksToAdmission) {
             const admissionArtworkMessage  = new SendMessageCommand({
                 MessageBody: JSON.stringify(artworkToAdmission),
-                QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext ? event.requestContext.accountId : event.account}/${process.env['ADMISSION_QUEUE_NAME']}`
+                QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['ADMISSION_QUEUE_NAME']}`
               })
             await sqsClient.send(admissionArtworkMessage)
         }

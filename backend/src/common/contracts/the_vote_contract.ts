@@ -9,7 +9,6 @@ import {Contract} from './contract';
 import {char2Bytes} from '@taquito/tzip16';
 import {theVoteContractAddress, tzktAddress} from './constants';
 import fetch from 'node-fetch';
-import assert from 'assert';
 import {VoteContractHistoryEntry, VoteStorage} from './types';
 
 export interface Index {
@@ -236,6 +235,7 @@ export class TheVoteContract extends Contract {
     async deadlinePassed(): Promise<boolean> {
         const response = await fetch(`${tzktAddress}contracts/${theVoteContractAddress}/storage`);
         const storageData = await response.json();
+        console.log(storageData)
         return Date.parse(storageData.deadline) < Date.now();
     }
 
@@ -265,6 +265,7 @@ export class TheVoteContract extends Contract {
                             console.log(`Operation injected: https://ghost.tzstats.com/${hash}`);
                         } catch (error: any) {
                             console.log('could not set the new minting_ready_limit');
+                            console.error(error)
                             return false;
                         }
                     }
@@ -401,7 +402,6 @@ export class TheVoteContract extends Contract {
 
         if (!(startEntry.artwork_id === artwork_id.toString())) {
             console.error('wrong artwork_id');
-            assert(startEntry.artwork_id === artwork_id.toString()); //ToDo use exceptions
         }
 
         const currentVoteAmount = parseInt(startEntry.vote_amount) + amount;

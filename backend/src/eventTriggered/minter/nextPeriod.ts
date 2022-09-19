@@ -31,34 +31,36 @@ async function currentPeriodIsProcessing():Promise<Boolean> {
 }
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
-  const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
-  const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
+const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
+    const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
 
-  if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
-  if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
+    if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
+    if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
 
-  const tezos = new TezosToolkit(rpc);
-  const vote = new TheVoteContract(tezos, theVoteAddress)
+    const tezos = new TezosToolkit(rpc);
+    const vote = new TheVoteContract(tezos, theVoteAddress)
 
 
-  if (await vote.deadlinePassed() && !currentPeriodIsProcessing()) {
-      const setPeriodProcessingCommand = new UpdateItemCommand({
-        TableName: process.env['PERIOD_TABLE_NAME'],
-        Key: marshall({ periodId: 'current' }),
-        UpdateExpression: 'set processing = :processing',
-        ExpressionAttributeValues: marshall({ ':processing': true })
-      })
+    if (await vote.deadlinePassed() && !await currentPeriodIsProcessing()) {
+        const setPeriodProcessingCommand = new UpdateItemCommand({
+            TableName: process.env['PERIOD_TABLE_NAME'],
+            Key: marshall({ periodId: 'current' }),
+            UpdateExpression: 'set processing = :processing',
+            ExpressionAttributeValues: marshall({ ':processing': true })
+        })
 
-      const oldPeriodUUID = uuid();
-    await DDBclient.send(setPeriodProcessingCommand)
-    const newPeriodMessage  = new SendMessageCommand({
-      MessageBody:oldPeriodUUID,
-      QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext ? event.requestContext.accountId : event.account}/${process.env['MINTING_QUEUE_NAME']}`
-    })
-    await sqsClient.send(newPeriodMessage)
-  }
+        const oldPeriodUUID = uuid();
+        await DDBclient.send(setPeriodProcessingCommand)
+        const newPeriodMessage = new SendMessageCommand({
+            MessageBody: oldPeriodUUID,
+            QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext ? event.requestContext.accountId : event.account}/${process.env['MINTING_QUEUE_NAME']}`,
+            MessageGroupId: 'nextPeriodMessage'
+        })
+        await sqsClient.send(newPeriodMessage)
+    }
 
-  return { statusCode: 200, headers: { "content-type": "application/json" }, body: "OK" };
+    return { statusCode: 200, headers: { "content-type": "application/json" }, body: "OK" };  
+
 }
 
 const handler = middy(baseHandler)
