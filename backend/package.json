@@ -34,6 +34,7 @@
     "jsonschema": "^1.4.0",
     "mime-types": "^2.1.32",
     "ngeohash": "^0.6.3",
+    "node-fetch": "^2.6.7",
     "sharp": "^0.29.1",
     "uuid": "^8.3.2"
   },

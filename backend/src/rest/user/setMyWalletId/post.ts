@@ -13,6 +13,8 @@ import AuthMiddleware from "../../../common/AuthMiddleware";
 import RequestLogger from "../../../common/RequestLogger";
 import { BankContract } from "../../../common/contracts/bank_contract";
 import { TezosToolkit } from "@taquito/taquito";
+import { getTezosActivatorAccount } from "../../../common/SecretsManager";
+import { setUser } from "../../../common/setUser";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
@@ -32,8 +34,13 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
 
   const tezos = new TezosToolkit(rpc);
-  const bankContract = new BankContract(tezos, bankContractAddress)
   
+  const activatrAdmin = await getTezosActivatorAccount()
+  setUser(tezos, activatrAdmin)
+
+  const bankContract = new BankContract(tezos, bankContractAddress)
+  await bankContract.ready
+
   const body: UpdateUploadedArtworksRequestBody = event.body;
   
   if(!bankContract.userIsRegistered(body.walletId)) 
