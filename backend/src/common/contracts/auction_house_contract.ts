@@ -2,8 +2,8 @@ import {Contract} from './contract';
 import {MichelsonMap, TezosToolkit, TransactionOperation, TransactionWalletOperation} from '@taquito/taquito';
 import {char2Bytes, tzip16} from '@taquito/tzip16';
 import fetch from 'node-fetch';
-import {auctionHouseContractAddress, bankContractAddress, maxConcurrency, tzktAddress} from '../constants';
-import {TzktAuctionKey} from '../types';
+import {auctionHouseContractAddress, bankContractAddress, maxConcurrency, tzktAddress} from './constants';
+import {TzktAuctionKey} from './types';
 
 export class AuctionHouseContract extends Contract {
     constructor(protected tezos: TezosToolkit, address: string) {
@@ -60,17 +60,8 @@ export class AuctionHouseContract extends Contract {
         }
     }
 
-    async end_auction(auction_index: number, confirmations = 3) {
-        try {
-            const call: TransactionWalletOperation | TransactionOperation | undefined
-                = await this.contract?.methods.end_auction(
-                auction_index).send();
-            const hash: any | undefined = await call?.confirmation(confirmations);
-            console.log(`Operation injected: https://ghost.tzstats.com/${hash}`);
-        } catch (error) {
-            console.log(error);
-            console.log(`Error: ${JSON.stringify(error, null, 2)}`);
-        }
+    end_auction(auction_index: number) {
+            return this.contract?.methods.end_auction(auction_index);
     }
 
     // Maybe add TZIP16 to the actual contract :shrug
@@ -95,7 +86,7 @@ export class AuctionHouseContract extends Contract {
         let index = 0
 
         const timeString = new Date(Date.now()).toString();
-        let auctions = [];
+        let auctions:TzktAuctionKey[] = [];
         do {
             let actualOffset = loadLimit * index;
             const auctionRequest = await fetch(`${tzktAddress}contracts/${auctionHouseContractAddress}/bigmaps/auctions/keys?limit=${loadLimit}&offset=${actualOffset}&value.end_timestamp.lt=${timeString}`);

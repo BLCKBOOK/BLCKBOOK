@@ -7,10 +7,10 @@ import {
 } from '@taquito/taquito';
 import {Contract} from './contract';
 import {char2Bytes} from '@taquito/tzip16';
-import {theVoteContractAddress, tzktAddress} from '../constants';
+import {theVoteContractAddress, tzktAddress} from './constants';
 import fetch from 'node-fetch';
 import assert from 'assert';
-import {VoteContractHistoryEntry, VoteStorage} from '../types';
+import {VoteContractHistoryEntry, VoteStorage} from './types';
 
 export interface Index {
     index: string;
@@ -241,8 +241,8 @@ export class TheVoteContract extends Contract {
 
     async mintArtworksUntilReady(): Promise<boolean> {
         let mintAmount = 115;
-        let readyForMintAmount = 4096;
-        let votesTransmissionAmount = 4096;
+        let readyForMintAmount = 256;
+        let votesTransmissionAmount = 420; 
         let mintedAll = false;
 
         if (this.contract) {

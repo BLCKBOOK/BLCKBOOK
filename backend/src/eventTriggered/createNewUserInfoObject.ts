@@ -47,7 +47,7 @@ const baseHandler = async (event, context) => {
   })
   const newItem = await DDBClient.send(createNewUserObjectCommand)
 
-  console.debug(process.env['USER_POOL_ID'])
+  console.debug("writing to pool " + process.env['USER_POOL_ID'])
 
   await cognitoidentityserviceprovider.adminAddUserToGroup({
     GroupName: 'User',

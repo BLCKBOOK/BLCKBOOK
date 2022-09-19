@@ -55,3 +55,10 @@ cors error when calling my current upload
 tutorial for wallet creation and connection with site
 set cors headers for all pages
 what happens when you mint with invalid walletId
+
+##  reihenfolge
+x fix deploys  (dev/prod)#
+mint artworks im minutentakt aufrufen und auf has vote ended prüfen
+beim changen der wallet id den user im backend registrieren. 
+
+captchas (irgendwann)

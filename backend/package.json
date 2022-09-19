@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "deploy:prod":"serverless deploy --stage prod",
-    "deploy:dev":"serverless deploy --stage dev"
+    "deploy:prod": "serverless deploy --stage prod",
+    "deploy:dev": "serverless deploy --stage dev"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.31.0",
@@ -21,10 +21,10 @@
     "@middy/http-json-body-parser": "^2.5.1",
     "@middy/util": "^2.5.1",
     "@middy/validator": "^2.5.1",
-    "@pinata/sdk": "^1.1.23",
-    "@taquito/signer": "^11.0.2",
-    "@taquito/taquito": "^11.0.2",
-    "@taquito/tzip16": "^11.0.2",
+    "@pinata/sdk": "^1.1.26",
+    "@taquito/signer": "^13.0.1",
+    "@taquito/taquito": "^13.0.1",
+    "@taquito/tzip16": "^13.0.1",
     "@types/node": "^16.11.12",
     "@types/uuid": "^8.3.1",
     "ajv": "^8.6.2",

@@ -1,7 +1,7 @@
 import {TezosToolkit, TransactionOperation, TransactionWalletOperation} from '@taquito/taquito';
 import {Contract} from './contract';
 import fetch from 'node-fetch';
-import {bankContractAddress, tzktAddress} from '../constants';
+import {bankContractAddress, tzktAddress} from './constants';
 
 export class BankContract extends Contract {
 

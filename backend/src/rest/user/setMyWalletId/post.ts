@@ -11,15 +11,36 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import { LambdaResponseToApiGw } from "../../../common/lambdaResponseToApiGw";
 import AuthMiddleware from "../../../common/AuthMiddleware";
 import RequestLogger from "../../../common/RequestLogger";
+import { BankContract } from "../../../common/contracts/bank_contract";
+import { TezosToolkit } from "@taquito/taquito";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
 let returnObject: UpdateUploadedArtworksResponseBody;
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
-  let body: UpdateUploadedArtworksRequestBody = event.body;
-  const userId = event.requestContext.authorizer.claims['sub'];
+  
+  const bankContractAddress = process.env['BANK_CONTRACT_ADDRESS']
+  if(!bankContractAddress)
+  throw new Error('BANK_CONTRACT_ADDRESS not set')
 
+  const tzktAddress = process.env['TZKT_ADDRESS']
+  if(!tzktAddress)
+  throw new Error('TZKT_ADDRESS not set')
+  
+  const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
+  if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
+
+  const tezos = new TezosToolkit(rpc);
+  const bankContract = new BankContract(tezos, bankContractAddress)
+  
+  const body: UpdateUploadedArtworksRequestBody = event.body;
+  
+  if(!bankContract.userIsRegistered(body.walletId)) 
+    bankContract.registerUser(body.walletId)
+
+  const userId = event.requestContext.authorizer.claims['sub'];
+  
   const updateUserCommand = new UpdateItemCommand({
     TableName: process.env['USER_INFO_TABLE_NAME'],
     Key: marshall({ userId }),

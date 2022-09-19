@@ -19,7 +19,11 @@ const getSecret = async (secretName: string) =>{
 } 
 
 export async function getTezosAdminAccount() {
-    return await getSecret('dev/hangzhouFaucet');
+    if(process.env['STAGE'] === 'dev') {
+        return await getSecret('dev/ghostnetFaucet');
+    }else{
+        return await getSecret('prod/mainnetFaucet');
+    }
 }
 
 export async function getPinataAccount() {

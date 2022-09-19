@@ -4,9 +4,6 @@ import { importKey } from '@taquito/signer';
 import { tzip16, Tzip16Module } from '@taquito/tzip16';
 import pinataSDK from '@pinata/sdk';
 
-import { VoterMoneyPoolContract } from "../common/contracts/MoneyPool";
-import { AuctionHouseContract } from "../common/contracts/AuctionHouse";
-import { FA2Contract } from "../common/contracts/FA2";
 import middy from '@middy/core';
 import httpErrorHandler from '@middy/http-error-handler';
 import RequestLogger from "../common/RequestLogger";
@@ -16,14 +13,25 @@ import { Readable } from 'stream';
 import { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { createNotification } from "../common/actions/createNotification";
+import { AuctionHouseContract } from '../common/contracts/auction_house_contract';
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
-const Tezos = new TezosToolkit(process.env['TEZOS_RPC_CLIENT_INTERFACE']);
-Tezos.addExtension(new Tzip16Module());
 
 const baseHandler = async (event, context) => {
-    const contract = await Tezos.contract.at(process.env['AUCTION_HOUSE_CONTRACT_ADDRESS'], tzip16);
+    console.log(JSON.stringify(event))
+    let artworkToAdmission = unmarshall(JSON.parse(event.Records[0].body)) as VotableArtwork
+
+    const auctionHousseContractAddress = process.env['AUCTION_HOUSE_CONTRACT_ADDRESS']
+    if (!auctionHousseContractAddress) throw new Error(`AUCTION_HOUSE_CONTRACT_ADDRESS env variable not set`)
+    
+    const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
+    if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
+
+    const Tezos = new TezosToolkit(rpc);
+    Tezos.addExtension(new Tzip16Module());
+
+    const contract = await Tezos.contract.at(auctionHousseContractAddress, tzip16);
     const views = await contract.tzip16().metadataViews();
     const faucet = await getTezosAdminAccount();
     await importKey(
@@ -33,11 +41,15 @@ const baseHandler = async (event, context) => {
         faucet.mnemonic.join(' '),
         faucet.activation_code
     ).catch((e: any) => console.error(e));
-    const auctionHouseContract = new AuctionHouseContract(process.env['AUCTION_HOUSE_CONTRACT_ADDRESS'], Tezos)
-    await auctionHouseContract.Ready
+    const auctionHouseContract = new AuctionHouseContract(Tezos, auctionHousseContractAddress)
+    await auctionHouseContract.ready
 
+    await auctionHouseContract.getExpiredAuctions()
+    await auctionHouseContract.endExpiredAuctions()
     let now = new Date()
     const date = now.toISOString()
+
+    // TODO Muss durch endExpiredAuctions ersetzt werden
     const expiredAuctions = (await views.get_expired_auctions().executeView(date));
 
     // process auctions in chunks of 10 to not make too big transactions. This number was picked arbitrarily and can be optimized 
@@ -49,7 +61,7 @@ const baseHandler = async (event, context) => {
             const expiredAuctionId = retObj.c;
             return {
                 kind: OpKind.TRANSACTION,
-                ...auctionHouseContract.end_auction(expiredAuctionId).toTransferParams()
+                ...auctionHouseContract.end_auction(expiredAuctionId)?.toTransferParams()
             }
         });
 

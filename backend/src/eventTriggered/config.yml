@@ -1,5 +1,5 @@
 triggerNextPeriod:
-  handler: src/eventTriggered/nextPeriod.handler
+  handler: src/eventTriggered/minter/nextPeriod.handler
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -58,7 +58,7 @@ triggerNextPeriod:
               - Arn
         method: post
         cors: true
-    - schedule: cron(${self:custom.period_cron})
+    - schedule: ${self:custom.period_check}
 
 updateUserstateAfterUpload:
   handler: "src/eventTriggered/updateUserstateAfterUpload.handler"
@@ -105,7 +105,7 @@ initializeUser:
         - Fn::GetAtt: [ BlckBookUsers, Arn ]
   events:
     - cognitoUserPool:
-        pool: ${self:provider.stage}-blckbook-users
+        pool: ${opt:stage, self:provider.stage}-blckbook-users
         trigger: PostConfirmation
         existing: true
 
@@ -138,9 +138,19 @@ endAuctions:
     - schedule: rate(1 hour)
 
 mintingQueueWorker:
-    handler: src/eventTriggered/minter.handler
+    handler: src/eventTriggered/minter/minter.handler
     timeout: 180
     iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - sqs:SendMessage
+        Resource:
+          - Fn::GetAtt: [ AdmissionQueue, Arn ]  
+      - Effect: Allow
+        Action:
+          - sqs:SendMessage
+        Resource:
+          - Fn::GetAtt: [ NotificationQueue, Arn ]    
       - Effect: Allow
         Action:
           - secretsmanager:GetSecretValue

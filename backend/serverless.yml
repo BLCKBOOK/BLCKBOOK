@@ -13,19 +13,31 @@ package:
   individually: true
 
 custom:
+  # tezos data definitions
   tezos_rpc_client_interface: 
-    dev: 'https://hangzhounet.api.tez.ie'
-    prod: 'https://hangzhounet.api.tez.ie'
-  voter_money_pool_contract_address: 
+    dev: 'https://rpc.ghostnet.teztnets.xyz'
+    prod: 'https://rpc.ghostnet.teztnets.xyz'
+  voter_money_pool_contract_address:
     dev: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
     prod: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
   auction_house_contract_address: 
     dev: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
     prod: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
+  the_vote_contract_address:
+    dev: 'KT1KYDPcBS1MCLYRvbYGu1ZLUuhkNNXDyh1B'
+    prod: 'KT1KYDPcBS1MCLYRvbYGu1ZLUuhkNNXDyh1B'
   fa2_contract_address: 
     dev: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
     prod: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
-  
+  bank_contract_address:
+    dev: 'KT1VddB9LRnD5reNo2bugLikcxxQ1cHHTFjG'
+    prod: 'KT1VddB9LRnD5reNo2bugLikcxxQ1cHHTFjG'
+  tzkt_address:
+    dev: 'https://api.ghostnet.tzkt.io/v1/'
+    prod: 'https://api.ghostnet.tzkt.io/v1/'
+
+
+  # resource name definitions
   notification_table_name: 'notifications-${opt:stage, self:provider.stage}'
   user_info_table_name: 'user-info-${opt:stage, self:provider.stage}'
   uploaded_artworks_table_name: 'uploaded-artworks-${opt:stage, self:provider.stage}'
@@ -34,15 +46,22 @@ custom:
   archive_table_name: 'archive-${opt:stage, self:provider.stage}'
   blckbook_user_pool: ${opt:stage, self:provider.stage}-blckbook-users
   minted_artworks_table_name: minted-artworks-${opt:stage, self:provider.stage}
-  period_table_name: period-table-dev-${opt:stage, self:provider.stage}
+  period_table_name: period-table-${opt:stage, self:provider.stage}
+  admissioned_artworks_table: admissioned-artworks-${opt:stage, self:provider.stage}
+  
   minting_queue_name: 'MintingQueue-${opt:stage, self:provider.stage}.fifo'
+  admission_queue_name: 'AdmissionQueue-${opt:stage, self:provider.stage}.fifo'
+  notification_queue_name: 'NotificationQueue-${opt:stage, self:provider.stage}.fifo'
+  ipfsUpload_queue_name: 'IpfsUploadQueue-${opt:stage, self:provider.stage}.fifo'
+
+  # backend data definitions
   max_votes_per_user: 5
   best_percentile: 10
   periodDuration: 604800000 # in ms
   frontend_host_name: 
     dev: "https://dev.blckbook.vote"
     prod: "https://blckbook.vote"
-  period_cron: "0 0 ? * WED *"
+  period_check: "rate(10 minutes)"
   max_uploads_per_period: 1
   amplify:
     - filename: ../frontend/src/aws-exports-${opt:stage, self:provider.stage}.ts
@@ -58,14 +77,19 @@ provider:
   lambdaHashingVersion: '20201221'
   region: 'eu-west-1'
   environment:
-    FA2_CONTRACT_ADDRESS: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
-    AUCTION_HOUSE_CONTRACT_ADDRESS:  'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
-    VOTER_MONEY_POOL_CONTRACT_ADDRESS: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
-    TEZOS_RPC_CLIENT_INTERFACE: 'https://hangzhounet.api.tez.ie'
+    
+    FA2_CONTRACT_ADDRESS: ${self:custom.fa2_contract_address.${opt:stage, self:provider.stage}}
+    AUCTION_HOUSE_CONTRACT_ADDRESS:  ${self:custom.auction_house_contract_address.${opt:stage, self:provider.stage}}
+    VOTER_MONEY_POOL_CONTRACT_ADDRESS: ${self:custom.voter_money_pool_contract_address.${opt:stage, self:provider.stage}}
+    TEZOS_RPC_CLIENT_INTERFACE: ${self:custom.tezos_rpc_client_interface.${opt:stage, self:provider.stage}}
+    THE_VOTE_CONTRACT_ADDRESS: ${self:custom.the_vote_contract_address.${opt:stage, self:provider.stage}}
+    BANK_CONTRACT_ADDRESS: ${self:custom.bank_contract_address.${opt:stage, self:provider.stage}}
 
+    TZKT_ADDRESS: ${self:custom.tzkt_address.${opt:stage, self:provider.stage}}
+
+    FRONTEND_HOST_NAME: ${self:custom.frontend_host_name.${opt:stage, self:provider.stage}}
     USER_INFO_TABLE_NAME: ${self:custom.user_info_table_name}
     UPLOADED_ARTWORKS_TABLE_NAME: ${self:custom.uploaded_artworks_table_name}
-    FRONTEND_HOST_NAME: ${self:custom.frontend_host_name.${opt:stage, self:provider.stage}}
     MAX_UPLOADS_PER_PERIOD: ${self:custom.max_uploads_per_period}
     MAX_VOTES_PER_PERIOD: ${self:custom.max_votes_per_user}
     VOTE_PAGES_TABLE_NAME: ${self:custom.vote_pages_table_name}
@@ -74,10 +98,16 @@ provider:
     NOTIFICATION_TABLE_NAME: ${self:custom.notification_table_name}
     ARCHIVE_TABLE_NAME: ${self:custom.archive_table_name}
     MINTED_ARTWORKS_TABLE_NAME: ${self:custom.minted_artworks_table_name}
+    ADMISSIONED_ARTWORKS_TABLE_NAME: ${self:custom.admissioned_artworks_table}
+
+    MINTING_QUEUE_NAME: ${self:custom.minting_queue_name}
+    ADMISSION_QUEUE_NAME: ${self:custom.admission_queue_name}
+    NOTIFICATION_QUEUE_NAME: ${self:custom.notification_queue_name}
+    IPFS_UPLOAD_QUEUE_NAME: ${self:custom.ipfsUpload_queue_name} 
+
     PERIOD_DURATION: ${self:custom.periodDuration}
     BEST_PERCENTILE: ${self:custom.best_percentile}
-    MINTING_QUEUE_NAME: ${self:custom.minting_queue_name}
-    PERIOD_CRON: ${self:custom.period_cron}
+    PERIOD_CHECK: ${self:custom.period_check}
     AUCTION_LENGTH: 4320 #minutes
     USER_POOL_ID:
       Ref: BlckBookUsers
@@ -181,10 +211,19 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
+          - AttributeName: walletId
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
         TableName: ${self:custom.user_info_table_name}
+        GlobalSecondaryIndexes:
+          - IndexName: walletIdIndex           
+            KeySchema:
+              - AttributeName: walletId
+                KeyType: HASH
+            Projection:
+              ProjectionType: 'ALL'
 
     uploadedArtworkTable:
       Type: AWS::DynamoDB::Table
@@ -261,6 +300,18 @@ resources:
             Projection:
               ProjectionType: 'ALL'
 
+    admissionedArtworksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST 
+        AttributeDefinitions:
+          - AttributeName: artworkId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: artworkId
+            KeyType: HASH
+        TableName: ${self:custom.admissioned_artworks_table}
+
     archive:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -300,5 +351,29 @@ resources:
       Properties:
         VisibilityTimeout: 180
         QueueName: ${self:custom.minting_queue_name}
+        ContentBasedDeduplication: true
+        FifoQueue: true
+
+    AdmissionQueue:
+      Type: 'AWS::SQS::Queue'
+      Properties:
+        VisibilityTimeout: 180
+        QueueName: ${self:custom.admission_queue_name}
+        ContentBasedDeduplication: true
+        FifoQueue: true
+
+    IpfsUploadQueue:
+      Type: 'AWS::SQS::Queue'
+      Properties:
+        VisibilityTimeout: 180
+        QueueName: ${self:custom.ipfsUpload_queue_name}
+        ContentBasedDeduplication: true
+        FifoQueue: true
+    
+    NotificationQueue:
+      Type: 'AWS::SQS::Queue'
+      Properties:
+        VisibilityTimeout: 180
+        QueueName: ${self:custom.notification_queue_name}
         ContentBasedDeduplication: true
         FifoQueue: true
