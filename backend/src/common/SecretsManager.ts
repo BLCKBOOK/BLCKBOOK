@@ -20,9 +20,9 @@ const getSecret = async (secretName: string) =>{
 
 export async function getTezosActivatorAccount() {
     if(process.env['STAGE'] === 'dev') {
-        return await getSecret('dev/ghostnetFaucet');
+        return await getSecret('dev/ghostnetActivationFaucet');
     }else{
-        return await getSecret('prod/mainnetFaucet');
+        return await getSecret('prod/dev/mainnetActivationFaucet');
     }
 }
 

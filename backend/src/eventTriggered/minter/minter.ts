@@ -21,9 +21,9 @@ const sqsClient = new SQSClient({ region: process.env['AWS_REGION'] });
 async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContract): Promise<boolean> {
     const maxConcurrency = 64;
     const tzktAddress = process.env['TZKT_ADDRESS']
-    const fa2ContractAddress = process.env['FA2_CONTRACT_ADDRESS']
-
     if (!tzktAddress) throw new Error(`TZKT_ADDRESS env variable not set`)
+    
+    const fa2ContractAddress = process.env['FA2_CONTRACT_ADDRESS']
     if (!fa2ContractAddress) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
 
     const userInfoTableName = process.env['USER_INFO_TABLE_NAME']
@@ -117,9 +117,6 @@ async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContr
 }
 
 const baseHandler = async (event, context) => {
-
-    console.log(JSON.stringify(event))
-
     const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
     if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
     
@@ -130,7 +127,7 @@ const baseHandler = async (event, context) => {
 
     const tezos = new TezosToolkit(rpc);
     const admin = await getTezosAdminAccount()
-    setUser(tezos, admin)
+    await setUser(tezos, admin)
 
     const vote = new TheVoteContract(tezos, theVoteAddress)
     
@@ -157,7 +154,7 @@ const baseHandler = async (event, context) => {
         for await (const artworkToAdmission of artworksToAdmission) {
             const admissionArtworkMessage  = new SendMessageCommand({
                 MessageBody: JSON.stringify(artworkToAdmission),
-                QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext ? event.requestContext.accountId : event.account}/${process.env['ADMISSION_QUEUE_NAME']}`
+                QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['ADMISSION_QUEUE_NAME']}`
               })
             await sqsClient.send(admissionArtworkMessage)
         }

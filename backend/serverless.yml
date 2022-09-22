@@ -18,20 +18,20 @@ custom:
     dev: 'https://rpc.ghostnet.teztnets.xyz'
     prod: 'https://rpc.ghostnet.teztnets.xyz'
   voter_money_pool_contract_address:
-    dev: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
-    prod: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
+    dev: 'KT1Ats6HPT2ePmwY37QXbedm9noiXocNAwS8'
+    prod: 'KT1Ats6HPT2ePmwY37QXbedm9noiXocNAwS8'
   auction_house_contract_address: 
-    dev: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
-    prod: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
+    dev: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM'
+    prod: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM'
   the_vote_contract_address:
-    dev: 'KT1KYDPcBS1MCLYRvbYGu1ZLUuhkNNXDyh1B'
-    prod: 'KT1KYDPcBS1MCLYRvbYGu1ZLUuhkNNXDyh1B'
+    dev: 'KT1NXAMxDzSjgFv6L3Z7WW6HNUbBY2rHXaVV'
+    prod: 'KT1NXAMxDzSjgFv6L3Z7WW6HNUbBY2rHXaVV'
   fa2_contract_address: 
-    dev: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
+    dev: 'KT1Nqn4twmvFssgnwhgkjFeMsHiceg1tZbKV'
     prod: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
   bank_contract_address:
-    dev: 'KT1VddB9LRnD5reNo2bugLikcxxQ1cHHTFjG'
-    prod: 'KT1VddB9LRnD5reNo2bugLikcxxQ1cHHTFjG'
+    dev: 'KT1FSCVnbU1oNhUz52u6SBDfmfQo38du7ivH'
+    prod: 'KT1FSCVnbU1oNhUz52u6SBDfmfQo38du7ivH'
   tzkt_address:
     dev: 'https://api.ghostnet.tzkt.io/v1/'
     prod: 'https://api.ghostnet.tzkt.io/v1/'

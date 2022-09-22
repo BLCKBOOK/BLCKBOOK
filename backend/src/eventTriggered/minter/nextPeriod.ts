@@ -1,6 +1,5 @@
 import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { SQSClient, SendMessageBatchCommand, SendMessageBatchRequestEntry, SendMessageCommand } from "@aws-sdk/client-sqs";
-import awsCronParser from "aws-cron-parser";
 
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
@@ -24,8 +23,7 @@ async function currentPeriodIsProcessing():Promise<Boolean> {
   })
   const currentPeriod = await DDBclient.send(currentPeriodCommand)
   if (!currentPeriod.Item) throw new Error("Current period does not exist")
-  if (!currentPeriod.Item.processing) throw new Error("Current period does not contain 'processing' value")
-  if (!currentPeriod.Item.processing.BOOL) throw new Error("Current period does not contain 'processing' value")
+  if (currentPeriod.Item.processing === undefined || currentPeriod.Item.processing.BOOL === undefined) throw new Error("Current period does not contain 'processing' value")
   
   return currentPeriod.Item.processing.BOOL
 }

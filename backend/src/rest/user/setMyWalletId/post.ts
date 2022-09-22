@@ -36,7 +36,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   const tezos = new TezosToolkit(rpc);
   
   const activatrAdmin = await getTezosActivatorAccount()
-  setUser(tezos, activatrAdmin)
+  await setUser(tezos, activatrAdmin)
 
   const bankContract = new BankContract(tezos, bankContractAddress)
   await bankContract.ready
@@ -44,7 +44,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   const body: UpdateUploadedArtworksRequestBody = event.body;
   
   if(!bankContract.userIsRegistered(body.walletId)) 
-    bankContract.registerUser(body.walletId)
+    await bankContract.registerUser(body.walletId)
 
   const userId = event.requestContext.authorizer.claims['sub'];
   
