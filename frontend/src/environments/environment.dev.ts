@@ -6,7 +6,7 @@ export const environment = {
   tokenContractAddress: 'KT1Nqn4twmvFssgnwhgkjFeMsHiceg1tZbKV',
   voterMoneyPoolContractAddress: 'KT1Ats6HPT2ePmwY37QXbedm9noiXocNAwS8',
   auctionHouseContractAddress: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM',
-  theVoteContractAddress: 'KT1NXAMxDzSjgFv6L3Z7WW6HNUbBY2rHXaVV',
+  theVoteContractAddress: 'KT1KfttT5ZVLYxi9V8JjrM3Dncg4evdESSyW',
   sprayContractAddress : 'KT1FSCVnbU1oNhUz52u6SBDfmfQo38du7ivH',
   bankContractAddress: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP',
   tzktAddress: 'https://api.ghostnet.tzkt.io/v1/',
