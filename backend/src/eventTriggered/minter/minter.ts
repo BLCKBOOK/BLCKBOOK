@@ -4,8 +4,6 @@ import { getTezosAdminAccount, getPinataAccount } from '../../common/SecretsMana
 import middy from '@middy/core';
 import httpErrorHandler from '@middy/http-error-handler';
 import RequestLogger from "../../common/RequestLogger";
-import { S3Client } from '@aws-sdk/client-s3';
-import {  UploadedArtwork } from '../../common/tableDefinitions';
 import { DynamoDBClient, QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { createNotification } from "../../common/actions/createNotification";
@@ -135,30 +133,6 @@ const baseHandler = async (event, context) => {
 
     // loop over mints and create notifications
     if (!await mintAndBuildNotifications(tezos, vote)) throw new Error("Too many artworks. Retrying")
-
-    // get all approved artworks from the uploaded artworks table and create a sqs event for each batch.
-    // these events will then be admissioned in the_vote and their token metadata will be pinned to ipfs by the admissionArtwork lambda
-    let lastKey:any = undefined;
-    while (true) {
-        let getArtworksToAdmissionCommand = new ScanCommand({
-            TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
-            FilterExpression: "approvalState = :approved",
-            ExpressionAttributeValues: marshall({ ":approved": "approved" }),
-            Limit: 5,
-            ExclusiveStartKey: lastKey
-        })
-        let artworksToAdmissionRaw = await (await ddbClient.send(getArtworksToAdmissionCommand))
-        lastKey = artworksToAdmissionRaw.LastEvaluatedKey
-        if(!artworksToAdmissionRaw.Items || artworksToAdmissionRaw.Items.length === 0) break
-        const artworksToAdmission = artworksToAdmissionRaw.Items.map(i => unmarshall(i)) as UploadedArtwork[]
-        for await (const artworkToAdmission of artworksToAdmission) {
-            const admissionArtworkMessage  = new SendMessageCommand({
-                MessageBody: JSON.stringify(artworkToAdmission),
-                QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['ADMISSION_QUEUE_NAME']}`
-              })
-            await sqsClient.send(admissionArtworkMessage)
-        }
-    }
 }
 
 

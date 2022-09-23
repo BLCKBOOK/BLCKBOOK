@@ -10,7 +10,7 @@ import RequestLogger from "../../common/RequestLogger";
 import { GetObjectAclCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { VotableArtwork, UserInfo } from '../../common/tableDefinitions';
 import { Readable } from 'stream';
-import { DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, TransactWriteItemsCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { createNotification } from "../../common/actions/createNotification";
 import { TheVoteContract } from '../../common/contracts/the_vote_contract';
@@ -79,6 +79,7 @@ const baseHandler = async (event, context) => {
 
     const tezos = new TezosToolkit(rpc);
     const vote = new TheVoteContract(tezos, theVoteAddress)
+    await vote.ready
 
     const faucet = await getTezosAdminAccount();
 
@@ -133,36 +134,15 @@ const baseHandler = async (event, context) => {
     const tokenMetadata = createTokenMetadata(artworkToAdmission, adminPublicKey, uploaderWalletAddress, adminPublicKey, "ipfs://" + ipfsOriginalResponse.IpfsHash, "ipfs://" + ipfsThumbnailResponse.IpfsHash);
     const pinataResponse = await pinata.pinJSONToIPFS(tokenMetadata);
 
-    // add artwork to admission table
-    const getartworkCommand = new GetItemCommand({
+    const setIpfshashForArtwork = new UpdateItemCommand({
+        TableName: admissionedArtworksTableName,
         Key: marshall({ artworkId: artworkToAdmission.artworkId }),
-        TableName: uploadedArtworkTableName,
+        UpdateExpression: 'set ipfsLink = :ipfsLink',
+        ExpressionAttributeValues: marshall({ ':ipfsLink': pinataResponse.IpfsHash })
     })
-    const getArtworkRaw = (await ddbClient.send(getartworkCommand)).Item
-    if(getArtworkRaw){
-        const art = unmarshall(getArtworkRaw)
-        art.ipfsLink = pinataResponse.IpfsHash
-        await ddbClient.send(new TransactWriteItemsCommand({
-            TransactItems: [
-                {
-                    Delete: {
-                        Key: marshall({ artworkId: artworkToAdmission.artworkId }),
-                        TableName: uploadedArtworkTableName
-                    },
-                    Put:{
-                        Item: marshall(art),
-                        TableName: admissionedArtworksTableName
-                    }
-                }
-            ]
-        }))
 
-        
-    } else {
-        console.error("tried to admission the same artwork multiple times.")
-    }
+    await ddbClient.send(setIpfshashForArtwork)
 
-    // admission all artworks
 }
 
 
