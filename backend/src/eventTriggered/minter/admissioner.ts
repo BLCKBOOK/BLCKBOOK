@@ -10,7 +10,7 @@ import RequestLogger from "../../common/RequestLogger";
 import { GetObjectAclCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { VotableArtwork, UserInfo } from '../../common/tableDefinitions';
 import { Readable } from 'stream';
-import { DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, TransactWriteItemsCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { createNotification } from "../../common/actions/createNotification";
 import { TheVoteContract } from '../../common/contracts/the_vote_contract';

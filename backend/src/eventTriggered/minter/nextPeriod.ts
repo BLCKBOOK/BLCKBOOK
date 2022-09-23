@@ -21,7 +21,7 @@ async function currentPeriodIsProcessing(): Promise<Boolean> {
   const currentPeriodCommand = new GetItemCommand({
     TableName: process.env['PERIOD_TABLE_NAME'],
     Key: marshall({ periodId: 'current' }),
-    ConsistentRead:true
+    ConsistentRead: true
   })
   const currentPeriod = await DDBclient.send(currentPeriodCommand)
   if (!currentPeriod.Item) throw new Error("Current period does not exist")
@@ -47,30 +47,30 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
   const tezos = new TezosToolkit(rpc);
   const vote = new TheVoteContract(tezos, theVoteAddress)
-  
+
   if (!await currentPeriodIsProcessing() && await vote.deadlinePassed()) {
     const oldPeriodUUID = uuid();
     const setPeriodProcessingCommand = new UpdateItemCommand({
       TableName: process.env['PERIOD_TABLE_NAME'],
       Key: marshall({ periodId: 'current' }),
       UpdateExpression: 'SET processing = :processing, pendingPeriodId = :pendingPeriodId',
-      ExpressionAttributeValues: marshall({ ':processing': true, ':pendingPeriodId':oldPeriodUUID}) 
+      ExpressionAttributeValues: marshall({ ':processing': true, ':pendingPeriodId': oldPeriodUUID })
     })
-    await DDBclient.send(setPeriodProcessingCommand)    
+    await DDBclient.send(setPeriodProcessingCommand)
   }
 
   if (await currentPeriodIsProcessing()) {
-        // get UUID of past period. this is realized as a new get in case the loop above triggers a lambda timeout.
-        const currentPeriodCommand = new GetItemCommand({
-          TableName: process.env['PERIOD_TABLE_NAME'],
-          Key: marshall({ periodId: 'current' }),
-          ConsistentRead:true
-        })
-        const currentPeriod = await DDBclient.send(currentPeriodCommand)
-        if (!currentPeriod.Item) throw new Error("Current period does not exist")
-        if (currentPeriod.Item.processing === undefined || currentPeriod.Item.pendingPeriodId.S === undefined) throw new Error("Current period does not contain 'pendingPeriodId' value")
-        const oldPeriodUUID = currentPeriod.Item.pendingPeriodId.S
-        
+    // get UUID of past period. this is realized as a new get in case the loop above triggers a lambda timeout.
+    const currentPeriodCommand = new GetItemCommand({
+      TableName: process.env['PERIOD_TABLE_NAME'],
+      Key: marshall({ periodId: 'current' }),
+      ConsistentRead: true
+    })
+    const currentPeriod = await DDBclient.send(currentPeriodCommand)
+    if (!currentPeriod.Item) throw new Error("Current period does not exist")
+    if (currentPeriod.Item.processing === undefined || currentPeriod.Item.pendingPeriodId.S === undefined) throw new Error("Current period does not contain 'pendingPeriodId' value")
+    const oldPeriodUUID = currentPeriod.Item.pendingPeriodId.S
+
     // move all artworks to admission table
     let lastKey: any = undefined;
     while (true) {
@@ -90,9 +90,11 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
           TransactItems: [
             {
               Delete: {
-                Key: marshall({ artworkId: artworkToAdmission.artworkId }),
+                Key: marshall({ uploaderId: artworkToAdmission.uploaderId }),
                 TableName: uploadedArtworkTableName
-              },
+              }
+            },
+            {
               Put: {
                 Item: marshall(artworkToAdmission),
                 TableName: admissionedArtworkdsTableName
@@ -124,30 +126,30 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
       MessageGroupId: 'nextPeriodMessage'
     })
     await sqsClient.send(admissionArtworksMessage)
-    
+
     // create new period
     const timestamp = new Date()
     await DDBclient.send(new TransactWriteItemsCommand({
       TransactItems: [
-          {
-             Update:{
-              TableName: process.env['PERIOD_TABLE_NAME'],
-              Key: marshall({ periodId: 'current' }),
-              UpdateExpression: 'SET periodId = :periodId, endingDate = :endingDate',
-              ExpressionAttributeValues: marshall({ ':periodId': oldPeriodUUID, endingDate: timestamp})
-             },
-             Put: {
-              TableName: process.env['PERIOD_TABLE_NAME'],
-              Item: marshall({periodId: 'current', startingDate: timestamp, processing:false}) 
-             }
+        {
+          Update: {
+            TableName: process.env['PERIOD_TABLE_NAME'],
+            Key: marshall({ periodId: 'current' }),
+            UpdateExpression: 'SET periodId = :periodId, endingDate = :endingDate',
+            ExpressionAttributeValues: marshall({ ':periodId': oldPeriodUUID, endingDate: timestamp })
           }
+        },
+        {
+          Put: {
+            TableName: process.env['PERIOD_TABLE_NAME'],
+            Item: marshall({ periodId: 'current', startingDate: timestamp, processing: false })
+          }
+        }
       ]
-  }))
-
+    }))
   }
 
   return { statusCode: 200, headers: { "content-type": "application/json" }, body: "OK" };
-
 }
 
 const handler = middy(baseHandler)
