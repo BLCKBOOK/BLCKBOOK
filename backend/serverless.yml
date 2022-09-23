@@ -349,7 +349,7 @@ resources:
     MintingQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        VisibilityTimeout: 180
+        VisibilityTimeout: 900
         QueueName: ${self:custom.minting_queue_name}
         ContentBasedDeduplication: true
         FifoQueue: true
@@ -357,7 +357,7 @@ resources:
     AdmissionQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        VisibilityTimeout: 180
+        VisibilityTimeout: 900
         QueueName: ${self:custom.admission_queue_name}
         ContentBasedDeduplication: true
         FifoQueue: true
@@ -365,7 +365,7 @@ resources:
     IpfsUploadQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        VisibilityTimeout: 180
+        VisibilityTimeout: 900
         QueueName: ${self:custom.ipfsUpload_queue_name}
         ContentBasedDeduplication: true
         FifoQueue: true
