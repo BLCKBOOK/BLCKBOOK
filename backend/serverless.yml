@@ -24,11 +24,11 @@ custom:
     dev: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM'
     prod: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM'
   the_vote_contract_address:
-    dev: 'KT1NXAMxDzSjgFv6L3Z7WW6HNUbBY2rHXaVV'
-    prod: 'KT1NXAMxDzSjgFv6L3Z7WW6HNUbBY2rHXaVV'
+    dev: 'KT1KfttT5ZVLYxi9V8JjrM3Dncg4evdESSyW'
+    prod: 'KT1KfttT5ZVLYxi9V8JjrM3Dncg4evdESSyW'
   fa2_contract_address: 
     dev: 'KT1Nqn4twmvFssgnwhgkjFeMsHiceg1tZbKV'
-    prod: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
+    prod: 'KT1Nqn4twmvFssgnwhgkjFeMsHiceg1tZbKV'
   bank_contract_address:
     dev: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP'
     prod: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP'
