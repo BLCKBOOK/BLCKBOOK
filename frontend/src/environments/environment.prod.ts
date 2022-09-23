@@ -8,7 +8,7 @@ export const environment = {
   auctionHouseContractAddress: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM',
   theVoteContractAddress: 'KT1NXAMxDzSjgFv6L3Z7WW6HNUbBY2rHXaVV',
   sprayContractAddress : 'KT1FSCVnbU1oNhUz52u6SBDfmfQo38du7ivH',
-  bankContractAddress: 'KT1FSCVnbU1oNhUz52u6SBDfmfQo38du7ivH',
+  bankContractAddress: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP',
   tzktAddress: 'https://api.ghostnet.tzkt.io/v1/',
   cryptoNet: 'ghostnet', // ToDo: change all of these to mainnet
   pinataGateway: 'https://blckbook.mypinata.cloud/ipfs/',
