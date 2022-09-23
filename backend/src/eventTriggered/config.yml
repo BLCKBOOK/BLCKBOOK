@@ -168,6 +168,12 @@ mintingQueueWorker:
         - Fn::GetAtt: [ userInfoTable, Arn ]
       - Effect: Allow
         Action:
+          - dynamodb:Scan
+          - dynamodb:GetItem
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+      - Effect: Allow
+        Action:
         - dynamodb:PutItem
         Resource:
         - Fn::GetAtt: [ notificationTable, Arn ]
