@@ -30,8 +30,8 @@ custom:
     dev: 'KT1Nqn4twmvFssgnwhgkjFeMsHiceg1tZbKV'
     prod: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
   bank_contract_address:
-    dev: 'KT1FSCVnbU1oNhUz52u6SBDfmfQo38du7ivH'
-    prod: 'KT1FSCVnbU1oNhUz52u6SBDfmfQo38du7ivH'
+    dev: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP'
+    prod: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP'
   tzkt_address:
     dev: 'https://api.ghostnet.tzkt.io/v1/'
     prod: 'https://api.ghostnet.tzkt.io/v1/'
