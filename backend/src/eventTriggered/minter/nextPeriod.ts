@@ -48,13 +48,13 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   const tezos = new TezosToolkit(rpc);
   const vote = new TheVoteContract(tezos, theVoteAddress)
 
+  // lock period
   if (!await currentPeriodIsProcessing() && await vote.deadlinePassed()) {
-    const oldPeriodUUID = uuid();
     const setPeriodProcessingCommand = new UpdateItemCommand({
       TableName: process.env['PERIOD_TABLE_NAME'],
       Key: marshall({ periodId: 'current' }),
       UpdateExpression: 'SET processing = :processing, pendingPeriodId = :pendingPeriodId',
-      ExpressionAttributeValues: marshall({ ':processing': true, ':pendingPeriodId': oldPeriodUUID })
+      ExpressionAttributeValues: marshall({ ':processing': true})
     })
     await DDBclient.send(setPeriodProcessingCommand)
   }
@@ -90,7 +90,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
           TransactItems: [
             {
               Delete: {
-                Key: marshall({ uploaderId: artworkToAdmission.uploaderId }),
+                Key: marshall({ uploaderId: artworkToAdmission.uploaderId, uploadTimestamp: artworkToAdmission.uploadTimestamp }),
                 TableName: uploadedArtworkTableName
               }
             },
@@ -106,47 +106,58 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     }
 
     // start workers
+    const awsAccountId = context.invokedFunctionArn.split(':')[4]
     const mintArtworksMessage = new SendMessageCommand({
       MessageBody: oldPeriodUUID,
-      QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext ? event.requestContext.accountId : event.account}/${process.env['MINTING_QUEUE_NAME']}`,
+      QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['MINTING_QUEUE_NAME']}`,
       MessageGroupId: 'nextPeriodMessage'
     })
     await sqsClient.send(mintArtworksMessage)
 
     const IPFSUploaderMessage = new SendMessageCommand({
       MessageBody: oldPeriodUUID,
-      QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext ? event.requestContext.accountId : event.account}/${process.env['IPFS_UPLOAD_QUEUE_NAME']}`,
+      QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['IPFS_UPLOAD_QUEUE_NAME']}`,
       MessageGroupId: 'nextPeriodMessage'
     })
     await sqsClient.send(IPFSUploaderMessage)
 
     const admissionArtworksMessage = new SendMessageCommand({
       MessageBody: oldPeriodUUID,
-      QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext ? event.requestContext.accountId : event.account}/${process.env['ADMISSION_QUEUE_NAME']}`,
+      QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['ADMISSION_QUEUE_NAME']}`,
       MessageGroupId: 'nextPeriodMessage'
     })
     await sqsClient.send(admissionArtworksMessage)
 
     // create new period
     const timestamp = new Date()
-    await DDBclient.send(new TransactWriteItemsCommand({
-      TransactItems: [
-        {
-          Update: {
-            TableName: process.env['PERIOD_TABLE_NAME'],
-            Key: marshall({ periodId: 'current' }),
-            UpdateExpression: 'SET periodId = :periodId, endingDate = :endingDate',
-            ExpressionAttributeValues: marshall({ ':periodId': oldPeriodUUID, endingDate: timestamp })
+    const pendingPeriodId = uuid();
+    currentPeriod.Item.periodId.S = currentPeriod.Item.pendingPeriodId.S
+    currentPeriod.Item.endingDate.S = timestamp.toString()
+    currentPeriod.Item.processing.BOOL = false
+    
+    try {
+      await DDBclient.send(new TransactWriteItemsCommand({
+        TransactItems: [
+          {
+            Update: {
+              TableName: process.env['PERIOD_TABLE_NAME'],
+              Key: marshall({ periodId: 'current' }),
+              UpdateExpression: 'SET startingDate = :startingDate, pendingPeriodId = :pendingPeriodId, processing = :false REMOVE endingDate',
+              ExpressionAttributeValues: marshall({ ':startingDate':timestamp.toString(), ':pendingPeriodId':pendingPeriodId, ':false': false })
+            }
+          },
+          {
+            Put: {
+              TableName: process.env['PERIOD_TABLE_NAME'],
+              Item: currentPeriod.Item
+            }
           }
-        },
-        {
-          Put: {
-            TableName: process.env['PERIOD_TABLE_NAME'],
-            Item: marshall({ periodId: 'current', startingDate: timestamp, processing: false })
-          }
-        }
-      ]
-    }))
+        ]
+      }))
+    } catch (error) {
+      console.log(error)
+    }
+    
   }
 
   return { statusCode: 200, headers: { "content-type": "application/json" }, body: "OK" };

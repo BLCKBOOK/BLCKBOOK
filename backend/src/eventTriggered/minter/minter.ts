@@ -121,8 +121,6 @@ const baseHandler = async (event, context) => {
     const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
     if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
 
-    const awsAccountId = context.invokedFunctionArn.split(':')[4]
-
     const tezos = new TezosToolkit(rpc);
     const admin = await getTezosAdminAccount()
     await setUser(tezos, admin)
