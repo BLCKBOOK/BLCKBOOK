@@ -17,6 +17,7 @@ triggerNextPeriod:
       Action:
         - dynamodb:UpdateItem
         - dynamodb:GetItem
+        - dynamodb:PutItem
       Resource:
         - Fn::GetAtt: [ periodTable, Arn ]
     - Effect: Allow

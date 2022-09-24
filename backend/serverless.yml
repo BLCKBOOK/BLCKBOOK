@@ -15,8 +15,8 @@ package:
 custom:
   # tezos data definitions
   tezos_rpc_client_interface: 
-    dev: 'https://rpc.ghostnet.teztnets.xyz'
-    prod: 'https://rpc.ghostnet.teztnets.xyz'
+    dev: '	https://ghostnet.tezos.marigold.dev/'
+    prod: '	https://ghostnet.tezos.marigold.dev/'
   voter_money_pool_contract_address:
     dev: 'KT1Ats6HPT2ePmwY37QXbedm9noiXocNAwS8'
     prod: 'KT1Ats6HPT2ePmwY37QXbedm9noiXocNAwS8'
