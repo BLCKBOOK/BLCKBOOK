@@ -91,7 +91,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
         artworkToAdmission.periodId = oldPeriodUUID
 
         const IPFSUploaderMessage = new SendMessageCommand({
-          MessageBody: artworkToAdmission.uploaderId,
+          MessageBody: JSON.stringify(artworkToAdmission),
           QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['IPFS_UPLOAD_QUEUE_NAME']}`,
           MessageGroupId: 'nextPeriodMessage'
         })
