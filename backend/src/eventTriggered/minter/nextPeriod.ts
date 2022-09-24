@@ -132,9 +132,9 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     // create new period
     const timestamp = new Date()
     const pendingPeriodId = uuid();
-    currentPeriod.Item.periodId.S = currentPeriod.Item.pendingPeriodId.S
-    currentPeriod.Item.endingDate.S = timestamp.toString()
-    currentPeriod.Item.processing.BOOL = false
+    currentPeriod.Item.periodId = {S: currentPeriod.Item.pendingPeriodId.S}
+    currentPeriod.Item.endingDate = {S: timestamp.toString()}
+    currentPeriod.Item.processing = {BOOL: false}
 
     try {
       await DDBclient.send(new TransactWriteItemsCommand({
