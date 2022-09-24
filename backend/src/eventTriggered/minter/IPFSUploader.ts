@@ -62,8 +62,7 @@ function createTokenMetadata(artwork: VotableArtwork, minterAddress: string, upl
 }
 
 const baseHandler = async (event, context) => {
-    console.log(JSON.stringify(event))
-    let artworkToAdmission = unmarshall(JSON.parse(event.body)) as VotableArtwork
+    let artworkToAdmission = event.Records[0].body as VotableArtwork
 
     const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
     if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
