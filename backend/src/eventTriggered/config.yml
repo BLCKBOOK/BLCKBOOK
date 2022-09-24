@@ -212,7 +212,11 @@ IPFSUloadWorker:
         - dynamodb:PutItem
         Resource:
         - Fn::GetAtt: [ mintedArtworks, Arn ]
-      
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem 
+        Resource:
+          - Fn::GetAtt: [ admissionedArtworksTable, Arn ]
       - Effect: Allow
         Action:
         - dynamodb:GetItem
