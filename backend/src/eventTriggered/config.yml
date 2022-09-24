@@ -286,6 +286,11 @@ Admissioner:
         - s3:GetObject
         Resource:
         - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan 
+        Resource:
+          - Fn::GetAtt: [ admissionedArtworksTable, Arn ]
     events:
       - sqs:
           batchSize: 1
