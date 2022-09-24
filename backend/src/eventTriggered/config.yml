@@ -29,6 +29,11 @@ triggerNextPeriod:
         - sqs:SendMessage
       Resource:
         - Fn::GetAtt: [ IpfsUploadQueue, Arn ]
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+      Resource:
+        - Fn::GetAtt: [ AdmissionQueue, Arn ]
   events:
     - schedule: ${self:custom.period_check}
 
