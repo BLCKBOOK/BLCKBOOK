@@ -1,5 +1,5 @@
 import { TezosToolkit } from '@taquito/taquito';
-import { getTezosAdminAccount, getPinataAccount } from '../../common/SecretsManager';
+import { getTezosAdminAccount, getPinataAccount, getTezosActivatorAccount } from '../../common/SecretsManager';
 import { importKey } from '@taquito/signer';
 import { tzip16, Tzip16Module } from '@taquito/tzip16';
 import pinataSDK from '@pinata/sdk';
@@ -16,6 +16,7 @@ import { createNotification } from "../../common/actions/createNotification";
 import { TheVoteContract } from '../../common/contracts/the_vote_contract';
 import { TzktArtworkInfoBigMapKey, TzktVotesRegisterBigMapKey } from './types';
 import { SQSClient } from '@aws-sdk/client-sqs';
+import { setUser } from '../../common/setUser';
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
@@ -59,6 +60,10 @@ const baseHandler = async (event, context) => {
     const tezos = new TezosToolkit(rpc);
     const vote = new TheVoteContract(tezos, theVoteAddress)
     await vote.ready
+
+    const activationAccount = await getTezosActivatorAccount()
+
+    await setUser(tezos, activationAccount)
 
     vote.batchAdmission(filteredArts)
 }
