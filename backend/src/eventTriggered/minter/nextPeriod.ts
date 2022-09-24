@@ -18,7 +18,7 @@ const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 const sqsClient = new SQSClient({ region: process.env['AWS_REGION'] });
 
 async function deadlinePassed(tzktAddress, theVoteContractAddress): Promise<boolean> {
-  const response = await fetch(`${tzktAddress}contracts/${theVoteContractAddress}/storage`);
+  const response = await fetch(`${tzktAddress}chains/main/blocks/head/context/contracts/${theVoteContractAddress}/storage`);
   const storageData = await response.json();
   console.log(storageData)
   return Date.parse(storageData.deadline) < Date.now();
