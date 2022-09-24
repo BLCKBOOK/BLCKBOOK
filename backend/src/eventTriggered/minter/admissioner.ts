@@ -31,11 +31,14 @@ const baseHandler = async (event, context) => {
         FilterExpression: "attribute_not_exists(ipfsLink)",
     })
     const scanResultRaw = (await ddbClient.send(scanAdmissionsTableCommand)).Items
-    if (scanResultRaw.length !== 0) {
+    if (!scanResultRaw || scanResultRaw.length !== 0) {
         throw new Error("Not all artworks have their IPFS link. Retrying...")
-    } else {
-        throw new Error("Admission not implemented yet")
     }
+    
+    
+
+    throw new Error("Admission not implemented yet")
+
 
     const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
     if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
