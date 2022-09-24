@@ -34,25 +34,33 @@ const baseHandler = async (event, context) => {
     if (!scanResultRaw || scanResultRaw.length !== 0) {
         throw new Error("Not all artworks have their IPFS link. Retrying...")
     }
+
     
-    
-
-    throw new Error("Admission not implemented yet")
-
-
     const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
     if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
-
+    
     const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
     if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
-
+    
     const uploadedArtworkTableName = process.env['UPLOADED_ARTWORKS_TABLE_NAME']
     if (!uploadedArtworkTableName) throw new Error('UPLOADED_ARTWORKS_TABLE_NAME not set')
-
+    
+    const artworksToAdmission = scanResultRaw.map(scan => unmarshall(scan)).map(async (art) => {
+        const uploader = (await ddbClient.send(new GetItemCommand({
+            Key: marshall({userId: art.uploaderId}),
+            TableName: process.env['USER_INFO_TABLE_NAME']
+        }))).Item
+        let walletId = 'none'
+        if(uploader && uploader.walletId && uploader.walletId.S) walletId = uploader.walletId.S 
+        return {uploader:walletId,ipfsLink:art.ipfsLink }
+    })
+    const filteredArts = (await Promise.all(artworksToAdmission)).filter(art => art.uploader !== 'none')
+    
     const tezos = new TezosToolkit(rpc);
     const vote = new TheVoteContract(tezos, theVoteAddress)
     await vote.ready
 
+    vote.batchAdmission(filteredArts)
 }
 
 
