@@ -10,6 +10,11 @@ triggerNextPeriod:
         - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
     - Effect: Allow
       Action:
+        - dynamodb:UpdateItem
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
         - dynamodb:PutItem 
       Resource:
         - Fn::GetAtt: [ admissionedArtworksTable, Arn ]
