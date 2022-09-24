@@ -12,6 +12,7 @@ import AuthMiddleware from "../../common/AuthMiddleware"
 import RequestLogger from "../../common/RequestLogger";
 import { TezosToolkit } from "@taquito/taquito";
 import { TheVoteContract } from "../../common/contracts/the_vote_contract";
+import fetch from 'node-fetch';
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 const sqsClient = new SQSClient({ region: process.env['AWS_REGION'] });
