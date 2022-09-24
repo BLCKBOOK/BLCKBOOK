@@ -18,9 +18,8 @@ const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 const sqsClient = new SQSClient({ region: process.env['AWS_REGION'] });
 
 async function deadlinePassed(tzktAddress, theVoteContractAddress): Promise<boolean> {
-  const response = await fetch(`${tzktAddress}chains/main/blocks/head/context/contracts/${theVoteContractAddress}/storage`);
+  const response = await fetch(`${tzktAddress}contracts/${theVoteContractAddress}/storage`);
   const storageData = await response.json();
-  console.log(storageData)
   return Date.parse(storageData.deadline) < Date.now();
 }
 
@@ -38,20 +37,22 @@ async function currentPeriodIsProcessing(): Promise<Boolean> {
 }
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
-  const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
-  if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
-
   const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
   if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
 
   const admissionedArtworkdsTableName = process.env['ADMISSIONED_ARTWORKS_TABLE_NAME']
-  if (!theVoteAddress) throw new Error(`ADMISSIONED_ARTWORKS_TABLE_NAME env variable not set`)
+  if (!admissionedArtworkdsTableName) throw new Error(`ADMISSIONED_ARTWORKS_TABLE_NAME env variable not set`)
 
   const uploadedArtworkTableName = process.env['UPLOADED_ARTWORKS_TABLE_NAME']
-  if (!theVoteAddress) throw new Error(`UPLOADED_ARTWORKS_TABLE_NAME env variable not set`)
+  if (!uploadedArtworkTableName) throw new Error(`UPLOADED_ARTWORKS_TABLE_NAME env variable not set`)
+
+  const tzktAddress = process.env['TZKT_ADDRESS']
+  if (!tzktAddress) throw new Error(`TZKT_ADDRESS env variable not set`)
+
+  
 
   // lock period
-  if (!await currentPeriodIsProcessing() && await deadlinePassed(rpc, theVoteAddress)) {
+  if (!await currentPeriodIsProcessing() && await deadlinePassed(tzktAddress, theVoteAddress)) {
     const setPeriodProcessingCommand = new UpdateItemCommand({
       TableName: process.env['PERIOD_TABLE_NAME'],
       Key: marshall({ periodId: 'current' }),
