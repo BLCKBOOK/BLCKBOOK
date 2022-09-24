@@ -53,7 +53,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     const setPeriodProcessingCommand = new UpdateItemCommand({
       TableName: process.env['PERIOD_TABLE_NAME'],
       Key: marshall({ periodId: 'current' }),
-      UpdateExpression: 'SET processing = :processing, pendingPeriodId = :pendingPeriodId',
+      UpdateExpression: 'SET processing = :processing',
       ExpressionAttributeValues: marshall({ ':processing': true })
     })
     await DDBclient.send(setPeriodProcessingCommand)
@@ -103,6 +103,15 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
                 TableName: uploadedArtworkTableName
               }
             },
+
+          {
+            Update: {
+              TableName: process.env['USER_INFO_TABLE_NAME'],
+              Key: marshall({ userId: artworkToAdmission.uploaderId }),
+              UpdateExpression: "ADD uploadsDuringThisPeriod :inc",
+              ExpressionAttributeValues: marshall({ ":inc": -1 }),
+            }
+          },
             {
               Put: {
                 Item: marshall(artworkToAdmission),
