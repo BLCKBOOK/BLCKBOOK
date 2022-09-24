@@ -1,5 +1,5 @@
 import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, TransactWriteItemsCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
-import { SQSClient, SendMessageBatchCommand, SendMessageBatchRequestEntry, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
@@ -12,10 +12,16 @@ import AuthMiddleware from "../../common/AuthMiddleware"
 import RequestLogger from "../../common/RequestLogger";
 import { TezosToolkit } from "@taquito/taquito";
 import { TheVoteContract } from "../../common/contracts/the_vote_contract";
-import { UploadedArtwork } from "../../common/tableDefinitions";
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 const sqsClient = new SQSClient({ region: process.env['AWS_REGION'] });
+
+async function deadlinePassed(tzktAddress, theVoteContractAddress): Promise<boolean> {
+  const response = await fetch(`${tzktAddress}contracts/${theVoteContractAddress}/storage`);
+  const storageData = await response.json();
+  console.log(storageData)
+  return Date.parse(storageData.deadline) < Date.now();
+}
 
 async function currentPeriodIsProcessing(): Promise<Boolean> {
   const currentPeriodCommand = new GetItemCommand({
@@ -26,7 +32,7 @@ async function currentPeriodIsProcessing(): Promise<Boolean> {
   const currentPeriod = await DDBclient.send(currentPeriodCommand)
   if (!currentPeriod.Item) throw new Error("Current period does not exist")
   if (currentPeriod.Item.processing === undefined || currentPeriod.Item.processing.BOOL === undefined) throw new Error("Current period does not contain 'processing' value")
-
+  
   return currentPeriod.Item.processing.BOOL
 }
 
@@ -43,13 +49,8 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   const uploadedArtworkTableName = process.env['UPLOADED_ARTWORKS_TABLE_NAME']
   if (!theVoteAddress) throw new Error(`UPLOADED_ARTWORKS_TABLE_NAME env variable not set`)
 
-
-
-  const tezos = new TezosToolkit(rpc);
-  const vote = new TheVoteContract(tezos, theVoteAddress)
-
   // lock period
-  if (!await currentPeriodIsProcessing() && await vote.deadlinePassed()) {
+  if (!await currentPeriodIsProcessing() && await deadlinePassed(rpc, theVoteAddress)) {
     const setPeriodProcessingCommand = new UpdateItemCommand({
       TableName: process.env['PERIOD_TABLE_NAME'],
       Key: marshall({ periodId: 'current' }),
