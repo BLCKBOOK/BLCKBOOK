@@ -237,7 +237,7 @@ IPFSUloadWorker:
 
 Admissioner:
     handler: src/eventTriggered/minter/admissioner.handler
-    timeout: 900
+    timeout: 90
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -289,8 +289,14 @@ Admissioner:
       - Effect: Allow
         Action:
           - dynamodb:Scan 
+          - dynamodb:DeleteItem
         Resource:
           - Fn::GetAtt: [ admissionedArtworksTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem 
+        Resource:
+          - Fn::GetAtt: [ archive, Arn ]
     events:
       - sqs:
           batchSize: 1

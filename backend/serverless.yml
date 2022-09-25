@@ -357,7 +357,7 @@ resources:
     AdmissionQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        VisibilityTimeout: 900
+        VisibilityTimeout: 90
         QueueName: ${self:custom.admission_queue_name}
         ContentBasedDeduplication: true
         FifoQueue: true

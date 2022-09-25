@@ -33,6 +33,7 @@ async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContr
     } else {
         const allMinted = await vote.mintArtworksUntilReady();
         if (!allMinted) {
+            console.log('not all artworks have been minted')
             return false;
         }
     }
@@ -50,6 +51,7 @@ async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContr
 
     const storageBeforeMinting = await vote.calculateArtworksToMintSet();
     if (!storageBeforeMinting) {
+        console.log('storageBeforeMinting undefined')
         return false;
     }
 

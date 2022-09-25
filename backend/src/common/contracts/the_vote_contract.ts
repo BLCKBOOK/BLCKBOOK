@@ -356,6 +356,7 @@ export class TheVoteContract extends Contract {
             console.log('we did it and minted all!');
             return true;
         }
+        console.log('contract in the_vote is not defined')
         return false;
     }
 
