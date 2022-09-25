@@ -19,9 +19,6 @@ const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
 
 const baseHandler = async (event, context) => {
-    console.log(JSON.stringify(event))
-    let artworkToAdmission = unmarshall(JSON.parse(event.Records[0].body)) as VotableArtwork
-
     const auctionHousseContractAddress = process.env['AUCTION_HOUSE_CONTRACT_ADDRESS']
     if (!auctionHousseContractAddress) throw new Error(`AUCTION_HOUSE_CONTRACT_ADDRESS env variable not set`)
     
