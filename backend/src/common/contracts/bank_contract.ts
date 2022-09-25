@@ -91,4 +91,3 @@ export class BankContract extends Contract {
         return Boolean(res)
       }
 }
-
