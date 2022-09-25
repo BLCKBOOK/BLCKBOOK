@@ -89,7 +89,6 @@ export class BankContract extends Contract {
         const withdrawlsBigMap = await fetch(`${tzktAddress}contracts/${bankContractAddress}/bigmaps/withdrawls`);
         const withdrawlsBigMapAddress = (await withdrawlsBigMap.json()).ptr;
 
-
         const url = `${tzktAddress}bigmaps/${withdrawlsBigMapAddress}/keys/${userKey}`;
         console.log(url);
         const response = await fetch(url);

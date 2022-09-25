@@ -43,7 +43,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
   const body: UpdateUploadedArtworksRequestBody = event.body;
   
-  if(!bankContract.userIsRegistered(body.walletId)) 
+  if(!(await bankContract.userIsRegistered(body.walletId))) 
     await bankContract.registerUser(body.walletId)
 
   const userId = event.requestContext.authorizer.claims['sub'];
