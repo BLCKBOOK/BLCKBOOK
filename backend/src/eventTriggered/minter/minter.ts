@@ -133,6 +133,15 @@ const baseHandler = async (event, context) => {
 
     // loop over mints and create notifications
     if (!await mintAndBuildNotifications(tezos, vote)) throw new Error("Too many artworks. Retrying")
+
+    // start admissioning artworks for next period
+    const admissionArtworksMessage = new SendMessageCommand({
+        MessageBody: event.Records[0].body,
+        QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['ADMISSION_QUEUE_NAME']}`,
+        MessageGroupId: 'nextPeriodMessage'
+      })
+      await sqsClient.send(admissionArtworksMessage)
+  
 }
 
 

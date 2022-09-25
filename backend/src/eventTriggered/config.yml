@@ -136,6 +136,11 @@ mintingQueueWorker:
           - Fn::GetAtt: [ NotificationQueue, Arn ]    
       - Effect: Allow
         Action:
+          - sqs:SendMessage
+        Resource:
+          - Fn::GetAtt: [ AdmissionQueue, Arn ]
+      - Effect: Allow
+        Action:
           - secretsmanager:GetSecretValue
         Resource:
           - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:pinataAccessKey-ZJzp7t"

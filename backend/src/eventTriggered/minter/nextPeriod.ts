@@ -134,13 +134,6 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     })
     await sqsClient.send(mintArtworksMessage)
 
-    const admissionArtworksMessage = new SendMessageCommand({
-      MessageBody: oldPeriodUUID,
-      QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['ADMISSION_QUEUE_NAME']}`,
-      MessageGroupId: 'nextPeriodMessage'
-    })
-    await sqsClient.send(admissionArtworksMessage)
-
     // create new period
     const timestamp = new Date()
     const pendingPeriodId = uuid();
