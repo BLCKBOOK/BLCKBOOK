@@ -29,6 +29,7 @@ const baseHandler = async (event, context) => {
     Tezos.addExtension(new Tzip16Module());
 
     const contract = await Tezos.contract.at(auctionHousseContractAddress, tzip16);
+    
     const views = await contract.tzip16().metadataViews();
     const faucet = await getTezosAdminAccount();
     await importKey(
@@ -41,12 +42,11 @@ const baseHandler = async (event, context) => {
     const auctionHouseContract = new AuctionHouseContract(Tezos, auctionHousseContractAddress)
     await auctionHouseContract.ready
 
-    await auctionHouseContract.getExpiredAuctions()
     await auctionHouseContract.endExpiredAuctions()
+
     let now = new Date()
     const date = now.toISOString()
 
-    // TODO Muss durch endExpiredAuctions ersetzt werden
     const expiredAuctions = (await views.get_expired_auctions().executeView(date));
 
     // process auctions in chunks of 10 to not make too big transactions. This number was picked arbitrarily and can be optimized 
