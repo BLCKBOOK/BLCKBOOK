@@ -85,7 +85,6 @@ export class BankContract extends Contract {
         }
     }
 
-
     async userIsRegistered(userWallet: string): Promise<boolean> {
         const response = fetch(tzktAddress + 'contracts/' + bankContractAddress + '/bigmaps/withdrawls/keys/' + userWallet)
         const res = await response.text()
