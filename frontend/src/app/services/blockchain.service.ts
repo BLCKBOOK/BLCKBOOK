@@ -75,7 +75,7 @@ export class BlockchainService {
     const url = this.imageSizeService.get1000WImage(imageUrls);
     const srcSet = this.imageSizeService.calculateSrcSetString(imageUrls);
     return {
-      title: metaData.name === '' ? undefined : metaData.name,
+      title: metaData.name === '' ? environment.unknownTagTitle : metaData.name,
       img: url,
       srcSet: srcSet,
       auctionKey: auction,
@@ -146,7 +146,7 @@ export class BlockchainService {
       const url = this.imageSizeService.get1000WImage(imageUrls);
       const srcSet = this.imageSizeService.calculateSrcSetString(imageUrls);
       return {
-        title: metaData.name === '' ? undefined : metaData.name,
+        title: metaData.name === '' ? environment.unknownTagTitle : metaData.name,
         img: url,
         srcSet: srcSet,
         auctionKey: auctions[index],
@@ -244,7 +244,7 @@ export class BlockchainService {
       longitude: metaData.attributes.find(attribute => attribute.name === 'longitude')?.value ?? 'unknown',
       latitude: metaData.attributes.find(attribute => attribute.name === 'latitude')?.value ?? 'unknown',
       contentType: metaData.formats[0].mimeType,
-      title: metaData.name === '' ? undefined : metaData.name,
+      title: metaData.name,
       index,
       active: index >= 0,
     } as VoteBlockchainItem;
@@ -355,7 +355,7 @@ export class BlockchainService {
         longitude: metaData.attributes.find(attribute => attribute.name === 'longitude')?.value ?? 'unknown',
         latitude: metaData.attributes.find(attribute => attribute.name === 'latitude')?.value ?? 'unknown',
         contentType: metaData.formats[0].mimeType,
-        title: metaData.name === '' ? undefined : metaData.name,
+        title: metaData.name,
         index: index + (offset * this.loadLimit),
         active: votableArtworkInfo[index].active,
       } as VoteBlockchainItem;

@@ -13,4 +13,5 @@ export const environment = {
   taquitoRPC: 'https://rpc.ghostnet.teztnets.xyz',
   maxVoteAmount: 5,
   maxConcurrency: 10,
+  unknownTagTitle: 'Unknown',
 };

@@ -33,7 +33,7 @@ export interface VoteBlockchainItem {
   longitude: string,
   latitude: string,
   contentType: string,
-  title?: string,
+  title: string,
   metadataIPFSLink: string,
   artifactIPFSLink: string,
   index: number,
