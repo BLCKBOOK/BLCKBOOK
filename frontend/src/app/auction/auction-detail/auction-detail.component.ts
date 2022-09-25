@@ -137,6 +137,7 @@ export class AuctionDetailComponent implements OnInit {
   }
 
   isNumeric(str: any): boolean {
+    if (typeof str === 'number') return true; // if we have a number the value is numeric
     if (typeof str != 'string') return false; // we only process strings!
     return !isNaN(Number(str)) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
       !isNaN(parseFloat(str)); // ...and ensure strings of whitespace fail
