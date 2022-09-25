@@ -22,9 +22,9 @@
 </div>
 <mat-spinner *ngIf="currentlyLoading" style="margin:0 auto;"></mat-spinner>
 <div *ngIf="scrollType === 'voting-selected' && masonryItems.length === 0">
-  <p class="align-center">You don't have items selected yet</p>
+  <p class="align-center">You did not vote for any artworks in the current drop.</p>
 </div>
 <div *ngIf="!currentlyLoading && masonryItems.length === 0 && scrollType === 'voting'" class="align-center">
-  Nothing to vote for. Uploaded Tags can be voted for in the next Drop.
+  Nothing to vote for. Uploaded tags can be voted for in the next drop.
 </div>
 <!--<div *ngIf="reachedEnd">YOU REACHED THE END</div>-->

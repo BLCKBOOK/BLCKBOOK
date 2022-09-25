@@ -87,7 +87,7 @@ export class VotingService {
             const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
             const voted = true;
             const item = {
-              title: title,
+              title: (!title || title === '')  ? environment.unknownTagTitle : title,
               srcSet: srcSet,
               img: url,
               voted: voted,
@@ -107,7 +107,7 @@ export class VotingService {
     const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
     const actuallyVoted = voted ?? this.getVotedArtworks().some(item => item.artwork.artworkId === artwork.artworkId);
     return {
-      title: title,
+      title: (!title || title === '') ? environment.unknownTagTitle : title,
       srcSet: srcSet,
       img: url,
       voted: actuallyVoted,
