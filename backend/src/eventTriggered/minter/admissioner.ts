@@ -67,15 +67,10 @@ const baseHandler = async (event, context) => {
 
     await setUser(tezos, activationAccount)
 
-    // TODO loop and catch timeout error
-    try {
-        vote.batchAdmission(filteredArts)
-    
-    
+    await vote.batchAdmission(filteredArts)
+
     // delete all admissioned artworks from admission table
     new BatchWriteItemCommand({
-        
-
         RequestItems: {
             [process.env['ARCHIVE_TABLE_NAME'] as string]: [
                 ...allArts.map(art => { return { PutRequest: { Item: marshall(art) } } })
@@ -85,12 +80,14 @@ const baseHandler = async (event, context) => {
             ]
         }
     })
-    } catch (error) {
-        throw error
-    }
 
-
-
+    const admissionsRemain = await ddbClient.send(new ScanCommand({
+        TableName: admissionedArtworksTableName,
+        ConsistentRead: true,
+        FilterExpression: "attribute_not_exists(ipfsLink)",
+        Limit:1
+    }))
+    if(admissionsRemain.Items && admissionsRemain.Items.length > 0) throw new Error("not all artworks were admissioned. retrying")
 }
 
 
