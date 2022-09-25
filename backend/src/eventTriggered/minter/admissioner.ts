@@ -63,7 +63,7 @@ const baseHandler = async (event, context) => {
     const vote = new TheVoteContract(tezos, theVoteAddress)
     await vote.ready
 
-    const activationAccount = await getTezosActivatorAccount()
+    const activationAccount = await getTezosAdminAccount()
 
     await setUser(tezos, activationAccount)
 
