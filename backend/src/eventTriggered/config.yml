@@ -161,6 +161,14 @@ mintingQueueWorker:
         - Fn::GetAtt: [ userInfoTable, Arn ]
       - Effect: Allow
         Action:
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:Query
+        Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+        - !Sub '${userInfoTable.Arn}/index/*'
+      - Effect: Allow
+        Action:
         - dynamodb:PutItem
         Resource:
         - Fn::GetAtt: [ notificationTable, Arn ]

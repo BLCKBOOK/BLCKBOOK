@@ -117,26 +117,35 @@ export class TheVoteContract extends Contract {
 
     async batchAdmission(artworks: ArtworkParams[]) {
         const batch = this.tezos.wallet.batch();
-        for (let artwork of artworks) {
-            let storageMap = new MichelsonMap({
-                prim: 'map',
-                args: [{prim: 'string'}, {prim: 'bytes'}],
-            });
-            storageMap.set('decimals', char2Bytes('0'));
-            storageMap.set('', char2Bytes(artwork.ipfsLink));
-            if (this.contract) {
-                batch.withContractCall(this.contract.methodsObject.admission({
-                    uploader: artwork.uploader,
-                    metadata: storageMap,
-                }));
+        try {
+            for (let artwork of artworks) {
+                let storageMap = new MichelsonMap({
+                    prim: 'map',
+                    args: [{prim: 'string'}, {prim: 'bytes'}],
+                });
+                storageMap.set('decimals', char2Bytes('0'));
+                storageMap.set('', char2Bytes(artwork.ipfsLink));
+                if (this.contract) {
+                    batch.withContractCall(this.contract.methodsObject.admission({
+                        uploader: artwork.uploader,
+                        metadata: storageMap,
+                    }));
+                }
+            }
+            /*
+             * Here happens all the operation batching
+             */
+            const batchOp = await batch.send();
+            const confirmation = await batchOp.confirmation(1);
+            console.log(`Operation injected: https://ghost.tzstats.com/${confirmation.block.hash}`);
+        } catch (error) {
+            if (error.name === 'AddressValidationError') {
+                const filteredArtworks = artworks.filter(artwork => artwork.uploader !== error.value);
+                if (filteredArtworks.length < artworks.length) {
+                    await this.batchAdmission(filteredArtworks);
+                }
             }
         }
-        /*
-         * Here happens all the operation batching
-         */
-        const batchOp = await batch.send();
-        const confirmation = await batchOp.confirmation(1);
-        console.log(`Operation injected: https://ghost.tzstats.com/${confirmation.block.hash}`);
     }
 
     /*
@@ -341,11 +350,12 @@ export class TheVoteContract extends Contract {
                             }
                             continue;
                         }
-                    } if(error.with && error.with.string && (error.with.string as string).includes('THE_VOTE_DEADLINE_NOT_PASSED')){
-                        return true
                     } else {
                         console.log(`Error: ${JSON.stringify(error, null, 2)}`);
                         return false;
+                    }
+                    if (error.with && error.with.string && (error.with.string as string).includes('THE_VOTE_DEADLINE_NOT_PASSED')) {
+                        return true;
                     }
                     mintAmount = Math.floor(mintAmount / 5 * 4);
                 }

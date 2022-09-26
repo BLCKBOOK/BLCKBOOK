@@ -1,4 +1,4 @@
-import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 
 import middy from "@middy/core";
 import validator from "@middy/validator";
@@ -42,9 +42,17 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   await bankContract.ready
 
   const body: UpdateUploadedArtworksRequestBody = event.body;
-  
-  if(!(await bankContract.userIsRegistered(body.walletId))) 
-    await bankContract.registerUser(body.walletId)
+
+  if (!(await bankContract.userIsRegistered(body.walletId))) {
+    try {
+      await bankContract.registerUser(body.walletId);
+    } catch (error) {
+      if (error.name === 'AddressValidationError') {
+        returnObject = "Wallet ID not valid"
+        return { statusCode: 400, headers: { "content-type": "text/plain" }, body: returnObject };
+      }
+    }
+  }
 
   const userId = event.requestContext.authorizer.claims['sub'];
   
