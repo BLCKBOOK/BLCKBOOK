@@ -16,6 +16,7 @@ import { createNotification } from "../common/actions/createNotification";
 import { AuctionHouseContract } from '../common/contracts/auction_house_contract';
 import { setUser } from '../common/setUser';
 import { TzktAuctionKey } from '../common/contracts/types';
+import fetch from 'node-fetch';
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
