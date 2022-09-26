@@ -1,24 +1,18 @@
 import { TezosToolkit } from '@taquito/taquito';
 import { getTezosAdminAccount, getPinataAccount } from '../../common/SecretsManager';
-import { importKey } from '@taquito/signer';
-import { tzip16, Tzip16Module } from '@taquito/tzip16';
-import pinataSDK from '@pinata/sdk';
 
 import middy from '@middy/core';
 import httpErrorHandler from '@middy/http-error-handler';
 import RequestLogger from "../../common/RequestLogger";
-import { GetObjectAclCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { VotableArtwork, UserInfo, UploadedArtwork } from '../../common/tableDefinitions';
-import { Readable } from 'stream';
-import { DynamoDBClient, GetItemCommand, PutItemCommand, QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, QueryCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { createNotification } from "../../common/actions/createNotification";
 import { TheVoteContract } from '../../common/contracts/the_vote_contract';
 import { TzktArtworkInfoBigMapKey, TzktVotesRegisterBigMapKey } from './types';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import fetch from "node-fetch";
+import { setUser } from '../../common/setUser';
 
-const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
 const sqsClient = new SQSClient({ region: process.env['AWS_REGION'] });
 
@@ -30,11 +24,16 @@ async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContr
     const fa2ContractAddress = process.env['FA2_CONTRACT_ADDRESS']
     if (!fa2ContractAddress) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
 
+    const userInfoTableName = process.env['USER_INFO_TABLE_NAME']
+    if (!userInfoTableName) throw new Error(`USER_INFO_TABLE_NAME env variable not set`)
+
+
     if (!(await vote.deadlinePassed())) {
         console.log('deadline has not passed. So we are not minting, only getting the notifications');
     } else {
         const allMinted = await vote.mintArtworksUntilReady();
         if (!allMinted) {
+            console.log('not all artworks have been minted')
             return false;
         }
     }
@@ -52,6 +51,7 @@ async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContr
 
     const storageBeforeMinting = await vote.calculateArtworksToMintSet();
     if (!storageBeforeMinting) {
+        console.log('storageBeforeMinting undefined')
         return false;
     }
 
@@ -78,23 +78,23 @@ async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContr
             let artwork_and_token_id = minIndex + index;
             for (let voter of voters) {
                 const userQuery = new QueryCommand({
-                    TableName: process.env['USER_INFO_TABLE_NAME'],
+                    TableName: userInfoTableName,
                     KeyConditionExpression: "walletId = :walletId",
                     ExpressionAttributeValues: marshall({ ":walletId": voter }),
                     IndexName: "walletIdIndex",
                     Limit: 1
                 })
                 const user = (await ddbClient.send(userQuery))
-                if(!user.Items) continue
-                const userId = unmarshall(user.Items[0]).walletId
-                createNotification({title: "Minted", type: 'message', body: 'An artwork you voted for has been minted', userId, link: `${process.env['FRONTEND_HOST_NAME']}/auction/${artwork_and_token_id}`},ddbClient)
+                if(!user.Items || user.Items.length === 0) continue
+
+                createNotification({title: "Minted", type: 'message', body: 'An artwork you voted for has been minted', userId:unmarshall(user.Items[0]).userId, link: `${process.env['FRONTEND_HOST_NAME']}/auction/${artwork_and_token_id}`},ddbClient)
                 
             }
             try {
                 let artwork_id_response = await fetch(`${tzktAddress}bigmaps/${bigMapIdOfArtworkInfo}/keys/${artwork_id}`);
                 let uploader = ((await artwork_id_response.json()) as TzktArtworkInfoBigMapKey).value.uploader;
                 const userQuery = new QueryCommand({
-                    TableName: process.env['USER_INFO_TABLE_NAME'],
+                    TableName: userInfoTableName,
                     KeyConditionExpression: "walletId = :walletId",
                     ExpressionAttributeValues: marshall({ ":walletId": uploader }),
                     IndexName: "walletIdIndex",
@@ -102,7 +102,7 @@ async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContr
                 })
                 const user = (await ddbClient.send(userQuery))
                 if(user.Items){
-                    const userId = unmarshall(user.Items[0]).walletId
+                    const userId = unmarshall(user.Items[0]).userId
                     createNotification({title: "Minted", type: 'message', body: 'An artwork you uploaded has been minted', userId, link: `${process.env['FRONTEND_HOST_NAME']}/auction/${artwork_and_token_id}`},ddbClient)                
                 }
             } catch (error: any) {
@@ -117,49 +117,33 @@ async function mintAndBuildNotifications(tezos: TezosToolkit, vote: TheVoteContr
 }
 
 const baseHandler = async (event, context) => {
-
-    console.log(JSON.stringify(event))
-
     const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
     if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
     
     const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
     if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
-
+    
     const awsAccountId = context.invokedFunctionArn.split(':')[4]
 
     const tezos = new TezosToolkit(rpc);
-    // TODO 
-    // setUser(tezos, admin)
+    const admin = await getTezosAdminAccount()
+    await setUser(tezos, admin)
+
     const vote = new TheVoteContract(tezos, theVoteAddress)
-    await vote.ready
     
+    await vote.ready
+
     // loop over mints and create notifications
     if (!await mintAndBuildNotifications(tezos, vote)) throw new Error("Too many artworks. Retrying")
 
-    // get all approved artworks from the uploaded artworks table and create a sqs event for each batch.
-    // these events will then be admissioned in the_vote and their token metadata will be pinned to ipfs by the admissionArtwork lambda
-    let lastKey:any = undefined;
-    while (true) {
-        let getArtworksToAdmissionCommand = new ScanCommand({
-            TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
-            FilterExpression: "approvalState = :approved",
-            ExpressionAttributeValues: marshall({ ":approved": "approved" }),
-            Limit: 5,
-            ExclusiveStartKey: lastKey
-        })
-        let artworksToAdmissionRaw = await (await ddbClient.send(getArtworksToAdmissionCommand))
-        lastKey = artworksToAdmissionRaw.LastEvaluatedKey
-        if(!artworksToAdmissionRaw.Items) break
-        const artworksToAdmission = artworksToAdmissionRaw.Items.map(i => unmarshall(i)) as UploadedArtwork[]
-        for await (const artworkToAdmission of artworksToAdmission) {
-            const admissionArtworkMessage  = new SendMessageCommand({
-                MessageBody: JSON.stringify(artworkToAdmission),
-                QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['ADMISSION_QUEUE_NAME']}`
-              })
-            await sqsClient.send(admissionArtworkMessage)
-        }
-    }
+    // start admissioning artworks for next period
+    const admissionArtworksMessage = new SendMessageCommand({
+        MessageBody: event.Records[0].body,
+        QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['ADMISSION_QUEUE_NAME']}`,
+        MessageGroupId: 'nextPeriodMessage'
+      })
+      await sqsClient.send(admissionArtworksMessage)
+  
 }
 
 

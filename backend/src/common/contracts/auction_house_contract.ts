@@ -67,8 +67,6 @@ export class AuctionHouseContract extends Contract {
     // Maybe add TZIP16 to the actual contract :shrug
     // ToDo: can have a gas-lock as it is a view! So do not use it like this anymore!
     async getExpiredAuctions(): Promise<number> {
-
-
         const contract = await this.tezos.contract.at(this.getAddress(), tzip16);
         const views = await contract.tzip16().metadataViews();
         const date = new Date().toISOString();

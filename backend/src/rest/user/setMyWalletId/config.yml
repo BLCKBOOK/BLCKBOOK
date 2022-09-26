@@ -6,6 +6,14 @@ setMyWalletId:
         - dynamodb:UpdateItem
       Resource:
         - Fn::GetAtt: [ userInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+      Resource:
+        - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetFaucet-2uaxQ4"
+        - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetFaucet-dEUPkz"
+        - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetActivationFaucet-0VHR3R"
+        - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetActivationFaucet-0ldAag"
   events:
     - http:
         path: user/setMyWalletId

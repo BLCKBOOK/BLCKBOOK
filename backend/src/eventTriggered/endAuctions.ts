@@ -10,93 +10,87 @@ import RequestLogger from "../common/RequestLogger";
 import { GetObjectAclCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { VotableArtwork, UserInfo, MintedArtwork } from '../common/tableDefinitions';
 import { Readable } from 'stream';
-import { DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, GetItemCommand, PutItemCommand, QueryCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { createNotification } from "../common/actions/createNotification";
 import { AuctionHouseContract } from '../common/contracts/auction_house_contract';
+import { setUser } from '../common/setUser';
+import { TzktAuctionKey } from '../common/contracts/types';
+import fetch from 'node-fetch';
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
 
 const baseHandler = async (event, context) => {
-    console.log(JSON.stringify(event))
-    let artworkToAdmission = unmarshall(JSON.parse(event.Records[0].body)) as VotableArtwork
-
     const auctionHousseContractAddress = process.env['AUCTION_HOUSE_CONTRACT_ADDRESS']
     if (!auctionHousseContractAddress) throw new Error(`AUCTION_HOUSE_CONTRACT_ADDRESS env variable not set`)
-    
+  
     const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
     if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
-
+  
+    let loadLimit = 64;
+    let index = 0
+  
     const Tezos = new TezosToolkit(rpc);
-    Tezos.addExtension(new Tzip16Module());
+  
+    const admin = await getTezosAdminAccount()
 
-    const contract = await Tezos.contract.at(auctionHousseContractAddress, tzip16);
-    const views = await contract.tzip16().metadataViews();
-    const faucet = await getTezosAdminAccount();
-    await importKey(
-        Tezos,
-        faucet.email,
-        faucet.password,
-        faucet.mnemonic.join(' '),
-        faucet.activation_code
-    ).catch((e: any) => console.error(e));
+    await setUser(Tezos, admin)
     const auctionHouseContract = new AuctionHouseContract(Tezos, auctionHousseContractAddress)
     await auctionHouseContract.ready
-
-    await auctionHouseContract.getExpiredAuctions()
-    await auctionHouseContract.endExpiredAuctions()
-    let now = new Date()
-    const date = now.toISOString()
-
-    // TODO Muss durch endExpiredAuctions ersetzt werden
-    const expiredAuctions = (await views.get_expired_auctions().executeView(date));
-
-    // process auctions in chunks of 10 to not make too big transactions. This number was picked arbitrarily and can be optimized 
-    for (let i = 0; i < expiredAuctions.length; i += 10) {
-        const batch = expiredAuctions.slice(i, i + 10)
-
-        // create Transfer objects for batch transaction 
-        const transfers: WalletParamsWithKind[] = batch.map(retObj => {
-            const expiredAuctionId = retObj.c;
-            return {
-                kind: OpKind.TRANSACTION,
-                ...auctionHouseContract.end_auction(expiredAuctionId)?.toTransferParams()
-            }
-        });
-
-        // write transaction to chain
-        const batchTransaction = await Tezos.wallet.batch(transfers).send()
-        await batchTransaction.confirmation(3)
-
-        for (let i = 0; i < batch.length; i += 1) {
-            // get minted artwork
-            const getArtworkCommand = new GetItemCommand({
-                TableName: process.env['MINTED_ARTWORKS_TABLE_NAME'],
-                Key: marshall({ tokenId: batch[i].c }),
-            })
-            const item = await (await ddbClient.send(getArtworkCommand)).Item
-            if(!item) throw new Error("tried to end unknown auction");
-            const art = unmarshall(item) as MintedArtwork
-            
-            // update artworks in mintedArtworksTable
-            const updateArtworkCommand = new UpdateItemCommand({
-                TableName: process.env['MINTED_ARTWORKS_TABLE_NAME'],
-                Key: marshall({ tokenId: art.tokenId }),
-                UpdateExpression: "set currentlyAuctioned = :false",
-                ExpressionAttributeValues: marshall({ ":false": false})
-            })
-            await ddbClient.send(updateArtworkCommand)
-
-            // send notification to uploader
-            await createNotification({ body: 'An auction in which you are the uploader has been resolved.', title: 'Auction Resolved', type: 'message', userId: art.uploaderId, link: `/auction/${art.tokenId}` }, ddbClient)
-
-            // send notification to voters 
-            const voterNotifications = art.votes.map(voterId => createNotification({ body: 'An auction in which you are a voter has been resolved.', title: 'Auction Resolved', type: 'message', userId: voterId, link: `/auction/${art.tokenId}` }, ddbClient))
-            await Promise.all(voterNotifications);
+  
+  
+    const timeString = new Date().toISOString()
+    let auctions: TzktAuctionKey[] = [];
+    do {
+      let actualOffset = loadLimit * index;
+      const auctionRequest = await fetch(`${process.env['TZKT_ADDRESS']}contracts/${process.env['AUCTION_HOUSE_CONTRACT_ADDRESS']}/bigmaps/auctions/keys?limit=${loadLimit}&offset=${actualOffset}&value.end_timestamp.lt=${timeString}&active=true`);
+      auctions = (await auctionRequest.json()) as TzktAuctionKey[];
+      index++;
+  
+      const batch = Tezos.wallet.batch();
+  
+      for (let auction of auctions) {
+        const endAuction = auctionHouseContract.end_auction(Number(auction.key))
+        if (endAuction) {
+          batch.withContractCall(endAuction);
         }
-
-    }
+      }
+      /*
+       * Here happens all the operation batching
+       */
+      const batchOp = await batch.send();
+     
+  
+      const confirmation = await batchOp.confirmation(1);
+      console.log(`Operation injected: https://ghost.tzstats.com/${confirmation.block.hash}`);
+  
+      for await (const auction of auctions) {
+        const uploaderRaw = await ddbClient.send(new QueryCommand({
+          TableName: process.env['USER_INFO_TABLE_NAME'],
+          KeyConditionExpression: 'walletId = :walletId',
+          ExpressionAttributeValues: marshall({ ':walletId': auction.value.uploader }),
+          IndexName: 'walletIdIndex'
+        }))
+        if(uploaderRaw.Items && uploaderRaw.Items.length > 0) {
+          const uploader = unmarshall(uploaderRaw.Items[0])
+          createNotification ({body: `An artwork you uploaded has been auctioned for ${auction.value.bid_amount} tez`, title: "Auction resolved", type: "message", userId: uploader.userId},ddbClient)
+        }
+  
+        const bidderRaw = await ddbClient.send(new QueryCommand({
+          TableName: process.env['USER_INFO_TABLE_NAME'],
+          KeyConditionExpression: 'walletId = :walletId',
+          ExpressionAttributeValues: marshall({ ':walletId': auction.value.bidder }),
+          IndexName: 'walletIdIndex'
+        }))
+        if(bidderRaw.Items && bidderRaw.Items.length > 0) {
+          const bidder = unmarshall(bidderRaw.Items[0])
+          createNotification ({body: `You won the auction no. ${auction.key}`, title: "Auction resolved", type: "message", userId: bidder.userId},ddbClient)
+        }
+      }
+  
+      console.log(auctions.map(auction => auction.key));
+    } while (auctions.length)
 }
 
 const handler = middy(baseHandler)

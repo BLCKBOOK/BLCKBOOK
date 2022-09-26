@@ -1,6 +1,5 @@
-import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
-import { SQSClient, SendMessageBatchCommand, SendMessageBatchRequestEntry, SendMessageCommand } from "@aws-sdk/client-sqs";
-import awsCronParser from "aws-cron-parser";
+import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, TransactWriteItemsCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
@@ -13,54 +12,161 @@ import AuthMiddleware from "../../common/AuthMiddleware"
 import RequestLogger from "../../common/RequestLogger";
 import { TezosToolkit } from "@taquito/taquito";
 import { TheVoteContract } from "../../common/contracts/the_vote_contract";
+import fetch from 'node-fetch';
 
 const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 const sqsClient = new SQSClient({ region: process.env['AWS_REGION'] });
 
-async function currentPeriodIsProcessing():Promise<Boolean> {
+async function deadlinePassed(tzktAddress, theVoteContractAddress): Promise<boolean> {
+  const response = await fetch(`${tzktAddress}contracts/${theVoteContractAddress}/storage`);
+  const storageData = await response.json();
+  return Date.parse(storageData.deadline) < Date.now();
+}
+
+async function currentPeriodIsProcessing(): Promise<Boolean> {
   const currentPeriodCommand = new GetItemCommand({
     TableName: process.env['PERIOD_TABLE_NAME'],
     Key: marshall({ periodId: 'current' }),
+    ConsistentRead: true
   })
   const currentPeriod = await DDBclient.send(currentPeriodCommand)
   if (!currentPeriod.Item) throw new Error("Current period does not exist")
-  if (!currentPeriod.Item.processing) throw new Error("Current period does not contain 'processing' value")
-  if (!currentPeriod.Item.processing.BOOL) throw new Error("Current period does not contain 'processing' value")
+  if (currentPeriod.Item.processing === undefined || currentPeriod.Item.processing.BOOL === undefined) throw new Error("Current period does not contain 'processing' value")
   
   return currentPeriod.Item.processing.BOOL
 }
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
-const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
-    const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
+  const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
+  if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
 
-    if (!rpc) throw new Error(`TEZOS_RPC_CLIENT_INTERFACE env variable not set`)
-    if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
+  const admissionedArtworkdsTableName = process.env['ADMISSIONED_ARTWORKS_TABLE_NAME']
+  if (!admissionedArtworkdsTableName) throw new Error(`ADMISSIONED_ARTWORKS_TABLE_NAME env variable not set`)
 
-    const tezos = new TezosToolkit(rpc);
-    const vote = new TheVoteContract(tezos, theVoteAddress)
+  const uploadedArtworkTableName = process.env['UPLOADED_ARTWORKS_TABLE_NAME']
+  if (!uploadedArtworkTableName) throw new Error(`UPLOADED_ARTWORKS_TABLE_NAME env variable not set`)
 
+  const tzktAddress = process.env['TZKT_ADDRESS']
+  if (!tzktAddress) throw new Error(`TZKT_ADDRESS env variable not set`)
 
-    if (await vote.deadlinePassed() && !await currentPeriodIsProcessing()) {
-        const setPeriodProcessingCommand = new UpdateItemCommand({
-            TableName: process.env['PERIOD_TABLE_NAME'],
-            Key: marshall({ periodId: 'current' }),
-            UpdateExpression: 'set processing = :processing',
-            ExpressionAttributeValues: marshall({ ':processing': true })
+  
+
+  // lock period
+  if (!await currentPeriodIsProcessing() && await deadlinePassed(tzktAddress, theVoteAddress)) {
+    const setPeriodProcessingCommand = new UpdateItemCommand({
+      TableName: process.env['PERIOD_TABLE_NAME'],
+      Key: marshall({ periodId: 'current' }),
+      UpdateExpression: 'SET processing = :processing',
+      ExpressionAttributeValues: marshall({ ':processing': true })
+    })
+    await DDBclient.send(setPeriodProcessingCommand)
+  }
+
+  if (await currentPeriodIsProcessing()) {
+    // get UUID of past period. this is realized as a new get in case the loop above triggers a lambda timeout.
+    const currentPeriodCommand = new GetItemCommand({
+      TableName: process.env['PERIOD_TABLE_NAME'],
+      Key: marshall({ periodId: 'current' }),
+      ConsistentRead: true
+    })
+    const currentPeriod = await DDBclient.send(currentPeriodCommand)
+    if (!currentPeriod.Item) throw new Error("Current period does not exist")
+    if (currentPeriod.Item.processing === undefined || currentPeriod.Item.pendingPeriodId.S === undefined) throw new Error("Current period does not contain 'pendingPeriodId' value")
+    const oldPeriodUUID = currentPeriod.Item.pendingPeriodId.S
+    const awsAccountId = context.invokedFunctionArn.split(':')[4]
+
+    // move all artworks to admission table
+    let lastKey: any = undefined;
+    while (true) {
+      let getArtworksToAdmissionCommand = new ScanCommand({
+        TableName: uploadedArtworkTableName,
+        FilterExpression: "approvalState = :approved",
+        ExpressionAttributeValues: marshall({ ":approved": "approved" }),
+        ExclusiveStartKey: lastKey
+      })
+      let artworksToAdmissionRaw = await (await DDBclient.send(getArtworksToAdmissionCommand))
+      lastKey = artworksToAdmissionRaw.LastEvaluatedKey
+      if (!artworksToAdmissionRaw.Items || artworksToAdmissionRaw.Items.length === 0) break
+      const artworksToAdmission = artworksToAdmissionRaw.Items.map(i => unmarshall(i))
+      for await (const artworkToAdmission of artworksToAdmission) {
+        artworkToAdmission.periodId = oldPeriodUUID
+
+        const IPFSUploaderMessage = new SendMessageCommand({
+          MessageBody: JSON.stringify(artworkToAdmission),
+          QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['IPFS_UPLOAD_QUEUE_NAME']}`,
+          MessageGroupId: 'nextPeriodMessage'
         })
+        await sqsClient.send(IPFSUploaderMessage)
 
-        const oldPeriodUUID = uuid();
-        await DDBclient.send(setPeriodProcessingCommand)
-        const newPeriodMessage = new SendMessageCommand({
-            MessageBody: oldPeriodUUID,
-            QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${event.requestContext ? event.requestContext.accountId : event.account}/${process.env['MINTING_QUEUE_NAME']}`,
-            MessageGroupId: 'nextPeriodMessage'
-        })
-        await sqsClient.send(newPeriodMessage)
+        await DDBclient.send(new TransactWriteItemsCommand({
+          TransactItems: [
+            {
+              Delete: {
+                Key: marshall({ uploaderId: artworkToAdmission.uploaderId, uploadTimestamp: artworkToAdmission.uploadTimestamp }),
+                TableName: uploadedArtworkTableName
+              }
+            },
+
+          {
+            Update: {
+              TableName: process.env['USER_INFO_TABLE_NAME'],
+              Key: marshall({ userId: artworkToAdmission.uploaderId }),
+              UpdateExpression: "ADD uploadsDuringThisPeriod :inc",
+              ExpressionAttributeValues: marshall({ ":inc": -1 }),
+            }
+          },
+            {
+              Put: {
+                Item: marshall(artworkToAdmission),
+                TableName: admissionedArtworkdsTableName
+              }
+            }
+          ]
+        }))
+      }
     }
 
-    return { statusCode: 200, headers: { "content-type": "application/json" }, body: "OK" };  
+    // start workers
+    const mintArtworksMessage = new SendMessageCommand({
+      MessageBody: oldPeriodUUID,
+      QueueUrl: `https://sqs.${process.env['AWS_REGION']}.amazonaws.com/${awsAccountId}/${process.env['MINTING_QUEUE_NAME']}`,
+      MessageGroupId: 'nextPeriodMessage'
+    })
+    await sqsClient.send(mintArtworksMessage)
 
+    // create new period
+    const timestamp = new Date()
+    const pendingPeriodId = uuid();
+    currentPeriod.Item.periodId = {S: currentPeriod.Item.pendingPeriodId.S}
+    currentPeriod.Item.endingDate = {S: timestamp.toString()}
+    currentPeriod.Item.processing = {BOOL: false}
+
+    try {
+      await DDBclient.send(new TransactWriteItemsCommand({
+        TransactItems: [
+          {
+            Update: {
+              TableName: process.env['PERIOD_TABLE_NAME'],
+              Key: marshall({ periodId: 'current' }),
+              UpdateExpression: 'SET startingDate = :startingDate, pendingPeriodId = :pendingPeriodId, processing = :false REMOVE endingDate',
+              ExpressionAttributeValues: marshall({ ':startingDate': timestamp.toString(), ':pendingPeriodId': pendingPeriodId, ':false': false })
+            }
+          },
+          {
+            Put: {
+              TableName: process.env['PERIOD_TABLE_NAME'],
+              Item: currentPeriod.Item
+            }
+          }
+        ]
+      }))
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  return { statusCode: 200, headers: { "content-type": "application/json" }, body: "OK" };
 }
 
 const handler = middy(baseHandler)

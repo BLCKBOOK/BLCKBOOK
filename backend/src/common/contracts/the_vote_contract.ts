@@ -261,7 +261,7 @@ export class TheVoteContract extends Contract {
                         try {
                             const call: TransactionWalletOperation | TransactionOperation | undefined
                                 = await this.contract?.methods.set_minting_ready_limit(readyForMintAmount).send();
-                            const hash: any | undefined = await call?.confirmation(2);
+                            const hash: any | undefined = await call?.confirmation(3);
                             console.log(`Operation injected: https://ghost.tzstats.com/${hash}`);
                         } catch (error: any) {
                             console.log('could not set the new minting_ready_limit');
@@ -275,7 +275,7 @@ export class TheVoteContract extends Contract {
                     console.log(readyForMintAmount);
                     const call: TransactionWalletOperation | TransactionOperation | undefined
                         = await this.contract?.methods.ready_for_minting().send();
-                    const hash: any | undefined = await call?.confirmation(2);
+                    const hash: any | undefined = await call?.confirmation(3);
                     console.log(`Ready_for_minting operation successful: https://ghost.tzstats.com/${hash}`);
                 } catch (error: any) {
                     if (error['id'] && (error.id as string).includes('gas_exhausted.operation')) {
@@ -307,7 +307,7 @@ export class TheVoteContract extends Contract {
                             try {
                                 const call: TransactionWalletOperation | TransactionOperation | undefined
                                     = await this.contract?.methods.set_votes_transmission_limit(votesTransmissionAmount).send();
-                                const hash: any | undefined = await call?.confirmation(2);
+                                const hash: any | undefined = await call?.confirmation(3);
                                 console.log(`Did set the new votes-transmission-limit: https://ghost.tzstats.com/${hash}`);
                             } catch (error: any) {
                                 if (error['message'] && (error.message as string).includes('THE_VOTE_CANT_SET_VOTES_TRANSMISSION_LIMIT_DURING_A_BATCH')) {
@@ -328,7 +328,7 @@ export class TheVoteContract extends Contract {
                     }
                     const call: TransactionWalletOperation | TransactionOperation | undefined
                         = await this.contract?.methods.mint_artworks(mintAmount).send();
-                    const hash: any | undefined = await call?.confirmation(1);
+                    const hash: any | undefined = await call?.confirmation(3);
                     console.log(`Mint artworks succeeded: https://ghost.tzstats.com/${hash}`);
                 } catch (error: any) {
                     if (error['id'] && (error.id as string).includes('gas_exhausted.operation')) {
@@ -341,6 +341,8 @@ export class TheVoteContract extends Contract {
                             }
                             continue;
                         }
+                    } if(error.with && error.with.string && (error.with.string as string).includes('THE_VOTE_DEADLINE_NOT_PASSED')){
+                        return true
                     } else {
                         console.log(`Error: ${JSON.stringify(error, null, 2)}`);
                         return false;
@@ -356,6 +358,7 @@ export class TheVoteContract extends Contract {
             console.log('we did it and minted all!');
             return true;
         }
+        console.log('contract in the_vote is not defined')
         return false;
     }
 

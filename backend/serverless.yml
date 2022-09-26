@@ -15,23 +15,23 @@ package:
 custom:
   # tezos data definitions
   tezos_rpc_client_interface: 
-    dev: 'https://rpc.ghostnet.teztnets.xyz'
-    prod: 'https://rpc.ghostnet.teztnets.xyz'
+    dev: 'https://ghostnet.tezos.marigold.dev/'
+    prod: 'https://ghostnet.tezos.marigold.dev/'
   voter_money_pool_contract_address:
-    dev: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
-    prod: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj'
+    dev: 'KT1Ats6HPT2ePmwY37QXbedm9noiXocNAwS8'
+    prod: 'KT1Ats6HPT2ePmwY37QXbedm9noiXocNAwS8'
   auction_house_contract_address: 
-    dev: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
-    prod: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw'
+    dev: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM'
+    prod: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM'
   the_vote_contract_address:
-    dev: 'KT1KYDPcBS1MCLYRvbYGu1ZLUuhkNNXDyh1B'
-    prod: 'KT1KYDPcBS1MCLYRvbYGu1ZLUuhkNNXDyh1B'
+    dev: 'KT1KfttT5ZVLYxi9V8JjrM3Dncg4evdESSyW'
+    prod: 'KT1KfttT5ZVLYxi9V8JjrM3Dncg4evdESSyW'
   fa2_contract_address: 
-    dev: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
-    prod: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2'
+    dev: 'KT1Nqn4twmvFssgnwhgkjFeMsHiceg1tZbKV'
+    prod: 'KT1Nqn4twmvFssgnwhgkjFeMsHiceg1tZbKV'
   bank_contract_address:
-    dev: 'KT1VddB9LRnD5reNo2bugLikcxxQ1cHHTFjG'
-    prod: 'KT1VddB9LRnD5reNo2bugLikcxxQ1cHHTFjG'
+    dev: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP'
+    prod: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP'
   tzkt_address:
     dev: 'https://api.ghostnet.tzkt.io/v1/'
     prod: 'https://api.ghostnet.tzkt.io/v1/'
@@ -349,7 +349,7 @@ resources:
     MintingQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        VisibilityTimeout: 180
+        VisibilityTimeout: 900
         QueueName: ${self:custom.minting_queue_name}
         ContentBasedDeduplication: true
         FifoQueue: true
@@ -357,7 +357,7 @@ resources:
     AdmissionQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        VisibilityTimeout: 180
+        VisibilityTimeout: 90
         QueueName: ${self:custom.admission_queue_name}
         ContentBasedDeduplication: true
         FifoQueue: true
@@ -365,7 +365,7 @@ resources:
     IpfsUploadQueue:
       Type: 'AWS::SQS::Queue'
       Properties:
-        VisibilityTimeout: 180
+        VisibilityTimeout: 900
         QueueName: ${self:custom.ipfsUpload_queue_name}
         ContentBasedDeduplication: true
         FifoQueue: true

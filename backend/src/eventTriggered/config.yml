@@ -1,63 +1,46 @@
 triggerNextPeriod:
   handler: src/eventTriggered/minter/nextPeriod.handler
+  timeout: 900
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - dynamodb:PutItem
         - dynamodb:DeleteItem
         - dynamodb:Scan
-        - dynamodb:Query
-        - dynamodb:GetItem
-        - dynamodb:BatchWriteItem 
       Resource:
         - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
     - Effect: Allow
       Action:
-        - dynamodb:DeleteItem
-        - dynamodb:PutItem
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:BatchWriteItem
-      Resource:
-        - Fn::GetAtt: [ votePagesTable, Arn ]
-        - !Sub '${votePagesTable.Arn}/index/*'
-    - Effect: Allow
-      Action:
-        - dynamodb:Scan
-        - dynamodb:PutItem
-        - dynamodb:BatchWriteItem
+        - dynamodb:UpdateItem
       Resource:
         - Fn::GetAtt: [ userInfoTable, Arn ]
     - Effect: Allow
       Action:
+        - dynamodb:PutItem 
+      Resource:
+        - Fn::GetAtt: [ admissionedArtworksTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
         - dynamodb:GetItem
         - dynamodb:PutItem
-        - dynamodb:UpdateItem
       Resource:
         - Fn::GetAtt: [ periodTable, Arn ]
     - Effect: Allow
       Action:
-        - dynamodb:PutItem
-        - dynamodb:BatchWriteItem
+        - sqs:SendMessage
       Resource:
-        - Fn::GetAtt: [ archive, Arn ]
+        - Fn::GetAtt: [ MintingQueue, Arn ]
     - Effect: Allow
       Action:
         - sqs:SendMessage
       Resource:
-        - Fn::GetAtt: [ MintingQueue, Arn ]                                                    
+        - Fn::GetAtt: [ IpfsUploadQueue, Arn ]
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+      Resource:
+        - Fn::GetAtt: [ AdmissionQueue, Arn ]
   events:
-    - http:
-        path: admin/triggerNextPeriod
-        authorizer: 
-          name: BlckBookUsersAuthorizer
-          type: COGNITO_USER_POOLS
-          arn:
-            Fn::GetAtt:
-              - BlckBookUsers
-              - Arn
-        method: post
-        cors: true
     - schedule: ${self:custom.period_check}
 
 updateUserstateAfterUpload:
@@ -121,6 +104,7 @@ endAuctions:
     - Effect: Allow
       Action:
       - dynamodb:UpdateItem
+      - dynamodb:Query
       Resource:
       - Fn::GetAtt: [ userInfoTable, Arn ]
     - Effect: Allow
@@ -133,19 +117,23 @@ endAuctions:
       Action:
         - secretsmanager:GetSecretValue
       Resource:
-        - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/hangzhouFaucet-ioAJGW"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:pinataAccessKey-ZJzp7t"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetFaucet-2uaxQ4"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetFaucet-dEUPkz"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetActivationFaucet-0VHR3R"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetActivationFaucet-0ldAag"
   events:
-    - schedule: rate(1 hour)
+    - schedule: rate(10 minutes)
 
 mintingQueueWorker:
     handler: src/eventTriggered/minter/minter.handler
-    timeout: 180
+    timeout: 900
     iamRoleStatements:
       - Effect: Allow
         Action:
           - sqs:SendMessage
         Resource:
-          - Fn::GetAtt: [ AdmissionQueue, Arn ]  
+          - Fn::GetAtt: [ IpfsUploadQueue, Arn ]
       - Effect: Allow
         Action:
           - sqs:SendMessage
@@ -153,16 +141,142 @@ mintingQueueWorker:
           - Fn::GetAtt: [ NotificationQueue, Arn ]    
       - Effect: Allow
         Action:
+          - sqs:SendMessage
+        Resource:
+          - Fn::GetAtt: [ AdmissionQueue, Arn ]
+      - Effect: Allow
+        Action:
           - secretsmanager:GetSecretValue
         Resource:
-          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/hangzhouFaucet-ioAJGW"
           - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:pinataAccessKey-ZJzp7t"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetFaucet-2uaxQ4"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetFaucet-dEUPkz"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetActivationFaucet-0VHR3R"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetActivationFaucet-0ldAag"
       - Effect: Allow
         Action:
         - dynamodb:GetItem
         - dynamodb:UpdateItem
         Resource:
         - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource:
+        - Fn::GetAtt: [ notificationTable, Arn ]
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource:
+        - Fn::GetAtt: [ mintedArtworks, Arn ]
+      - Effect: Allow
+        Action:
+        - s3:GetObject
+        Resource:
+        - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt:
+              - MintingQueue
+              - Arn
+
+IPFSUloadWorker:
+    handler: src/eventTriggered/minter/IPFSUploader.handler
+    timeout: 180
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - sqs:SendMessage
+        Resource:
+          - Fn::GetAtt: [ AdmissionQueue, Arn ]
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:pinataAccessKey-ZJzp7t"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetFaucet-2uaxQ4"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetFaucet-dEUPkz"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetActivationFaucet-0VHR3R"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetActivationFaucet-0ldAag"
+      - Effect: Allow
+        Action:
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+          - dynamodb:GetItem
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource:
+        - Fn::GetAtt: [ notificationTable, Arn ]
+      - Effect: Allow
+        Action:
+        - dynamodb:PutItem
+        Resource:
+        - Fn::GetAtt: [ mintedArtworks, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem 
+        Resource:
+          - Fn::GetAtt: [ admissionedArtworksTable, Arn ]
+      - Effect: Allow
+        Action:
+        - dynamodb:GetItem
+        Resource:
+        - Fn::GetAtt: [ votePagesTable, Arn ]
+      - Effect: Allow
+        Action:
+        - s3:GetObject
+        Resource:
+        - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt:
+              - IpfsUploadQueue
+              - Arn
+
+Admissioner:
+    handler: src/eventTriggered/minter/admissioner.handler
+    timeout: 90
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - sqs:SendMessage
+        Resource:
+          - Fn::GetAtt: [ AdmissionQueue, Arn ]
+      - Effect: Allow
+        Action:
+          - secretsmanager:GetSecretValue
+        Resource:
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:pinataAccessKey-ZJzp7t"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetFaucet-2uaxQ4"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetFaucet-dEUPkz"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetActivationFaucet-0VHR3R"
+          - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetActivationFaucet-0ldAag"
+      - Effect: Allow
+        Action:
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+          - dynamodb:GetItem
+          - dynamodb:DeleteItem
+          - dynamodb:BatchWriteItem
+        Resource:
+          - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
       - Effect: Allow
         Action:
         - dynamodb:PutItem
@@ -184,10 +298,22 @@ mintingQueueWorker:
         - s3:GetObject
         Resource:
         - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan 
+          - dynamodb:DeleteItem
+        Resource:
+          - Fn::GetAtt: [ admissionedArtworksTable, Arn ]
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem 
+          - dynamodb:BatchWriteItem
+        Resource:
+          - Fn::GetAtt: [ archive, Arn ]
     events:
       - sqs:
           batchSize: 1
           arn:
             Fn::GetAtt:
-              - MintingQueue
+              - AdmissionQueue
               - Arn
