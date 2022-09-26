@@ -302,6 +302,7 @@ Admissioner:
         Action:
           - dynamodb:Scan 
           - dynamodb:DeleteItem
+          - dynamodb:BatchWriteItem
         Resource:
           - Fn::GetAtt: [ admissionedArtworksTable, Arn ]
       - Effect: Allow
