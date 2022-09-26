@@ -76,7 +76,7 @@ const baseHandler = async (event, context) => {
       await vote.batchAdmission(filteredArts)
   
       // delete all admissioned artworks from admission table
-      new BatchWriteItemCommand({
+      await ddbClient.send(new BatchWriteItemCommand({
         RequestItems: {
           [process.env['ARCHIVE_TABLE_NAME'] as string]: [
             ...artworksToAdmission.map(art => { return { PutRequest: { Item: marshall(art) } } })
@@ -85,7 +85,7 @@ const baseHandler = async (event, context) => {
             ...artworksToAdmission.map(art => { return { DeleteRequest: { Key: marshall({ artworkId: art.artworkId }) } } })
           ]
         }
-      })
+      }))
   
       const admissionsRemain = await ddbClient.send(new ScanCommand({
         TableName: admissionedArtworksTableName,
