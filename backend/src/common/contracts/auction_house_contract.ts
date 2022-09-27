@@ -1,8 +1,7 @@
 import {Contract} from './contract';
-import {MichelsonMap, TezosToolkit, TransactionOperation, TransactionWalletOperation} from '@taquito/taquito';
-import {char2Bytes, tzip16} from '@taquito/tzip16';
+import {TezosToolkit, TransactionOperation, TransactionWalletOperation} from '@taquito/taquito';
 import fetch from 'node-fetch';
-import {auctionHouseContractAddress, bankContractAddress, maxConcurrency, tzktAddress} from './constants';
+import {auctionHouseContractAddress, maxConcurrency, tzktAddress} from './constants';
 import {TzktAuctionKey} from './types';
 
 export class AuctionHouseContract extends Contract {
@@ -62,17 +61,6 @@ export class AuctionHouseContract extends Contract {
 
     end_auction(auction_index: number) {
             return this.contract?.methods.end_auction(auction_index);
-    }
-
-    // Maybe add TZIP16 to the actual contract :shrug
-    // ToDo: can have a gas-lock as it is a view! So do not use it like this anymore!
-    async getExpiredAuctions(): Promise<number> {
-        const contract = await this.tezos.contract.at(this.getAddress(), tzip16);
-        const views = await contract.tzip16().metadataViews();
-        const date = new Date().toISOString();
-        const ret = (await views.get_expired_auctions().executeView(date));
-        console.log((ret as Array<any>).map(number => number.toNumber()));
-        return ret;
     }
 
     // Also must be an Batch-Call

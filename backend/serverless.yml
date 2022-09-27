@@ -18,19 +18,19 @@ custom:
     dev: 'https://ghostnet.tezos.marigold.dev/'
     prod: 'https://ghostnet.tezos.marigold.dev/'
   voter_money_pool_contract_address:
-    dev: 'KT1Ats6HPT2ePmwY37QXbedm9noiXocNAwS8'
+    dev: 'KT1WZzWgCYqf5mzxNEbrJt5vnu1mwZbRik8A'
     prod: 'KT1Ats6HPT2ePmwY37QXbedm9noiXocNAwS8'
   auction_house_contract_address: 
-    dev: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM'
+    dev: 'KT1M64RNqyFQXqC88VrgVwhLNh9zV5LGxAEP'
     prod: 'KT1CNZsuSMFpkGN1D3gAkQtfnTGMzaRk1JBM'
   the_vote_contract_address:
-    dev: 'KT1KfttT5ZVLYxi9V8JjrM3Dncg4evdESSyW'
+    dev: 'KT1FNMheKDiHghHpCbr44BQVYdt8fzsUrJ3i'
     prod: 'KT1KfttT5ZVLYxi9V8JjrM3Dncg4evdESSyW'
   fa2_contract_address: 
-    dev: 'KT1Nqn4twmvFssgnwhgkjFeMsHiceg1tZbKV'
+    dev: 'KT1KykSaEqmCvXcitjcB2X5RdFVkb573i2eD'
     prod: 'KT1Nqn4twmvFssgnwhgkjFeMsHiceg1tZbKV'
   bank_contract_address:
-    dev: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP'
+    dev: 'KT1HzbYjjgCS7tF4BzhsHBioYKZwWmdFG9eo'
     prod: 'KT1TYrapwmRFkvHbYWAR3qXxcGXgMjubJvmP'
   tzkt_address:
     dev: 'https://api.ghostnet.tzkt.io/v1/'

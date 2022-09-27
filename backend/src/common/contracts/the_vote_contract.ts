@@ -7,7 +7,7 @@ import {
 } from '@taquito/taquito';
 import {Contract} from './contract';
 import {char2Bytes} from '@taquito/tzip16';
-import {theVoteContractAddress, tzktAddress} from './constants';
+import {ipfsPrefix, theVoteContractAddress, tzktAddress} from './constants';
 import fetch from 'node-fetch';
 import {VoteContractHistoryEntry, VoteStorage} from './types';
 
@@ -124,7 +124,7 @@ export class TheVoteContract extends Contract {
                     args: [{prim: 'string'}, {prim: 'bytes'}],
                 });
                 storageMap.set('decimals', char2Bytes('0'));
-                storageMap.set('', char2Bytes(artwork.ipfsLink));
+                storageMap.set('', char2Bytes(ipfsPrefix + artwork.ipfsLink));
                 if (this.contract) {
                     batch.withContractCall(this.contract.methodsObject.admission({
                         uploader: artwork.uploader,
@@ -204,7 +204,7 @@ export class TheVoteContract extends Contract {
             args: [{prim: 'string'}, {prim: 'bytes'}],
         });
         storageMap.set('decimals', char2Bytes('0'));
-        storageMap.set('', char2Bytes(ipfsLink));
+        storageMap.set('', char2Bytes(ipfsPrefix + ipfsLink));
         try {
             // @ts-ignore
             const call: TransactionWalletOperation | TransactionOperation | undefined = await this.contract.methodsObject.admission({

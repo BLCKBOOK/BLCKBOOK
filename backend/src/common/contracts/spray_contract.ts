@@ -7,6 +7,7 @@ import {
 import {Contract} from './contract';
 import {char2Bytes} from '@taquito/tzip16';
 import assert from 'assert';
+import {ipfsPrefix} from './constants';
 
 export class SprayContract extends Contract {
 
@@ -42,7 +43,7 @@ export class SprayContract extends Contract {
                     args: [{prim: 'string'}, {prim: 'bytes'}],
                 });
                 storageMap.set('decimals', char2Bytes('0'));
-                storageMap.set('', char2Bytes(metadata));
+                storageMap.set('', char2Bytes(ipfsPrefix + metadata));
 
                 token = {new: storageMap};
                    /* { existing: 'nat', new: { map: { key: 'string', value: 'bytes' } } }*/
