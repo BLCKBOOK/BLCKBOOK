@@ -121,6 +121,18 @@ export class VotingService {
     }));
   }
 
+  public getAllVotesSpent$(): Observable<boolean> {
+    return this.allVotesSpent.pipe();
+  }
+
+  public getIsRegistered$(): Observable<boolean> {
+    return this.registered$.pipe();
+  }
+
+  public getDeadlinePassed$(): Observable<boolean> {
+    return this.deadlineHasPassed.pipe();
+  }
+
   public getMaxVoteAmount$(): Observable<number> {
     return this.maxVoteAmount.pipe();
   }
