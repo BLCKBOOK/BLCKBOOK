@@ -166,24 +166,4 @@ export class AdminComponent implements OnInit {
   saveImageHeight() {
     localStorage.setItem(this.adminImageSizeKey, this.imageHeight.toString());
   }
-
-  triggerNextPeriod() {
-    const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
-      width: '90%',
-      data: {
-        text: 'This will trigger the next Period and can not be undone. You will need to reload to see the changes',
-        header: 'CONFIRM NEXT PERIOD',
-        action: 'Yes, next!'
-      } as ConfirmDialogData
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.adminService.triggerNextPeriod().subscribe(val => {
-          console.log(val);
-          console.log('next period triggered');
-        });
-      }
-    });
-  }
 }
