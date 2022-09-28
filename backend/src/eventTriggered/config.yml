@@ -115,6 +115,14 @@ endAuctions:
         - Fn::GetAtt: [ mintedArtworks, Arn ]
     - Effect: Allow
       Action:
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:Query
+      Resource:
+        - Fn::GetAtt: [ userInfoTable, Arn ]
+        - !Sub '${userInfoTable.Arn}/index/*'
+    - Effect: Allow
+      Action:
         - secretsmanager:GetSecretValue
       Resource:
           - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:pinataAccessKey-ZJzp7t"
@@ -123,7 +131,7 @@ endAuctions:
           - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetActivationFaucet-0VHR3R"
           - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetActivationFaucet-0ldAag"
   events:
-    - schedule: rate(10 minutes)
+    - schedule: rate(5 minutes)
 
 mintingQueueWorker:
     handler: src/eventTriggered/minter/minter.handler

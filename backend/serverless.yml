@@ -58,7 +58,7 @@ custom:
   frontend_host_name: 
     dev: "https://dev.blckbook.vote"
     prod: "https://blckbook.vote"
-  period_check: "rate(10 minutes)"
+  period_check: "rate(2 minutes)"
   max_uploads_per_period: 1
   amplify:
     - filename: ../frontend/src/aws-exports-${opt:stage, self:provider.stage}.ts
