@@ -96,9 +96,9 @@ export class AuctionDetailComponent implements OnInit {
       this.bidHistory.next(updates.map(historicalKey => historicalKey.value));
     });
     this.blockchainService.getArtworkMetadata(this.data.auctionKey.key).subscribe(metadata => {
-      this.metadataUri = metadata;
+      this.artworkData.metadataLink = metadata;
       this.blockchainService.getArtifactUriFromMetadataAddress(metadata).subscribe(artifact => {
-        this.ipfsUri = artifact;
+        this.artworkData.ipfsLink = artifact;
       });
     });
     if (this.data.auctionKey.value.uploader === this.data.auctionKey.value.bidder) {

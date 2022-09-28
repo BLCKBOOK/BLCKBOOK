@@ -30,9 +30,6 @@ export class VoteDetailComponent implements OnInit {
 
   votingService: VotingService;
   artworkData: ArtworkData;
-  ipfsUri: string;
-  metadataUri: string;
-
 
   constructor(private TaquitoService: TaquitoService, private taquitoService: TaquitoService, private blockchainService: BlockchainService,
               private dialogService: DialogService) {
@@ -43,13 +40,13 @@ export class VoteDetailComponent implements OnInit {
     this.canNotVote$ = this.votingService.getCanNotVote();
     const date = new Date(this.data.artwork.uploadTimestamp);
     this.timeDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-    this.ipfsUri = this.data.artwork.artifactIPFSLink;
-    this.metadataUri = this.data.artwork.metadataIPFSLink;
     this.artworkData = {
       title: this.data.artwork.title,
       uploader: this.data.artwork.uploader,
       latitude: this.data.artwork.latitude,
       longitude: this.data.artwork.longitude,
+      ipfsLink: this.data.artwork.artifactIPFSLink,
+      metadataLink: this.data.artwork.metadataIPFSLink,
     };
   }
 

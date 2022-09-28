@@ -6,24 +6,6 @@
   </div>
   <div class="meta-data-display" fxFlex="1 1" fxLayout.gt-md="column" fxLayout="column">
     <app-artwork-data [data]="artworkData"></app-artwork-data>
-    <div class="button-container">
-      <button mat-raised-button class="small-link" *ngIf="ipfsUri; else: ipfsLoading">
-        <a target="_blank" href="{{ipfsUri}}">IPFS</a>
-      </button>
-      <ng-template #ipfsLoading>
-        <button mat-raised-button class="small-link">
-          <a>IPFS loading</a>
-        </button>
-      </ng-template>
-      <button mat-raised-button class="small-link small-link-bottom" *ngIf="metadataUri; else: metaDataLoading">
-        <a target="_blank" href="{{metadataUri}}">metadata</a>
-      </button>
-      <ng-template #metaDataLoading>
-        <div class="small-link small-link-bottom">
-          <a>metadata loading</a>
-        </div>
-      </ng-template>
-    </div>
     <div class="line-container">
       <span>Auction End</span><span class="artwork-data">{{timeDisplay}}</span>
     </div>
