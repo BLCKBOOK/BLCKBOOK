@@ -14,7 +14,7 @@ import fetch from 'node-fetch';
 
 const ddbClient = new DynamoDBClient({region: process.env['AWS_REGION']});
 
-const baseHandler = async (event, context) => {
+const baseHandler = async () => {
     const auctionHouseContractAddress = process.env['AUCTION_HOUSE_CONTRACT_ADDRESS'];
     if (!auctionHouseContractAddress) throw new Error(`AUCTION_HOUSE_CONTRACT_ADDRESS env variable not set`);
 
@@ -72,7 +72,8 @@ const baseHandler = async (event, context) => {
                         body: `An artwork you uploaded has been auctioned for ${auction.value.bid_amount} mutez`,
                         title: 'Auction resolved',
                         type: 'message',
-                        userId: uploader.userId
+                        userId: uploader.userId,
+                        link: `auction/${auction.key}`,
                     }, ddbClient);
                 }
 
@@ -86,9 +87,10 @@ const baseHandler = async (event, context) => {
                     const bidder = unmarshall(bidderRaw.Items[0]);
                     await createNotification({
                         body: `You won the auction no. ${auction.key}`,
-                        title: 'Auction resolved',
+                        title: 'Auction won',
                         type: 'message',
-                        userId: bidder.userId
+                        userId: bidder.userId,
+                        link: `auction/${auction.key}`,
                     }, ddbClient);
                 }
             }
