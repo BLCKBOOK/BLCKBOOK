@@ -10,6 +10,8 @@ export interface ArtworkData {
   uploader: string,
   latitude: string
   longitude: string,
+  ipfsLink?: string,
+  metadataLink?: string,
 }
 
 @Component({
@@ -44,4 +46,7 @@ export class ArtworkDataComponent {
     });
   }
 
+  openLink(link: string) {
+    window.open(link, '_blank');
+  }
 }

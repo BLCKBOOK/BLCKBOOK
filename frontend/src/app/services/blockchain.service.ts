@@ -91,8 +91,7 @@ export class BlockchainService {
     return this.httpClient.get(environment.tzktAddress + 'contracts/' + environment.tokenContractAddress + '/bigmaps/token_metadata/keys/' + id).pipe(map(metadata => {
       // @ts-ignore access the token-metadata
       const byteString = metadata.value.token_info[''];
-      const ipfsAddress = this.hexStringToString(byteString);
-      return environment.pinataGateway + ipfsAddress;
+      return this.getIPFSAddressOfHash(byteString);
     }));
   }
 
@@ -321,7 +320,7 @@ export class BlockchainService {
   }
 
   private getIPFSAddressOfHash(byteString: string) {
-    const ipfsAddress = this.hexStringToString(byteString);
+    const ipfsAddress = this.hexStringToString(byteString).substring(7); // remove the leading "ipfs://"
     return environment.pinataGateway + ipfsAddress;
   }
 

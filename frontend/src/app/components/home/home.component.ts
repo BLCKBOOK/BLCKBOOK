@@ -6,6 +6,7 @@ import {Observable} from 'rxjs';
 import {first, map} from 'rxjs/operators';
 import { UserInfo } from '../../../../../backend/src/common/tableDefinitions';
 import {AuthenticatorService} from '@aws-amplify/ui-angular';
+import {VotingService} from '../../voting/voting.service';
 
 @Component({
   selector: 'app-home',
@@ -17,17 +18,22 @@ export class HomeComponent implements OnInit {
   faImage = findIconDefinition({prefix: 'fas', iconName: 'image'});
   faUpload = findIconDefinition({prefix: 'fas', iconName: 'upload'});
   userInfo: Observable<UserInfo | undefined>;
-  hasVoted: Observable<boolean>;
+  deadlinePassed: Observable<boolean>;
+  allVotesSpent: Observable<boolean>;
+  registered: Observable<boolean>;
+
   hasUploaded: Observable<boolean>;
 
-  constructor(private userService: UserService, private snackBarService: SnackBarService, public authenticator: AuthenticatorService) {
+  constructor(private userService: UserService, private snackBarService: SnackBarService, public authenticator: AuthenticatorService,
+              private votingService: VotingService) {
   }
 
   ngOnInit(): void {
     this.userInfo = this.userService.getUserInfo();
     this.username = this.userInfo.pipe(map(user => user?.username ?? 'unknown'));
-    this.hasVoted = this.userInfo.pipe(map(userInfo =>
-      !!(userInfo?.hasVoted)));
+    this.allVotesSpent = this.votingService.getAllVotesSpent$();
+    this.registered = this.votingService.getIsRegistered$();
+    this.deadlinePassed = this.votingService.getDeadlinePassed$();
     this.hasUploaded = this.userInfo.pipe(map(userInfo =>
       !!(userInfo?.uploadsDuringThisPeriod)));
     this.userInfo.pipe(first()).subscribe(userInfo => {
