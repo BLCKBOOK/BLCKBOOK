@@ -55,9 +55,6 @@ custom:
   ipfsUpload_queue_name: 'IpfsUploadQueue-${opt:stage, self:provider.stage}.fifo'
 
   # backend data definitions
-  max_votes_per_user: 5
-  best_percentile: 10
-  periodDuration: 604800000 # in ms
   frontend_host_name: 
     dev: "https://dev.blckbook.vote"
     prod: "https://blckbook.vote"
