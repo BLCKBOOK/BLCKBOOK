@@ -49,6 +49,9 @@ export class NavigationComponent implements OnInit {
   notificationClick(notification: Notification, $event: MouseEvent) {
     this.notificationService.setNotificationSeen(notification);
     if (notification.link) {
+      if (notification.link?.startsWith('https://')) {
+        notification.link = notification.link.substring(notification.link?.indexOf('auction/'));
+      }
       if ($event.ctrlKey) {
         this.openInNewTab(notification.link);
       } else {
