@@ -1,4 +1,4 @@
-import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, TransactWriteItemsCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, GetItemCommand, ScanCommand, TransactWriteItemsCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 import middy from "@middy/core";
@@ -10,11 +10,9 @@ import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { LambdaResponseToApiGw } from "../../common/lambdaResponseToApiGw";
 import AuthMiddleware from "../../common/AuthMiddleware"
 import RequestLogger from "../../common/RequestLogger";
-import { TezosToolkit } from "@taquito/taquito";
-import { TheVoteContract } from "../../common/contracts/the_vote_contract";
 import fetch from 'node-fetch';
 
-const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const DDBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 const sqsClient = new SQSClient({ region: process.env['AWS_REGION'] });
 
 async function deadlinePassed(tzktAddress, theVoteContractAddress): Promise<boolean> {
@@ -29,7 +27,7 @@ async function currentPeriodIsProcessing(): Promise<Boolean> {
     Key: marshall({ periodId: 'current' }),
     ConsistentRead: true
   })
-  const currentPeriod = await DDBclient.send(currentPeriodCommand)
+  const currentPeriod = await DDBClient.send(currentPeriodCommand)
   if (!currentPeriod.Item) throw new Error("Current period does not exist")
   if (currentPeriod.Item.processing === undefined || currentPeriod.Item.processing.BOOL === undefined) throw new Error("Current period does not contain 'processing' value")
   
@@ -40,8 +38,8 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   const theVoteAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
   if (!theVoteAddress) throw new Error(`THE_VOTE_CONTRACT_ADDRESS env variable not set`)
 
-  const admissionedArtworkdsTableName = process.env['ADMISSIONED_ARTWORKS_TABLE_NAME']
-  if (!admissionedArtworkdsTableName) throw new Error(`ADMISSIONED_ARTWORKS_TABLE_NAME env variable not set`)
+  const admissionedArtworksTableName = process.env['ADMISSIONED_ARTWORKS_TABLE_NAME']
+  if (!admissionedArtworksTableName) throw new Error(`ADMISSIONED_ARTWORKS_TABLE_NAME env variable not set`)
 
   const uploadedArtworkTableName = process.env['UPLOADED_ARTWORKS_TABLE_NAME']
   if (!uploadedArtworkTableName) throw new Error(`UPLOADED_ARTWORKS_TABLE_NAME env variable not set`)
@@ -59,7 +57,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
       UpdateExpression: 'SET processing = :processing',
       ExpressionAttributeValues: marshall({ ':processing': true })
     })
-    await DDBclient.send(setPeriodProcessingCommand)
+    await DDBClient.send(setPeriodProcessingCommand)
   }
 
   if (await currentPeriodIsProcessing()) {
@@ -69,7 +67,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
       Key: marshall({ periodId: 'current' }),
       ConsistentRead: true
     })
-    const currentPeriod = await DDBclient.send(currentPeriodCommand)
+    const currentPeriod = await DDBClient.send(currentPeriodCommand)
     if (!currentPeriod.Item) throw new Error("Current period does not exist")
     if (currentPeriod.Item.processing === undefined || currentPeriod.Item.pendingPeriodId.S === undefined) throw new Error("Current period does not contain 'pendingPeriodId' value")
     const oldPeriodUUID = currentPeriod.Item.pendingPeriodId.S
@@ -84,7 +82,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
         ExpressionAttributeValues: marshall({ ":approved": "approved" }),
         ExclusiveStartKey: lastKey
       })
-      let artworksToAdmissionRaw = await (await DDBclient.send(getArtworksToAdmissionCommand))
+      let artworksToAdmissionRaw = await (await DDBClient.send(getArtworksToAdmissionCommand))
       lastKey = artworksToAdmissionRaw.LastEvaluatedKey
       if (!artworksToAdmissionRaw.Items || artworksToAdmissionRaw.Items.length === 0) break
       const artworksToAdmission = artworksToAdmissionRaw.Items.map(i => unmarshall(i))
@@ -98,7 +96,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
         })
         await sqsClient.send(IPFSUploaderMessage)
 
-        await DDBclient.send(new TransactWriteItemsCommand({
+        await DDBClient.send(new TransactWriteItemsCommand({
           TransactItems: [
             {
               Delete: {
@@ -118,7 +116,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
             {
               Put: {
                 Item: marshall(artworkToAdmission),
-                TableName: admissionedArtworkdsTableName
+                TableName: admissionedArtworksTableName
               }
             }
           ]
@@ -142,7 +140,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     currentPeriod.Item.processing = {BOOL: false}
 
     try {
-      await DDBclient.send(new TransactWriteItemsCommand({
+      await DDBClient.send(new TransactWriteItemsCommand({
         TransactItems: [
           {
             Update: {

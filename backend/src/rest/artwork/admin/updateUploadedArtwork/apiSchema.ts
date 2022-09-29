@@ -1,5 +1,3 @@
-import { UploadedArtwork, UploadedArtworkIndex } from "../../../../common/tableDefinitions";
-
 export const RequestValidationSchema = {
     "type": "object",
     "properties": {
@@ -90,7 +88,3 @@ export const RequestValidationSchema = {
         "body",
     ]
 }
-
-export type UpdateUploadedArtworksRequestBody = UploadedArtwork;
-
-export type UpdateUploadedArtworksResponseBody = UploadedArtwork;

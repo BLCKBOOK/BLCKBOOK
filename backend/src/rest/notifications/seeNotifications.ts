@@ -1,14 +1,12 @@
-import { BatchGetItemCommand, DynamoDBClient, GetItemCommand, QueryCommand, ScanCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
 import httpErrorHandler from "@middy/http-error-handler";
-import { createError, getInternal } from "@middy/util";
+import { createError } from "@middy/util";
 
-import { validate } from "jsonschema";
-
-import { setSeenRequestBody, setSeenResponseBody, seeNotifivationsRequestSchema } from "./apiSchema";
-import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { setSeenRequestBody, seeNotificationsRequestSchema } from "./apiSchema";
+import { marshall } from "@aws-sdk/util-dynamodb";
 import { NotificationIndex } from "../../common/tableDefinitions";
 import { LambdaResponseToApiGw } from "../../common/lambdaResponseToApiGw";
 import AuthMiddleware from "../../common/AuthMiddleware"
@@ -16,11 +14,9 @@ import RequestLogger from "../../common/RequestLogger";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import validator from "@middy/validator";
 
-const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
-let returnObject: setSeenResponseBody;
+const DDBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
-
-const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
+const baseHandler = async (event): Promise<LambdaResponseToApiGw> => {
     const body = event.body as setSeenRequestBody;
     let updatePromises:Promise<any>[] = []
 
@@ -33,7 +29,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
                 ConditionExpression: "seen = :false",
                 ExpressionAttributeValues: marshall({":false": false, ":true": true})
             })
-            await DDBclient.send(updateNotification)
+            await DDBClient.send(updateNotification)
             console.log("asdasdasd")
             const updateUserCommand = new UpdateItemCommand({
                 TableName: process.env['USER_INFO_TABLE_NAME'],
@@ -42,7 +38,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
                 ConditionExpression: "unseenNotifications > :zero",
                 ExpressionAttributeValues: marshall({":negOne": -1, ":zero":0}), 
             })
-            await DDBclient.send(updateUserCommand)
+            await DDBClient.send(updateUserCommand)
         } catch (error) {
             console.log(error)
         }
@@ -62,7 +58,7 @@ const handler = middy(baseHandler)
     .use(cors({ origin: process.env['FRONTEND_HOST_NAME'] }))
     .use(jsonBodyParser())
     .use(RequestLogger())
-    .use(validator({inputSchema:seeNotifivationsRequestSchema}))
+    .use(validator({inputSchema:seeNotificationsRequestSchema}))
     .use(AuthMiddleware(['User', 'Admin']))
     .use(httpErrorHandler())
 

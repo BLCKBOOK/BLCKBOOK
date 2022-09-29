@@ -1,4 +1,4 @@
-import {ContractAbstraction, TezosToolkit, TransactionOperation, TransactionWalletOperation} from '@taquito/taquito';
+import {ContractAbstraction, TezosToolkit} from '@taquito/taquito';
 
 /**
  * abstract class for a contract. Has a ready for initialization so that we can call other methods on it
@@ -17,20 +17,5 @@ export abstract class Contract {
                     resolve(undefined);
                 }).catch(reject);
         });
-    }
-
-    public async setAdministrator(adminAddress: string) {
-        try {
-            const call: TransactionWalletOperation | TransactionOperation | undefined
-                = await this.contract?.methods.set_administrator(adminAddress).send();
-            const hash: any | undefined = await call?.confirmation(2);
-            console.log(`Operation injected: https://ghost.tzstats.com/${hash}`);
-        } catch (error) {
-            console.log(`Error: ${JSON.stringify(error, null, 2)}`);
-        }
-    }
-
-    public getAddress() {
-        return this.address;
     }
 }

@@ -14,7 +14,7 @@ import { deleteArtwork } from "../../../common/actions/deleteUploadedArtwork";
 import AuthMiddleware from "../../../common/AuthMiddleware";
 import RequestLogger from "../../../common/RequestLogger";
 
-const DBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const DDBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 
 let returnObject: UpdateUploadedArtworksResponseBody;
@@ -30,7 +30,7 @@ const baseHandler = async (event): Promise<LambdaResponseToApiGw> => {
     ScanIndexForward: false,
     Limit: 1,
   });
-  const foundItems = (await DBClient.send(getLatestUploadCommand)).Items;
+  const foundItems = (await DDBClient.send(getLatestUploadCommand)).Items;
   if (!foundItems) {
     console.error('did not find an artwork to delete')
     return Promise.reject(createError(400, "Did not find the artwork to delete"))
@@ -43,7 +43,7 @@ const baseHandler = async (event): Promise<LambdaResponseToApiGw> => {
     Key: marshall({ userId }),
     ConsistentRead: true
   })
-  const userItem = (await DBClient.send(getUserCommand)).Item
+  const userItem = (await DDBClient.send(getUserCommand)).Item
   if (!userItem) {
     console.error('User to update not found while deleting artwork')
     return Promise.reject(createError(400, "User to update not found while deleting artwork"))
@@ -56,7 +56,7 @@ const baseHandler = async (event): Promise<LambdaResponseToApiGw> => {
   if (!(foundItems && foundItems.length == 1))
     return { statusCode: 200, headers: { "content-type": "application/json" }, body: "You dont have any uploads Yet." }
 
-  await deleteArtwork({ uploadTimestamp: itemToDelete.uploadTimestamp, uploaderId: itemToDelete.uploaderId }, s3Client, DBClient)
+  await deleteArtwork({ uploadTimestamp: itemToDelete.uploadTimestamp, uploaderId: itemToDelete.uploaderId }, s3Client, DDBClient)
 
   // decrease uploadsDuringThisPeriod counter
   const updateUserCommand = new UpdateItemCommand({
@@ -66,7 +66,7 @@ const baseHandler = async (event): Promise<LambdaResponseToApiGw> => {
     ConditionExpression: "uploadsDuringThisPeriod = :oldUploadsDuringThisPeriod",
     ExpressionAttributeValues: marshall({ ":oldUploadsDuringThisPeriod": oldUploadCount, ":newUploadsDuringThisPeriod": oldUploadCount - 1 })
   });
-  await DBClient.send(updateUserCommand)
+  await DDBClient.send(updateUserCommand)
 
   returnObject = { uploadsDuringThisPeriod: oldUploadCount - 1 }
 

@@ -11,7 +11,7 @@ import RequestLogger from "../../../common/RequestLogger";
 import { UserInfo } from "../../../common/tableDefinitions";
 import {createError} from '@middy/util';
 
-const DBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const DDBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
 let returnObject: UserInfo;
 
@@ -23,7 +23,7 @@ const baseHandler = async (event): Promise<LambdaResponseToApiGw> => {
     Key: marshall({ userId }),
   });
 
-  const userItem = (await DBClient.send(updateUserCommand)).Item
+  const userItem = (await DDBClient.send(updateUserCommand)).Item
   if (!userItem) {
     return Promise.reject(createError(400, "No user found"))
   }

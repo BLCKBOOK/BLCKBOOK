@@ -14,10 +14,10 @@ import { LambdaResponseToApiGw } from "../../../../common/lambdaResponseToApiGw"
 import AuthMiddleware from "../../../../common/AuthMiddleware"
 import RequestLogger from "../../../../common/RequestLogger";
 
-const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const DDBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 let returnObject: GetUploadedArtworksResponseBody;
 
-const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
+const baseHandler = async (event): Promise<LambdaResponseToApiGw> => {
   let lastKey
   if (event['queryStringParameters']) {
     const decodedLastKey = JSON.parse(event['queryStringParameters']['lastKey'])
@@ -46,7 +46,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     })
   }
 
-  let loadedArtworks = (await DDBclient.send(getAllUploadsScan));
+  let loadedArtworks = (await DDBClient.send(getAllUploadsScan));
   let artworks = loadedArtworks.Items?.map(item => unmarshall(item)) as UploadedArtwork[]
 
   returnObject = { artworks }

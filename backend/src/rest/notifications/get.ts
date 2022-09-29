@@ -1,13 +1,11 @@
-import { BatchGetItemCommand, DynamoDBClient, GetItemCommand, QueryCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
 import httpErrorHandler from "@middy/http-error-handler";
-import { createError, getInternal } from "@middy/util";
+import { createError } from "@middy/util";
 
-import { validate } from "jsonschema";
-
-import { getNotificationsRequestQueryParams, getNotificationsResponseBody,getNotificationsPageRequestSchema } from "./apiSchema";
+import { getNotificationsResponseBody,getNotificationsPageRequestSchema } from "./apiSchema";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { Notification } from "../../common/tableDefinitions";
 import { LambdaResponseToApiGw } from "../../common/lambdaResponseToApiGw";
@@ -16,10 +14,10 @@ import RequestLogger from "../../common/RequestLogger";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import validator from "@middy/validator";
 
-const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const DDBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 let returnObject: getNotificationsResponseBody;
 
-const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
+const baseHandler = async (event): Promise<LambdaResponseToApiGw> => {
     const userId = event.requestContext.authorizer.claims['sub']
     let lastKey = event['queryStringParameters']['lastKey'] ? JSON.parse(event['queryStringParameters']['lastKey']) : undefined
     let limit = event['queryStringParameters']['limit'] ? JSON.parse(event['queryStringParameters']['limit']) : undefined
@@ -38,7 +36,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     })
     if(lastKey)
         query.input.ExclusiveStartKey =  lastKey;
-    const queryResponse = await DDBclient.send(query)
+    const queryResponse = await DDBClient.send(query)
     const queriedNotifications = queryResponse.Items;
     lastKey = queryResponse.LastEvaluatedKey
     if (!queriedNotifications)

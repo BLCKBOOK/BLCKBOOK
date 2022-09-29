@@ -16,11 +16,11 @@ import { TezosToolkit } from "@taquito/taquito";
 import { getTezosActivatorAccount } from "../../../common/SecretsManager";
 import { setUser } from "../../../common/setUser";
 
-const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const DDBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
 let returnObject: UpdateUploadedArtworksResponseBody;
 
-const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
+const baseHandler = async (event): Promise<LambdaResponseToApiGw> => {
   
   const bankContractAddress = process.env['BANK_CONTRACT_ADDRESS']
   if(!bankContractAddress)
@@ -35,8 +35,8 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
 
   const tezos = new TezosToolkit(rpc);
   
-  const activatrAdmin = await getTezosActivatorAccount()
-  await setUser(tezos, activatrAdmin)
+  const activatorAdmin = await getTezosActivatorAccount()
+  await setUser(tezos, activatorAdmin)
 
   const bankContract = new BankContract(tezos, bankContractAddress)
   await bankContract.ready
@@ -63,7 +63,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
     ExpressionAttributeValues: marshall({ ":newWalletId": body.walletId }),
     ReturnValues: "UPDATED_NEW",
   });
-  await DDBclient.send(updateUserCommand)
+  await DDBClient.send(updateUserCommand)
 
   returnObject = "WalletId set"
   return { statusCode: 200, headers: { "content-type": "text/plain" }, body: returnObject };

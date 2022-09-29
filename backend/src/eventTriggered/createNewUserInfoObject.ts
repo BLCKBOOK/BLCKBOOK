@@ -1,5 +1,5 @@
 import { DynamoDBClient as DynamoDB, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
-import { AdminGetUserCommand, CognitoIdentityProvider } from "@aws-sdk/client-cognito-identity-provider";
+import { CognitoIdentityProvider } from "@aws-sdk/client-cognito-identity-provider";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
@@ -8,9 +8,9 @@ import RequestLogger from "../common/RequestLogger";
 import { marshall } from "@aws-sdk/util-dynamodb";
 
 const DDBClient = new DynamoDB({ region: process.env['AWS_REGION'] });
-const cognitoidentityserviceprovider = new CognitoIdentityProvider({ region: process.env['AWS_REGION'] });
+const cognitoIdentityServiceProvider = new CognitoIdentityProvider({ region: process.env['AWS_REGION'] });
 
-const baseHandler = async (event, context) => {
+const baseHandler = async (event) => {
   const userAttributes = event.request.userAttributes
   const username = event.userName as string
 
@@ -49,7 +49,7 @@ const baseHandler = async (event, context) => {
 
   console.debug("writing to pool " + process.env['USER_POOL_ID'])
 
-  await cognitoidentityserviceprovider.adminAddUserToGroup({
+  await cognitoIdentityServiceProvider.adminAddUserToGroup({
     GroupName: 'User',
     UserPoolId: process.env['USER_POOL_ID'],
     Username: username

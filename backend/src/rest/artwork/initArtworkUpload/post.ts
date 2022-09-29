@@ -1,5 +1,5 @@
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { S3Client, PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 
@@ -19,7 +19,7 @@ import { UserInfo } from "../../../common/tableDefinitions"
 import AuthMiddleware from "../../../common/AuthMiddleware"
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] });
-const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const DDBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
 const supportedMimeTypes = {
   'image/gif': true,
@@ -50,7 +50,7 @@ const baseHandler = async (event, context) => {
     Key: { userId: { S: userInfo['sub'] } },
     ConsistentRead: true
   });
-  let user = unmarshall(await (await DDBclient.send(getUserInfoCommand)).Item || {}) as UserInfo;
+  let user = unmarshall((await DDBClient.send(getUserInfoCommand)).Item || {}) as UserInfo;
 
   // check if user is eligible
   console.debug("user", user);
@@ -95,7 +95,7 @@ const baseHandler = async (event, context) => {
   console.debug("signedUrl", signedUploadUrl)
 
   // save current upload in user entity in Dynamodb
-  await DDBclient.send(new UpdateItemCommand({
+  await DDBClient.send(new UpdateItemCommand({
     TableName: process.env['USER_INFO_TABLE_NAME'],
     Key: marshall({ userId: user.userId }),
     UpdateExpression: "set currentUpload = :newCurrentUpload",
