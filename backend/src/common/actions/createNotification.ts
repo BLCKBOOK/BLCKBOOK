@@ -3,7 +3,7 @@ import { DynamoDBClient, PutItemCommand, UpdateItemCommand } from "@aws-sdk/clie
 import { marshall } from "@aws-sdk/util-dynamodb";
 
 
-export const createNotification = async (notification: Omit<Omit<Notification, "seen">, "timestamp">, DDBclient: DynamoDBClient) => {
+export const createNotification = async (notification: Omit<Omit<Notification, "seen">, "timestamp">, DBClient: DynamoDBClient) => {
     const userId = notification.userId;
 
     console.log('Create notification', JSON.stringify(notification))
@@ -15,12 +15,12 @@ export const createNotification = async (notification: Omit<Omit<Notification, "
         ExpressionAttributeValues: marshall({":one" : 1})
     })
     console.log(JSON.stringify(updateUserCommand))
-    await DDBclient.send(updateUserCommand);
+    await DBClient.send(updateUserCommand);
 
     const createNotificationCommand = new PutItemCommand({
         TableName: process.env['NOTIFICATION_TABLE_NAME'],
         Item: marshall({ ...notification, seen: false, timestamp: Number(new Date()) })
     })
     console.log(JSON.stringify(createNotificationCommand))
-    await DDBclient.send(createNotificationCommand)
+    await DBClient.send(createNotificationCommand)
 }

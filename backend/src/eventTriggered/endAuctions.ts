@@ -68,13 +68,24 @@ const baseHandler = async () => {
                 }));
                 if (uploaderRaw.Items && uploaderRaw.Items.length > 0) {
                     const uploader = unmarshall(uploaderRaw.Items[0]);
-                    await createNotification({
-                        body: `An artwork you uploaded has been auctioned for ${auction.value.bid_amount} mutez`,
-                        title: 'Auction resolved',
-                        type: 'message',
-                        userId: uploader.userId,
-                        link: `auction/${auction.key}`,
-                    }, ddbClient);
+                    if (auction.value.bid_amount === '1000000') { // nobody bid
+                        await createNotification({
+                            body: `The auction for an artwork you uploaded ended without a bid.`,
+                            title: 'Auction resolved',
+                            type: 'message',
+                            userId: uploader.userId,
+                            link: `auction/${auction.key}`,
+                        }, ddbClient);
+                    } else {
+                        await createNotification({
+                            body: `An artwork you uploaded has been auctioned for ${auction.value.bid_amount} mutez.`,
+                            title: 'Auction resolved',
+                            type: 'message',
+                            userId: uploader.userId,
+                            link: `auction/${auction.key}`,
+                        }, ddbClient);
+                    }
+
                 }
 
                 const bidderRaw = await ddbClient.send(new QueryCommand({
