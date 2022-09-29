@@ -21,5 +21,5 @@ export const auctionHouseContractAddress = process.env['AUCTION_HOUSE_CONTRACT_A
 export const theVoteContractAddress = process.env['THE_VOTE_CONTRACT_ADDRESS']
 export const bankContractAddress = process.env['BANK_CONTRACT_ADDRESS'];
 
-export const tzktAddress = 'https://api.ghostnet.tzkt.io/v1/'
+export const tzktAddress = process.env['TZKT_ADDRESS']
 export const maxConcurrency = 64;
