@@ -106,6 +106,7 @@ provider:
 
 functions:
   - ${file(./src/eventTriggered/config.yml)}
+  - ${file(./src/rest/artwork/getCurrentUpload/config.yml)}
   - ${file(./src/rest/artwork/initArtworkUpload/config.yml)}
   - ${file(./src/rest/artwork/admin/getUploadedArtworks/config.yml)}
   - ${file(./src/rest/artwork/admin/getUncheckedUploadedArtworks/config.yml)}
