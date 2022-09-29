@@ -1,21 +1,16 @@
 import { TezosToolkit } from '@taquito/taquito';
 import { getTezosAdminAccount, getPinataAccount } from '../../common/SecretsManager';
-import { importKey } from '@taquito/signer';
-import { tzip16, Tzip16Module } from '@taquito/tzip16';
 import pinataSDK from '@pinata/sdk';
 
 import middy from '@middy/core';
 import httpErrorHandler from '@middy/http-error-handler';
 import RequestLogger from "../../common/RequestLogger";
-import { GetObjectAclCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { VotableArtwork, UserInfo } from '../../common/tableDefinitions';
 import { Readable } from 'stream';
 import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { createNotification } from "../../common/actions/createNotification";
 import { TheVoteContract } from '../../common/contracts/the_vote_contract';
-import { TzktArtworkInfoBigMapKey, TzktVotesRegisterBigMapKey } from './types';
-import { SQSClient } from '@aws-sdk/client-sqs';
 
 const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
@@ -25,7 +20,7 @@ function createTokenMetadata(artwork: VotableArtwork, minterAddress: string, upl
     return {
         decimals: 0, // klar
         isBooleanAmount: true,
-        name: artwork.title ?? 'Nameless Spot',
+        name: artwork.title ?? 'Unknown',
         description: 'A Spot of a Graffiti on the BLCKBOOK',
         minter: minterAddress,
         creators: [uploaderAddress, blckbookAddress],
@@ -61,7 +56,7 @@ function createTokenMetadata(artwork: VotableArtwork, minterAddress: string, upl
     };
 }
 
-const baseHandler = async (event, context) => {
+const baseHandler = async (event) => {
     let artworkToAdmission = JSON.parse(event.Records[0].body) as VotableArtwork
 
     const rpc = process.env['TEZOS_RPC_CLIENT_INTERFACE'];
@@ -87,9 +82,6 @@ const baseHandler = async (event, context) => {
     const pinataAccount = await getPinataAccount();
     const pinata = pinataSDK(pinataAccount.key, pinataAccount.secret);
     const adminPublicKey = faucet.pkh as string;
-
-    // get artworks to admission
-    let lastKey = undefined;
 
     // pin original image to ipfs
     console.log("pin original image to ipfs")
@@ -127,9 +119,6 @@ const baseHandler = async (event, context) => {
 
     // create token metadata and pin it to ipfs
     console.log("create token metadata and pin it to ipfs")
-    const minutesUntilExpiration = Number(process.env['AUCTION_LENGTH'])
-    let now = new Date()
-    now = new Date(now.getTime() + (minutesUntilExpiration * 60 * 1000))
     const tokenMetadata = createTokenMetadata(artworkToAdmission, adminPublicKey, uploaderWalletAddress, adminPublicKey, "ipfs://" + ipfsOriginalResponse.IpfsHash, "ipfs://" + ipfsThumbnailResponse.IpfsHash);
     const pinataResponse = await pinata.pinJSONToIPFS(tokenMetadata);
 
