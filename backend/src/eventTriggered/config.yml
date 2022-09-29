@@ -245,11 +245,6 @@ IPFSUloadWorker:
           - Fn::GetAtt: [ admissionedArtworksTable, Arn ]
       - Effect: Allow
         Action:
-        - dynamodb:GetItem
-        Resource:
-        - Fn::GetAtt: [ votePagesTable, Arn ]
-      - Effect: Allow
-        Action:
         - s3:GetObject
         Resource:
         - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
@@ -303,12 +298,7 @@ Admissioner:
         - dynamodb:PutItem
         Resource:
         - Fn::GetAtt: [ mintedArtworks, Arn ]
-      
-      - Effect: Allow
-        Action:
-        - dynamodb:GetItem
-        Resource:
-        - Fn::GetAtt: [ votePagesTable, Arn ]
+
       - Effect: Allow
         Action:
         - s3:GetObject

@@ -6,8 +6,6 @@ export interface UserInfo {
   uploadsDuringThisPeriod: number,
   username: string,
   email: string,
-  hasVoted: boolean,
-  votes: string[],
   userId: string,
   banned?: boolean,
   unseenNotifications: number,
@@ -48,26 +46,6 @@ export interface VotableArtwork {
   contentType: string
   title?: string
   artist?: string
-  votes: [string]
-  voteCount: number
-}
-
-export interface MintedArtwork {
-  tokenId: number
-  currentlyAuctioned: boolean
-  artworkId: string
-  uploaderId: string,
-  imageUrls: { [Key: string]: string }
-  uploader: string
-  uploadTimestamp: number
-  geoHash: string
-  longitude: string
-  latitude: string
-  contentType: string
-  title?: string
-  votes: [string]
-  artist?: string
-  voteCount: number
 }
 
 export interface Notification {
@@ -97,7 +75,6 @@ export interface Archive {
   contentType: string
   title?: string
   artist?: string
-  votes: [string]
   periodId: string 
 }
 

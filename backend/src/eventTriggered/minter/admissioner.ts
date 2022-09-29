@@ -1,28 +1,17 @@
 import { TezosToolkit } from '@taquito/taquito';
-import { getTezosAdminAccount, getPinataAccount, getTezosActivatorAccount } from '../../common/SecretsManager';
-import { importKey } from '@taquito/signer';
-import { tzip16, Tzip16Module } from '@taquito/tzip16';
-import pinataSDK from '@pinata/sdk';
+import { getTezosAdminAccount} from '../../common/SecretsManager';
 
 import middy from '@middy/core';
 import httpErrorHandler from '@middy/http-error-handler';
 import RequestLogger from "../../common/RequestLogger";
-import { GetObjectAclCommand, GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { VotableArtwork, UserInfo } from '../../common/tableDefinitions';
-import { Readable } from 'stream';
-import { BatchWriteItemCommand, DeleteItemCommand, DynamoDBClient, GetItemCommand, PutItemCommand, ScanCommand, WriteRequest } from '@aws-sdk/client-dynamodb';
+import { BatchWriteItemCommand, DynamoDBClient, GetItemCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { createNotification } from "../../common/actions/createNotification";
 import { TheVoteContract } from '../../common/contracts/the_vote_contract';
-import { TzktArtworkInfoBigMapKey, TzktVotesRegisterBigMapKey } from './types';
-import { SQSClient } from '@aws-sdk/client-sqs';
 import { setUser } from '../../common/setUser';
 
-const s3Client = new S3Client({ region: process.env['AWS_REGION'] })
 const ddbClient = new DynamoDBClient({ region: process.env['AWS_REGION'] })
-const sqs = new SQSClient({ region: process.env['AWS_REGION'] })
 
-const baseHandler = async (event, context) => {
+const baseHandler = async () => {
     const admissionedArtworksTableName = process.env['ADMISSIONED_ARTWORKS_TABLE_NAME']
     if (!admissionedArtworksTableName) throw new Error('ADMISSIONED_ARTWORKS_TABLE_NAME not set')
   
