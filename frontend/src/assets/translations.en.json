@@ -6,7 +6,7 @@
     "admin": "ADMIN",
     "sign-in": "SIGN IN",
     "sign-up": "SIGN UP",
-    "wallet": "WALLET",
+    "user": "USER",
     "logout": "LOGOUT"
   },
   "home": {
@@ -44,5 +44,10 @@
   "terms": {
     "header": "Terms and Conditions",
     "text": "this is some text... \n with line breaks  \n multiple of them... woooow"
+  },
+  "bank": {
+    "registered": "User is registered",
+    "not-registered": "User is not registered yet. It will only take a short time for the BE to register the user automatically",
+    "no-wallet": "You are not registered because you do not have a wallet connected, yet"
   }
 }

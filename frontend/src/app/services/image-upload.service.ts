@@ -36,8 +36,16 @@ export class ImageUploadService {
       );
   }
 
-  public getUploadedArtwork(): Observable<UploadedArtwork> {
-    return this.httpClient.get<UploadedArtwork>(this.imageAPIURL + this.currentUploadURL);
+  public getUploadedArtwork(): Observable<UploadedArtwork | undefined> {
+    return this.httpClient.get<UploadedArtwork>(this.imageAPIURL + this.currentUploadURL).pipe(catchError((error) => {
+      if (error.status === 404) {
+        console.log('no image found')
+        return of(undefined);
+      } else {
+        console.error(error);
+        return of(undefined);
+      }
+    }));
   }
 
 

@@ -1,13 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {UserService} from '../services/user.service';
-import {FormControl, Validators} from '@angular/forms';
+import {UntypedFormControl, Validators} from '@angular/forms';
 import {SnackBarService} from '../services/snack-bar.service';
 import {TranslateService} from '@ngx-translate/core';
-import {BehaviorSubject} from 'rxjs';
-import {BeaconService} from '../beacon/beacon.service';
+import {BehaviorSubject, from, ReplaySubject, Subject} from 'rxjs';
 import {TaquitoService} from '../taquito/taquito.service';
 import {CurrencyService} from '../services/currency.service';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
+import {BlockchainService} from '../services/blockchain.service';
 
 @Component({
   selector: 'app-wallet',
@@ -18,29 +18,46 @@ export class WalletComponent implements OnInit {
 
   walletID: string = '';
   beaconWalletID: string = '';
+  username: Subject<string> = new ReplaySubject<string>(1);
+  hasUploaded: Subject<string> = new ReplaySubject<string>(1);
+  email: Subject<string> = new ReplaySubject<string>(1);
 
   private readonly tezRegex = '(tz1|tz2|tz3|KT1)[0-9a-zA-Z]{33}$';
   currentAmount: BehaviorSubject<string> = new BehaviorSubject<string>('');
   calculating = false;
   calculationTriggered = false;
+  isRegisteredLoading = true;
+  isRegistered$ = new ReplaySubject<boolean>();
   faRedo = findIconDefinition({prefix: 'fas', iconName: 'redo'});
 
-  walletIdForm = new FormControl('', [Validators.pattern(this.tezRegex)]);
+  walletIdForm = new UntypedFormControl('', [Validators.pattern(this.tezRegex)]);
 
-  constructor(private beaconService: BeaconService, private userService: UserService, private snackBarService: SnackBarService, private translateService: TranslateService,
-              private taquitoService: TaquitoService, private currencyService: CurrencyService) {
+  constructor(private taquitoService: TaquitoService, private userService: UserService, private snackBarService: SnackBarService, private translateService: TranslateService,
+              private currencyService: CurrencyService, private blockchainService: BlockchainService) {
   }
 
   ngOnInit() {
-    this.updateWalletIdFromServer();
-  }
+    this.userService.requestUserInfo();
 
-  private updateWalletIdFromServer() {
-    this.userService.getUserInfo().subscribe(info => {
-      if (info && info.walletId) {
-        this.walletID = info.walletId;
+    this.userService.getUserInfo().subscribe(user => {
+      this.username.next(user?.username ?? 'unknown');
+      this.email.next(user?.email ?? 'unknown');
+      this.hasUploaded.next(user?.uploadsDuringThisPeriod && user?.uploadsDuringThisPeriod > 0 ? 'yes' : 'no');
+      if (user && user.walletId) {
+        this.walletID = user.walletId;
+        this.updateIsUserRegistered(this.walletID);
       }
     });
+  }
+
+  private updateIsUserRegistered(address: string | undefined) {
+    this.isRegisteredLoading = true;
+    if (address !== undefined) {
+      this.blockchainService.userIsRegistered(address).subscribe(registered => {
+        this.isRegistered$.next(registered);
+        this.isRegisteredLoading = false;
+      });
+    }
   }
 
   calculateVoteMoneyPoolAmount() {
@@ -53,7 +70,11 @@ export class WalletComponent implements OnInit {
   }
 
   connectWallet() {
-    this.beaconService.connect();
+    from(this.taquitoService.connect()).subscribe(address => {
+      if (this.walletID !== address) {
+        this.updateIsUserRegistered(address);
+      }
+    });
   }
 
   getErrorMessage(): string {
@@ -66,8 +87,8 @@ export class WalletComponent implements OnInit {
       return;
     }
     if (id.match(this.tezRegex)) {
-      this.beaconService.setWalletID(id).subscribe(() => {
-        this.updateWalletIdFromServer();
+      this.taquitoService.setWalletID(id).subscribe(() => {
+        this.userService.requestUserInfo();
       });
     } else {
       console.error('tez id does not match regex! ' + id);
@@ -81,6 +102,6 @@ export class WalletComponent implements OnInit {
   }
 
   withdraw() {
-    this.beaconService.withdraw();
+    this.taquitoService.withdraw();
   }
 }

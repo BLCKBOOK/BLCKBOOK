@@ -4,20 +4,19 @@ import {AuctionDetailData} from '../detail-view-dialog/detail-view-auction-dialo
 import {Clipboard} from '@angular/cdk/clipboard';
 import {SnackBarService} from '../../services/snack-bar.service';
 import {ErrorStateMatcher} from '@angular/material/core';
-import {FormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
-import {isNumeric} from 'rxjs/internal-compatibility';
+import {UntypedFormControl, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {BlockchainService} from '../../services/blockchain.service';
 import {BehaviorSubject} from 'rxjs';
-import {TzktAuction, TzKtAuctionHistoricalKey} from '../../types/tzkt.auction';
+import {TzktTypes, TzKtAuctionHistoricalKey} from '../../types/tzkt.types';
 import {CurrencyService} from '../../services/currency.service';
 import Dinero from 'dinero.js';
-import {BeaconService} from '../../beacon/beacon.service';
 import {UserService} from '../../services/user.service';
 import {ArtworkData} from '../../shared/artwork-data/artwork-data.component';
+import {TaquitoService} from '../../taquito/taquito.service';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+  isErrorState(control: UntypedFormControl | null, form: FormGroupDirective | NgForm | null): boolean {
     const isSubmitted = form && form.submitted;
     return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
   }
@@ -44,13 +43,13 @@ export class AuctionDetailComponent implements OnInit {
   noBidsYet: boolean = false;
   currentOwner: string;
 
-  bidFormControl = new FormControl('', [Validators.required]);
+  bidFormControl = new UntypedFormControl('', [Validators.required]);
 
   bidErrorMatcher = new MyErrorStateMatcher();
 
   auctionStartKey: TzKtAuctionHistoricalKey | undefined;
   auctionEndKey: TzKtAuctionHistoricalKey | undefined;
-  bidHistory: BehaviorSubject<TzktAuction[]> = new BehaviorSubject<TzktAuction[]>([]);
+  bidHistory: BehaviorSubject<TzktTypes[]> = new BehaviorSubject<TzktTypes[]>([]);
   ipfsUri: string;
   metadataUri: string;
   auctionStartDate: string;
@@ -61,16 +60,16 @@ export class AuctionDetailComponent implements OnInit {
   private readonly mutezRegex = '\\d*\\.?\\d?\\d?\\d?\\d?\\d?\\d?$';
   artworkData: ArtworkData;
 
-  constructor(private clipboard: Clipboard, private snackBarService: SnackBarService, private beaconService: BeaconService,
+  constructor(private clipboard: Clipboard, private snackBarService: SnackBarService, private taquitoService: TaquitoService,
               private blockchainService: BlockchainService, private currencyService: CurrencyService, private userService: UserService) {
   }
 
   ngOnInit(): void {
     this.artworkData = {
-      titel: this.data.mintedArtwork.title,
-      uploader: this.data.mintedArtwork.uploader,
-      longitude: this.data.mintedArtwork.longitude,
-      latitude: this.data.mintedArtwork.latitude,
+      title: this.data.title,
+      uploader: this.data.uploader,
+      longitude: this.data.longitude,
+      latitude: this.data.latitude,
     };
     const end_date = new Date(this.data.auctionKey.value.end_timestamp);
     this.timeDisplay = end_date.toLocaleDateString() + ' ' + end_date.toLocaleTimeString();
@@ -97,9 +96,9 @@ export class AuctionDetailComponent implements OnInit {
       this.bidHistory.next(updates.map(historicalKey => historicalKey.value));
     });
     this.blockchainService.getArtworkMetadata(this.data.auctionKey.key).subscribe(metadata => {
-      this.metadataUri = metadata;
+      this.artworkData.metadataLink = metadata;
       this.blockchainService.getArtifactUriFromMetadataAddress(metadata).subscribe(artifact => {
-        this.ipfsUri = artifact;
+        this.artworkData.ipfsLink = artifact;
       });
     });
     if (this.data.auctionKey.value.uploader === this.data.auctionKey.value.bidder) {
@@ -112,24 +111,35 @@ export class AuctionDetailComponent implements OnInit {
     });
     if (this.auctionOver) {
       this.blockchainService.getTokenHolder(this.data.auctionKey.key).subscribe(holderList => {
-        this.currentOwner = Object.keys(holderList)[0];
+        if (holderList.length !== 1) {
+          console.error('we somehow have multiple token owners at the same time');
+        }
+        this.currentOwner = holderList[0].key.address;
       });
     }
   }
 
   bid(key: string) {
-    if (this.bidFormControl.value && isNumeric(this.bidFormControl.value)) {
+    if (this.bidFormControl.value && this.isNumeric(this.bidFormControl.value)) {
       const mutezAmount = this.bidFormControl.value as number * 1000000;
-      this.beaconService.bid(key, mutezAmount.toString()).then(successful => {
+      this.taquitoService.bid(key, mutezAmount.toString()).then(successful => {
         if (successful) {
           this.currentBidPending = true;
-        }});
+        }
+      });
     } else {
       this.snackBarService.openSnackBarWithoutAction('Some error in the bid-amount');
     }
   }
 
   reconnectWallet() {
-    this.beaconService.connect();
+    this.taquitoService.connect();
+  }
+
+  isNumeric(str: any): boolean {
+    if (typeof str === 'number') return true; // if we have a number the value is numeric
+    if (typeof str != 'string') return false; // we only process strings!
+    return !isNaN(Number(str)) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+      !isNaN(parseFloat(str)); // ...and ensure strings of whitespace fail
   }
 }

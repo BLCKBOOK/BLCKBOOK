@@ -1,7 +1,9 @@
-<app-drop-timer></app-drop-timer>
-<div class="welcome-line">
-  <h2> {{('home.welcome' | translate) + ' ' + (username | async)}}</h2>
-</div>
+<app-drop-timer xmlns="http://www.w3.org/1999/html"></app-drop-timer>
+<ng-container *ngIf="!!authenticator.user">
+  <div class="welcome-line">
+    <h2> {{('home.welcome' | translate) + ' ' + authenticator.user.username }}</h2>
+  </div>
+</ng-container>
 <mat-card class="mat-card-margin home-card upload-card">
   <mat-card-title>UPLOAD</mat-card-title>
   <mat-card-content>
@@ -30,21 +32,43 @@
   <mat-card-title>VOTING</mat-card-title>
   <mat-card-content>
     <div>
-      <div *ngIf="hasVoted | async else: notVoted">
-        <div class="action-text">
-          You already voted on the community's tags this cycle. <br>
+      <div *ngIf="registered | async else: notRegistered">
+        <div *ngIf="allVotesSpent | async else: notAllVotesSpent">
+          <div class="action-text">
+            You already voted on the community's tags this cycle. <br>
+          </div>
+          <button mat-raised-button routerLink="/voting">
+            SHOW VOTES
+          </button>
         </div>
-        <button mat-raised-button routerLink="/voting">
-          SHOW VOTES
-        </button>
+        <ng-template #notAllVotesSpent>
+          <div *ngIf="deadlinePassed | async else: deadlineNotPassed">
+            <div class="action-text">
+              The deadline already passed <br>
+              You did not spent all your votes or non <br>
+            </div>
+            <button mat-raised-button routerLink="/voting">
+              SHOW VOTES
+            </button>
+          </div>
+          <ng-template #deadlineNotPassed>
+            <div class="action-text">
+              You did not vote on the community's tags this cycle. <br>
+              Vote now to get the chance to earn some TEZ! <br>
+            </div>
+            <button mat-raised-button routerLink="/voting">
+              VOTE NOW
+            </button>
+          </ng-template>
+        </ng-template>
       </div>
-      <ng-template #notVoted>
+      <ng-template #notRegistered>
         <div class="action-text">
-          You did not vote on the community's tags this cycle. <br>
-          Vote now to get the chance to earn some TEZ! <br>
+          You are not registered to vote. <br>
+          Link a valid wallet-address to be able to vote <br>
         </div>
-        <button mat-raised-button routerLink="/voting">
-          VOTE NOW
+        <button mat-raised-button routerLink="/wallet">
+          SETTINGS
         </button>
       </ng-template>
     </div>

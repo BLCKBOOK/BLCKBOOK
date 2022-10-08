@@ -18,7 +18,7 @@ export const getNotificationsPageRequestSchema = {
     }
   },
   "required": [
-    
+
   ]
 }
 
@@ -28,7 +28,7 @@ export type getNotificationsResponseBody = {notifications: Notification[], lastK
   timestamp: {N: number},
 }}
 
-export const seeNotifivationsRequestSchema={
+export const seeNotificationsRequestSchema = {
   "type": "object",
   "properties": {
     "body": {

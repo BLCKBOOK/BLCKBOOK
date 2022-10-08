@@ -1,77 +1,113 @@
-import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, ReplaySubject, Subject} from 'rxjs';
-import {VoteMasonryItem} from './vote-scroll/voting-scroll.component';
-import {map} from 'rxjs/operators';
-import { VotableArtwork } from '../../../../backend/src/common/tableDefinitions';
-import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, combineLatest, firstValueFrom, from, Observable, ReplaySubject, Subject} from 'rxjs';
+import {VoteBlockchainItem, VoteMasonryItem} from './vote-scroll/voting-scroll.component';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {ImageSizeService} from '../services/image-size.service';
 import {SnackBarService} from '../services/snack-bar.service';
 import {UpdateService} from '../services/update.service';
+import {BlockchainService, VoteParams} from '../services/blockchain.service';
+import {UserService} from '../services/user.service';
+import {TaquitoService} from '../taquito/taquito.service';
+import {map, skip} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VotingService {
-
-  private readonly voteAPIURL = environment.urlString + '/vote';
-  private readonly getVotePageURL = '/getPage';
-  private readonly voteForArtworksURL = '/voteForArtworks';
-  private readonly getMyVotesURL = '/getMyVotes';
-  private readonly getArtworkByIdURL = '/getVotableArtwork'
-  private readonly getMyUploadURL = '/getMyProposition'
   private votedArtworks: BehaviorSubject<VoteMasonryItem[]> = new BehaviorSubject<VoteMasonryItem[]>([]);
-  private readonly maxVoteAmount: BehaviorSubject<number> = new BehaviorSubject<number>(5);
-  private readonly alreadyVoted: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  private myUpload: Subject<VotableArtwork> = new ReplaySubject<VotableArtwork>(1);
+  private readonly maxVoteAmount: BehaviorSubject<number> = new BehaviorSubject<number>(environment.maxVoteAmount);
+  private readonly allVotesSpent: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private myUpload: Subject<VoteBlockchainItem> = new ReplaySubject<VoteBlockchainItem>(1);
+  private votesSpent$: Subject<number> = new ReplaySubject<number>(1);
+  private registered$: Subject<boolean> = new ReplaySubject<boolean>(1);
+  private walletID: string;
+  private deadlineHasPassed: Subject<boolean> = new ReplaySubject<boolean>(1);
 
-  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService, private updateService: UpdateService) {
+  constructor(private httpClient: HttpClient, private imageSizeService: ImageSizeService, private snackBarService: SnackBarService,
+              private updateService: UpdateService, private blockchainService: BlockchainService, private userService: UserService,
+              private taquitoService: TaquitoService) {
     this.updateService.getUpdateEvent$().subscribe(() => {
       this.initialize();
+    });
+    this.updateService.getPeriodEnded$().pipe(skip(1)).subscribe(() => {
+      this.updateDeadlineHasPassed();
     });
   }
 
   private initialize() {
     this.updateVotingStatus();
-    this.httpClient.get<VotableArtwork>(this.voteAPIURL + this.getMyUploadURL).subscribe(upload => {
-      this.myUpload.next(upload);
+  }
+
+  private updateDeadlineHasPassed() {
+    this.blockchainService.getVotingPeriodEndMS().subscribe(deadline => {
+      if (deadline > Date.now()) {
+        this.deadlineHasPassed.next(false);
+      } else {
+        this.deadlineHasPassed.next(true);
+      }
     });
   }
 
   public updateVotingStatus() {
-    this.getMyVotes$().subscribe(votes => {
-      const items: VoteMasonryItem[] = [];
-      votes.forEach(artwork => {
-        const title = artwork.title;
-        const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
-        const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
-        const voted = true;
-        const item = {
-          title: title,
-          srcSet: srcSet,
-          img: url,
-          voted: voted,
-          artwork: artwork
-        } as VoteMasonryItem;
-        items.push(item);
-      });
-      this.votedArtworks.next(items);
-      this.alreadyVoted.next(true);
-    }, error => {
-      if (error.status === 404) {
-        this.votedArtworks.next([]);
-        this.alreadyVoted.next(false);
+    this.userService.getUserInfo().subscribe(info => {
+      this.updateDeadlineHasPassed();
+      if (info && info.walletId) {
+        this.walletID = info.walletId;
+        this.blockchainService.userIsRegistered(info.walletId).subscribe(registered => {
+          if (!registered) {
+            this.snackBarService.openSnackBarWithNavigation('You are not registered to vote yet', 'Register', '/wallet');
+          }
+          this.registered$.next(registered);
+        });
+        from(this.blockchainService.getUserUpload(this.walletID)).subscribe(upload => {
+          if (upload) {
+            this.myUpload.next(upload);
+          }
+        });
+        this.getMyVotes$().subscribe(votes => {
+          this.blockchainService.getAmountOfVotesLeft(this.walletID).subscribe(votesLeft => {
+            if (votesLeft === 0) {
+              this.allVotesSpent.next(true);
+            } else {
+              this.allVotesSpent.next(false);
+            }
+            if (this.maxVoteAmount.getValue() >= votesLeft) {
+              this.votesSpent$.next(this.maxVoteAmount.getValue() - votesLeft);
+            } else {
+              console.error('the user has somehow more $PRAY than should be here');
+              this.votesSpent$.next(votes.length);
+              this.maxVoteAmount.next(votesLeft + votes.length);
+            }
+          });
+          const items: VoteMasonryItem[] = [];
+          votes.forEach(artwork => {
+            const title = artwork.title;
+            const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
+            const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
+            const voted = true;
+            const item = {
+              title: (!title || title === '')  ? environment.unknownTagTitle : title,
+              srcSet: srcSet,
+              img: url,
+              voted: voted,
+              artwork: artwork
+            } as VoteMasonryItem;
+            items.push(item);
+          });
+          this.votedArtworks.next(items);
+        });
       }
-    })
+    });
   }
 
-  public getMasonryItemOfArtwork(artwork: VotableArtwork, voted?: boolean) {
+  public getMasonryItemOfArtwork(artwork: VoteBlockchainItem, voted?: boolean) {
     const title = artwork.title;
     const url = this.imageSizeService.get1000WImage(artwork.imageUrls);
     const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
-    const actuallyVoted = voted ?? this.getVotedArtworks().some(item => item.srcSet === srcSet);
+    const actuallyVoted = voted ?? this.getVotedArtworks().some(item => item.artwork.artworkId === artwork.artworkId);
     return {
-      title: title,
+      title: (!title || title === '') ? environment.unknownTagTitle : title,
       srcSet: srcSet,
       img: url,
       voted: actuallyVoted,
@@ -79,8 +115,22 @@ export class VotingService {
     } as VoteMasonryItem;
   }
 
-  public getHasVoted$(): Observable<boolean> {
-    return this.alreadyVoted.pipe();
+  public getCanNotVote(): Observable<boolean> {
+    return combineLatest([this.allVotesSpent.pipe(), this.registered$.pipe(), this.deadlineHasPassed]).pipe(map(([allVotesSpent, registered, deadlinePassed]) => {
+      return allVotesSpent || !registered || deadlinePassed;
+    }));
+  }
+
+  public getAllVotesSpent$(): Observable<boolean> {
+    return this.allVotesSpent.pipe();
+  }
+
+  public getIsRegistered$(): Observable<boolean> {
+    return this.registered$.pipe();
+  }
+
+  public getDeadlinePassed$(): Observable<boolean> {
+    return this.deadlineHasPassed.pipe();
   }
 
   public getMaxVoteAmount$(): Observable<number> {
@@ -91,17 +141,51 @@ export class VotingService {
     return this.maxVoteAmount.getValue();
   }
 
-  public getVotesSelected$(): Observable<number> {
-    return this.votedArtworks.pipe(map(artworks => artworks.length));
+  public getVotesSpentAmount$(): Observable<number> {
+    return this.votesSpent$.pipe();
   }
 
-  public getVotableArtworks$(pagenumber: number): Observable<VotableArtwork[]> {
-    const urlString = this.voteAPIURL + this.getVotePageURL + '/' + pagenumber.toString();
-    return this.httpClient.get<VotableArtwork[]>(urlString);
+  async voteArtwork(newItem: VoteMasonryItem): Promise<void> {
+    const params = await this.blockchainService.calculateVotingParams(parseInt(newItem.artwork.artworkId), newItem.artwork.index);
+    const success = await this.vote(params);
+    if (success) {
+      newItem.voted = success;
+    }
   }
 
-  setVoted(selection: VoteMasonryItem[]) {
-    this.votedArtworks.next(selection);
+  async vote(params: VoteParams): Promise<boolean> {
+    const voteAmount = this.getVotedArtworks().length;
+    const successful = await this.taquitoService.vote(params);
+    if (successful) {
+      this.snackBarService.openSnackBarWithoutAction('Vote was successful', 10000);
+      let newVoteAmount;
+      const walletId = (await firstValueFrom(this.userService.getUserInfo()))?.walletId;
+      let newVotes: VoteBlockchainItem[] = [];
+      if (walletId) {
+        do {
+          newVotes = await this.blockchainService.getMyVotes(this.walletID);
+          newVoteAmount = newVotes.length;
+          if (newVoteAmount < voteAmount) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        } while (newVoteAmount < voteAmount);
+        this.votedArtworks.next(newVotes.map(artwork => this.getMasonryItemOfArtwork(artwork, true)));
+        const votesLeft = await firstValueFrom(this.blockchainService.getAmountOfVotesLeft(walletId));
+        if (votesLeft === 0) {
+          this.allVotesSpent.next(true);
+        }
+        if (votesLeft > this.maxVoteAmount.getValue()) {
+          console.error('the user somehow got more $PRAY than should be allowed');
+          this.votesSpent$.next(newVotes.length);
+        } else {
+          this.votesSpent$.next(this.maxVoteAmount.getValue() - votesLeft);
+        }
+      }
+
+    } else {
+      this.snackBarService.openSnackBarWithoutAction('Vote was not cast');
+    }
+    return successful;
   }
 
   getVotedArtworks$(): Observable<VoteMasonryItem[]> {
@@ -112,30 +196,20 @@ export class VotingService {
     return this.votedArtworks.getValue();
   }
 
-  private getMyVotes$(): Observable<VotableArtwork[]> {
-    return this.httpClient.get<VotableArtwork[]>(this.voteAPIURL + this.getMyVotesURL);
+  private getMyVotes$(): Observable<VoteBlockchainItem[]> {
+    return from(this.blockchainService.getMyVotes(this.walletID));
   }
 
-  public voteForArtworks() {
-    const actualVotes = this.votedArtworks.getValue();
-    const voteAmount = actualVotes.length;
-    if (voteAmount <= this.maxVoteAmount.getValue() && voteAmount > 0) {
-      const artworkIDs = this.votedArtworks.getValue().map(artwork => artwork.artwork.artworkId);
-      this.httpClient.post(this.voteAPIURL + this.voteForArtworksURL, artworkIDs, {responseType: 'text'})
-        .subscribe(() => {
-          this.snackBarService.openSnackBarWithoutAction('The vote was successfully cast', 2000);
-          this.updateVotingStatus();
-        });
-    } else {
-      console.error('had too many votes');
-    }
-  }
-
-  public getMyUpload(): Observable<VotableArtwork> {
+  public getMyUpload(): Observable<VoteBlockchainItem> {
     return this.myUpload.pipe();
   }
 
-  public getVotableArtworkById(id: string): Observable<VotableArtwork> {
-    return this.httpClient.get<VotableArtwork>(this.voteAPIURL + this.getArtworkByIdURL + '/' + id);
+  public async getVotableArtworkByArtworkId(artwork_id: string): Promise<VoteBlockchainItem> {
+    let params = new HttpParams().set('path', 'admissions_this_period');
+    const admissions_this_period = parseInt(await firstValueFrom(this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params})));
+    params = new HttpParams().set('path', 'all_artworks');
+    const all_artworks = parseInt(await firstValueFrom(this.httpClient.get<string>(environment.tzktAddress + 'contracts/' + environment.theVoteContractAddress + '/storage', {params})));
+    const index = parseInt(artwork_id) - (all_artworks - admissions_this_period); // can be negative
+    return await this.blockchainService.getVotableArtworkById(artwork_id, index);
   }
 }

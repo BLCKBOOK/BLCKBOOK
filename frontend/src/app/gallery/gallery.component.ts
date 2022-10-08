@@ -1,6 +1,5 @@
-import {Component} from '@angular/core';
-import {Observable} from 'rxjs';
-import {AuthState} from '@aws-amplify/ui-components';
+import {Component, OnInit} from '@angular/core';
+import {AuthenticatorService} from '@aws-amplify/ui-angular';
 import {UserService} from '../services/user.service';
 
 @Component({
@@ -8,12 +7,14 @@ import {UserService} from '../services/user.service';
   templateUrl: './gallery.component.html',
   styleUrls: ['./gallery.component.scss']
 })
-export class GalleryComponent {
+export class GalleryComponent implements OnInit {
 
   scrollType: 'gallery' | 'my-gallery' = 'gallery';
-  public authState$: Observable<AuthState>;
 
-  constructor(private userService: UserService) {
-    this.authState$ = this.userService.getAuthState();
+  constructor(public authenticator: AuthenticatorService, private userService: UserService) {
+  }
+
+  ngOnInit() {
+    this.userService.requestUserInfo();
   }
 }

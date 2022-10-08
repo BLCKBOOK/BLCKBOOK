@@ -42,7 +42,47 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-
+              "libsodium-wrappers",
+              "leaflet",
+              "uuid",
+              "lodash/isEqual",
+              "@aws-crypto/sha256-js",
+              "url",
+              "urlencode",
+              "qrcode",
+              "ngx-masonry",
+              "ulid",
+              "camelcase-keys",
+              "paho-mqtt",
+              "events",
+              "lodash/cloneDeep",
+              "lodash/includes",
+              "lodash/get",
+              "lodash/isEmpty",
+              "lodash/kebabCase",
+              "xstate/lib/actions",
+              "style-dictionary/lib/utils/deepExtend",
+              "style-dictionary/lib/utils/flattenProperties",
+              "style-dictionary/lib/utils/references/usesReference",
+              "@aws-crypto/sha256-browser",
+              "fast-xml-parser",
+              "@aws-crypto/crc32",
+              "fast-json-stable-stringify",
+              "crypto-js",
+              "@stablelib/blake2b",
+              "@stablelib/ed25519",
+              "blakejs",
+              "bs58check",
+              "elliptic",
+              "typedarray-to-buffer",
+              "buffer",
+              "crypto-js/hmac-sha256",
+              "crypto-js/lib-typedarrays",
+              "isomorphic-unfetch",
+              "js-cookie",
+              "@aws-amplify/ui",
+              "ev-emitter/ev-emitter",
+              "cookie"
             ]
           },
           "configurations": {
@@ -51,7 +91,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "4mb"
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -63,46 +103,52 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.prod.ts"
-                }
-              ],
-              "outputHashing": "all"
-            },
-            "devDeployment": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "4mb"
                 },
                 {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "replace": "src/aws-exports.ts",
+                  "with": "src/aws-exports-prod.ts"
                 }
               ],
+              "outputHashing": "all",
+              "buildOptimizer": true,
+              "optimization": true,
+              "vendorChunk": true,
+              "extractLicenses": true,
+              "sourceMap": false
+            },
+            "local-development": {
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.devDeployment.ts"
+                  "with": "src/environments/environment.local.dev.ts"
+                },
+                {
+                  "replace": "src/aws-exports.ts",
+                  "with": "src/aws-exports-dev.ts"
+                }
+              ]
+            },
+            "development": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                },
+                {
+                  "replace": "src/aws-exports.ts",
+                  "with": "src/aws-exports-dev.ts"
                 }
               ],
               "outputHashing": "all"
-            },
-            "development": {
-              "buildOptimizer": false,
-              "optimization": false,
-              "vendorChunk": true,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "local-development"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "fronted:build"
+            "browserTarget": "fronted:build",
+            "proxyConfig": "src/proxy.dev.conf.js"
           },
           "configurations": {
             "production": {
@@ -110,9 +156,13 @@
             },
             "development": {
               "browserTarget": "blckbook-ui:build:development"
+            },
+            "local-development": {
+              "browserTarget": "blckbook-ui:build:local-development",
+              "proxyConfig": "src/proxy.conf.js"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "local-development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -152,8 +202,10 @@
       }
     }
   },
-  "defaultProject": "blckbook-ui",
   "cli": {
-    "defaultCollection": "@angular-eslint/schematics"
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ],
+    "analytics": false
   }
 }

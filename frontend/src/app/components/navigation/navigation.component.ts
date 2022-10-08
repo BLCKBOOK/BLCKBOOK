@@ -1,7 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {UserService} from '../../services/user.service';
 import {Observable} from 'rxjs';
-import {AuthState} from '@aws-amplify/ui-components';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {Router} from '@angular/router';
 import {NotificationService} from '../../services/notification.service';
@@ -9,6 +8,7 @@ import {Notification} from '../../../../../backend/src/common/tableDefinitions';
 import {MatDialog} from '@angular/material/dialog';
 import {NotificationsDialogComponent} from '../notifications-dialog/notifications-dialog.component';
 import {DialogService} from '../../services/dialog.service';
+import {AuthenticatorService} from '@aws-amplify/ui-angular';
 
 @Component({
   selector: 'app-navigation',
@@ -22,33 +22,23 @@ export class NavigationComponent implements OnInit {
   faUserCircle = findIconDefinition({prefix: 'fas', iconName: 'user-circle'});
   faCheck = findIconDefinition({prefix: 'fas', iconName: 'check'});
   faEllipsisH = findIconDefinition({prefix: 'fas', iconName: 'ellipsis-h'});
-  public authState$: Observable<AuthState>;
   isAdmin$: Observable<boolean>;
   unreadNotifications: Observable<number>;
   notifications: Observable<Notification[]>;
 
-  constructor(private userService: UserService, private ref: ChangeDetectorRef, private router: Router,
+  constructor(private userService: UserService, private ref: ChangeDetectorRef, private router: Router, public authenticator: AuthenticatorService,
               private notificationService: NotificationService, private dialog: MatDialog, private dialogService: DialogService) {
-    this.authState$ = this.userService.getAuthState();
+  }
+
+  ngOnInit() {
     this.isAdmin$ = this.userService.isAdmin();
     this.unreadNotifications = this.notificationService.getUnreadNotificationsNumber();
     this.notifications = this.notificationService.getAFewNotifications(5);
   }
 
-  ngOnInit() {
-    this.authState$.subscribe(state => {
-      if (state === AuthState.SignedOut) {
-        setTimeout(() => this.ref.detectChanges()); // updates in the next tick which is needed here
-      }
-    });
-  }
-
   logOut() {
-    this.userService.logOut().subscribe(() => {
-      this.router.navigate(['']);
-    }, () => {
-      this.router.navigate(['']);
-    });
+    this.userService.logOut();
+    this.router.navigate(['']);
   }
 
   openInNewTab(namedRoute: string) {
@@ -59,6 +49,9 @@ export class NavigationComponent implements OnInit {
   notificationClick(notification: Notification, $event: MouseEvent) {
     this.notificationService.setNotificationSeen(notification);
     if (notification.link) {
+      if (notification.link?.startsWith('https://')) {
+        notification.link = notification.link.substring(notification.link?.indexOf('auction/'));
+      }
       if ($event.ctrlKey) {
         this.openInNewTab(notification.link);
       } else {
@@ -82,9 +75,5 @@ export class NavigationComponent implements OnInit {
     $event.preventDefault();
     $event.stopPropagation();
     this.notificationService.setNotificationSeen(notification);
-  }
-
-  closeSidnenav() {
-
   }
 }

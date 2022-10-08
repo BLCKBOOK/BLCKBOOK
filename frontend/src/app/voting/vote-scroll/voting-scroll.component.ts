@@ -2,22 +2,42 @@ import {AfterViewInit, Component, Input, OnInit, ViewChild} from '@angular/core'
 import {NgxMasonryComponent, NgxMasonryOptions} from 'ngx-masonry';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {ImageSizeService} from '../../services/image-size.service';
-import {UploadedArtworkIndex, VotableArtwork} from '../../../../../backend/src/common/tableDefinitions';
+import {UploadedArtworkIndex} from '../../../../../backend/src/common/tableDefinitions';
 import {VotingService} from '../voting.service';
 import {MatDialog} from '@angular/material/dialog';
 import {DetailViewDialogComponent, VoteDetailData} from '../detail-view-dialog/detail-view-dialog.component';
-import {Observable, of, zip} from 'rxjs';
-import {catchError, map, takeUntil} from 'rxjs/operators';
+import {from, Observable, take} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {Location} from '@angular/common';
 import {UpdateService} from '../../services/update.service';
 import {DialogService} from '../../services/dialog.service';
+import {BlockchainService} from '../../services/blockchain.service';
+import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
+import {environment} from '../../../environments/environment';
+import {LoadingDialogComponent, LoadingDialogData} from '../../components/loading-dialog/loading-dialog.component';
 
 export interface VoteMasonryItem {
   title: string,
   img: string,
   voted: boolean,
   srcSet: string,
-  artwork: VotableArtwork
+  artwork: VoteBlockchainItem
+}
+
+export interface VoteBlockchainItem {
+  uploadTimestamp: number;
+  artworkId: string,
+  uploaderId: string,
+  imageUrls: { [Key: string]: string },
+  uploader: string,
+  longitude: string,
+  latitude: string,
+  contentType: string,
+  title: string,
+  metadataIPFSLink: string,
+  artifactIPFSLink: string,
+  index: number,
+  active: boolean,
 }
 
 export type ScrollType = 'voting' | 'voting-selected';
@@ -30,7 +50,7 @@ export type ScrollType = 'voting' | 'voting-selected';
 export class VotingScrollComponent implements OnInit, AfterViewInit {
 
   currentIndex = 0;
-  alreadyVoted$: Observable<boolean>;
+  canNotVote$: Observable<boolean>;
   @Input() scrollType: ScrollType = 'voting';
   @Input() items: VoteMasonryItem[];
 
@@ -42,17 +62,22 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
   faSprayCan = findIconDefinition({prefix: 'fas', iconName: 'spray-can'});
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
   currentlyLoading = false;
+  votedOnAnArtworkMultipleTimes = false;
 
   public readonly sizes: string = '(max-width: 599px) 100vw, (max-width:959px) calc(50vw - 5px), (max-width: 1919px) calc(33.3vw - 6.6px)';
 
   constructor(public dialog: MatDialog, private imageSizeService: ImageSizeService, private votingService: VotingService,
-              private location: Location, private updateService: UpdateService, private dialogService: DialogService) {
-    this.alreadyVoted$ = this.votingService.getHasVoted$();
+              private location: Location, private updateService: UpdateService, private dialogService: DialogService, private blockchainService: BlockchainService) {
   }
 
   ngAfterViewInit() {
     this.masonry.reloadItems();
     this.masonry.layout();
+    if (this.scrollType === 'voting-selected') {
+      this.masonry.layoutComplete.pipe(take(1)).subscribe(() => {
+        this.onResize(); // this fixes a rendering issue on firefox
+      });
+    }
   }
 
   ngOnInit() {
@@ -80,6 +105,11 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
         // after the order of items has changed
       });
     }
+    this.canNotVote$ = this.votingService.getCanNotVote();
+    this.votingService.getVotesSpentAmount$().subscribe(amount => {
+      this.votedOnAnArtworkMultipleTimes =
+        amount > this.masonryItems.length && this.masonryItems.length > 0 && this.scrollType === 'voting-selected';
+    })
   }
 
   public myOptions: NgxMasonryOptions = {
@@ -104,19 +134,17 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
     }
 
     this.currentlyLoading = true;
-    zip(this.getArtworks(this.currentIndex),
-      this.getArtworks(this.currentIndex + 1),
-      this.getArtworks(this.currentIndex + 2),
-      this.getArtworks(this.currentIndex + 3),
-      this.getArtworks(this.currentIndex + 4))
-      .subscribe(artworksArray => {
+    from(this.getArtworks(this.currentIndex))
+      .subscribe(artworks => {
         this.currentlyLoading = false;
-        const artworks = artworksArray[0].concat(artworksArray[1], artworksArray[2], artworksArray[3], artworksArray[4]);
-        this.currentIndex = this.currentIndex + 5;
+        if (artworks.length === 0) {
+          this.reachedEnd = true;
+        }
+        this.currentIndex = this.currentIndex + 1;
         const items: VoteMasonryItem[] = [];
-        artworks.forEach(artwork => {
+        for (const artwork of artworks) {
           items.push(this.votingService.getMasonryItemOfArtwork(artwork));
-        });
+        }
         this.masonryItems.push(...items);
       });
   }
@@ -140,13 +168,26 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
     }*/
 
   vote(item: VoteMasonryItem): void {
-    item.voted = true;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().concat(item));
-  }
-
-  unvote(item: VoteMasonryItem): void {
-    item.voted = false;
-    this.votingService.setVoted(this.votingService.getVotedArtworks().filter(otherItem => otherItem.artwork.artworkId !== item.artwork.artworkId));
+    const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
+      width: '90%',
+      data: {
+        text: `You can only vote ${environment.maxVoteAmount} times per voting-period and can not take back any votes.`,
+        header: 'VOTING',
+        action: 'Submit Vote'
+      } as ConfirmDialogData
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const dialogRef2 = this.dialogService.open(LoadingDialogComponent, {
+          width: '90%',
+          data: {
+            text: `Vote is being processed`,
+            header: 'VOTING',
+          } as LoadingDialogData
+        });
+        this.votingService.voteArtwork(item).then(() => dialogRef2.close());
+      }
+    });
   }
 
   imageClick(item: VoteMasonryItem) {
@@ -168,19 +209,8 @@ export class VotingScrollComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private getArtworks(index: number): Observable<VotableArtwork[]> {
-    return this.votingService.getVotableArtworks$(index).pipe(catchError(this.handleError.bind(this)), map(array => array));
-  }
-
-
-  public handleError(error: any): Observable<VotableArtwork[]> {
-    if (error?.status === 404) {
-      this.reachedEnd = true;
-      return of([]);
-    } else {
-      console.error(error);
-      throw error;
-    }
+  private getArtworks(index: number): Promise<VoteBlockchainItem[]> {
+    return this.blockchainService.getVotableArtworks(index);
   }
 
   onResize() {

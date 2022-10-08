@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { LogInRoutingModule } from './log-in-routing.module';
 import { LogInComponent } from './log-in.component';
-import {AmplifyUIAngularModule} from '@aws-amplify/ui-angular';
+import {AmplifyAuthenticatorModule} from '@aws-amplify/ui-angular';
 
 @NgModule({
   declarations: [
@@ -12,7 +12,7 @@ import {AmplifyUIAngularModule} from '@aws-amplify/ui-angular';
   imports: [
     CommonModule,
     LogInRoutingModule,
-    AmplifyUIAngularModule,
+    AmplifyAuthenticatorModule
   ]
 })
 export class LogInModule { }

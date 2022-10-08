@@ -10,4 +10,11 @@ import {TaquitoService} from './taquito.service';
   ],
   providers: [TaquitoService],
 })
-export class TaquitoModule { }
+export class TaquitoModule {
+  static forRoot() {
+    return {
+      ngModule: TaquitoModule,
+      providers: [ TaquitoService ]
+    };
+  }
+}

@@ -1,6 +1,18 @@
 <mat-card>
-  <mat-card-title>{{'wallet.header' | translate}}</mat-card-title>
+  <mat-card-title>User</mat-card-title>
   <mat-card-content>
+    <div class="container">
+      <div class="line-container">
+        <span>Username:</span><span class="user-data">{{username | async}}</span>
+      </div>
+      <div class="line-container">
+        <span>Email:</span><span class="user-data">{{email | async}}</span>
+      </div>
+      <div class="line-container">
+        <span>Has Uploaded:</span><span class="user-data">{{hasUploaded | async}}</span>
+      </div>
+    </div>
+    <h3>{{'wallet.header' | translate}}</h3>
     <p *ngIf="walletID !== ''; else: noWallet">
       {{'wallet.current' | translate}}<br>
       <span>{{walletID}}</span>
@@ -14,12 +26,16 @@
       <input matInput placeholder="tz1cXmJsvDEUGk7DPkU6rL1xYpiFBNyH7YoP" [formControl]="walletIdForm">
       <mat-error *ngIf="walletIdForm.invalid">{{getErrorMessage()}}</mat-error>
     </mat-form-field>
+
   </mat-card-content>
+
   <mat-card-actions>
     <button mat-raised-button (click)="connectWallet()" class="wallet-action">
-      <fa-icon [icon]="faRedo"></fa-icon> {{'wallet.reconnect' | translate}}
+      <fa-icon [icon]="faRedo"></fa-icon>
+      {{'wallet.reconnect' | translate}}
     </button>
-    <button mat-raised-button [disabled]="!walletIdForm.valid || !walletIdForm.value" (click)="useEnteredId()" class="wallet-action">
+    <button mat-raised-button [disabled]="!walletIdForm.valid || !walletIdForm.value" (click)="useEnteredId()"
+            class="wallet-action">
       {{'wallet.use-manually' | translate}}
     </button>
   </mat-card-actions>
@@ -39,8 +55,28 @@
     <button mat-raised-button (click)="withdraw()" [disabled]="walletID === ''" class="wallet-action">
       Withdraw
     </button>
-    <button mat-raised-button [disabled]="calculating || walletID === ''" (click)="calculateVoteMoneyPoolAmount()" class="wallet-action">
+    <button mat-raised-button [disabled]="calculating || walletID === ''" (click)="calculateVoteMoneyPoolAmount()"
+            class="wallet-action">
       Check Amount
     </button>
   </mat-card-actions>
+</mat-card>
+<mat-card>
+  <mat-card-title>$PRAY Banking</mat-card-title>
+  <mat-card-content>
+    <div *ngIf="walletID === '';else: hasSprayWallet" class="my-translated-paragraph"> {{'bank.no-wallet' | translate}}
+      >
+    </div>
+    <ng-template #hasSprayWallet>
+      <mat-spinner style="margin: 0 auto;" *ngIf="isRegisteredLoading; else: registeredLoaded"></mat-spinner>
+      <ng-template #registeredLoaded>
+        <div *ngIf="(isRegistered$ | async); else: notRegistered"
+             class="my-translated-paragraph"> {{'bank.registered' | translate}}</div>
+        <ng-template #notRegistered>
+          <div class="my-translated-paragraph"> {{'bank.not-registered' | translate}}</div>
+        </ng-template>
+      </ng-template>
+    </ng-template>
+
+  </mat-card-content>
 </mat-card>

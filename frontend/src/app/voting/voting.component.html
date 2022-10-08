@@ -1,8 +1,5 @@
-<div class="floating-submit">
-  <button *ngIf="(alreadyVoted$ | async) === false" mat-icon-button [disabled]="$submitDisabled | async" (click)="submitVote()"> SUBMIT</button>
-</div>
 <div class="floating-vote-tracker">
-  <span>{{$votesSelected | async}} / {{$totalVoteAmount | async}}</span>
+  <span>{{$votesSpent | async}} / {{$totalVoteAmount | async}}</span>
 </div>
 <mat-tab-group mat-align-tabs="center" animationDuration="0ms">
   <mat-tab label="All">
@@ -12,7 +9,7 @@
       </app-voting-scroll>
     </ng-template>
   </mat-tab>
-  <mat-tab label="{{(alreadyVoted$ | async) ? 'My Votes' : 'Selected'}}">
+  <mat-tab label="{{'My Votes'}}">
     <ng-template matTabContent>
       <app-drop-timer></app-drop-timer>
       <app-voting-scroll [scrollType]="'voting-selected'">
@@ -27,7 +24,7 @@
         </app-vote-detail>
       </div>
       <ng-template #noUpload class="">
-        <p class="no-upload-text my-upload-border">You don't have an upload in the current voting period.</p>
+        <p class="no-upload-text my-upload-border">You don't have an upload in the current voting period. Uploaded Tags can be voted for in the next Drop.</p>
       </ng-template>
     </ng-template>
   </mat-tab>

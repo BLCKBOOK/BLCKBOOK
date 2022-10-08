@@ -125,6 +125,10 @@
 
 .inner-wrapper {
   height: 70vh;
+
+  div > p {
+    max-width: 1200px;
+  }
 }
 
 .step {
@@ -200,6 +204,7 @@ app-faq {
     max-width: 1200px;
     margin: 0 auto;
     background-color: black;
+
     .faq-heading-padding {
       padding-left: 16px;
     }

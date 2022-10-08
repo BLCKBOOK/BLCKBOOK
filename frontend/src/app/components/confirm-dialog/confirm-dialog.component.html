@@ -1,8 +1,9 @@
-<button class="close" mat-button [mat-dialog-close]="true">X</button>
+<button class="close" mat-button [mat-dialog-close]="false">X</button>
 <h1 mat-dialog-title>{{data.header}}</h1>
 <div mat-dialog-content>
   <p>{{data.text}}</p>
 </div>
+<div></div>
 <div mat-dialog-actions>
   <button mat-raised-button (click)="onCancel()">{{data.cancelText ?? 'Cancel'}}</button>
   <button mat-raised-button [mat-dialog-close]="data.action2 ? 1 : true" cdkFocusInitial>{{data.action}}</button>

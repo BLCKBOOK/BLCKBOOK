@@ -10,7 +10,7 @@ export const deleteArtwork = async (index: UploadedArtworkIndex, s3Client: S3Cli
         TableName: process.env['UPLOADED_ARTWORKS_TABLE_NAME'],
         Key: marshall(index)
     })
-    const deleteItemResponse = await (await ddbClient.send(getArtworkCommand)).Item
+    const deleteItemResponse = (await ddbClient.send(getArtworkCommand)).Item
     if (!deleteItemResponse)
         return Promise.reject(createError(404, "The item to be deleted could not be found"))
     const itemToDelete = unmarshall(deleteItemResponse) as UploadedArtwork;
@@ -24,6 +24,7 @@ export const deleteArtwork = async (index: UploadedArtworkIndex, s3Client: S3Cli
     })
     deletePromises.push(ddbClient.send(deleteArtworkCommand).catch(err => {
         console.error("could not delete artwork item", JSON.stringify(deleteArtworkCommand));
+        console.error(err);
         return Promise.reject(createError(500, `Error during deletion`,{expose:true}))
     }))
 
@@ -36,6 +37,7 @@ export const deleteArtwork = async (index: UploadedArtworkIndex, s3Client: S3Cli
         })
         deletePromises.push(s3Client.send(deleteImageCommand).catch(err => {
             console.error("could not delete artwork image", JSON.stringify(deleteImageCommand));
+            console.error(err);
             return Promise.reject(createError(500, `Error during deletion`))
         }))
     })

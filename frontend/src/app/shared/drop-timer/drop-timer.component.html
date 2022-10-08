@@ -1,21 +1,29 @@
 <div class="countdown-wrapper">
-  <div>NEXT DROP</div>
-  <div class="units-countdown-container">
-    <div class="individual-unit-container">
-      <countdown *ngIf="daysConfig" [config]="daysConfig"></countdown>
-      <div class="unit-label">DAYS</div>
-    </div>
-    <div class="individual-unit-container">
-      <countdown *ngIf="hoursConfig" [config]="hoursConfig"></countdown>
-      <div class="unit-label">HRS</div>
-    </div>
-    <div class="individual-unit-container">
-      <countdown *ngIf="minutesConfig" [config]="minutesConfig"></countdown>
-      <div class="unit-label">MIN</div>
-    </div>
-    <div class="individual-unit-container">
-      <countdown *ngIf="secondsConfig" [config]="secondsConfig"></countdown>
-      <div class="unit-label">SEC</div>
+  <div *ngIf="!deadlineHasPassed; else deadlinePassed">
+    <div>NEXT DROP</div>
+    <div class="units-countdown-container">
+      <div class="individual-unit-container">
+        <countdown *ngIf="daysConfig" [config]="daysConfig"></countdown>
+        <div class="unit-label">DAYS</div>
+      </div>
+      <div class="individual-unit-container">
+        <countdown *ngIf="hoursConfig" [config]="hoursConfig"></countdown>
+        <div class="unit-label">HRS</div>
+      </div>
+      <div class="individual-unit-container">
+        <countdown *ngIf="minutesConfig" [config]="minutesConfig"></countdown>
+        <div class="unit-label">MIN</div>
+      </div>
+      <div class="individual-unit-container">
+        <countdown *ngIf="secondsConfig" [config]="secondsConfig"></countdown>
+        <div class="unit-label">SEC</div>
+      </div>
     </div>
   </div>
+  <ng-template #deadlinePassed>
+    <div class="passed">
+      <div>Voting-Deadline has passed</div>
+      <div>New Auctions and new Artworks to vote for are inbound</div>
+    </div>
+  </ng-template>
 </div>

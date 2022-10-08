@@ -1,4 +1,4 @@
-<h2>{{data.titel ?? 'Unknown'}}</h2>
+<h2>{{data.title}}</h2>
 <div>Uploaded by {{data.uploader}}</div>
 <br>
 <div class="line-container">
@@ -17,4 +17,22 @@
     </fa-icon>
     {{'Share'}}
   </button>
+</div>
+<div class="button-container">
+  <button mat-raised-button class="small-link" *ngIf="data.ipfsLink; else: ipfsLoading" (click)="openLink(data.ipfsLink)">
+    <a target="_blank" href="{{data.ipfsLink}}">IPFS</a>
+  </button>
+  <ng-template #ipfsLoading>
+    <button mat-raised-button class="small-link">
+      <a>IPFS loading</a>
+    </button>
+  </ng-template>
+  <button mat-raised-button class="small-link small-link-bottom" *ngIf="data.metadataLink; else: metaDataLoading" (click)="openLink(data.metadataLink)">
+    <a target="_blank" href="{{data.metadataLink}}">metadata</a>
+  </button>
+  <ng-template #metaDataLoading>
+    <div class="small-link small-link-bottom">
+      <a>metadata loading</a>
+    </div>
+  </ng-template>
 </div>

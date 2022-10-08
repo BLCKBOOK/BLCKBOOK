@@ -1,10 +1,10 @@
-<button class="close" mat-button [mat-dialog-close]="true">X</button>
+<button class="close" mat-button [mat-dialog-close]="">X</button>
 <h1 mat-dialog-title *ngIf="data else: noData">LOCATION</h1>
 <ng-template #noData>
   <h1 mat-dialog-title>ADD LOCATION DATA TO YOUR TAG</h1>
 </ng-template>
 <mat-dialog-content>
-  <div style="height: 70vh;" class="leaflet-container"
+  <div style="height: 80vh;" class="leaflet-container"
        leaflet
        [leafletLayers]="markers"
        [leafletOptions]="options" (leafletClick)="mapClick($event)" (leafletMapReady)="onMapReady($event)">

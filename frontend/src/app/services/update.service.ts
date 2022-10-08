@@ -14,25 +14,23 @@ export class UpdateService {
   constructor(private periodService: PeriodService, private snackBarService: SnackBarService) {
     // ToDo: find out how I want to do this. Can I update the frontend when the period changes?
     this.updateEvent.next(false);
-    this.periodService.getPeriod().pipe(skip(1)).subscribe(period => {
-      console.log(period);
-      console.error('Period changed. Did it really?');
-      this.snackBarService.openSnackBarWithoutAction('The current voting and uploading cycle passed', 10000);
+    this.periodService.getDeadline().pipe(skip(1)).subscribe(() => {
+      this.snackBarService.openSnackBarWithoutAction('The current voting cycle passed', 10000);
       this.updateEvent.next(true);
       this.changedPeriod.next();
       // we update on period - changes. But not anywhere else.
     });
+    this.periodService.getPeriodEnded$().pipe(skip(1)).subscribe(() => {
+      this.snackBarService.openSnackBarWithoutAction('The current voting cycle has ended', 100000);
+    });
+  }
+
+  public getPeriodEnded$(): Observable<void> {
+    return this.periodService.getPeriodEnded$();
   }
 
   public getUpdateEvent$(): Subject<boolean> {
     return this.updateEvent;
-  }
-
-  public triggerUpdateEvent(nextPeriod = false): void {
-    this.updateEvent.next(nextPeriod);
-    if (nextPeriod) {
-      this.changedPeriod.next();
-    }
   }
 
   public periodChanges(): Observable<void> {

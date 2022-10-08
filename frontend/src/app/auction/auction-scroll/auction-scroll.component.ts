@@ -2,7 +2,7 @@ import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {NgxMasonryComponent, NgxMasonryOptions} from 'ngx-masonry';
 import {findIconDefinition} from '@fortawesome/fontawesome-svg-core';
 import {ImageSizeService} from '../../services/image-size.service';
-import {MintedArtwork, UserInfo} from '../../../../../backend/src/common/tableDefinitions';
+import {UserInfo} from '../../../../../backend/src/common/tableDefinitions';
 import {MatDialog} from '@angular/material/dialog';
 import {
   AuctionDetailData,
@@ -11,7 +11,7 @@ import {
 import {from, Observable, of} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {Location} from '@angular/common';
-import {TzktAuctionKey} from '../../types/tzkt.auction';
+import {TzktAuctionKey} from '../../types/tzkt.types';
 import {BlockchainService} from '../../services/blockchain.service';
 import {UserService} from '../../services/user.service';
 import {DialogService} from '../../services/dialog.service';
@@ -21,8 +21,11 @@ export interface AuctionMasonryItem {
   img: string,
   srcSet: string,
   auctionKey: TzktAuctionKey,
-  mintedArtwork: MintedArtwork,
   tezBidAmount: string,
+  longitude: string,
+  latitude: string,
+  uploader: string,
+  metaDataIpfsLink: string,
 }
 
 @Component({
@@ -34,14 +37,14 @@ export class AuctionScrollComponent implements OnInit {
 
   currentIndex = 0;
   @Input() items: AuctionMasonryItem[];
-  @Input() scrollType: 'auction' | 'gallery' | 'my-gallery'
+  @Input() scrollType: 'auction' | 'gallery' | 'my-gallery';
 
   @ViewChild('masonry') masonry: NgxMasonryComponent;
   masonryItems: AuctionMasonryItem[] = [];
   reachedEnd = false;
   lastIndex: number | undefined = undefined;
   currentlyLoading = false;
-  userInfo: Observable<UserInfo | undefined>
+  userInfo: Observable<UserInfo | undefined>;
   walletId: string | undefined;
 
   faSlash = findIconDefinition({prefix: 'fas', iconName: 'slash'});
@@ -55,10 +58,21 @@ export class AuctionScrollComponent implements OnInit {
 
   ngOnInit() {
     this.userInfo = this.userService.getUserInfo();
-    this.userInfo.subscribe(userInfo => {
-      this.walletId = userInfo?.walletId;
-    });
-    this.initialize();
+    if (this.scrollType === 'auction' || this.scrollType === 'gallery') {
+      this.userInfo.subscribe(userInfo => {
+        this.walletId = userInfo?.walletId;
+      });
+      this.initialize(); // only initialize after we have the walletId!
+    } else if (this.scrollType === 'my-gallery') {
+      this.currentIndex = 0;
+      this.reachedEnd = false;
+      this.lastIndex = undefined;
+      this.masonryItems = [];
+      this.userInfo.subscribe(userInfo => {
+        this.walletId = userInfo?.walletId;
+        this.addMoreItems();
+      });
+    }
   }
 
   private initialize() {
@@ -111,7 +125,10 @@ export class AuctionScrollComponent implements OnInit {
         src: item.img,
         auctionKey: item.auctionKey,
         srcSet: item.srcSet,
-        mintedArtwork: item.mintedArtwork,
+        title: item.title,
+        uploader: item.uploader,
+        longitude: item.longitude,
+        latitude: item.latitude,
       } as AuctionDetailData
     });
     dialogRef.afterClosed().subscribe(() => {
@@ -144,7 +161,7 @@ export class AuctionScrollComponent implements OnInit {
       return of([]);
     } else {
       console.error(error);
-      throw error;
+      return of([]);
     }
   }
 

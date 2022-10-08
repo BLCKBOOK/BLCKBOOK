@@ -12,7 +12,6 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
 import {HomeComponent} from './components/home/home.component';
-import Auth from '@aws-amplify/auth';
 import awsconfig from '../aws-exports';
 import {MatDialogModule} from '@angular/material/dialog';
 import {AuthInterceptor} from './services/AuthInterceptor';
@@ -24,19 +23,19 @@ import {FlexLayoutModule} from '@angular/flex-layout';
 import {FormsModule} from '@angular/forms';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatBadgeModule} from '@angular/material/badge';
-import {faUpload} from '@fortawesome/free-solid-svg-icons/faUpload';
-import {faCamera} from '@fortawesome/free-solid-svg-icons/faCamera';
-import {faImage} from '@fortawesome/free-solid-svg-icons/faImage';
-import {faBell} from '@fortawesome/free-solid-svg-icons/faBell';
-import {faBars} from '@fortawesome/free-solid-svg-icons/faBars';
-import {faUserCircle} from '@fortawesome/free-solid-svg-icons/faUserCircle';
+import {faUpload} from '@fortawesome/free-solid-svg-icons';
+import {faCamera} from '@fortawesome/free-solid-svg-icons';
+import {faImage} from '@fortawesome/free-solid-svg-icons';
+import {faBell} from '@fortawesome/free-solid-svg-icons';
+import {faBars} from '@fortawesome/free-solid-svg-icons';
+import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
 import {MatMenuModule} from '@angular/material/menu';
 import {ScrollingModule} from '@angular/cdk/scrolling';
-import {faSprayCan} from '@fortawesome/free-solid-svg-icons/faSprayCan';
-import {faSlash} from '@fortawesome/free-solid-svg-icons/faSlash';
+import {faSprayCan} from '@fortawesome/free-solid-svg-icons';
+import {faSlash} from '@fortawesome/free-solid-svg-icons';
 import {MatTabsModule} from '@angular/material/tabs';
-import {faTrash} from '@fortawesome/free-solid-svg-icons/faTrash';
-import {faSkull} from '@fortawesome/free-solid-svg-icons/faSkull';
+import {faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faSkull} from '@fortawesome/free-solid-svg-icons';
 import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -44,37 +43,40 @@ import {MatCardModule} from '@angular/material/card';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {TermsDialogComponent} from './components/terms-dialog/terms-dialog.component';
 import {ErrorDialogComponent} from './components/error-dialog/error-dialog.component';
-import {faExpandArrowsAlt} from '@fortawesome/free-solid-svg-icons/faExpandArrowsAlt';
-import {faEdit} from '@fortawesome/free-solid-svg-icons/faEdit';
+import {faExpandArrowsAlt} from '@fortawesome/free-solid-svg-icons';
+import {faEdit} from '@fortawesome/free-solid-svg-icons';
 import {ImageDialogComponent} from './components/image-dialog/image-dialog.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatListModule} from '@angular/material/list';
-import {faCheck} from '@fortawesome/free-solid-svg-icons/faCheck';
-import {faEllipsisH} from '@fortawesome/free-solid-svg-icons/faEllipsisH';
+import {faCheck} from '@fortawesome/free-solid-svg-icons';
+import {faEllipsisH} from '@fortawesome/free-solid-svg-icons';
 import {MapDialogComponent} from './components/map-dialog/map-dialog.component';
 import {LeafletModule} from '@asymmetrik/ngx-leaflet';
 import {NotificationsDialogComponent} from './components/notifications-dialog/notifications-dialog.component';
-import {faMapMarkerAlt} from '@fortawesome/free-solid-svg-icons/faMapMarkerAlt';
-import {faTelegram} from '@fortawesome/free-brands-svg-icons/faTelegram';
-import {faTwitter} from '@fortawesome/free-brands-svg-icons/faTwitter';
+import {faMapMarkerAlt} from '@fortawesome/free-solid-svg-icons';
+import {faTelegram} from '@fortawesome/free-brands-svg-icons';
+import {faTwitter} from '@fortawesome/free-brands-svg-icons';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {faShareSquare} from '@fortawesome/free-solid-svg-icons/faShareSquare';
-import {faMapPin} from '@fortawesome/free-solid-svg-icons/faMapPin';
-import {faRedo} from '@fortawesome/free-solid-svg-icons/faRedo';
-import {BeaconModule} from './beacon/beacon.module';
+import {faShareSquare} from '@fortawesome/free-solid-svg-icons';
+import {faMapPin} from '@fortawesome/free-solid-svg-icons';
+import {faRedo} from '@fortawesome/free-solid-svg-icons';
 import { SocialButtonsComponent } from './components/social-buttons/social-buttons.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { TermsComponent } from './components/terms/terms.component';
-import {faGithub} from '@fortawesome/free-brands-svg-icons/faGithub';
+import {faGithub} from '@fortawesome/free-brands-svg-icons';
 import {SharedModule} from './shared/shared.module';
 import { FAQComponent } from './components/faq/faq.component';
+import {AmplifyAuthenticatorModule, AuthenticatorService} from '@aws-amplify/ui-angular';
+import {Amplify} from 'aws-amplify';
+import {TaquitoModule} from './taquito/taquito.module';
+import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   return new TranslateHttpLoader(http, 'assets/translations.', '.json');
 }
 
-Auth.configure(awsconfig);
+Amplify.configure(awsconfig);
 
 @NgModule({
   declarations: [
@@ -93,6 +95,7 @@ Auth.configure(awsconfig);
     FooterComponent,
     TermsComponent,
     FAQComponent,
+    LoadingDialogComponent,
   ],
   imports: [
     LeafletModule,
@@ -126,12 +129,13 @@ Auth.configure(awsconfig);
     MatProgressSpinnerModule,
     MatListModule,
     MatExpansionModule,
-    BeaconModule.forRoot(),
     SharedModule,
+    TaquitoModule.forRoot(),
+    AmplifyAuthenticatorModule,
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
-    [AuthGuardService, AdminAuthGuardService, MatSnackBar, HomeNavigationService]
+    [AuthGuardService, AdminAuthGuardService, MatSnackBar, HomeNavigationService, AuthenticatorService]
   ],
   bootstrap: [AppComponent],
 })

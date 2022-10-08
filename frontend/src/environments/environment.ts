@@ -2,20 +2,24 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-import awsmobile from "../aws-exports";
+import awsmobile from '../aws-exports';
 
 export const environment = {
   production: false,
-  urlString: awsmobile.aws_cloud_logic_custom ?  awsmobile.aws_cloud_logic_custom[0].endpoint : "",
-  auctionHouseContractAddress: 'KT1EP3cZPv8tCqCRtuVGwkGHL7JagUigHktw',
-  tokenContractAddress: 'KT18tsEcP2KoD3U4EdMUderfmxyWBzgo2QF2',
-  voterMoneyPoolContractAddress: 'KT1VxugM5e8sbYza6zL1V6c8cJthyrVKRrEj',
-  tzktAddress: 'https://api.hangzhou2net.tzkt.io/v1/',
-  betterCallDevAddress: 'https://api.better-call.dev/v1/',
-  betterCallDevNetwork: 'hangzhou2net',
-  cryptoNet: 'hangzhounet',
-  pinataGateway: 'https://gateway.pinata.cloud/ipfs/',
-  taquitoRPC: 'https://hangzhounet.api.tez.ie',
+  urlString: awsmobile.aws_cloud_logic_custom ? awsmobile.aws_cloud_logic_custom[0].endpoint : '',
+  tokenContractAddress: "KT1KykSaEqmCvXcitjcB2X5RdFVkb573i2eD",
+  voterMoneyPoolContractAddress: "KT1WZzWgCYqf5mzxNEbrJt5vnu1mwZbRik8A",
+  auctionHouseContractAddress: "KT1M64RNqyFQXqC88VrgVwhLNh9zV5LGxAEP",
+  theVoteContractAddress: "KT1FNMheKDiHghHpCbr44BQVYdt8fzsUrJ3i",
+  sprayContractAddress: "KT19FhN97AK6NerSR6LTQswGo3jyTEMwgjbn",
+  bankContractAddress: "KT1HzbYjjgCS7tF4BzhsHBioYKZwWmdFG9eo",
+  tzktAddress: 'https://api.ghostnet.tzkt.io/v1/',
+  cryptoNet: 'ghostnet',
+  pinataGateway: 'https://blckbook.mypinata.cloud/ipfs/',
+  taquitoRPC: 'https://rpc.ghostnet.teztnets.xyz',
+  maxVoteAmount: 5,
+  maxConcurrency: 10,
+  unknownTagTitle: 'Unknown',
 };
 
 /*

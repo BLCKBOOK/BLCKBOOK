@@ -12,7 +12,7 @@ import AuthMiddleware from "../../../common/AuthMiddleware";
 
 let responseBody: getCurrentImageResponse;
 
-const DDBclient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
+const DDBClient = new DynamoDBClient({ region: process.env['AWS_REGION'] });
 
 const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   console.log("event");
@@ -37,7 +37,7 @@ const baseHandler = async (event, context): Promise<LambdaResponseToApiGw> => {
   });
   console.log(JSON.stringify(getLatestUploadCommand))
 
-  const item = ((await (await DDBclient.send(getLatestUploadCommand))))
+  const item = ((await (await DDBClient.send(getLatestUploadCommand))))
   console.log(item)
 
   if (!item.Items || !item.Items[0])

@@ -4,24 +4,24 @@
     <img [src]="data.src" [srcset]="data.srcSet" class="big-image"
          [sizes]="'(min-width: 960px) calc(50vw - 88px), calc(100vw-44px)'" alt="'Image'">
   </div>
-  <div class="meta-data-display" fxFlex="1 1" fxLayout="column">
+  <div class="meta-data-display" fxFlex="1 1" fxLayout.gt-md="column" fxLayout="column">
     <app-artwork-data [data]="artworkData"></app-artwork-data>
+    <div class="vote-button-container">
+      <button class="reconnect-button" mat-raised-button (click)="reconnectWallet()">
+        <fa-icon [icon]="faRedo"></fa-icon>
+        Wallet
+      </button>
+    </div>
     <div class="vote-button-container" *ngIf="!withinDialog">
-      <button mat-raised-button *ngIf="!data.voted" (click)="vote()"
-              [disabled]="alreadyVoted$ | async">
-        Select for Vote
+      <button mat-raised-button (click)="vote()" [disabled]="(canNotVote$ | async) || !data.artwork.active">
+        Vote
         <fa-stack>
           <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
         </fa-stack>
       </button>
-      <button mat-raised-button *ngIf="data.voted" (click)="unvote()"
-              [disabled]="alreadyVoted$ | async">
-        Deselect
-        <fa-stack>
-          <fa-icon [icon]="faSprayCan" stackItemSize="1x"></fa-icon>
-          <fa-icon [icon]="faSlash" stackItemSize="2x"></fa-icon>
-        </fa-stack>
-      </button>
+    </div>
+    <div class="meta-data-display past-voting-cycle" *ngIf="!data.artwork.active">
+      This is an item of a past voting-cycle
     </div>
   </div>
 </div>

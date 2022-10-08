@@ -1,4 +1,4 @@
-import { DeleteItemCommand, DynamoDB, GetItemCommand, PutItemCommand, PutItemCommandOutput, ServiceOutputTypes, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
+import { DynamoDB, GetItemCommand, PutItemCommand, ServiceOutputTypes, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 import { S3Client, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { marshall } from "@aws-sdk/util-dynamodb";
@@ -6,7 +6,6 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
-import { createError } from "@middy/util";
 import { extension } from "mime-types";
 import sharp from "sharp";
 import { Readable } from "stream";
@@ -41,7 +40,7 @@ const baseHandler = async (event, context) => {
 
     const getUserInfo = new GetItemCommand({ TableName: process.env['USER_INFO_TABLE_NAME'], Key: { userId: { S: userId } }, ConsistentRead: true });
     console.debug(getUserInfo.input)
-    const oldUploadCount = Number((await DDBClient.send(getUserInfo)).Item.uploadsDuringThisPeriod.N);
+    const oldUploadCount = Number((await DDBClient.send(getUserInfo)).Item?.uploadsDuringThisPeriod.N);
 
     if (oldUploadCount >= Number(process.env['MAX_UPLOADS_PER_PERIOD']))
       return Promise.reject(new Error("Duplicate upload, user update aborted."))
@@ -73,7 +72,7 @@ const baseHandler = async (event, context) => {
       Bucket: record.s3.bucket.name,
       Key: newImage.key,
     })
-    let metadata: { [key: string]: number | string | { [key: string]: string } } = await (await s3Client.send(getImageMetadata)).Metadata || {}
+    let metadata: { [key: string]: number | string | { [key: string]: string } } = (await s3Client.send(getImageMetadata)).Metadata || {}
     metadata.uploadTimestamp = new Date().getTime();
     console.debug("metadata", metadata)
 

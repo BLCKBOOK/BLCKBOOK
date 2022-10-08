@@ -6,8 +6,6 @@ export interface UserInfo {
   uploadsDuringThisPeriod: number,
   username: string,
   email: string,
-  hasVoted: boolean,
-  votes: string[],
   userId: string,
   banned?: boolean,
   unseenNotifications: number,
@@ -35,20 +33,6 @@ export interface UploadedArtwork {
   artist?: string
 }
 
-// Global index of uploadedartwork
-interface UploadedArtworkAdminView {
-  artworkId: string
-  imageUrl: string
-  uploader: string
-  uploadTimestamp: Date // SK
-  geohash: string
-  longitude: string
-  latitude: string
-  approvedForVoting: true // TODO: https://trello.com/c/x6E66C1h/15-should-the-approved-state-of-artworks-default-to-truegit 
-  title?: string
-  artist?: string
-}
-
 export interface VotableArtwork {
   pageNumber: string // PK
   artworkId: string
@@ -62,26 +46,6 @@ export interface VotableArtwork {
   contentType: string
   title?: string
   artist?: string
-  votes: [string]
-  voteCount: number
-}
-
-export interface MintedArtwork {
-  tokenId: number
-  currentlyAuctioned: boolean
-  artworkId: string
-  uploaderId: string,
-  imageUrls: { [Key: string]: string }
-  uploader: string
-  uploadTimestamp: number
-  geoHash: string
-  longitude: string
-  latitude: string
-  contentType: string
-  title?: string
-  votes: [string]
-  artist?: string
-  voteCount: number
 }
 
 export interface Notification {
@@ -99,17 +63,6 @@ export interface NotificationIndex {
   timestamp: number,
 }
 
-export interface Period {
-  periodId: string,
-  startingDate: number,
-  endingDate: number,
-  votePageCount: number  
-}
-
-export interface PeriodIndex {
-  periodId: string,
-}
-
 export interface Archive {
   artworkId: string // PK
   uploaderId: string,
@@ -122,7 +75,6 @@ export interface Archive {
   contentType: string
   title?: string
   artist?: string
-  votes: [string]
   periodId: string 
 }
 

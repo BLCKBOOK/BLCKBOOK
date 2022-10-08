@@ -24,7 +24,6 @@ const httpJsonBodyParserMiddleware = (allowedGropus: string[] = ['User', 'Admin'
       authorized = true
     }
     
-
     if (!authorized)
       throw error
   };

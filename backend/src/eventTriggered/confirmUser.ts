@@ -1,14 +1,14 @@
-import { CognitoIdentityProviderClient, AdminGetUserCommand, ListUsersCommand, AdminDeleteUserCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { CognitoIdentityProviderClient, ListUsersCommand, AdminDeleteUserCommand } from "@aws-sdk/client-cognito-identity-provider";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
 import { createError } from "@middy/util";
 import RequestLogger from "../common/RequestLogger";
 
-const cognitoidentityserviceprovider = new CognitoIdentityProviderClient({ region: process.env['AWS_REGION'] });
+const cognitoIdentityServiceProvider = new CognitoIdentityProviderClient({ region: process.env['AWS_REGION'] });
 
 
-const baseHandler = async (event, context) => {
+const baseHandler = async (event) => {
     if (event.request.userAttributes.email) {
         const { email } = event.request.userAttributes
         const getUserCommand = new ListUsersCommand({
@@ -18,7 +18,7 @@ const baseHandler = async (event, context) => {
             Limit: 1,
         })
         try {
-            const { Users } = await cognitoidentityserviceprovider.send(getUserCommand);
+            const { Users } = await cognitoIdentityServiceProvider.send(getUserCommand);
             console.log({ Users })
             if (Users && Users.length > 0) {
                 if (Users[0].UserStatus == 'UNCONFIRMED') {
@@ -26,7 +26,7 @@ const baseHandler = async (event, context) => {
                         Username: Users[0].Username,
                         UserPoolId: process.env['USER_POOL_ID']
                     })
-                    await cognitoidentityserviceprovider.send(deleteUserCommand);
+                    await cognitoIdentityServiceProvider.send(deleteUserCommand);
                     return event
                 }
                 return Promise.reject(createError(400, 'Email already exists'));

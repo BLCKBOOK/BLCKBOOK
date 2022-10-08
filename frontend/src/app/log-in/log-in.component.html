@@ -1,6 +1,8 @@
-<amplify-auth-container>
-  <amplify-authenticator [initialAuthState]="'signin'">
-    <amplify-sign-up slot="sign-up" [formFields]="formFields">
-    </amplify-sign-up>
+<amplify-authenticator [initialState]="'signIn'">
+  <amplify-authenticator [signUpAttributes]="['email']">
   </amplify-authenticator>
-</amplify-auth-container>
+  <ng-template amplifySlot="authenticated">
+    <div [attr.init]="event()">
+    </div>
+  </ng-template>
+</amplify-authenticator>

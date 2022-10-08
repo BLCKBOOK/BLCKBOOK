@@ -5,6 +5,8 @@ import {SnackBarService} from '../../services/snack-bar.service';
 import {Observable} from 'rxjs';
 import {first, map} from 'rxjs/operators';
 import { UserInfo } from '../../../../../backend/src/common/tableDefinitions';
+import {AuthenticatorService} from '@aws-amplify/ui-angular';
+import {VotingService} from '../../voting/voting.service';
 
 @Component({
   selector: 'app-home',
@@ -16,32 +18,29 @@ export class HomeComponent implements OnInit {
   faImage = findIconDefinition({prefix: 'fas', iconName: 'image'});
   faUpload = findIconDefinition({prefix: 'fas', iconName: 'upload'});
   userInfo: Observable<UserInfo | undefined>;
-  hasVoted: Observable<boolean>;
+  deadlinePassed: Observable<boolean>;
+  allVotesSpent: Observable<boolean>;
+  registered: Observable<boolean>;
+
   hasUploaded: Observable<boolean>;
 
-  constructor(private userService: UserService, private snackBarService: SnackBarService) {
-    this.userInfo = this.userService.getUserInfo();
-    this.username = this.userInfo.pipe(map(user => user?.username ?? 'unknown'));
-    this.hasVoted = this.userInfo.pipe(map(userInfo =>
-      !!(userInfo?.hasVoted)));
-    this.hasUploaded = this.userInfo.pipe(map(userInfo =>
-      !!(userInfo?.uploadsDuringThisPeriod)));
+  constructor(private userService: UserService, private snackBarService: SnackBarService, public authenticator: AuthenticatorService,
+              private votingService: VotingService) {
   }
 
   ngOnInit(): void {
-    this.userService.getUserInfo().pipe(first()).subscribe(userInfo => {
+    this.userInfo = this.userService.getUserInfo();
+    this.username = this.userInfo.pipe(map(user => user?.username ?? 'unknown'));
+    this.allVotesSpent = this.votingService.getAllVotesSpent$();
+    this.registered = this.votingService.getIsRegistered$();
+    this.deadlinePassed = this.votingService.getDeadlinePassed$();
+    this.hasUploaded = this.userInfo.pipe(map(userInfo =>
+      !!(userInfo?.uploadsDuringThisPeriod)));
+    this.userInfo.pipe(first()).subscribe(userInfo => {
       if ((userInfo && !userInfo.walletId)) {
         this.snackBarService.openSnackBarWithNavigation('You don\'t have a wallet connected', 'Connect wallet', '/wallet');
       }
     });
-
-    /*    if (navigator && navigator.geolocation) {
-          this.logger.log('location');
-          navigator.geolocation.getCurrentPosition(this.successCallback, this.errorCallback);
-        } else {
-          window.alert('no location');
-          this.logger.log('no location');
-        }*/
   }
 
 }

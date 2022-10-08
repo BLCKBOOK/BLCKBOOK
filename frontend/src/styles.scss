@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
-@use '~@angular/material' as mat;
+@use '@angular/material' as mat;
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
@@ -213,25 +213,36 @@ body {
   --light-disabled-text: #{$light-disabled-text};
 }
 
-:root {
-  --amplify-primary-color: #{$dark-text};
-  --amplify-primary-tint: #{$dark-text};
-  --amplify-primary-shade: #{$dark-text};
-  --amplify-primary-contrast: #{$light-primary-text};
-  --amplify-secondary-color: #{$primary-color};
-  --amplify-secondary-contrast: #{$dark-bg-lighter-20};
-  --amplify-secondary-tint: #{$primary-color};
-  --amplify-secondary-shade: #{$primary-color};
-  --amplify-tertiary-color: #{$dark-bg-lighter-20};
-  --amplify-tertiary-contrast: #{$light-primary-text};
-  --amplify-tertiary-tint: #{$dark-bg-lighter-20};
-  --amplify-tertiary-shade: #{$dark-bg-lighter-20};
-  --amplify-grey: #{$light-disabled-text};
-  --amplify-light-grey: #{$dark-bg-lighter-10};
-  --amplify-white: #{$light-primary-text};
-  --amplify-red: #{$dark-text};
-  --amplify-background-color: #{$dark-bg-lighter-20};
-  --amplify-font-family: "Body Font";
+@import '~@aws-amplify/ui-angular/theme.css';
+
+[data-amplify-authenticator] {
+  --amplify-colors-background-primary: black;
+  --amplify-colors-background-secondary: #{$dark-bg-lighter-20};
+  --amplify-colors-background-tertiary: #{$primary-color};
+  --amplify-colors-border-primary: #{$primary-color};
+  --amplify-colors-border-secondary: #{$primary-color};
+  --amplify-colors-border-tertiary: #{$primary-color};
+  --amplify-colors-brand-primary-10: #{$primary-color};
+  --amplify-colors-brand-primary-20: #{$primary-color};
+  --amplify-colors-brand-primary-40: #{$primary-color};
+  --amplify-colors-brand-primary-60: #{$primary-color};
+  --amplify-colors-brand-primary-80: #{$primary-color};
+  --amplify-colors-brand-primary-90: #{$primary-color};
+  --amplify-colors-brand-primary-100: #{$primary-color};
+  --amplify-colors-font-interactive: #{$dark-text};
+  --amplify-components-button-color: #{$light-text};
+  --amplify-components-tabs-item-active-border-color: #{$primary-color};
+  --amplify-components-tabs-item-active-color: #{$primary-color};
+  --amplify-components-tabs-item-color: #{$primary-color};
+  --amplify-components-tabs-item-focus-color: #{$primary-color};
+  --amplify-components-text-color: #{$primary-color};
+  --amplify-components-fieldcontrol-color: white;
+  --amplify-components-alert-error-background-color: var(--warn-color);
+  --amplify-components-button-link-color: #{$primary-color};
+  --amplify-components-field-label-color: #{$primary-darker-color};
+  --amplify-components-heading-color: #{$light-text};
+  --amplify-components-authenticator-state-inactive-background-color: black;
+  --amplify-components-authenticator-router-background-color: #{$dark-bg-lighter-10};
 }
 
 html, body {
@@ -351,4 +362,8 @@ a:active {
 
 .mat-dialog-title {
   margin-right: 14px !important; // so it doesn't hit the cancel-button
+}
+
+app-log-in {
+  padding-top: 12px;
 }

@@ -33,16 +33,15 @@ export class NotificationsDialogComponent implements OnInit {
     this.notificationService.setNotificationSeen(notification);
   }
 
-  getLinkLocation(pathSuffix: string): string {
-    return window.location.origin + pathSuffix;
-  }
-
   openInNewTab(namedRoute: string) {
     const url = this.router.serializeUrl(this.router.createUrlTree([namedRoute]));
     window.open(url, '_blank');
   }
 
   clickNotification(notification: Notification, $event: MouseEvent) {
+    if (notification.link?.startsWith('https://')) {
+      notification.link = notification.link.substring(notification.link?.indexOf('auction/'));
+    }
     this.notificationService.setNotificationSeen(notification);
     if (notification.link) {
       if ($event.ctrlKey) {

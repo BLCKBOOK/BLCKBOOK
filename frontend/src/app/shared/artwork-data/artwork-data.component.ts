@@ -6,10 +6,12 @@ import {SnackBarService} from '../../services/snack-bar.service';
 import {MapDialogComponent, MapDialogData} from '../../components/map-dialog/map-dialog.component';
 
 export interface ArtworkData {
-  titel: string | undefined,
+  title: string | undefined,
   uploader: string,
   latitude: string
   longitude: string,
+  ipfsLink?: string,
+  metadataLink?: string,
 }
 
 @Component({
@@ -44,4 +46,7 @@ export class ArtworkDataComponent {
     });
   }
 
+  openLink(link: string) {
+    window.open(link, '_blank');
+  }
 }

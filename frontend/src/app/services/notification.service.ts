@@ -66,6 +66,16 @@ export class NotificationService {
   }
 
   private fetchAllNotifications(index?: LastKey): Observable<NotificationResponse> {
+    // ToDo: check this out!
+    /*const urlAnswer = urlencode(JSON.stringify(index));
+    const test = encodeURIComponent(JSON.stringify(index));
+
+    const test2 = encodeURI(JSON.stringify(index));
+    console.log(test);
+    console.log(test2);
+    console.log(urlAnswer);*/
+
+
     const encodingString = index ? '?lastKey=' + (urlencode(JSON.stringify(index))) : '?lastKey=' + (urlencode(JSON.stringify(''))) + '&limit=' + (urlencode(JSON.stringify(50)));
     const finalUrl = this.notificationAPIURL + this.getNotificationsURL + encodingString;
     return this.httpClient.get<NotificationResponse>(finalUrl).pipe(switchMap(outerValue => {

@@ -1,50 +1,38 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {VotingService} from './voting.service';
-import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
-import {map, startWith} from 'rxjs/operators';
+import {from, Observable} from 'rxjs';
 import {SnackBarService} from '../services/snack-bar.service';
 import {ActivatedRoute} from '@angular/router';
 import {DetailViewDialogComponent, VoteDetailData} from './detail-view-dialog/detail-view-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
 import {ImageSizeService} from '../services/image-size.service';
-import {ConfirmDialogComponent, ConfirmDialogData} from '../components/confirm-dialog/confirm-dialog.component';
 import {Location} from '@angular/common';
-import {VotableArtwork} from '../../../../backend/src/common/tableDefinitions';
 import {DialogService} from '../services/dialog.service';
+import {VoteBlockchainItem} from './vote-scroll/voting-scroll.component';
+import {UserService} from '../services/user.service';
 
 @Component({
   selector: 'app-voting',
   templateUrl: './voting.component.html',
   styleUrls: ['./voting.component.scss']
 })
-export class VotingComponent {
+export class VotingComponent implements OnInit {
 
   $totalVoteAmount: Observable<number>;
-  $votesSelected: Observable<number>;
-  $submitDisabled: Observable<boolean>;
-  alreadyVoted$ = new BehaviorSubject<boolean>(false);
+  $votesSpent: Observable<number>;
   myUploadData: VoteDetailData;
 
   constructor(public dialog: MatDialog, private votingService: VotingService, private snackBarService: SnackBarService, private dialogService: DialogService,
-              private route: ActivatedRoute, private imageSizeService: ImageSizeService, private location: Location) {
+              private route: ActivatedRoute, private imageSizeService: ImageSizeService, private location: Location, private userService: UserService) {
+  }
+
+  ngOnInit() {
+    this.userService.requestUserInfo();
     this.$totalVoteAmount = this.votingService.getMaxVoteAmount$();
-    this.$votesSelected = this.votingService.getVotesSelected$();
-    this.votingService.getHasVoted$().subscribe(voted => {
-      if (this.alreadyVoted$.getValue() && !voted) {
-        this.alreadyVoted$.next(false);
-      }
-    });
-    this.$submitDisabled = combineLatest([this.$totalVoteAmount, this.$votesSelected, this.votingService.getHasVoted$()])
-      .pipe(map(([totalVoteAmount, votesSpend, voted]) => {
-        if (voted) {
-          this.alreadyVoted$.next(true);
-          this.snackBarService.openSnackBar('You already voted this period', 'Got it');
-        }
-        return votesSpend === 0 || totalVoteAmount < votesSpend || voted;
-      }, startWith(false)));
+    this.$votesSpent = this.votingService.getVotesSpentAmount$();
     this.route.params.subscribe(params => {
       if (params.id) {
-        this.votingService.getVotableArtworkById(params.id).subscribe(artwork => {
+        from(this.votingService.getVotableArtworkByArtworkId(params.id)).subscribe(artwork => {
           if (!artwork) {
             this.snackBarService.openSnackBarWithoutAction('Specified artwork not found', 3000);
             this.location.go('/voting');
@@ -82,42 +70,7 @@ export class VotingComponent {
     });
   }
 
-  submitVote() {
-    const votesSpent = this.votingService.getVotedArtworks().length;
-    const maxVoteAmount = this.votingService.getMaxVoteAmount();
-    if (votesSpent < maxVoteAmount) {
-      const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
-        data: {
-          text: 'You only spent ' + votesSpent + ' Votes. The max amount you can spend is ' + maxVoteAmount + '.\n' +
-            'You can only vote once per voting-period and can not take back any votes.',
-          header: 'NOT ALL VOTES SPENT',
-          action: 'Submit Vote'
-        } as ConfirmDialogData
-      });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.alreadyVoted$.next(true);
-          this.votingService.voteForArtworks();
-        }
-      });
-    } else {
-      const dialogRef = this.dialogService.open(ConfirmDialogComponent, {
-        data: {
-          text: 'You can only vote once per voting-period and can not take back any votes.',
-          header: 'VOTING',
-          action: 'Submit Vote'
-        } as ConfirmDialogData
-      });
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          this.alreadyVoted$.next(true);
-          this.votingService.voteForArtworks();
-        }
-      });
-    }
-  }
-
-  private getVoteDetailDataOfArtwork(artwork: VotableArtwork): VoteDetailData {
+  private getVoteDetailDataOfArtwork(artwork: VoteBlockchainItem): VoteDetailData {
     const src = this.imageSizeService.getOriginalString(artwork.imageUrls);
     const srcSet = this.imageSizeService.calculateSrcSetString(artwork.imageUrls);
     const voted = this.votingService.getVotedArtworks().some(voted => voted.artwork.artworkId === artwork.artworkId);

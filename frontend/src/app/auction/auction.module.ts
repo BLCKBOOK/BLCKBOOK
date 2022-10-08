@@ -18,9 +18,9 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {AuctionBidComponent} from './auction-bid/auction-bid.component';
 import {MatDividerModule} from '@angular/material/divider';
-import {BeaconModule} from '../beacon/beacon.module';
 import {ScrollModule} from '../scroll/scroll.module';
 import {SharedModule} from '../shared/shared.module';
+import {TaquitoModule} from '../taquito/taquito.module';
 
 @NgModule({
   declarations: [
@@ -43,13 +43,13 @@ import {SharedModule} from '../shared/shared.module';
     MatTabsModule,
     NgxMasonryModule,
     FlexLayoutModule,
-    BeaconModule,
     MatInputModule,
     ReactiveFormsModule,
     MatProgressSpinnerModule,
     MatDividerModule,
     ScrollModule,
     SharedModule,
+    TaquitoModule,
   ]
 })
 export class AuctionModule {
