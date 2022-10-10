@@ -111,25 +111,29 @@ const baseHandler = async (event) => {
         TableName: process.env['USER_INFO_TABLE_NAME'],
         Key: marshall({ userId: artworkToAdmission.uploaderId })
     })
-    const uploaderResponseItem = await (await ddbClient.send(getUserCommand)).Item;
+    const uploaderResponseItem = (await ddbClient.send(getUserCommand)).Item;
     if (!uploaderResponseItem) throw new Error(`The uploader for the artwork ${artworkToAdmission.artworkId} could not be found`)
-    //if(!uploader.walletId) throw new Error(`The user ${uploader.userId} doesn't have a wallet connected`)
+
     const uploader = unmarshall(uploaderResponseItem) as UserInfo
-    const uploaderWalletAddress = uploader.walletId ? uploader.walletId : adminPublicKey;
+
+    // DO NOT UPLOAD TO IPFS IF THE UPLOADER HAS NO WALLET. Because we also don't admission to the_vote
+    if(!uploader.walletId) throw new Error(`The user ${uploader.userId} doesn't have a wallet connected`)
+
+    const uploaderWalletAddress = uploader.walletId;
 
     // create token metadata and pin it to ipfs
     console.log("create token metadata and pin it to ipfs")
     const tokenMetadata = createTokenMetadata(artworkToAdmission, adminPublicKey, uploaderWalletAddress, adminPublicKey, "ipfs://" + ipfsOriginalResponse.IpfsHash, "ipfs://" + ipfsThumbnailResponse.IpfsHash);
     const pinataResponse = await pinata.pinJSONToIPFS(tokenMetadata);
 
-    const setIpfshashForArtwork = new UpdateItemCommand({
+    const setIpfsHashForArtwork = new UpdateItemCommand({
         TableName: admissionedArtworksTableName,
         Key: marshall({ artworkId: artworkToAdmission.artworkId }),
         UpdateExpression: 'set ipfsLink = :ipfsLink',
         ExpressionAttributeValues: marshall({ ':ipfsLink': pinataResponse.IpfsHash })
     })
 
-    await ddbClient.send(setIpfshashForArtwork)
+    await ddbClient.send(setIpfsHashForArtwork)
 
 }
 

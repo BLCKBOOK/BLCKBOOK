@@ -44,7 +44,6 @@ custom:
   artwork_upload_s3_bucket_name: 'blckbook-uploaded-artworks-${opt:stage, self:provider.stage}' 
   archive_table_name: 'archive-${opt:stage, self:provider.stage}'
   blckbook_user_pool: ${opt:stage, self:provider.stage}-blckbook-users
-  minted_artworks_table_name: minted-artworks-${opt:stage, self:provider.stage}
   period_table_name: period-table-${opt:stage, self:provider.stage}
   admissioned_artworks_table: admissioned-artworks-${opt:stage, self:provider.stage}
   
@@ -91,7 +90,6 @@ provider:
     PERIOD_TABLE_NAME: ${self:custom.period_table_name}
     NOTIFICATION_TABLE_NAME: ${self:custom.notification_table_name}
     ARCHIVE_TABLE_NAME: ${self:custom.archive_table_name}
-    MINTED_ARTWORKS_TABLE_NAME: ${self:custom.minted_artworks_table_name}
     ADMISSIONED_ARTWORKS_TABLE_NAME: ${self:custom.admissioned_artworks_table}
 
     MINTING_QUEUE_NAME: ${self:custom.minting_queue_name}
@@ -276,18 +274,6 @@ resources:
           - AttributeName: artworkId
             KeyType: HASH
         TableName: ${self:custom.archive_table_name}
-  
-    mintedArtworks:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        BillingMode: PAY_PER_REQUEST 
-        AttributeDefinitions:
-          - AttributeName: tokenId
-            AttributeType: "N"
-        KeySchema:
-          - AttributeName: tokenId
-            KeyType: HASH
-        TableName: ${self:custom.minted_artworks_table_name}
 
     GatewayResponseDefault4XX:
       Type: 'AWS::ApiGateway::GatewayResponse'

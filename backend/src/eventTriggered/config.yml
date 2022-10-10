@@ -6,11 +6,13 @@ triggerNextPeriod:
       Action:
         - dynamodb:DeleteItem
         - dynamodb:Scan
+        - dynamodb:UpdateItem
       Resource:
         - Fn::GetAtt: [ uploadedArtworkTable, Arn ]
     - Effect: Allow
       Action:
         - dynamodb:UpdateItem
+        - dynamodb:GetItem
       Resource:
         - Fn::GetAtt: [ userInfoTable, Arn ]
     - Effect: Allow
@@ -40,6 +42,11 @@ triggerNextPeriod:
         - sqs:SendMessage
       Resource:
         - Fn::GetAtt: [ AdmissionQueue, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource:
+        - Fn::GetAtt: [ notificationTable, Arn ]
   events:
     - schedule: ${self:custom.period_check}
 
@@ -109,12 +116,6 @@ endAuctions:
       - Fn::GetAtt: [ userInfoTable, Arn ]
     - Effect: Allow
       Action:
-        - dynamodb:UpdateItem
-        - dynamodb:GetItem
-      Resource:
-        - Fn::GetAtt: [ mintedArtworks, Arn ]
-    - Effect: Allow
-      Action:
         - dynamodb:GetItem
         - dynamodb:UpdateItem
         - dynamodb:Query
@@ -182,11 +183,6 @@ mintingQueueWorker:
         - Fn::GetAtt: [ notificationTable, Arn ]
       - Effect: Allow
         Action:
-        - dynamodb:PutItem
-        Resource:
-        - Fn::GetAtt: [ mintedArtworks, Arn ]
-      - Effect: Allow
-        Action:
         - s3:GetObject
         Resource:
         - arn:aws:s3:::${self:custom.artwork_upload_s3_bucket_name}/*
@@ -198,7 +194,7 @@ mintingQueueWorker:
               - MintingQueue
               - Arn
 
-IPFSUloadWorker:
+IPFSUploadWorker:
     handler: src/eventTriggered/minter/IPFSUploader.handler
     timeout: 180
     iamRoleStatements:
@@ -233,11 +229,6 @@ IPFSUloadWorker:
         - dynamodb:PutItem
         Resource:
         - Fn::GetAtt: [ notificationTable, Arn ]
-      - Effect: Allow
-        Action:
-        - dynamodb:PutItem
-        Resource:
-        - Fn::GetAtt: [ mintedArtworks, Arn ]
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem 
@@ -293,12 +284,6 @@ Admissioner:
         - dynamodb:PutItem
         Resource:
         - Fn::GetAtt: [ notificationTable, Arn ]
-      - Effect: Allow
-        Action:
-        - dynamodb:PutItem
-        Resource:
-        - Fn::GetAtt: [ mintedArtworks, Arn ]
-
       - Effect: Allow
         Action:
         - s3:GetObject
