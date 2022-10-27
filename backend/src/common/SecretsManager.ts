@@ -36,3 +36,7 @@ export async function getTezosAdminAccount() {
 export async function getPinataAccount() {
     return await getSecret('pinataAccessKey');
 }
+
+export async function getRecaptchaSecret() {
+    return await getSecret('recaptcha');
+}

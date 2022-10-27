@@ -87,7 +87,7 @@ export class WalletComponent implements OnInit {
       return;
     }
     if (id.match(this.tezRegex)) {
-      this.taquitoService.setWalletID(id).subscribe(() => {
+      this.taquitoService.setWalletID(id).then(() => {
         this.userService.requestUserInfo();
       });
     } else {

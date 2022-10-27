@@ -19,6 +19,6 @@ export const RequestValidationSchema = {
     ]
 }
 
-export type UpdateUploadedArtworksRequestBody = { walletId: string };
+export type UpdateUploadedArtworksRequestBody = { walletId: string, token: string };
 
 export type UpdateUploadedArtworksResponseBody = string;

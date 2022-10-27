@@ -32,3 +32,11 @@ export const initArtworkUploadSchema = {
     "body",
   ]
 }
+
+export interface InitArtworkUploadRequest {
+  title?: string,
+  contentType: string,
+  contentLength: string,
+  longitude: string,
+  latitude: string
+}

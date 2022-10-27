@@ -5,7 +5,7 @@ import {environment} from '../../environments/environment';
 import {VoteParams} from '../services/blockchain.service';
 import {BeaconWallet} from '@taquito/beacon-wallet';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../components/confirm-dialog/confirm-dialog.component';
-import {firstValueFrom, Observable} from 'rxjs';
+import {firstValueFrom} from 'rxjs';
 import {UserService} from '../services/user.service';
 import {UserInfo} from '../../../../backend/src/common/tableDefinitions';
 import {DialogService} from '../services/dialog.service';
@@ -21,6 +21,7 @@ import {
   NetworkType,
   TezosOperationType
 } from '@airgap/beacon-sdk';
+import {ReCaptchaV3Service} from 'ng-recaptcha';
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +37,7 @@ export class TaquitoService {
   private readonly setWalletIDURL = '/setMyWalletId';
 
   constructor(private userService: UserService, private dialogService: DialogService, private httpClient: HttpClient,
-              private snackBarService: SnackBarService, private translateService: TranslateService) {
+              private snackBarService: SnackBarService, private translateService: TranslateService, private recaptchaV3Service: ReCaptchaV3Service) {
     this.userService.getUserInfo().subscribe(
       userInfo => this.userInfo = userInfo);
     this.tezos = new TezosToolkit(environment.taquitoRPC);
@@ -114,7 +115,7 @@ export class TaquitoService {
       });
       const result = await firstValueFrom(dialogRef.afterClosed());
       if (result) {
-        await firstValueFrom(this.setWalletID(activeAccount));
+        await this.setWalletID(activeAccount);
       } else {
         activeAccount = this.userInfo.walletId;
       }
@@ -130,24 +131,22 @@ export class TaquitoService {
       });
       const result = await firstValueFrom(dialogRef.afterClosed());
       if (result) {
-        await firstValueFrom(this.setWalletID(activeAccount));
+        await this.setWalletID(activeAccount);
       }
     }
     return activeAccount;
   }
 
-  setWalletID(walletId: string): Observable<string> {
-    const postObservable = this.postWalletId(walletId);
-    postObservable.subscribe(() => {
-      this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('wallet.updated-text'));
-      this.userService.requestUserInfo();
-    });
-    return postObservable;
+  async setWalletID(walletId: string): Promise<void> {
+    await this.postWalletId(walletId);
+    this.snackBarService.openSnackBarWithoutAction(this.translateService.instant('wallet.updated-text'));
+    this.userService.requestUserInfo();
   }
 
-  private postWalletId(walletId: string): Observable<string> {
-    const requestBody: UpdateUploadedArtworksRequestBody = {walletId: walletId};
-    return this.httpClient.post(this.userAPIURL + this.setWalletIDURL, requestBody, {responseType: 'text'});
+  private async postWalletId(walletId: string): Promise<string> {
+    const token = await firstValueFrom(this.recaptchaV3Service.execute('postWalletId'));
+    const requestBody: UpdateUploadedArtworksRequestBody = {walletId: walletId, token: token};
+    return firstValueFrom(this.httpClient.post(this.userAPIURL + this.setWalletIDURL, requestBody, {responseType: 'text'}));
   }
 
   async bid(auctionId: string, amountInMutez: string): Promise<boolean> {

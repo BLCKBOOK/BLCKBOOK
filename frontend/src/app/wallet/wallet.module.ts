@@ -1,8 +1,8 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
-import { WalletRoutingModule } from './wallet-routing.module';
-import { WalletComponent } from './wallet.component';
+import {WalletRoutingModule} from './wallet-routing.module';
+import {WalletComponent} from './wallet.component';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
@@ -11,7 +11,6 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {TranslateModule} from '@ngx-translate/core';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-
 
 @NgModule({
   declarations: [
@@ -30,4 +29,5 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
         MatProgressSpinnerModule,
     ],
 })
-export class WalletModule { }
+export class WalletModule {
+}

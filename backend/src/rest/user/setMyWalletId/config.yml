@@ -10,6 +10,7 @@ setMyWalletId:
       Action:
         - secretsmanager:GetSecretValue
       Resource:
+        - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:recaptcha-A0qJb6"
         - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetFaucet-2uaxQ4"
         - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:prod/mainnetFaucet-dEUPkz"
         - "arn:aws:secretsmanager:eu-west-1:148905680245:secret:dev/ghostnetActivationFaucet-0VHR3R"
